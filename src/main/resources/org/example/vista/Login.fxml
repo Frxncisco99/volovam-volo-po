@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.LoginController">
+
+    <VBox alignment="CENTER" prefHeight="527.0" prefWidth="479.0" style="-fx-background-color: #FFFFFF;">
+        <children>
+        <ImageView fitHeight="326.0" fitWidth="330.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@logo.png" />
+            </image>
+        </ImageView>
+
+            <!-- Campo Usuario -->
+            <StackPane maxWidth="330" prefHeight="52" style="-fx-padding: 0 0 10 0;">
+                <children>
+                    <Region style="-fx-background-color: #FFFFFF;                                  -fx-background-radius: 12;                                  -fx-border-color: #6B4226;                                  -fx-border-radius: 12;                                  -fx-border-width: 1.4;" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 16 0 16;">
+                        <children>
+                            <Label style="-fx-font-size: 15px; -fx-text-fill: #7A5535;" text="👤" />
+                            <TextField fx:id="txtUsuario" maxWidth="Infinity" prefHeight="52" promptText="Usuario" style="-fx-background-color: transparent;                                           -fx-font-size: 14px;                                           -fx-text-fill: #7A5535;                                           -fx-prompt-text-fill: #7A5535;                                           -fx-border-width: 0;                                           -fx-padding: 0;" HBox.hgrow="ALWAYS" />
+                        </children>
+                    </HBox>
+                </children>
+            </StackPane>
+
+            <!-- Campo Contraseña -->
+            <StackPane maxWidth="330" prefHeight="68.0" prefWidth="326.0" style="-fx-padding: 0 0 22 0;">
+                <children>
+                    <Region style="-fx-background-color: #FFFFFF;                                  -fx-background-radius: 12;                                  -fx-border-color: #6B4226;                                  -fx-border-radius: 12;                                  -fx-border-width: 1.4;" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 16 0 16;">
+                        <children>
+                            <Label prefHeight="58.0" prefWidth="30.0" style="-fx-font-size: 15px; -fx-text-fill: #7A5535;" text="🔒" />
+                            <PasswordField fx:id="txtPassword" maxWidth="Infinity" prefHeight="78.0" prefWidth="286.0" promptText="Contraseña" style="-fx-background-color: transparent;                                               -fx-font-size: 14px;                                               -fx-text-fill: #7A5535;                                               -fx-prompt-text-fill: #7A5535;                                               -fx-border-width: 0;                                               -fx-padding: 0;" HBox.hgrow="ALWAYS" />
+                        </children>
+                    </HBox>
+                </children>
+            </StackPane>
+
+
+            <Button fx:id="btnLogin" maxWidth="330" onAction="#handleIniciarSesion" prefHeight="33.0" prefWidth="330.0" style="-fx-background-color: #6B4226;                     -fx-background-radius: 12;                     -fx-font-size: 17px;                     -fx-font-weight: bold;                     -fx-text-fill: #FFFFFF;                     -fx-cursor: hand;                     -fx-effect: dropshadow(gaussian, #00000055, 14, 0, 0, 3);" text="Iniciar Sesión" />
+
+        </children>
+
+    </VBox>
+
+</VBox>
