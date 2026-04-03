@@ -1,5 +1,6 @@
 package org.example.controlador;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -121,6 +122,7 @@ public class MenuPrincipal implements Initializable {
 
         JOptionPane.showMessageDialog(null,"Saliendo del Programa","Alerta",JOptionPane.INFORMATION_MESSAGE);
         //System.out.println("Cerrando");
+        Platform.exit();
 
 
     }
@@ -137,6 +139,7 @@ public class MenuPrincipal implements Initializable {
             javafx.stage.Stage stage = (javafx.stage.Stage)
                     lblFecha.getScene().getWindow();
             stage.setScene(new javafx.scene.Scene(root));
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

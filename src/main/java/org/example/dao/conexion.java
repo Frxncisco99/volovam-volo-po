@@ -9,7 +9,7 @@ public class conexion {
 
     private static final String URL = "jdbc:mysql://localhost:3306/pos_panaderia";
     private static final String USUARIO = "root";
-    private static final String CLAVE = "";  // Tu contraseña de MySQL
+    private static final String CLAVE = "";  // mi contraseña de MySQL
 
     public static Connection getConexion() {
         try {
