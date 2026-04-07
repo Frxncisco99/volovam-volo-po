@@ -3,8 +3,12 @@ package org.example.controlador;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import org.example.modelo.SesionUsuario;
 
 import javax.swing.*;
@@ -40,6 +44,19 @@ public class MenuPrincipal implements Initializable {
         mostrarFecha();
         cargarDatosUsuario();
         //cargarResumenDia();
+    }
+    @FXML
+    private void irAVentas() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Ventas.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) lblFecha.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void mostrarFecha() {
