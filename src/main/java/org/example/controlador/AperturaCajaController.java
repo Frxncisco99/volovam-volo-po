@@ -15,6 +15,7 @@ import org.example.modelo.SesionUsuario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,6 +24,8 @@ public class AperturaCajaController {
     @FXML private Label lblFecha;
     @FXML private Label lblUsuario;
     @FXML private TextField txtMontoInicial;
+
+
 
     @FXML
     public void initialize() {
@@ -50,6 +53,12 @@ public class AperturaCajaController {
                 ps.setDouble(1, monto);
                 ps.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
                 ps.executeUpdate();
+
+                // Guardar el id_caja en sesión
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    SesionUsuario.getInstancia().setIdCaja(rs.getInt(1));
+                }
             }
 
             // Ir al MenuPrincipal
