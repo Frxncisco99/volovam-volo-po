@@ -1,0 +1,17 @@
+.producto-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, #00000015, 6, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.producto-card:hover {
+    -fx-background-color: #FDF5E8;
+}
+
+.carrito-item {
+    -fx-background-color: #FDF5E8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+}
