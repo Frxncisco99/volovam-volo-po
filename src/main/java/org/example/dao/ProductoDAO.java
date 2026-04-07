@@ -41,6 +41,26 @@ public class ProductoDAO {
         }
     }
 
+    public void insertarProducto(Producto p) {
+        System.out.println("Conectando...");
+        String sql = "INSERT INTO productos(nombre, precio, costo, stock, activo) VALUES (?, ?, ?, ?, 1)";
+
+        try (Connection conn = ConexionDB.getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, p.getNombre());
+            ps.setDouble(2, p.getPrecio());
+            ps.setDouble(3, p.getCosto());
+            ps.setInt(4, p.getStock());;
+
+            ps.executeUpdate();
+            System.out.println("Insertado correctamente");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public List<Producto> obtenerProductos() {
         List<Producto> lista = new ArrayList<>();
 

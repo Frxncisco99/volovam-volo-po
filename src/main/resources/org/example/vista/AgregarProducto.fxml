@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12" alignment="CENTER"
+      xmlns="http://javafx.com/javafx/23"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.controlador.AgregarProductoController"
+      style="-fx-padding: 20; -fx-background-color: white;"
+      prefHeight="300" prefWidth="300">
+
+    <Label text="Nuevo Producto"
+           style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <TextField fx:id="txtNombre" promptText="Nombre" />
+    <TextField fx:id="txtPrecio" promptText="Precio" />
+    <TextField fx:id="txtCosto" promptText="Costo" />
+    <TextField fx:id="txtStock" promptText="Stock" />
+
+    <Button text="Guardar" onAction="#guardarProducto"
+            style="-fx-background-color: #6B4226; -fx-text-fill: white;" />
+
+</VBox>

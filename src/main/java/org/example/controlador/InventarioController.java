@@ -4,9 +4,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.*;
 import javafx.collections.transformation.*;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
 
@@ -143,7 +147,23 @@ public class InventarioController {
 
     @FXML
     private void abrirFormularioNuevo() {
-        System.out.println("Aquí abriremos formulario real...");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/AgregarProducto.fxml"));
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Nuevo Producto");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            // 🔥 REFRESCAR TABLA
+            cargarProductos();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void actualizarResumen() {
