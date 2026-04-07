@@ -16,6 +16,7 @@ import org.example.modelo.SesionUsuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -48,7 +49,7 @@ public class AperturaCajaController {
 
             String sql = "INSERT INTO caja (fecha_apertura, monto_inicial, estado, id_usuario) VALUES (NOW(), ?, 'abierta', ?)";
             try (Connection con = ConexionDB.getConexion();
-                 PreparedStatement ps = con.prepareStatement(sql)) {
+                 PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
                 ps.setDouble(1, monto);
                 ps.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
