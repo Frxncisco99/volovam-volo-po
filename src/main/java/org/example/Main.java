@@ -17,8 +17,11 @@ public class Main extends Application {
         Scene scene = new Scene(root);
 
         primaryStage.setTitle("Volovan Volo — Sistema de Gestion");
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         primaryStage.setScene(scene);
-        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
+
+        primaryStage.setResizable(false);
         primaryStage.show();
 
 

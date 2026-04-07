@@ -11,10 +11,15 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.LoginController">
-
-    <VBox alignment="CENTER" prefHeight="527.0" prefWidth="479.0" style="-fx-background-color: #FFFFFF;">
-        <children>
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.LoginController"
+      style="-fx-background-color: transparent;"
+      alignment="CENTER">
+    <VBox styleClass="contenedor-principal" stylesheets="@login.css"
+          alignment="CENTER" prefHeight="527.0" prefWidth="479.0"
+          style="-fx-background-color: #FFFFFF;
+             -fx-background-radius: 30;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0, 0, 5);">        <children>
         <ImageView fitHeight="326.0" fitWidth="330.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@logo.png" />

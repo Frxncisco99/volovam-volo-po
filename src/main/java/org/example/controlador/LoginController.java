@@ -1,41 +1,101 @@
-    package org.example.controlador;
+package org.example.controlador;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import org.example.dao.ConexionDB;
+import org.example.modelo.SesionUsuario;
 
-    import javafx.event.ActionEvent;
-    import javafx.fxml.FXML;
-    import javafx.fxml.FXMLLoader;
-    import javafx.scene.Node;
-    import javafx.scene.Parent;
-    import javafx.scene.Scene;
-    import javafx.scene.control.Button;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-    import javafx.stage.Stage;
+public class LoginController {
 
-    import java.io.IOException;
+    @FXML private Button btnLogin;
+    @FXML private TextField txtUsuario;
+    @FXML private PasswordField txtPassword;
 
-
-    public class LoginController {
-
-        @FXML private Button btnLogin;
-
-
-
-
-
-        @FXML
-        private void handleIniciarSesion(ActionEvent event) throws IOException {
-            // (Opcional) Validar usuario y contraseña aquí
-
-            // Cargar el Dashboard
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
-            Parent root = loader.load();
-
-            // Obtener el Stage actual desde cualquier nodo de la vista
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Crear y mostrar la nueva escena
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setFullScreen(true);
-            stage.show();
+    @FXML
+    public void initialize() {
+        Connection con = ConexionDB.getConexion();
+        if (con != null) {
+            System.out.println("BD conectada ✅");
         }
     }
+
+    @FXML
+    public void handleIniciarSesion(ActionEvent event) throws IOException {
+        String usuario = txtUsuario.getText().trim();
+        String contrasena = txtPassword.getText().trim();
+
+        // Validar que no estén vacíos
+        if (usuario.isEmpty() || contrasena.isEmpty()) {
+            mostrarAlerta("Campos vacíos", "Por favor ingresa usuario y contraseña.");
+            return;
+        }
+
+        // Validar contra la BD
+        if (validarCredenciales(usuario, contrasena)) {
+            // Credenciales correctas → ir al menú principal
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } else {
+            mostrarAlerta("Error", "Usuario o contraseña incorrectos.");
+            txtPassword.clear();
+        }
+    }
+
+    private boolean validarCredenciales(String usuario, String contrasena) {
+        String sql = """
+        SELECT u.id_usuario, u.nombre, u.usuario, u.id_rol, r.nombre AS rol
+        FROM usuarios u
+        JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.usuario = ? AND u.contrasena = ? AND u.activo = 1
+    """;
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, usuario);
+            ps.setString(2, contrasena);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                // Guardar datos en sesión
+                SesionUsuario sesion = SesionUsuario.getInstancia();
+                sesion.setIdUsuario(rs.getInt("id_usuario"));
+                sesion.setNombre(rs.getString("nombre"));
+                sesion.setUsuario(rs.getString("usuario"));
+                sesion.setIdRol(rs.getInt("id_rol"));
+                sesion.setRol(rs.getString("rol"));
+                return true;
+            }
+            return false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.WARNING);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
+}

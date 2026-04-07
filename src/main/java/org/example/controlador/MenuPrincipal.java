@@ -4,9 +4,8 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
+import org.example.modelo.SesionUsuario;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -52,14 +51,13 @@ public class MenuPrincipal implements Initializable {
     }
 
     private void cargarDatosUsuario() {
-        // TODO: Reemplaza con el usuario real de tu sesión
-        String nombre = "Pancho";
-        String rol = "Gerente";
+        SesionUsuario sesion = SesionUsuario.getInstancia();
+        String nombre = sesion.getNombre();
+        String rol = sesion.getRol();
 
         lblNombreUsuario.setText(nombre);
         lblRolUsuario.setText(rol);
 
-        // Iniciales del avatar
         String iniciales = nombre.length() >= 2
                 ? nombre.substring(0, 2).toUpperCase()
                 : nombre.toUpperCase();
@@ -67,8 +65,8 @@ public class MenuPrincipal implements Initializable {
     }
 
     private void cargarResumenDia() {
-        // TODO: Conecta estos valores a tu base de datos
-        // Por ahora son valores de ejemplo
+
+        // Por ahora son valores ejemplo
 
         lblVentasHoy.setText("$1,840");
         lblVentasDelta.setText("+12% vs ayer");
@@ -79,52 +77,18 @@ public class MenuPrincipal implements Initializable {
         lblEmpleadosActivos.setText("4");
     }
 
-    // ===== Navegación del sidebar =====
 
     @FXML
-    private void mostrarDashboard() {
-        // Ya estamos en dashboard, puedes refrescar datos si quieres
-        cargarResumenDia();
-    }
-
-    @FXML
-    private void mostrarVentas() {
-        // TODO: Cargar Vista Ventas.fxml en el área central
-        System.out.println("Navegar a Ventas");
-    }
-
-    @FXML
-    private void mostrarInventario() {
-        // TODO: Cargar Inventario.fxml
-        System.out.println("Navegar a Inventario");
-    }
-
-    @FXML
-    private void mostrarEmpleados() {
-        // TODO: Cargar Empleados.fxml
-        System.out.println("Navegar a Empleados");
-    }
-
-    @FXML
-    private void mostrarReportes() {
-        // TODO: Cargar Reportes.fxml
-        System.out.println("Navegar a Reportes");
-    }
-
-    @FXML
-    private void mostrarConfiguracion() {
-        // TODO: Cargar Configuracion.fxml
-        System.out.println("Navegar a Configuración");
-    }
-
-    @FXML
-    private void btnCerrar(ActionEvent event) throws IOException {
-
-        JOptionPane.showMessageDialog(null,"Saliendo del Programa","Alerta",JOptionPane.INFORMATION_MESSAGE);
-        //System.out.println("Cerrando");
-        Platform.exit();
-
-
+    private void btnCerrar(ActionEvent event) {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Salir");
+        alerta.setHeaderText(null);
+        alerta.setContentText("¿Seguro que deseas salir?");
+        alerta.showAndWait().ifPresent(respuesta -> {
+            if (respuesta == ButtonType.OK) {
+                Platform.exit();
+            }
+        });
     }
     @FXML
 
