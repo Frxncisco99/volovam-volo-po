@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.AperturaCajaController"
+      alignment="CENTER" spacing="20"
+      style="-fx-background-color: #F5EFE6; -fx-padding: 40;">
+
+    <Label text="Apertura de Caja" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+
+    <Label fx:id="lblFecha" style="-fx-font-size: 14px; -fx-text-fill: #7A5535;"/>
+
+    <Label fx:id="lblUsuario" style="-fx-font-size: 16px; -fx-text-fill: #6B4226; -fx-font-weight: bold;"/>
+
+    <VBox spacing="8" prefWidth="350">
+        <Label text="Monto inicial en caja:" style="-fx-font-size: 14px; -fx-text-fill: #6B4226;"/>
+        <TextField fx:id="txtMontoInicial" promptText="0.00" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #6B4226; -fx-border-width: 1.4; -fx-padding: 10; -fx-font-size: 16px;"/>
+    </VBox>
+
+    <Button fx:id="btnAbrirCaja" text="Abrir Caja" onAction="#handleAbrirCaja" prefWidth="350" prefHeight="45" style="-fx-background-color: #6B4226; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+</VBox>

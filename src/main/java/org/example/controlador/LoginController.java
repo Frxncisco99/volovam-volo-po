@@ -37,21 +37,21 @@ public class LoginController {
         String usuario = txtUsuario.getText().trim();
         String contrasena = txtPassword.getText().trim();
 
-        // Validar que no estén vacíos
+        // Validar que no esten vacios
         if (usuario.isEmpty() || contrasena.isEmpty()) {
             mostrarAlerta("Campos vacíos", "Por favor ingresa usuario y contraseña.");
             return;
         }
 
-        // Validar contra la BD
+        // Validar cen la base de datos
         if (validarCredenciales(usuario, contrasena)) {
-            // Credenciales correctas → ir al menú principal
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
+            // Credenciales correctas ir al menú principal
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
-            stage.setMaximized(true);
+
             stage.show();
         } else {
             mostrarAlerta("Error", "Usuario o contraseña incorrectos.");
