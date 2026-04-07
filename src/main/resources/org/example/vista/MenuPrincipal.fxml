@@ -22,7 +22,7 @@
             <Separator style="-fx-opacity: 0.2;"/>
 
             <HBox spacing="12" style="-fx-padding: 16 20;">
-                <Label fx:id="lblAvatarIniciales" style="-fx-background-color: #D4A843; -fx-text-fill: #3D1F0D; -fx-font-weight: bold; -fx-font-size: 14px; -fx-min-width: 38; -fx-min-height: 38; -fx-background-radius: 19; -fx-alignment: center;" text="AD" />
+                <Label fx:id="lblAvatarIniciales" style="-fx-background-color: #D4A843; -fx-text-fill: #864628; -fx-font-weight: bold; -fx-font-size: 14px; -fx-min-width: 38; -fx-min-height: 38; -fx-background-radius: 19; -fx-alignment: center;" text="AD" />
                 <VBox spacing="2">
                     <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;" text="Francisco" />
                     <Label fx:id="lblRolUsuario" style="-fx-text-fill: #C8A97E; -fx-font-size: 10px;" text="Administrador" />
@@ -103,22 +103,41 @@
             <VBox spacing="16" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
                 <HBox spacing="12">
                     <VBox spacing="6" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="VENTAS HOY" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="VENTAS HOY" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <FontIcon iconLiteral="fas-chart-line" iconSize="16" iconColor="#7A5535" />
+                        </HBox>
                         <Label fx:id="lblVentasHoy" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="0" />
                         <Label fx:id="lblVentasDelta" style="-fx-text-fill: #3B6D11; -fx-font-size: 11px;" text="sin ventas aun" />
                     </VBox>
+
                     <VBox spacing="6" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="PEDIDOS HOY" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="PEDIDOS HOY" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <FontIcon iconLiteral="fas-shopping-basket" iconSize="16" iconColor="#7A5535" />
+                        </HBox>
                         <Label fx:id="lblPedidosHoy" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="0" />
                         <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="ventas realizadas" />
                     </VBox>
+
                     <VBox spacing="6" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="PRODUCTOS BAJOS" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="PRODUCTOS BAJOS" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <FontIcon iconLiteral="fas-exclamation-triangle" iconSize="16" iconColor="#C0392B" />
+                        </HBox>
                         <Label fx:id="lblProductosBajos" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #C0392B;" text="0" />
                         <Label style="-fx-text-fill: #C0392B; -fx-font-size: 11px;" text="requieren surtido" />
                     </VBox>
+
                     <VBox spacing="6" styleClass="card-dark" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 11px;" text="EMPLEADOS ACTIVOS" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 11px;" text="EMPLEADOS" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <FontIcon iconLiteral="fas-user-clock" iconSize="16" iconColor="#D4A843" />
+                        </HBox>
                         <Label fx:id="lblEmpleadosActivos" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #D4A843;" text="1" />
                         <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 11px;" text="en turno" />
                     </VBox>
@@ -126,23 +145,28 @@
 
                 <HBox spacing="12" VBox.vgrow="ALWAYS">
                     <VBox spacing="12" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;" text="Productos mas vendidos" />
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <FontIcon iconLiteral="fas-crown" iconSize="14" iconColor="#6B4226" />
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;" text="Productos mas vendidos" />
+                        </HBox>
                         <Separator />
                         <VBox spacing="8">
                             <Label style="-fx-text-fill: #7A5535; -fx-font-size: 12px;" text="Volovan de Jamon" />
                             <ProgressBar prefWidth="300" progress="1.0" style="-fx-accent: #6B4226;" />
                             <Label style="-fx-text-fill: #7A5535; -fx-font-size: 12px;" text="Volovan de Pollo" />
                             <ProgressBar prefWidth="300" progress="0.7" style="-fx-accent: #6B4226;" />
-                            <Label style="-fx-text-fill: #7A5535; -fx-font-size: 12px;" text="Volovan de Manjar" />
-                            <ProgressBar prefWidth="300" progress="0.4" style="-fx-accent: #6B4226;" />
                         </VBox>
                     </VBox>
+
                     <VBox spacing="12" styleClass="card" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;" text="Actividad reciente" />
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <FontIcon iconLiteral="fas-history" iconSize="14" iconColor="#6B4226" />
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;" text="Actividad reciente" />
+                        </HBox>
                         <Separator />
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Circle fill="#3B6D11" radius="5" />
-                            <Label style="-fx-text-fill: #6B4226; -fx-font-size: 12px;" text="Caja abierta" />
+                            <FontIcon iconLiteral="fas-check-circle" iconSize="12" iconColor="#3B6D11" />
+                            <Label style="-fx-text-fill: #6B4226; -fx-font-size: 12px;" text="Caja abierta exitosamente" />
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="lblFechaActividad" style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="ahora" />
                         </HBox>
