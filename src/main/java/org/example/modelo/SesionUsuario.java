@@ -41,4 +41,9 @@ public class SesionUsuario {
 
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
+
+    private int idCaja;
+
+    public int getIdCaja() { return idCaja; }
+    public void setIdCaja(int idCaja) { this.idCaja = idCaja; }
 }
