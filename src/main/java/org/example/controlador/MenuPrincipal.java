@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.modelo.SesionUsuario;
 
@@ -54,6 +55,20 @@ public class MenuPrincipal implements Initializable {
             stage.setScene(new Scene(root));
             stage.setMaximized(true);
             stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML private VBox contenedorCentral;
+
+    @FXML
+    private void abrirInventario() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/Inventario.fxml"));
+            Parent vista = loader.load();
+            contenedorCentral.getChildren().setAll(vista);
         } catch (Exception e) {
             e.printStackTrace();
         }
