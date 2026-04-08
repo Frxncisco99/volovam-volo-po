@@ -55,15 +55,10 @@ public class MenuPrincipal implements Initializable {
     private void irAVentas() {
         activarMenu("ventas");
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/vista/Ventas.fxml"));
-            Parent vista = loader.load();
-
-            contenedorCentral.getChildren().clear();
-            contenedorCentral.getChildren().add(vista);
-
-            resetMenuActivo(); // opcional si ya lo tienes
-
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Ventas.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) lblFecha.getScene().getWindow();
+            stage.getScene().setRoot(root); // ← solo cambia el root, no la escena
         } catch (Exception e) {
             e.printStackTrace();
         }
