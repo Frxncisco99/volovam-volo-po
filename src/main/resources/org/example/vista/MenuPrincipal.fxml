@@ -44,7 +44,9 @@
                     </graphic>
                 </Button>
 
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Inventario">
+                <Button graphicTextGap="12" onAction="#abrirInventario" prefHeight="40" prefWidth="206"
+                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+                        text="Inventario">
                     <graphic>
                         <FontIcon iconColor="#C8A97E" iconLiteral="fas-box" iconSize="16" />
                     </graphic>
@@ -89,6 +91,7 @@
     </left>
 
     <center>
+        <VBox fx:id="contenedorCentral" style="-fx-background-color: #F5EFE6;">
         <VBox style="-fx-background-color: #F5EFE6;">
             <HBox alignment="CENTER_LEFT" styleClass="topbar">
                 <VBox spacing="2">
@@ -172,6 +175,7 @@
                     </VBox>
                 </HBox>
             </VBox>
+        </VBox>
         </VBox>
     </center>
 
