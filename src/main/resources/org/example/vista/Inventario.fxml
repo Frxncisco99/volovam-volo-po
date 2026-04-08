@@ -80,7 +80,7 @@
             <columns>
                 <TableColumn fx:id="colId"        text="ID"        prefWidth="55" />
                 <TableColumn fx:id="colNombre"    text="Nombre"    prefWidth="200" />
-                <!-- <TableColumn fx:id="colCategoria" text="Categoria" /> -->
+                <TableColumn fx:id="colCategoria" text="Categoria" prefWidth="200" />
                 <TableColumn fx:id="colPrecio"    text="Precio"    prefWidth="100" />
                 <TableColumn fx:id="colStock"     text="Stock"     prefWidth="80" />
                 <TableColumn fx:id="colEstado"    text="Estado"    prefWidth="100" />

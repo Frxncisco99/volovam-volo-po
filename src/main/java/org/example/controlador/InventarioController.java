@@ -10,9 +10,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
+import org.example.modelo.Categoria;
 
 public class InventarioController {
 
@@ -20,6 +22,7 @@ public class InventarioController {
     @FXML private TableColumn<Producto, Integer> colId;
     @FXML private TableColumn<Producto, String> colNombre;
     @FXML private TableColumn<Producto, Double> colPrecio;
+    @FXML private TableColumn<Producto, String> colCategoria;
     @FXML private TableColumn<Producto, Integer> colStock;
     @FXML private TableColumn<Producto, String> colEstado;
     @FXML private TableColumn<Producto, Void> colAcciones;
@@ -54,6 +57,7 @@ public class InventarioController {
         // 🔹 Columnas
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
@@ -150,16 +154,18 @@ public class InventarioController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/AgregarProducto.fxml"));
-
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("Nuevo Producto");
             stage.setScene(new Scene(root));
-            stage.showAndWait();
 
-            // 🔥 REFRESCAR TABLA
-            cargarProductos();
+            stage.initModality(Modality.APPLICATION_MODAL); // 🔥 BLOQUEA TODO
+            stage.setResizable(false);
+            stage.setTitle("Agregar Producto");
+
+            stage.showAndWait(); // 🔥 NO permite interactuar atrás
+
+            cargarProductos(); // refresca tabla al cerrar
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,4 +186,6 @@ public class InventarioController {
         lblStockBajo.setText(String.valueOf(bajo));
         lblValorTotal.setText(String.format("%.2f", valor));
     }
+
+
 }
