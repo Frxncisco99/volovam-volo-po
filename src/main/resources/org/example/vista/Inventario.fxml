@@ -64,9 +64,9 @@
                    promptText="Buscar por nombre o categoria..."
                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D4B896; -fx-border-width: 1; -fx-padding: 8 12; -fx-font-size: 12px;"
                    prefWidth="280" />
-        <ComboBox fx:id="cbCategoria" promptText="Categoria"
+        <ComboBox fx:id="cbCategoria" promptText="Categorias"
                   style="-fx-background-radius: 8;" prefWidth="150" />
-        <ComboBox fx:id="cbEstado" promptText="Estado"
+        <ComboBox fx:id="cbEstado" promptText="Estados"
                   style="-fx-background-radius: 8;" prefWidth="130" />
         <Button onAction="#limpiarFiltros"
                 style="-fx-background-color: transparent; -fx-text-fill: #7A5535; -fx-border-color: #D4B896; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 14; -fx-cursor: hand;"
