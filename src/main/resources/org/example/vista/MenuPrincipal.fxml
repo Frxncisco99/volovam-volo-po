@@ -44,7 +44,11 @@
                     </graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#abrirInventario" prefHeight="40" prefWidth="206"
+                <Button fx:id="btnInventario"
+                        graphicTextGap="12"
+                        onAction="#abrirInventario"
+                        prefHeight="40"
+                        prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
                         text="Inventario">
                     <graphic>

@@ -22,9 +22,14 @@ import java.util.ResourceBundle;
 
 public class MenuPrincipal implements Initializable {
 
-    public Button btnDashboard;
-    public Button btnVentas;
     public ProgressBar barCroissant;
+
+    @FXML private Button btnInventario;
+    @FXML private Button btnDashboard;
+    @FXML private Button btnVentas;
+
+    @FXML
+    private VBox contenedorCentral;
     // Topbar
     @FXML private Label lblFecha;
 
@@ -48,27 +53,36 @@ public class MenuPrincipal implements Initializable {
     }
     @FXML
     private void irAVentas() {
+        activarMenu("ventas");
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Ventas.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) lblFecha.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
-            stage.show();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/Ventas.fxml"));
+            Parent vista = loader.load();
+
+            contenedorCentral.getChildren().clear();
+            contenedorCentral.getChildren().add(vista);
+
+            resetMenuActivo(); // opcional si ya lo tienes
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @FXML private VBox contenedorCentral;
 
     @FXML
     private void abrirInventario() {
+        cargarVista("/org/example/vista/Inventario.fxml");
+        activarMenu("inventario");
+    } private void cargarVista(String fxml) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/vista/Inventario.fxml"));
+                    getClass().getResource(fxml));
             Parent vista = loader.load();
-            contenedorCentral.getChildren().setAll(vista);
+
+            contenedorCentral.getChildren().clear();
+            contenedorCentral.getChildren().add(vista);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,6 +153,37 @@ public class MenuPrincipal implements Initializable {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void resetMenuActivo() {
+
+        btnDashboard.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+        btnVentas.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+        btnInventario.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+
+        // Opcional: marcar activo el actual (ventas en este caso)
+        btnVentas.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white;");
+    }
+
+    private void activarMenu(String opcion) {
+
+        btnDashboard.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+        btnVentas.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+        btnInventario.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
+
+        switch (opcion) {
+            case "dashboard":
+                btnDashboard.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white;");
+                break;
+
+            case "ventas":
+                btnVentas.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white;");
+                break;
+
+            case "inventario":
+                btnInventario.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white;");
+                break;
         }
     }
 
