@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.PagoController"
+      alignment="CENTER" spacing="16"
+      style="-fx-background-color: #F5EFE6; -fx-padding: 40; -fx-min-width: 400;">
+
+    <Label text="Cobro" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+    <Separator/>
+
+    <!-- Total -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Total a pagar:" style="-fx-font-size: 14px; -fx-text-fill: #7A5535;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblTotalPagar" text="\$0.00" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+    </HBox>
+
+    <!-- Dinero recibido -->
+    <VBox spacing="6">
+        <Label text="Dinero recibido:" style="-fx-font-size: 14px; -fx-text-fill: #6B4226;"/>
+        <TextField fx:id="txtDineroRecibido" promptText="0.00" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #6B4226; -fx-border-width: 1.4; -fx-padding: 10; -fx-font-size: 18px;"/>
+    </VBox>
+
+    <!-- Cambio -->
+    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 14;">
+        <Label text="Cambio:" style="-fx-font-size: 14px; -fx-text-fill: #7A5535;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblCambio" text="\$0.00" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #3B6D11;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Botones -->
+    <Button fx:id="btnConfirmar" onAction="#handleConfirmar" prefHeight="45" prefWidth="320" text="Confirmar venta" style="-fx-background-color: #6B4226; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    <Button onAction="#handleCancelar" prefHeight="36" prefWidth="320" text="Cancelar" style="-fx-background-color: transparent; -fx-border-color: #C0392B; -fx-border-radius: 10; -fx-border-width: 1.2; -fx-text-fill: #C0392B; -fx-font-size: 13px; -fx-cursor: hand;"/>
+
+</VBox>
