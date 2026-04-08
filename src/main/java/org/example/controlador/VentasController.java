@@ -170,15 +170,34 @@ public class VentasController {
 
         lblTotal.setText("$" + String.format("%.2f", total));
     }
-
     @FXML
     public void handleCobrar() {
         if (carrito.isEmpty()) {
             mostrarAlerta("Carrito vacío", "Agrega productos antes de cobrar.");
             return;
         }
-        // TODO: abrir ventana de pago
-        System.out.println("Abriendo ventana de pago... Total: " + total);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Pago.fxml"));
+            Parent root = loader.load();
+
+            PagoController pagoController = loader.getController();
+            pagoController.setDatos(total, carrito, this);
+
+            Stage stagePago = new Stage();
+            stagePago.setTitle("Cobro");
+            stagePago.setScene(new Scene(root));
+            stagePago.setResizable(false);
+            stagePago.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ventaCompletada() {
+        carrito.clear();
+        actualizarCarrito();
+        cargarProductos(""); // refresca stock
+        mostrarAlerta("Venta completada", "La venta se registro correctamente.");
     }
 
     @FXML
@@ -193,10 +212,7 @@ public class VentasController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) lblTotal.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
-            stage.show();
-
+            stage.getScene().setRoot(root); // ← igual aquí
         } catch (Exception e) {
             e.printStackTrace();
         }

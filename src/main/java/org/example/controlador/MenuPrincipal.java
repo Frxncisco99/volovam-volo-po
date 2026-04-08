@@ -52,9 +52,7 @@ public class MenuPrincipal implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Ventas.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) lblFecha.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
-            stage.show();
+            stage.getScene().setRoot(root); // ← solo cambia el root, no la escena
         } catch (Exception e) {
             e.printStackTrace();
         }

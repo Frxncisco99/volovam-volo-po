@@ -100,7 +100,7 @@
                 <VBox prefWidth="380" minWidth="340" spacing="10" style="-fx-background-color: white; -fx-padding: 16;">
                     <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Carrito"/>
                     <Separator/>
-                    <!--  VBox.vgrow="ALWAYS" para que el scroll del carrito se expanda -->
+                    <!--  VBox.vgrow="ALWAYS" para que el scroll del carrwhaito se expanda -->
                     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;"/>
                     </ScrollPane>
