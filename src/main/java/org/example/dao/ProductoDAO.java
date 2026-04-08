@@ -9,15 +9,17 @@ public class ProductoDAO {
 
     // ACTUALIZAR
     public void actualizarProducto(Producto p) {
-        String sql = "UPDATE productos SET nombre=?, precio=?, stock=? WHERE id_producto=?";
+        String sql = "UPDATE productos SET nombre=?, precio=?, costo=?, stock=?, id_categoria=? WHERE id_producto=?";
 
         try (Connection conn = ConexionDB.getConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, p.getNombre());
             ps.setDouble(2, p.getPrecio());
-            ps.setInt(3, p.getStock());
-            ps.setInt(4, p.getIdProducto());
+            ps.setDouble(3, p.getCosto());
+            ps.setInt(4, p.getStock());
+            ps.setInt(5, p.getIdCategoria());
+            ps.setInt(6, p.getIdProducto());
 
             ps.executeUpdate();
 

@@ -97,12 +97,7 @@ public class InventarioController {
                 // ✏️ EDITAR
                 btnEditar.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
-
-                    // Ejemplo rápido (luego hacemos formulario)
-                    p.setStock(p.getStock() + 1);
-
-                    dao.actualizarProducto(p);
-                    cargarProductos();
+                    abrirFormularioEditar(p);
                 });
 
                 // 🗑️ ELIMINAR (lógico)
@@ -147,6 +142,30 @@ public class InventarioController {
         listaProductos = FXCollections.observableArrayList(dao.obtenerProductos());
         tablaProductos.setItems(listaProductos);
         actualizarResumen();
+    }
+
+    private void abrirFormularioEditar(Producto p) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/EditarProducto.fxml"));
+            Parent root = loader.load();
+
+            // Pasar el producto al controlador del modal
+            EditarProductoController ctrl = loader.getController();
+            ctrl.setProducto(p);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.setTitle("Editar Producto");
+            stage.showAndWait();
+
+            cargarProductos(); // refresca la tabla al cerrar
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @FXML
