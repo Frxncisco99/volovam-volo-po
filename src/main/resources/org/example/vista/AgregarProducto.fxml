@@ -17,8 +17,15 @@
     <TextField fx:id="txtPrecio" promptText="Precio" />
     <TextField fx:id="txtCosto" promptText="Costo" />
     <TextField fx:id="txtStock" promptText="Stock" />
+    <ComboBox fx:id="cbCategoria" promptText="Seleccionar categoría"/>
+
 
     <Button text="Guardar" onAction="#guardarProducto"
+            style="-fx-background-color: #6B4226; -fx-text-fill: white;" />
+
+    <Button text="Cancelar" onAction="#cancelar"/>
+
+    <Button text="+" onAction="#nuevaCategoria"
             style="-fx-background-color: #6B4226; -fx-text-fill: white;" />
 
 </VBox>

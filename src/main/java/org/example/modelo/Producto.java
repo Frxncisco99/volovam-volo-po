@@ -10,6 +10,9 @@ public class Producto {
     private int idCategoria;
     private boolean activo;
 
+    // 🔥 ESTE CAMPO ES PARA EL INVENTARIO (JOIN)
+    private String categoria;
+
     public Producto() {}
 
     public Producto(int idProducto, String nombre, double precio, double costo,
@@ -23,26 +26,73 @@ public class Producto {
         this.activo = activo;
     }
 
+    // =====================
     // GETTERS Y SETTERS
+    // =====================
 
-    public int getIdProducto() { return idProducto; }
-    public void setIdProducto(int idProducto) { this.idProducto = idProducto; }
+    public int getIdProducto() {
+        return idProducto;
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setIdProducto(int idProducto) {
+        this.idProducto = idProducto;
+    }
 
-    public double getPrecio() { return precio; }
-    public void setPrecio(double precio) { this.precio = precio; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public double getCosto() { return costo; }
-    public void setCosto(double costo) { this.costo = costo; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public int getStock() { return stock; }
-    public void setStock(int stock) { this.stock = stock; }
+    public double getPrecio() {
+        return precio;
+    }
 
-    public int getIdCategoria() { return idCategoria; }
-    public void setIdCategoria(int idCategoria) { this.idCategoria = idCategoria; }
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
 
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    public double getCosto() {
+        return costo;
+    }
+
+    public void setCosto(double costo) {
+        this.costo = costo;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    // 🔥 ID CATEGORIA (PARA BD)
+    public int getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(int idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    // 🔥 NOMBRE CATEGORIA (PARA INVENTARIO / JOIN)
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
 }
