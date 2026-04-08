@@ -53,7 +53,9 @@ public class MenuPrincipal implements Initializable {
     }
     @FXML
     private void irAVentas() {
+        cargarVista("/org/example/vista/Ventas.fxml");
         activarMenu("ventas");
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Ventas.fxml"));
             Parent root = loader.load();
@@ -71,12 +73,10 @@ public class MenuPrincipal implements Initializable {
         activarMenu("inventario");
     } private void cargarVista(String fxml) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(fxml));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent vista = loader.load();
 
-            contenedorCentral.getChildren().clear();
-            contenedorCentral.getChildren().add(vista);
+            contenedorCentral.getChildren().setAll(vista);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,13 +152,9 @@ public class MenuPrincipal implements Initializable {
     }
 
     private void resetMenuActivo() {
-
         btnDashboard.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
         btnVentas.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
         btnInventario.setStyle("-fx-background-color: transparent; -fx-text-fill: #C8A97E;");
-
-        // Opcional: marcar activo el actual (ventas en este caso)
-        btnVentas.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white;");
     }
 
     private void activarMenu(String opcion) {
