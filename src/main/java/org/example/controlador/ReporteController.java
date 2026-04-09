@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
 
+import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.ReporteService;
 import org.example.servicio.ReportePDFService;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.io.File;
 import java.text.DecimalFormat;
+
+
 
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
@@ -33,6 +36,14 @@ public class ReporteController {
     @FXML private Label lblTotal;
     @FXML private Label lblTickets;
     @FXML private Label lblPromedio;
+
+    @FXML private Label lblFecha;
+    @FXML private Label lblNombreUsuario;
+    @FXML private Label lblRolUsuario;
+    @FXML private Label lblAvatarIniciales;
+
+    @FXML private Label lblProductoTop;
+    @FXML private Label lblProductoTopCantidad;
 
     @FXML private BarChart<String, Number> chartVentas;
 
@@ -76,14 +87,28 @@ public class ReporteController {
         }
     }
 
+
+
     // 🔧 INIT
     @FXML
     public void initialize() {
+        cargarDatosUsuario();
         cbTipoReporte.getItems().addAll(
                 "Ventas",
                 "Productos más vendidos",
                 "Bajo stock"
         );
+    }
+    private void cargarDatosUsuario() {
+        SesionUsuario sesion = SesionUsuario.getInstancia();
+        String nombre = sesion.getNombre();
+        String rol = sesion.getRol();
+        lblNombreUsuario.setText(nombre);
+        lblRolUsuario.setText(rol);
+        String iniciales = nombre.length() >= 2
+                ? nombre.substring(0, 2).toUpperCase()
+                : nombre.toUpperCase();
+        lblAvatarIniciales.setText(iniciales);
     }
 
     // 📊 GENERAR REPORTE
@@ -116,6 +141,16 @@ public class ReporteController {
             lblTotal.setText("$" + df.format(total));
             lblTickets.setText(String.valueOf(cantidad));
             lblPromedio.setText("$" + df.format(promedio));
+
+            // Producto top
+            if (!top.isEmpty()) {
+                Map.Entry<String, Integer> primero = top.entrySet().iterator().next();
+                lblProductoTop.setText(primero.getKey());
+                lblProductoTopCantidad.setText(primero.getValue() + " unidades vendidas");
+            } else {
+                lblProductoTop.setText("Sin datos");
+                lblProductoTopCantidad.setText("No hay ventas en el periodo");
+            }
 
             // 📊 GRAFICA
             chartVentas.getData().clear();
