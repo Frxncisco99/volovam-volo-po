@@ -1,12 +1,17 @@
 package org.example.controlador;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;           // ← NUEVO
+import javafx.scene.Parent;              // ← NUEVO
+import javafx.scene.Scene;              // ← NUEVO
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.modelo.Ticket;        // ← NUEVO
+import org.example.servicio.TicketService; // ← NUEVO
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +28,8 @@ public class PagoController {
     private double total;
     private Map<Integer, Object[]> carrito;
     private VentasController ventasController;
+
+    private final TicketService ticketService = new TicketService(); // ← NUEVO
 
     public void setDatos(double total, Map<Integer, Object[]> carrito, VentasController ventasController) {
         this.total = total;
@@ -74,7 +81,7 @@ public class PagoController {
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
 
-            // 1. Insertar venta
+            // 1. Insertar venta — SIN CAMBIOS
             String sqlVenta = "INSERT INTO ventas (total, id_usuario, id_caja) VALUES (?, ?, ?)";
             PreparedStatement psVenta = con.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
@@ -86,7 +93,7 @@ public class PagoController {
             rs.next();
             int idVenta = rs.getInt(1);
 
-            // 2. Insertar detalle y descontar stock
+            // 2. Insertar detalle y descontar stock — SIN CAMBIOS
             String sqlDetalle = "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
             String sqlStock = "UPDATE productos SET stock = stock - ? WHERE id_producto = ?";
 
@@ -110,7 +117,7 @@ public class PagoController {
                 psStock.executeUpdate();
             }
 
-            // 3. Insertar pago
+            // 3. Insertar pago — SIN CAMBIOS
             String sqlPago = "INSERT INTO pagos (id_venta, monto_recibido, cambio) VALUES (?, ?, ?)";
             PreparedStatement psPago = con.prepareStatement(sqlPago);
             psPago.setInt(1, idVenta);
@@ -120,16 +127,58 @@ public class PagoController {
 
             con.commit();
 
-            // Cerrar ventana de pago y limpiar carrito
+            // ── NUEVO: Generar ticket en memoria (sin tocar BD, usa datos ya disponibles)
+            Ticket ticket = ticketService.generarDesdeMemoria(
+                    idVenta,
+                    carrito,
+                    total,
+                    recibido,
+                    cambio,
+                    SesionUsuario.getInstancia().getNombre(),
+                    SesionUsuario.getInstancia().getIdCaja()
+            );
+
+            // Cerrar ventana de pago — SIN CAMBIOS
             Stage stage = (Stage) txtDineroRecibido.getScene().getWindow();
             stage.close();
+
+            // Limpiar carrito — SIN CAMBIOS
             ventasController.ventaCompletada();
+
+            // ── NUEVO: Abrir vista previa del ticket
+            abrirVistaTicket(ticket);
 
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo guardar la venta.");
         }
     }
+
+    // ── NUEVO: Abre la ventana de vista previa del ticket ───────────────────
+    private void abrirVistaTicket(Ticket ticket) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/Ticket.fxml")
+            );
+            Parent root = loader.load();
+
+            TicketController ticketController = loader.getController();
+            ticketController.setTicket(ticket);
+
+            Stage stageTicket = new Stage();
+            stageTicket.setTitle("Ticket de Venta #" + ticket.getIdVenta());
+            stageTicket.setScene(new Scene(root));
+            stageTicket.setResizable(false);
+            stageTicket.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stageTicket.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // La venta ya quedó guardada — el ticket no es crítico
+            mostrarAlerta("Aviso", "La venta se guardó correctamente pero no se pudo abrir el ticket.");
+        }
+    }
+
+    // ── SIN CAMBIOS ──────────────────────────────────────────────────────────
 
     @FXML
     public void handleCancelar() {
