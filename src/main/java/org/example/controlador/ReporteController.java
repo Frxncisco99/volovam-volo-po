@@ -1,5 +1,7 @@
 package org.example.controlador;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -219,4 +221,21 @@ public class ReporteController {
         a.setContentText(msg);
         a.showAndWait();
     }
+
+    public void irADashboard(ActionEvent actionEvent) {
+        cambiarEscena("/org/example/vista/MenuPrincipal.fxml");
+    }
+
+    public void btnCerrar(ActionEvent actionEvent) {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Salir");
+        alerta.setHeaderText(null);
+        alerta.setContentText("¿Seguro que deseas salir?");
+        alerta.showAndWait().ifPresent(respuesta -> {
+            if (respuesta == ButtonType.OK) {
+                Platform.exit();
+            }
+        });
+    }
+
 }
