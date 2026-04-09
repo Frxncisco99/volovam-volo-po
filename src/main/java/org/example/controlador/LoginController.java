@@ -45,18 +45,44 @@ public class LoginController {
 
         // Validar cen la base de datos
         if (validarCredenciales(usuario, contrasena)) {
-            // Credenciales correctas ir al menú principal
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-
-            stage.show();
+            // Verificar si ya hay caja abierta
+            if (hayCajaAbierta()) {
+                // Ir directo al menú
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.getScene().setRoot(root);
+                stage.setMaximized(true);
+                stage.show();
+            } else {
+                // Ir a apertura de caja
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.getScene().setRoot(root);
+                stage.setMaximized(true);
+                stage.show();
+            }
         } else {
             mostrarAlerta("Error", "Usuario o contraseña incorrectos.");
             txtPassword.clear();
         }
+    }
+    private boolean hayCajaAbierta() {
+        String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' AND id_usuario = ? ORDER BY fecha_apertura DESC LIMIT 1";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, SesionUsuario.getInstancia().getIdUsuario());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                // Guardar el id_caja en sesión
+                SesionUsuario.getInstancia().setIdCaja(rs.getInt("id_caja"));
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private boolean validarCredenciales(String usuario, String contrasena) {
