@@ -37,6 +37,7 @@ public class PagoController {
         this.ventasController = ventasController;
         lblTotalPagar.setText("$" + String.format("%.2f", total));
 
+
         // Calcular cambio en tiempo real
         txtDineroRecibido.textProperty().addListener((obs, old, nuevo) -> {
             try {
@@ -51,6 +52,11 @@ public class PagoController {
                 }
             } catch (NumberFormatException e) {
                 lblCambio.setText("$0.00");
+            }
+        });
+        txtDineroRecibido.setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                handleConfirmar();
             }
         });
     }
