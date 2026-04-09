@@ -52,12 +52,68 @@ public class InventarioController {
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-        // Header de tabla en vino oscuro via CSS de JavaFX
-        tablaProductos.setStyle(
-                "-fx-background-color: #F5EFE6; " +
-                        "-fx-border-color: #D4C9B0; " +
-                        "-fx-border-width: 0.5;"
-        );
+        // Columna ID con prefijo #
+        colId.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer id, boolean empty) {
+                super.updateItem(id, empty);
+                if (empty || id == null) {
+                    setText(null); setStyle("");
+                } else {
+                    setText("#" + String.format("%03d", id));
+                    setStyle("-fx-text-fill: #8B4A5A; -fx-font-size: 12px;");
+                }
+            }
+        });
+
+        // Columna nombre en negrita
+        colNombre.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String nombre, boolean empty) {
+                super.updateItem(nombre, empty);
+                if (empty || nombre == null) {
+                    setText(null); setStyle("");
+                } else {
+                    setText(nombre);
+                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        // Columna categoria como badge pildora
+        colCategoria.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
+            {
+                badge.setStyle(
+                        "-fx-background-color: #F0EAD0; -fx-text-fill: #7A5E1A; " +
+                                "-fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size: 11px;"
+                );
+            }
+            @Override
+            protected void updateItem(String cat, boolean empty) {
+                super.updateItem(cat, empty);
+                if (empty || cat == null) {
+                    setGraphic(null);
+                } else {
+                    badge.setText(cat);
+                    setGraphic(badge);
+                }
+            }
+        });
+
+        // Columna precio
+        colPrecio.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double precio, boolean empty) {
+                super.updateItem(precio, empty);
+                if (empty || precio == null) {
+                    setText(null); setStyle("");
+                } else {
+                    setText(String.format("$%.2f", precio));
+                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold;");
+                }
+            }
+        });
 
         // Columna stock — rojo si bajo
         colStock.setCellFactory(col -> new TableCell<>() {
@@ -76,43 +132,52 @@ public class InventarioController {
             }
         });
 
-        // Columna estado — badges de colores
+        // Columna estado — badges Stock OK / Bajo Stock
         colEstado.setCellValueFactory(cell ->
                 new SimpleStringProperty(cell.getValue().getStock() < 5 ? "Bajo" : "Normal")
         );
         colEstado.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
             @Override
             protected void updateItem(String estado, boolean empty) {
                 super.updateItem(estado, empty);
                 if (empty || estado == null) {
-                    setText(null); setStyle("");
+                    setGraphic(null);
                 } else if (estado.equals("Bajo")) {
-                    setText("Bajo");
-                    setStyle("-fx-background-color: #F7E0E0; -fx-text-fill: #6B1228; " +
-                            "-fx-font-weight: bold; -fx-background-radius: 20; -fx-alignment: CENTER;");
+                    badge.setText("⚠ Bajo Stock");
+                    badge.setStyle(
+                            "-fx-background-color: #F7E0E0; -fx-text-fill: #6B1228; " +
+                                    "-fx-background-radius: 20; -fx-padding: 4 12; " +
+                                    "-fx-font-size: 11px; -fx-font-weight: bold;"
+                    );
+                    setGraphic(badge);
                 } else {
-                    setText("Normal");
-                    setStyle("-fx-background-color: #F0EAD0; -fx-text-fill: #7A5E1A; " +
-                            "-fx-background-radius: 20; -fx-alignment: CENTER;");
+                    badge.setText("Stock OK");
+                    badge.setStyle(
+                            "-fx-background-color: #D4EDDA; -fx-text-fill: #1A5C2E; " +
+                                    "-fx-background-radius: 20; -fx-padding: 4 12; " +
+                                    "-fx-font-size: 11px; -fx-font-weight: bold;"
+                    );
+                    setGraphic(badge);
                 }
             }
         });
 
-        // Columna acciones — dorado + vino
+        // Columna acciones
         colAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEditar   = new Button("Editar");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox   caja        = new HBox(6, btnEditar, btnEliminar);
+            private final HBox   caja        = new HBox(8, btnEditar, btnEliminar);
 
             {
                 btnEditar.setStyle(
                         "-fx-background-color: #C9A84C; -fx-text-fill: #3D1A0A; " +
-                                "-fx-background-radius: 6; -fx-padding: 4 12; " +
+                                "-fx-background-radius: 6; -fx-padding: 5 14; " +
                                 "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;"
                 );
                 btnEliminar.setStyle(
                         "-fx-background-color: #6B1228; -fx-text-fill: #F5EFE0; " +
-                                "-fx-background-radius: 6; -fx-padding: 4 12; " +
+                                "-fx-background-radius: 6; -fx-padding: 5 14; " +
                                 "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;"
                 );
                 caja.setStyle("-fx-alignment: CENTER_LEFT; -fx-padding: 2 0;");
