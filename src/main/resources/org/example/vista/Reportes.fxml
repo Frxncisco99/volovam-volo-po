@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css"
+            xmlns="http://javafx.com/javafx/23"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controlador.ReporteController">
+
+    <!-- 🔥 SIDEBAR IGUAL AL SISTEMA -->
+    <left>
+        <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
+
+            <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
+                <Label text="Volovan Volo"
+                       style="-fx-text-fill: #D4A843; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                <Label text="Sistema de Punto de Venta"
+                       style="-fx-text-fill: #C8A97E; -fx-font-size: 10px;"/>
+            </VBox>
+
+            <Separator style="-fx-opacity: 0.2;"/>
+
+            <VBox spacing="4" style="-fx-padding: 12;" VBox.vgrow="ALWAYS">
+
+                <Label text="PRINCIPAL"
+                       style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+
+                <Button text="Ventas / Caja" onAction="#irAVentas"/>
+                <Button text="Inventario" onAction="#irAInventario"/>
+
+                <Label text="GESTION"
+                       style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+
+                <Button text="Empleados" onAction="#irAEmpleados"/>
+
+                <Button text="Reportes"
+                        style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+                <Button text="Corte de Caja" onAction="#irACorteCaja"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- 🔥 CONTENIDO PRO -->
+    <center>
+        <VBox style="-fx-background-color: #F5EFE6;" spacing="18" VBox.vgrow="ALWAYS">
+
+            <!-- HEADER -->
+            <HBox style="-fx-padding: 20;">
+                <VBox spacing="4">
+                    <Label text="Reportes de Ventas"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+                    <Label text="Genera reportes, gráficas y análisis"
+                           style="-fx-text-fill: #7A5535;"/>
+                </VBox>
+            </HBox>
+
+            <!-- FILTROS -->
+            <HBox spacing="10" style="-fx-padding: 0 20;">
+                <DatePicker fx:id="dateInicio"/>
+                <DatePicker fx:id="dateFin"/>
+
+                <ComboBox fx:id="cbTipoReporte" prefWidth="180"/>
+
+                <Button text="Generar"
+                        onAction="#generarReporte"
+                        style="-fx-background-color: #6B1228; -fx-text-fill: white;"/>
+
+                <Button text="Abrir PDF"
+                        onAction="#abrirPDF"
+                        style="-fx-background-color: #3D1F0D; -fx-text-fill: white;"/>
+            </HBox>
+
+            <!-- CARDS -->
+            <HBox spacing="12" style="-fx-padding: 0 20;">
+
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="TOTAL"/>
+                    <Label fx:id="lblTotal"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="TICKETS"/>
+                    <Label fx:id="lblTickets"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <Label text="PROMEDIO"/>
+                    <Label fx:id="lblPromedio"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
+
+            </HBox>
+            <!-- VISTA PREVIA -->
+            <VBox spacing="10" style="-fx-padding: 20;">
+
+                <Label text="Vista previa"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                <!-- GRÁFICA -->
+                <BarChart fx:id="chartVentas" prefHeight="250">
+                    <xAxis>
+                        <CategoryAxis label="Productos"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Cantidad"/>
+                    </yAxis>
+                </BarChart>
+
+                <!-- BOTONES -->
+                <HBox spacing="10">
+                    <Button text="Generar PDF"
+                            onAction="#guardarPDF"
+                            style="-fx-background-color: #6B1228; -fx-text-fill: white;"/>
+
+                    <Button text="Abrir PDF"
+                            onAction="#abrirPDF"/>
+
+                </HBox>
+
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>
