@@ -123,18 +123,18 @@ public class InventarioController {
                 super.updateItem(stock, empty);
                 if (empty || stock == null) {
                     setText(null); setStyle("");
-                } else if (stock < 5) {
-                    setText(String.valueOf(stock));
-                    setStyle("-fx-text-fill: #A32D2D; -fx-font-weight: bold;");
                 } else {
+                    Producto p = getTableView().getItems().get(getIndex());
                     setText(String.valueOf(stock));
-                    setStyle("-fx-text-fill: #6B4226;");
+                    setStyle(p.isBajoStock()
+                            ? "-fx-text-fill: #A32D2D; -fx-font-weight: bold;"
+                            : "-fx-text-fill: #6B4226;");
                 }
             }
         });
 
         colEstado.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getStock() < 5 ? "Bajo" : "Normal")
+                new SimpleStringProperty(cell.getValue().isBajoStock() ? "Bajo" : "Normal")
         );
         colEstado.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
@@ -187,8 +187,20 @@ public class InventarioController {
                 });
                 btnEliminar.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
-                    dao.eliminarLogico(p.getIdProducto());
-                    cargarProductos();
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Confirmar eliminación");
+                    confirm.setHeaderText("¿Eliminar \"" + p.getNombre() + "\"?");
+                    confirm.setContentText("Esta acción no se puede deshacer.");
+                    confirm.getButtonTypes().setAll(
+                            new ButtonType("Eliminar", ButtonBar.ButtonData.OK_DONE),
+                            new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    );
+                    confirm.showAndWait().ifPresent(resp -> {
+                        if (resp.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                            dao.eliminarLogico(p.getIdProducto());
+                            cargarProductos();
+                        }
+                    });
                 });
             }
 
@@ -300,8 +312,7 @@ public class InventarioController {
                     || p.getCategoria().toLowerCase().contains(texto);
             boolean coincideCategoria = categoria == null
                     || p.getCategoria().equalsIgnoreCase(categoria);
-            String ep = p.getStock() < 5 ? "Bajo" : "Normal";
-            boolean coincideEstado = estado == null || ep.equalsIgnoreCase(estado);
+            boolean coincideEstado = estado == null || p.isBajoStock() == estado.equals("Bajo");
             return coincideTexto && coincideCategoria && coincideEstado;
         });
     }
@@ -334,7 +345,7 @@ public class InventarioController {
         int bajo  = 0;
         double valor = 0;
         for (Producto p : listaProductos) {
-            if (p.getStock() < 5) bajo++;
+            if (p.isBajoStock()) bajo++;
             valor += p.getPrecio() * p.getStock();
         }
         lblTotalProductos.setText(String.valueOf(total));

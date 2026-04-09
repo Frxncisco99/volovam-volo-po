@@ -47,11 +47,20 @@
                        HBox.hgrow="ALWAYS" />
         </HBox>
 
-        <TextField fx:id="txtStock" promptText="Cantidad en stock"
-                   style="-fx-background-color: white; -fx-border-color: #D4B896;
-                          -fx-border-radius: 7; -fx-background-radius: 7;
-                          -fx-padding: 9 12; -fx-font-size: 13px; -fx-text-fill: #3A1F06;
-                          -fx-prompt-text-fill: #BBA07A;" maxWidth="Infinity" />
+        <HBox spacing="10">
+            <TextField fx:id="txtStock" promptText="Cantidad en stock"
+                       style="-fx-background-color: white; -fx-border-color: #D4B896;
+                              -fx-border-radius: 7; -fx-background-radius: 7;
+                              -fx-padding: 9 12; -fx-font-size: 13px; -fx-text-fill: #3A1F06;
+                              -fx-prompt-text-fill: #BBA07A;"
+                       HBox.hgrow="ALWAYS" />
+            <TextField fx:id="txtStockMinimo" promptText="Stock mínimo"
+                       style="-fx-background-color: white; -fx-border-color: #D4B896;
+                              -fx-border-radius: 7; -fx-background-radius: 7;
+                              -fx-padding: 9 12; -fx-font-size: 13px; -fx-text-fill: #3A1F06;
+                              -fx-prompt-text-fill: #BBA07A;"
+                       HBox.hgrow="ALWAYS" />
+        </HBox>
 
         <ComboBox fx:id="cbCategoria" promptText="Categoría"
                   style="-fx-background-color: white; -fx-border-color: #D4B896;

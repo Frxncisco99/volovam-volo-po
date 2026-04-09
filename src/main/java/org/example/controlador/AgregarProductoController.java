@@ -12,10 +12,11 @@ import org.example.modelo.Producto;
 
 public class AgregarProductoController {
 
-    @FXML private TextField          txtNombre;
-    @FXML private TextField          txtPrecio;
-    @FXML private TextField          txtCosto;
-    @FXML private TextField          txtStock;
+    @FXML private TextField           txtNombre;
+    @FXML private TextField           txtPrecio;
+    @FXML private TextField           txtCosto;
+    @FXML private TextField           txtStock;
+    @FXML private TextField           txtStockMinimo;
     @FXML private ComboBox<Categoria> cbCategoria;
 
     private final ProductoDAO  productoDAO  = new ProductoDAO();
@@ -25,7 +26,6 @@ public class AgregarProductoController {
     public void initialize() {
         cbCategoria.getItems().addAll(categoriaDAO.obtenerCategorias());
 
-        // Mostrar nombre en el ComboBox
         cbCategoria.setCellFactory(lv -> new ListCell<>() {
             @Override protected void updateItem(Categoria c, boolean empty) {
                 super.updateItem(c, empty);
@@ -39,26 +39,20 @@ public class AgregarProductoController {
             }
         });
 
-        // Solo números en precio, costo y stock
-        permitirSoloNumeros(txtPrecio, true);
-        permitirSoloNumeros(txtCosto,  true);
-        permitirSoloNumeros(txtStock,  false);
+        permitirSoloNumeros(txtPrecio,      true);
+        permitirSoloNumeros(txtCosto,       true);
+        permitirSoloNumeros(txtStock,       false);
+        permitirSoloNumeros(txtStockMinimo, false);
     }
-
-    // ─── GUARDAR ─────────────────────────────────────────────────────────────
 
     @FXML
     private void guardarProducto() {
         String nombre = txtNombre.getText().trim();
-        if (nombre.isEmpty()) {
-            error("El nombre del producto es obligatorio."); return;
-        }
-        if (nombre.length() < 2) {
-            error("El nombre debe tener al menos 2 caracteres."); return;
-        }
+        if (nombre.isEmpty()) { error("El nombre del producto es obligatorio."); return; }
+        if (nombre.length() < 2) { error("El nombre debe tener al menos 2 caracteres."); return; }
 
         double precio, costo;
-        int stock;
+        int stock, stockMinimo;
 
         try { precio = Double.parseDouble(txtPrecio.getText().trim()); }
         catch (NumberFormatException e) { error("El precio no es válido."); return; }
@@ -69,12 +63,16 @@ public class AgregarProductoController {
         try { stock = Integer.parseInt(txtStock.getText().trim()); }
         catch (NumberFormatException e) { error("El stock no es válido."); return; }
 
+        // Stock mínimo es opcional — si está vacío se usa 5 por defecto
+        String minTxt = txtStockMinimo.getText().trim();
+        try { stockMinimo = minTxt.isEmpty() ? 5 : Integer.parseInt(minTxt); }
+        catch (NumberFormatException e) { error("El stock mínimo no es válido."); return; }
+
         if (precio <= 0) { error("El precio debe ser mayor a 0."); return; }
         if (costo  <= 0) { error("El costo debe ser mayor a 0.");  return; }
-        if (precio < costo) {
-            error("El precio de venta no puede ser menor al costo."); return;
-        }
+        if (precio < costo) { error("El precio de venta no puede ser menor al costo."); return; }
         if (stock < 0)  { error("El stock no puede ser negativo."); return; }
+        if (stockMinimo < 0) { error("El stock mínimo no puede ser negativo."); return; }
 
         Categoria cat = cbCategoria.getValue();
         if (cat == null) { error("Selecciona una categoría."); return; }
@@ -84,15 +82,13 @@ public class AgregarProductoController {
         p.setPrecio(precio);
         p.setCosto(costo);
         p.setStock(stock);
+        p.setStockMinimo(stockMinimo);
         p.setIdCategoria(cat.getIdCategoria());
 
         productoDAO.insertarProducto(p);
-
         info("Producto guardado correctamente.");
         cerrar();
     }
-
-    // ─── NUEVA CATEGORÍA ─────────────────────────────────────────────────────
 
     @FXML
     private void nuevaCategoria() {
@@ -111,21 +107,15 @@ public class AgregarProductoController {
         });
     }
 
-    // ─── CANCELAR ────────────────────────────────────────────────────────────
-
     @FXML
     private void cancelar(ActionEvent event) {
         ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
     }
 
-    // ─── UTILIDADES ──────────────────────────────────────────────────────────
-
-    /** Restringe el TextField a solo dígitos (y punto decimal si allowDecimal=true) */
     private void permitirSoloNumeros(TextField tf, boolean allowDecimal) {
         tf.textProperty().addListener((obs, oldVal, newVal) -> {
             String regex = allowDecimal ? "[^\\d.]" : "[^\\d]";
             String limpio = newVal.replaceAll(regex, "");
-            // evitar más de un punto
             if (allowDecimal) {
                 int puntos = limpio.length() - limpio.replace(".", "").length();
                 if (puntos > 1) limpio = oldVal;
@@ -136,17 +126,13 @@ public class AgregarProductoController {
 
     private void error(String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle("Validación");
-        a.setHeaderText(null);
-        a.setContentText(msg);
+        a.setTitle("Validación"); a.setHeaderText(null); a.setContentText(msg);
         a.showAndWait();
     }
 
     private void info(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle("Éxito");
-        a.setHeaderText(null);
-        a.setContentText(msg);
+        a.setTitle("Éxito"); a.setHeaderText(null); a.setContentText(msg);
         a.showAndWait();
     }
 
