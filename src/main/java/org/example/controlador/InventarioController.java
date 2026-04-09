@@ -11,11 +11,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.dao.CategoriaDAO;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
+import org.example.servicio.ExportarInventarioservice;
+
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
 
 public class InventarioController {
 
@@ -52,7 +58,6 @@ public class InventarioController {
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-        // Columna ID con prefijo #
         colId.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Integer id, boolean empty) {
@@ -66,7 +71,6 @@ public class InventarioController {
             }
         });
 
-        // Columna nombre en negrita
         colNombre.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String nombre, boolean empty) {
@@ -80,7 +84,6 @@ public class InventarioController {
             }
         });
 
-        // Columna categoria como badge pildora
         colCategoria.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
@@ -101,7 +104,6 @@ public class InventarioController {
             }
         });
 
-        // Columna precio
         colPrecio.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Double precio, boolean empty) {
@@ -115,7 +117,6 @@ public class InventarioController {
             }
         });
 
-        // Columna stock — rojo si bajo
         colStock.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Integer stock, boolean empty) {
@@ -132,7 +133,6 @@ public class InventarioController {
             }
         });
 
-        // Columna estado — badges Stock OK / Bajo Stock
         colEstado.setCellValueFactory(cell ->
                 new SimpleStringProperty(cell.getValue().getStock() < 5 ? "Bajo" : "Normal")
         );
@@ -163,7 +163,6 @@ public class InventarioController {
             }
         });
 
-        // Columna acciones
         colAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEditar   = new Button("Editar");
             private final Button btnEliminar = new Button("Eliminar");
@@ -200,7 +199,6 @@ public class InventarioController {
             }
         });
 
-        // Filas alternadas
         tablaProductos.setRowFactory(tv -> new TableRow<>() {
             @Override
             protected void updateItem(Producto item, boolean empty) {
@@ -222,6 +220,61 @@ public class InventarioController {
         cbCategoria.valueProperty().addListener(filtroCategoriaListener);
         cbEstado.valueProperty().addListener(filtroEstadoListener);
     }
+
+    // ── EXPORTAR PDF ─────────────────────────────────────────────────────────
+
+    @FXML
+    private void exportarPDF() {
+        // 1. Preguntar: vista actual o todo el inventario
+        Alert opcion = new Alert(Alert.AlertType.CONFIRMATION);
+        opcion.setTitle("Exportar inventario");
+        opcion.setHeaderText("¿Qué productos deseas exportar?");
+        opcion.setContentText("Selecciona una opción:");
+
+        ButtonType btnFiltrado  = new ButtonType("Solo vista actual");
+        ButtonType btnCompleto  = new ButtonType("Todo el inventario");
+        ButtonType btnCancelar  = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        opcion.getButtonTypes().setAll(btnFiltrado, btnCompleto, btnCancelar);
+
+        Optional<ButtonType> respuesta = opcion.showAndWait();
+        if (respuesta.isEmpty() || respuesta.get() == btnCancelar) return;
+
+        List<Producto> productosAExportar = respuesta.get() == btnFiltrado
+                ? tablaProductos.getItems()   // lista filtrada visible
+                : listaProductos;             // todo el inventario
+
+        // 2. Elegir dónde guardar el archivo
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Guardar PDF");
+        chooser.setInitialFileName("inventario_volovan_volo.pdf");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivo PDF", "*.pdf"));
+
+        Stage stage = (Stage) tablaProductos.getScene().getWindow();
+        File archivo = chooser.showSaveDialog(stage);
+        if (archivo == null) return;
+
+        // 3. Generar el PDF
+        try {
+            new ExportarInventarioservice().exportar(productosAExportar, archivo.getAbsolutePath());
+
+            Alert ok = new Alert(Alert.AlertType.INFORMATION);
+            ok.setTitle("Exportación exitosa");
+            ok.setHeaderText(null);
+            ok.setContentText("PDF guardado en:\n" + archivo.getAbsolutePath());
+            ok.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert err = new Alert(Alert.AlertType.ERROR);
+            err.setTitle("Error al exportar");
+            err.setHeaderText("No se pudo generar el PDF");
+            err.setContentText(e.getMessage());
+            err.showAndWait();
+        }
+    }
+
+    // ── Resto del controlador sin cambios ─────────────────────────────────────
 
     private void cargarFiltros() {
         cbCategoria.getItems().clear();

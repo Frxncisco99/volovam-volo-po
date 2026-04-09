@@ -25,7 +25,9 @@
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <HBox spacing="10" alignment="CENTER">
+            <!-- onAction conectado al método exportarPDF del controlador -->
             <Button text="Exportar"
+                    onAction="#exportarPDF"
                     style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C; -fx-border-width: 0.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 9 18; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;" />
             <Button text="+ Nuevo producto"
                     onAction="#abrirFormularioNuevo"
