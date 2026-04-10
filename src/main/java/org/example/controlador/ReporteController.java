@@ -27,6 +27,10 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import java.awt.Desktop;
 
+import javafx.stage.FileChooser;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class ReporteController {
 
     @FXML private DatePicker dateInicio;
@@ -174,41 +178,61 @@ public class ReporteController {
 
     @FXML
     private void guardarPDF() {
-
         try {
-
-            String carpeta = System.getProperty("user.home") + "/Documents/ReportesVolovan/";
-            new File(carpeta).mkdirs();
-
-            ultimaRutaPDF = carpeta + "reporte_" + System.currentTimeMillis() + ".pdf";
-
-            // volver a generar datos
+            // Regenerar datos
             LocalDateTime inicio = dateInicio.getValue().atStartOfDay();
             LocalDateTime fin = dateFin.getValue().atTime(23, 59);
 
             List<Ticket> tickets = service.obtenerTickets(inicio, fin);
-
             double total = service.calcularTotal(tickets);
             int cantidad = service.contarTickets(tickets);
             double promedio = service.calcularPromedio(tickets);
             Map<String, Integer> top = service.topProductos(tickets);
 
-            switch (cbTipoReporte.getValue()) {
+            // Nombre sugerido automático: Reporte_Ventas_2025-01-15.pdf
+            String tipoLimpio = cbTipoReporte.getValue()
+                    .replace(" ", "_")
+                    .replace("á","a").replace("é","e")
+                    .replace("í","i").replace("ó","o")
+                    .replace("ú","u");
+            String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String nombreSugerido = "Reporte_" + tipoLimpio + "_" + fechaHoy + ".pdf";
 
+            // Abrir explorador de archivos nativo
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar reporte PDF");
+            fileChooser.setInitialFileName(nombreSugerido);
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Archivo PDF", "*.pdf")
+            );
+
+            // Directorio inicial: Documents si existe, si no home
+            File docFolder = new File(System.getProperty("user.home") + "/Documents");
+            fileChooser.setInitialDirectory(docFolder.exists() ? docFolder
+                    : new File(System.getProperty("user.home")));
+
+            // Obtener la ventana actual para el diálogo modal
+            Stage stage = (Stage) cbTipoReporte.getScene().getWindow();
+            File archivoDestino = fileChooser.showSaveDialog(stage);
+
+            if (archivoDestino == null) return; // El usuario canceló
+
+            ultimaRutaPDF = archivoDestino.getAbsolutePath();
+
+            // Generar el PDF en la ruta elegida
+            switch (cbTipoReporte.getValue()) {
                 case "Ventas":
                     pdf.generarReporteVentas(tickets, total, cantidad, promedio, top, ultimaRutaPDF);
                     break;
-
                 case "Productos más vendidos":
                     pdf.generarTopProductos(top, ultimaRutaPDF);
                     break;
-
                 case "Bajo stock":
                     pdf.generarBajoStock(service.obtenerBajoStock(), ultimaRutaPDF);
                     break;
             }
 
-            alerta("PDF guardado ✔");
+            alerta("PDF guardado ✔  →  " + archivoDestino.getName());
 
         } catch (Exception e) {
             e.printStackTrace();
