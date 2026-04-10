@@ -14,23 +14,34 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class CorteCajaController {
 
-    @FXML private Label lblFecha;
-    @FXML private Label lblMontoInicial;
-    @FXML private Label lblTotalVendido;
-    @FXML private Label lblTotalEsperado;
-    @FXML private Label lblNumVentas;
+    @FXML private Label lblFechaHoy;
+    @FXML private Label lblIdCaja;
+    @FXML private Label lblCajero;
+    @FXML private Label lblHoraApertura;
+    @FXML private Label lblFondoInicial;
+    @FXML private Label lblNumTickets;
+    @FXML private Label lblTotalEfectivo;
+    @FXML private Label lblTotalEntradas;
+    @FXML private Label lblTotalSalidas;
+    @FXML private Label lblDineroEsperado;
     @FXML private Label lblDiferencia;
+    @FXML private Label lblEstadoDiferencia;
+    @FXML private Label lblObsRequerida;
     @FXML private TextField txtDineroContado;
+    @FXML private TextArea txtObservaciones;
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
 
-    private double montoInicial = 0;
-    private double totalVendido = 0;
-    private double totalEsperado = 0;
+    private double fondoInicial = 0;
+    private double totalEfectivo = 0;
+    private double totalEntradas = 0;
+    private double totalSalidas = 0;
+    private double dineroEsperado = 0;
 
     @FXML
     public void initialize() {
@@ -42,59 +53,106 @@ public class CorteCajaController {
                 : sesion.getNombre().toUpperCase();
         lblAvatarIniciales.setText(iniciales);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", new java.util.Locale("es", "MX"));
-        String fecha = LocalDateTime.now().format(formatter);
-        lblFecha.setText(fecha.substring(0, 1).toUpperCase() + fecha.substring(1));
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", new Locale("es", "MX"));
+        String fecha = LocalDateTime.now().format(fmt);
+        lblFechaHoy.setText(fecha.substring(0, 1).toUpperCase() + fecha.substring(1));
+
+        lblIdCaja.setText("Caja #" + sesion.getIdCaja());
+        lblCajero.setText(sesion.getNombre());
 
         cargarResumen();
 
-        // Calcular diferencia en tiempo real
-        txtDineroContado.textProperty().addListener((obs, old, nuevo) -> {
-            try {
-                double contado = Double.parseDouble(nuevo);
-                double diferencia = contado - totalEsperado;
-                lblDiferencia.setText("$" + String.format("%.2f", diferencia));
-                lblDiferencia.setStyle(diferencia >= 0
-                        ? "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #3B6D11;"
-                        : "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C0392B;");
-            } catch (NumberFormatException e) {
-                lblDiferencia.setText("$0.00");
-            }
-        });
+        // Diferencia en tiempo real
+        txtDineroContado.textProperty().addListener((obs, old, nuevo) -> calcularDiferencia(nuevo));
+
+        // Ocultar label de obs requerida por defecto
+        lblObsRequerida.setVisible(false);
     }
 
     private void cargarResumen() {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
 
-        String sqlCaja = "SELECT monto_inicial FROM caja WHERE id_caja = ?";
-        String sqlVentas = "SELECT COUNT(*), COALESCE(SUM(total), 0) FROM ventas WHERE id_caja = ?";
-
         try (Connection con = ConexionDB.getConexion()) {
-            // Monto inicial
+
+            // Info de apertura
+            String sqlCaja = "SELECT monto_inicial, fecha_apertura FROM caja WHERE id_caja = ?";
             PreparedStatement psCaja = con.prepareStatement(sqlCaja);
             psCaja.setInt(1, idCaja);
             ResultSet rsCaja = psCaja.executeQuery();
             if (rsCaja.next()) {
-                montoInicial = rsCaja.getDouble(1);
-                lblMontoInicial.setText("$" + String.format("%.2f", montoInicial));
+                fondoInicial = rsCaja.getDouble("monto_inicial");
+                String horaApertura = rsCaja.getTimestamp("fecha_apertura")
+                        .toLocalDateTime()
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                lblFondoInicial.setText("$" + String.format("%.2f", fondoInicial));
+                lblHoraApertura.setText(horaApertura);
             }
 
-            // Ventas del día
+            // Ventas
+            String sqlVentas = "SELECT COUNT(*), COALESCE(SUM(total), 0) FROM ventas WHERE id_caja = ?";
             PreparedStatement psVentas = con.prepareStatement(sqlVentas);
             psVentas.setInt(1, idCaja);
             ResultSet rsVentas = psVentas.executeQuery();
             if (rsVentas.next()) {
-                int numVentas = rsVentas.getInt(1);
-                totalVendido = rsVentas.getDouble(2);
-                totalEsperado = montoInicial + totalVendido;
-
-                lblNumVentas.setText(String.valueOf(numVentas));
-                lblTotalVendido.setText("$" + String.format("%.2f", totalVendido));
-                lblTotalEsperado.setText("$" + String.format("%.2f", totalEsperado));
+                lblNumTickets.setText(String.valueOf(rsVentas.getInt(1)));
+                totalEfectivo = rsVentas.getDouble(2);
+                lblTotalEfectivo.setText("$" + String.format("%.2f", totalEfectivo));
             }
+
+            // Movimientos de caja
+            String sqlEntradas = "SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE id_caja = ? AND tipo = 'INGRESO'";
+            String sqlSalidas = "SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE id_caja = ? AND tipo = 'RETIRO'";
+
+            PreparedStatement psEnt = con.prepareStatement(sqlEntradas);
+            psEnt.setInt(1, idCaja);
+            ResultSet rsEnt = psEnt.executeQuery();
+            if (rsEnt.next()) {
+                totalEntradas = rsEnt.getDouble(1);
+                lblTotalEntradas.setText("$" + String.format("%.2f", totalEntradas));
+            }
+
+            PreparedStatement psSal = con.prepareStatement(sqlSalidas);
+            psSal.setInt(1, idCaja);
+            ResultSet rsSal = psSal.executeQuery();
+            if (rsSal.next()) {
+                totalSalidas = rsSal.getDouble(1);
+                lblTotalSalidas.setText("$" + String.format("%.2f", totalSalidas));
+            }
+
+            // Dinero esperado = fondo + ventas + entradas - salidas
+            dineroEsperado = fondoInicial + totalEfectivo + totalEntradas - totalSalidas;
+            lblDineroEsperado.setText("$" + String.format("%.2f", dineroEsperado));
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void calcularDiferencia(String texto) {
+        try {
+            double contado = Double.parseDouble(texto);
+            double diferencia = contado - dineroEsperado;
+            lblDiferencia.setText("$" + String.format("%.2f", diferencia));
+
+            if (diferencia == 0) {
+                lblDiferencia.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #3B6D11;");
+                lblEstadoDiferencia.setText("Todo correcto");
+                lblEstadoDiferencia.setStyle("-fx-text-fill: #3B6D11; -fx-font-size: 12px; -fx-font-weight: bold;");
+                lblObsRequerida.setVisible(false);
+            } else if (diferencia < 0) {
+                lblDiferencia.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #C0392B;");
+                lblEstadoDiferencia.setText("Falta dinero");
+                lblEstadoDiferencia.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 12px; -fx-font-weight: bold;");
+                lblObsRequerida.setVisible(true);
+            } else {
+                lblDiferencia.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1A6DB5;");
+                lblEstadoDiferencia.setText("Sobra dinero");
+                lblEstadoDiferencia.setStyle("-fx-text-fill: #1A6DB5; -fx-font-size: 12px; -fx-font-weight: bold;");
+                lblObsRequerida.setVisible(true);
+            }
+        } catch (NumberFormatException e) {
+            lblDiferencia.setText("$0.00");
+            lblEstadoDiferencia.setText("");
         }
     }
 
@@ -114,31 +172,60 @@ public class CorteCajaController {
             return;
         }
 
+        double diferencia = contado - dineroEsperado;
+
+        // Si hay diferencia, observaciones son obligatorias
+        if (diferencia != 0 && txtObservaciones.getText().trim().isEmpty()) {
+            mostrarAlerta("Observaciones requeridas", "Hay una diferencia de $" + String.format("%.2f", diferencia) + ". Debes escribir una observacion.");
+            txtObservaciones.requestFocus();
+            return;
+        }
+
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Cerrar caja");
         confirmacion.setHeaderText(null);
         confirmacion.setContentText("¿Seguro que deseas cerrar la caja? Esta accion no se puede deshacer.");
         confirmacion.showAndWait().ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) {
-                cerrarCajaEnBD(contado);
+                cerrarCajaEnBD(contado, diferencia);
             }
         });
     }
 
-    private void cerrarCajaEnBD(double montoFinal) {
+    private void cerrarCajaEnBD(double montoReal, double diferencia) {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
-        String sql = "UPDATE caja SET estado = 'cerrada', fecha_cierre = NOW(), monto_final = ? WHERE id_caja = ?";
+        int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
 
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setDouble(1, montoFinal);
-            ps.setInt(2, idCaja);
-            ps.executeUpdate();
+        try (Connection con = ConexionDB.getConexion()) {
+            con.setAutoCommit(false);
 
-            // Limpiar caja de sesión
+            // 1. Cerrar la caja
+            String sqlCerrar = "UPDATE caja SET estado = 'cerrada', fecha_cierre = NOW(), monto_final = ? WHERE id_caja = ?";
+            PreparedStatement psCerrar = con.prepareStatement(sqlCerrar);
+            psCerrar.setDouble(1, montoReal);
+            psCerrar.setInt(2, idCaja);
+            psCerrar.executeUpdate();
+
+            // 2. Guardar corte
+            String sqlCorte = "INSERT INTO corte_caja (id_caja, id_usuario, fecha_apertura, fecha_cierre, fondo_inicial, total_ventas, total_entradas, total_salidas, dinero_esperado, dinero_real, diferencia, observaciones) VALUES (?, ?, (SELECT fecha_apertura FROM caja WHERE id_caja = ?), NOW(), ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement psCorte = con.prepareStatement(sqlCorte);
+            psCorte.setInt(1, idCaja);
+            psCorte.setInt(2, idUsuario);
+            psCorte.setInt(3, idCaja);
+            psCorte.setDouble(4, fondoInicial);
+            psCorte.setDouble(5, totalEfectivo);
+            psCorte.setDouble(6, totalEntradas);
+            psCorte.setDouble(7, totalSalidas);
+            psCorte.setDouble(8, dineroEsperado);
+            psCorte.setDouble(9, montoReal);
+            psCorte.setDouble(10, diferencia);
+            psCorte.setString(11, txtObservaciones.getText().trim());
+            psCorte.executeUpdate();
+
+            con.commit();
+
             SesionUsuario.getInstancia().setIdCaja(0);
-
-            mostrarInfo("Caja cerrada", "La caja se cerro correctamente. El sistema se cerrara.");
+            mostrarInfo("Caja cerrada", "El corte se registro correctamente.");
             Platform.exit();
 
         } catch (Exception e) {
@@ -147,20 +234,9 @@ public class CorteCajaController {
         }
     }
 
-    @FXML
-    public void irADashboard() {
-        navegar("/org/example/vista/MenuPrincipal.fxml");
-    }
-
-    @FXML
-    public void irAVentas() {
-        navegar("/org/example/vista/Ventas.fxml");
-    }
-
-    @FXML
-    public void irAEmpleados() {
-        navegar("/org/example/vista/Empleados.fxml");
-    }
+    @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML public void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
+    @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
 
     @FXML
     public void btnCerrar() {
@@ -177,7 +253,7 @@ public class CorteCajaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
-            Stage stage = (Stage) lblFecha.getScene().getWindow();
+            Stage stage = (Stage) lblFechaHoy.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
             e.printStackTrace();
