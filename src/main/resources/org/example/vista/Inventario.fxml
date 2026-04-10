@@ -56,15 +56,15 @@
                         text="Empleados">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="206"
+                <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
                         text="Reportes">
-                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-chart-bar" iconSize="16" /></graphic>
                 </Button>
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="206"
+                <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
                         text="Corte de Caja">
-                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
                 <Button graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
