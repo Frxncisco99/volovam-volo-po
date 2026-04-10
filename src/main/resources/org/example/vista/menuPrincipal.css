@@ -26,3 +26,33 @@
 .button:hover .font-icon {
     -fx-icon-color: white;
 }
+.chart-pie-label {
+    -fx-fill: #6B4226;
+}
+.chart-legend-item {
+    -fx-text-fill: #6B4226;
+}
+.default-color0.chart-pie {
+    -fx-pie-color: #6B4226;
+}
+.default-color1.chart-pie {
+    -fx-pie-color: #D4A843;
+}
+.default-color2.chart-pie {
+    -fx-pie-color: #C8A97E;
+}
+.default-color3.chart-pie {
+    -fx-pie-color: #3D1F0D;
+}
+.default-color4.chart-pie {
+    -fx-pie-color: #7A5535;
+}
+.chart-pie-label {
+    -fx-fill: #6B4226;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.chart-pie-label-line {
+    -fx-stroke: #6B4226;
+}
