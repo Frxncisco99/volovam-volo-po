@@ -119,4 +119,33 @@ public class TicketDAO {
         }
         return lista;
     }
+
+    public List<Ticket> obtenerTicketsPorFecha(LocalDateTime inicio, LocalDateTime fin) throws Exception {
+        String sql = """
+        SELECT v.id_venta
+        FROM ventas v
+        WHERE v.fecha BETWEEN ? AND ?
+    """;
+
+        List<Ticket> lista = new ArrayList<>();
+
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setTimestamp(1, Timestamp.valueOf(inicio));
+            ps.setTimestamp(2, Timestamp.valueOf(fin));
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int idVenta = rs.getInt("id_venta");
+
+                // reutilizamos tu método existente (clave 🔥)
+                Ticket t = obtenerTicketPorVenta(idVenta);
+                lista.add(t);
+            }
+        }
+
+        return lista;
+    }
 }

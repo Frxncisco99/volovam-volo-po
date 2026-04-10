@@ -127,4 +127,8 @@ public class MenuPrincipal implements Initializable {
             e.printStackTrace();
         }
     }
+
+    public void irAReportes(ActionEvent actionEvent) {
+        cambiarEscena("/org/example/vista/Reportes.fxml");
+    }
 }
