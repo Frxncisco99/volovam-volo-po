@@ -1,6 +1,7 @@
 package org.example.controlador;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,6 +15,7 @@ import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,6 +37,7 @@ public class VentasController {
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
     @FXML private Button btnCobrar;
+    @FXML private Label lblFecha;
 
     private Map<Integer, Object[]> carrito = new HashMap<>();
     private double total = 0;
@@ -340,12 +343,28 @@ public class VentasController {
     }
 
     @FXML
-    public void irAInventario() {
+    public void irAInventario(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) lblTotal.getScene().getWindow();
+
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void irAReportes(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            stage.getScene().setRoot(root);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -380,5 +399,28 @@ public class VentasController {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+    private void cambiarEscena(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) lblTotal.getScene().getWindow(); // ← FIX
+            stage.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void irACorteCaja() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/CorteCaja.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) lblTotal.getScene().getWindow(); // ← FIX
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

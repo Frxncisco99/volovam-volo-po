@@ -41,18 +41,24 @@
                 <Button prefHeight="40" prefWidth="206" onAction="#irAVentas" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Ventas / Caja" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Inventario" graphicTextGap="12">
+                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="206"
+                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+                        text="Inventario">
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
                 <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 4 8;" text="GESTION"/>
                 <Button prefHeight="40" prefWidth="206" style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Empleados" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="white"/></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Reportes" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="#C8A97E"/></graphic>
+                <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
+                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+                        text="Reportes">
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-chart-bar" iconSize="16" /></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Corte de Caja" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="#C8A97E"/></graphic>
+                <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="206"
+                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+                        text="Corte de Caja">
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Configuracion" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#C8A97E"/></graphic>
