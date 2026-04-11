@@ -49,9 +49,14 @@ public class ReporteController {
     @FXML private Label lblProductoTop;
     @FXML private Label lblProductoTopCantidad;
 
+    @FXML private Button btnCantidad;
+    @FXML private Button btnIngresos;
+
     @FXML private BarChart<String, Number> chartVentas;
 
     private String ultimaRutaPDF = null;
+    private Map<String, Integer> ultimoTop = null;
+    private List<Ticket> ultimosTickets = null;
 
     @FXML private BarChart<String, Number> graficaProductos;
 
@@ -140,6 +145,8 @@ public class ReporteController {
             int cantidad = service.contarTickets(tickets);
             double promedio = service.calcularPromedio(tickets);
             Map<String, Integer> top = service.topProductos(tickets);
+            ultimoTop = top;
+            ultimosTickets = tickets;
 
             // UI
             lblTotal.setText("$" + df.format(total));
@@ -295,6 +302,62 @@ public class ReporteController {
                 Platform.exit();
             }
         });
+    }
+
+    @FXML
+    private void verGraficaCantidad() {
+        if (ultimoTop == null) { alerta("Genera un reporte primero"); return; }
+
+        chartVentas.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Cantidad vendida");
+
+        for (Map.Entry<String, Integer> e : ultimoTop.entrySet()) {
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
+        chartVentas.getData().add(series);
+
+        // Estado visual de botones
+        btnCantidad.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+    }
+
+    @FXML
+    private void verGraficaIngresos() {
+        if (ultimosTickets == null) { alerta("Genera un reporte primero"); return; }
+
+        // Calcular ingresos por producto sumando subtotales de líneas
+        Map<String, Double> ingresosPorProducto = new java.util.LinkedHashMap<>();
+        for (Ticket t : ultimosTickets) {
+            if (t.getLineas() == null) continue;
+            for (Ticket.LineaTicket linea : t.getLineas()) {
+                ingresosPorProducto.merge(
+                        linea.getNombreProducto(),
+                        linea.getSubtotal(),
+                        Double::sum
+                );
+            }
+        }
+
+        // Ordenar de mayor a menor
+        ingresosPorProducto = ingresosPorProducto.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey, Map.Entry::getValue,
+                        (a, b) -> a, java.util.LinkedHashMap::new));
+
+        chartVentas.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Ingresos ($)");
+
+        for (Map.Entry<String, Double> e : ingresosPorProducto.entrySet()) {
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
+        chartVentas.getData().add(series);
+
+        // Estado visual de botones
+        btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
     }
 
 }

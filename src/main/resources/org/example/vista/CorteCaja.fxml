@@ -156,6 +156,9 @@
                     <!-- BOTONES -->
                     <HBox spacing="12">
                         <Button onAction="#irADashboard" prefHeight="44" prefWidth="200" style="-fx-background-color: transparent; -fx-border-color: #6B4226; -fx-border-radius: 10; -fx-border-width: 1.2; -fx-text-fill: #6B4226; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-radius: 10;" text="Cancelar"/>
+                        <Button onAction="#exportarCortePDF" prefHeight="44" prefWidth="200"
+                                style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C; -fx-border-width: 1.2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;"
+                                text="Exportar PDF"/>
                         <Button fx:id="btnCerrarCaja" onAction="#handleCerrarCaja" prefHeight="44" HBox.hgrow="ALWAYS" style="-fx-background-color: #C0392B; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;" text="Cerrar Caja"/>
                     </HBox>
 

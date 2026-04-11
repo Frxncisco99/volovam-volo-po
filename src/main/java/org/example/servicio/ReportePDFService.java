@@ -331,5 +331,136 @@ public class ReportePDFService {
             ColumnText.showTextAligned(cb, Element.ALIGN_RIGHT,
                     new Phrase("Página " + writer.getPageNumber(), f), w - 36, y, 0);
         }
+
+
+    }
+
+    public void generarCorteCaja(
+            String cajero,
+            String numeroCaja,
+            String horaApertura,
+            String fechaCierre,
+            double fondoInicial,
+            double totalVentas,
+            double totalEntradas,
+            double totalSalidas,
+            double dineroEsperado,
+            double dineroContado,
+            double diferencia,
+            int numTickets,
+            String observaciones,
+            String ruta
+    ) throws Exception {
+
+        Document doc = new Document(PageSize.A4, 36, 36, 36, 50);
+        PdfWriter writer = PdfWriter.getInstance(doc, new FileOutputStream(ruta));
+        writer.setPageEvent(new FooterEvent("Corte de Caja"));
+        doc.open();
+
+        agregarHeader(doc, writer, "CORTE DE CAJA");
+        agregarFecha(doc);
+        doc.add(separador());
+
+        // ── Info de la caja ──────────────────────────────────
+        PdfPTable infoTable = new PdfPTable(new float[]{50, 50});
+        infoTable.setWidthPercentage(100);
+        infoTable.setSpacingBefore(10);
+        infoTable.setSpacingAfter(14);
+
+        infoTable.addCell(crearCard("CAJERO",       cajero));
+        infoTable.addCell(crearCard("CAJA",         numeroCaja));
+        infoTable.addCell(crearCard("HORA APERTURA", horaApertura));
+        infoTable.addCell(crearCard("HORA CIERRE",   fechaCierre));
+        doc.add(infoTable);
+
+        // ── Resumen financiero ───────────────────────────────
+        doc.add(etiquetaSeccion("Resumen financiero"));
+
+        PdfPTable resumen = new PdfPTable(new float[]{70, 30});
+        resumen.setWidthPercentage(100);
+        resumen.setSpacingBefore(6);
+        resumen.setSpacingAfter(14);
+
+        agregarHeaderTabla(resumen, "Concepto", "Monto");
+
+        Object[][] filas = {
+                { "Fondo inicial",         fondoInicial },
+                { "Total ventas efectivo", totalVentas  },
+                { "Entradas a caja",       totalEntradas},
+                { "Salidas de caja",       totalSalidas },
+        };
+
+        int f = 0;
+        for (Object[] fila : filas) {
+            BaseColor bg = (f++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+            resumen.addCell(celdaTD((String) fila[0],                          bg, Element.ALIGN_LEFT));
+            resumen.addCell(celdaTD(String.format("$%,.2f", (double) fila[1]), bg, Element.ALIGN_RIGHT));
+        }
+        doc.add(resumen);
+
+        // ── Cards de cierre ──────────────────────────────────
+        PdfPTable cards = new PdfPTable(3);
+        cards.setWidthPercentage(100);
+        cards.setSpacingBefore(6);
+        cards.setSpacingAfter(14);
+
+        cards.addCell(crearCard("NO. TICKETS",      String.valueOf(numTickets)));
+        cards.addCell(crearCard("DINERO ESPERADO",  String.format("$%,.2f", dineroEsperado)));
+        cards.addCell(crearCard("DINERO CONTADO",   String.format("$%,.2f", dineroContado)));
+        doc.add(cards);
+
+        // ── Diferencia con color ─────────────────────────────
+        doc.add(etiquetaSeccion("Resultado del corte"));
+
+        PdfPTable tDif = new PdfPTable(new float[]{70, 30});
+        tDif.setWidthPercentage(100);
+        tDif.setSpacingBefore(6);
+        tDif.setSpacingAfter(14);
+
+        BaseColor colorDif = diferencia == 0
+                ? new BaseColor(46, 125, 50)   // verde
+                : diferencia < 0
+                ? new BaseColor(192, 57, 43)  // rojo
+                : new BaseColor(26, 109, 181); // azul
+
+        String estadoTexto = diferencia == 0 ? "✔ Todo correcto"
+                : diferencia < 0  ? "⚠ Falta dinero"
+                : "⚠ Sobra dinero";
+
+        Font fDif = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, colorDif);
+
+        PdfPCell cConcepto = new PdfPCell(new Phrase("Diferencia", FONT_TD));
+        cConcepto.setBackgroundColor(COLOR_FILA_PAR);
+        cConcepto.setPadding(8);
+        cConcepto.setBorderColor(new BaseColor(220, 210, 195));
+
+        PdfPCell cValor = new PdfPCell(new Phrase(
+                String.format("$%,.2f  %s", diferencia, estadoTexto), fDif));
+        cValor.setBackgroundColor(COLOR_FILA_PAR);
+        cValor.setPadding(8);
+        cValor.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cValor.setBorderColor(new BaseColor(220, 210, 195));
+
+        tDif.addCell(cConcepto);
+        tDif.addCell(cValor);
+        doc.add(tDif);
+
+        // ── Observaciones ────────────────────────────────────
+        if (observaciones != null && !observaciones.trim().isEmpty()) {
+            doc.add(etiquetaSeccion("Observaciones"));
+
+            PdfPTable tObs = new PdfPTable(1);
+            tObs.setWidthPercentage(100);
+            tObs.setSpacingBefore(6);
+
+            PdfPCell cObs = new PdfPCell(new Phrase(observaciones, FONT_TD));
+            cObs.setBackgroundColor(COLOR_FILA_PAR);
+            cObs.setPadding(10);
+            cObs.setBorderColor(new BaseColor(220, 210, 195));
+            tObs.addCell(cObs);
+            doc.add(tObs);
+        }
+
+        doc.close();
     }
 }
