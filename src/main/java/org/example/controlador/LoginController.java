@@ -60,7 +60,10 @@ public class LoginController {
                 Parent root = loader.load();
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.getScene().setRoot(root);
-                stage.setMaximized(true);
+                stage.setMaximized(false);  //  ventana pequeña
+                stage.setWidth(500);
+                stage.setHeight(400);
+                stage.centerOnScreen();
                 stage.show();
             }
         } else {
