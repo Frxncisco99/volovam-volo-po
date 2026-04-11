@@ -115,7 +115,7 @@ public class MenuPrincipal implements Initializable {
             }
 
             // 3. Stock bajo
-            String sqlStock = "SELECT COUNT(*) FROM productos WHERE stock <= 5 AND activo = 1";
+            String sqlStock = "SELECT COUNT(*) FROM productos WHERE stock <= stock_minimo AND activo = 1";
             PreparedStatement psStock = con.prepareStatement(sqlStock);
             ResultSet rsStock = psStock.executeQuery();
             if (rsStock.next()) {

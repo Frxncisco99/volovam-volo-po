@@ -27,6 +27,10 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import java.awt.Desktop;
 
+import javafx.stage.FileChooser;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class ReporteController {
 
     @FXML private DatePicker dateInicio;
@@ -45,9 +49,14 @@ public class ReporteController {
     @FXML private Label lblProductoTop;
     @FXML private Label lblProductoTopCantidad;
 
+    @FXML private Button btnCantidad;
+    @FXML private Button btnIngresos;
+
     @FXML private BarChart<String, Number> chartVentas;
 
     private String ultimaRutaPDF = null;
+    private Map<String, Integer> ultimoTop = null;
+    private List<Ticket> ultimosTickets = null;
 
     @FXML private BarChart<String, Number> graficaProductos;
 
@@ -136,6 +145,8 @@ public class ReporteController {
             int cantidad = service.contarTickets(tickets);
             double promedio = service.calcularPromedio(tickets);
             Map<String, Integer> top = service.topProductos(tickets);
+            ultimoTop = top;
+            ultimosTickets = tickets;
 
             // UI
             lblTotal.setText("$" + df.format(total));
@@ -174,41 +185,61 @@ public class ReporteController {
 
     @FXML
     private void guardarPDF() {
-
         try {
-
-            String carpeta = System.getProperty("user.home") + "/Documents/ReportesVolovan/";
-            new File(carpeta).mkdirs();
-
-            ultimaRutaPDF = carpeta + "reporte_" + System.currentTimeMillis() + ".pdf";
-
-            // volver a generar datos
+            // Regenerar datos
             LocalDateTime inicio = dateInicio.getValue().atStartOfDay();
             LocalDateTime fin = dateFin.getValue().atTime(23, 59);
 
             List<Ticket> tickets = service.obtenerTickets(inicio, fin);
-
             double total = service.calcularTotal(tickets);
             int cantidad = service.contarTickets(tickets);
             double promedio = service.calcularPromedio(tickets);
             Map<String, Integer> top = service.topProductos(tickets);
 
-            switch (cbTipoReporte.getValue()) {
+            // Nombre sugerido automático: Reporte_Ventas_2025-01-15.pdf
+            String tipoLimpio = cbTipoReporte.getValue()
+                    .replace(" ", "_")
+                    .replace("á","a").replace("é","e")
+                    .replace("í","i").replace("ó","o")
+                    .replace("ú","u");
+            String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String nombreSugerido = "Reporte_" + tipoLimpio + "_" + fechaHoy + ".pdf";
 
+            // Abrir explorador de archivos nativo
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar reporte PDF");
+            fileChooser.setInitialFileName(nombreSugerido);
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Archivo PDF", "*.pdf")
+            );
+
+            // Directorio inicial: Documents si existe, si no home
+            File docFolder = new File(System.getProperty("user.home") + "/Documents");
+            fileChooser.setInitialDirectory(docFolder.exists() ? docFolder
+                    : new File(System.getProperty("user.home")));
+
+            // Obtener la ventana actual para el diálogo modal
+            Stage stage = (Stage) cbTipoReporte.getScene().getWindow();
+            File archivoDestino = fileChooser.showSaveDialog(stage);
+
+            if (archivoDestino == null) return; // El usuario canceló
+
+            ultimaRutaPDF = archivoDestino.getAbsolutePath();
+
+            // Generar el PDF en la ruta elegida
+            switch (cbTipoReporte.getValue()) {
                 case "Ventas":
                     pdf.generarReporteVentas(tickets, total, cantidad, promedio, top, ultimaRutaPDF);
                     break;
-
                 case "Productos más vendidos":
                     pdf.generarTopProductos(top, ultimaRutaPDF);
                     break;
-
                 case "Bajo stock":
                     pdf.generarBajoStock(service.obtenerBajoStock(), ultimaRutaPDF);
                     break;
             }
 
-            alerta("PDF guardado ✔");
+            alerta("PDF guardado ✔  →  " + archivoDestino.getName());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -271,6 +302,62 @@ public class ReporteController {
                 Platform.exit();
             }
         });
+    }
+
+    @FXML
+    private void verGraficaCantidad() {
+        if (ultimoTop == null) { alerta("Genera un reporte primero"); return; }
+
+        chartVentas.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Cantidad vendida");
+
+        for (Map.Entry<String, Integer> e : ultimoTop.entrySet()) {
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
+        chartVentas.getData().add(series);
+
+        // Estado visual de botones
+        btnCantidad.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+    }
+
+    @FXML
+    private void verGraficaIngresos() {
+        if (ultimosTickets == null) { alerta("Genera un reporte primero"); return; }
+
+        // Calcular ingresos por producto sumando subtotales de líneas
+        Map<String, Double> ingresosPorProducto = new java.util.LinkedHashMap<>();
+        for (Ticket t : ultimosTickets) {
+            if (t.getLineas() == null) continue;
+            for (Ticket.LineaTicket linea : t.getLineas()) {
+                ingresosPorProducto.merge(
+                        linea.getNombreProducto(),
+                        linea.getSubtotal(),
+                        Double::sum
+                );
+            }
+        }
+
+        // Ordenar de mayor a menor
+        ingresosPorProducto = ingresosPorProducto.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey, Map.Entry::getValue,
+                        (a, b) -> a, java.util.LinkedHashMap::new));
+
+        chartVentas.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Ingresos ($)");
+
+        for (Map.Entry<String, Double> e : ingresosPorProducto.entrySet()) {
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
+        chartVentas.getData().add(series);
+
+        // Estado visual de botones
+        btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
     }
 
 }

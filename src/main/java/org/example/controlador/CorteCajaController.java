@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.ReportePDFService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,6 +44,7 @@ public class CorteCajaController {
     private double totalEntradas = 0;
     private double totalSalidas = 0;
     private double dineroEsperado = 0;
+    private final ReportePDFService pdf = new ReportePDFService();
 
     @FXML
     public void initialize() {
@@ -225,8 +227,47 @@ public class CorteCajaController {
 
             con.commit();
 
+            // ── Generar PDF obligatorio ──────────────────────
+            String fechaHoy = java.time.LocalDate.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Guardar corte de caja");
+            fileChooser.setInitialFileName("Corte_Caja_" + fechaHoy + ".pdf");
+            fileChooser.getExtensionFilters().add(
+                    new javafx.stage.FileChooser.ExtensionFilter("Archivo PDF", "*.pdf"));
+
+            java.io.File docFolder = new java.io.File(System.getProperty("user.home") + "/Documents");
+            fileChooser.setInitialDirectory(docFolder.exists() ? docFolder
+                    : new java.io.File(System.getProperty("user.home")));
+
+            Stage stage = (Stage) lblFechaHoy.getScene().getWindow();
+            java.io.File destino = fileChooser.showSaveDialog(stage);
+
+            if (destino != null) {
+                SesionUsuario sesion = SesionUsuario.getInstancia();
+                pdf.generarCorteCaja(
+                        sesion.getNombre(),
+                        "Caja #" + sesion.getIdCaja(),
+                        lblHoraApertura.getText(),
+                        java.time.LocalDateTime.now()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        fondoInicial,
+                        totalEfectivo,
+                        totalEntradas,
+                        totalSalidas,
+                        dineroEsperado,
+                        montoReal,
+                        diferencia,
+                        Integer.parseInt(lblNumTickets.getText()),
+                        txtObservaciones.getText().trim(),
+                        destino.getAbsolutePath()
+                );
+            }
+
             SesionUsuario.getInstancia().setIdCaja(0);
-            mostrarInfo("Caja cerrada", "El corte se registro correctamente.");
+            mostrarInfo("Caja cerrada", "El corte se registro correctamente." +
+                    (destino != null ? "\nPDF guardado en: " + destino.getName() : "\nPDF no guardado."));
             Platform.exit();
 
         } catch (Exception e) {
@@ -302,6 +343,64 @@ public class CorteCajaController {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void exportarCortePDF() {
+        try {
+            String tipoLimpio = "Corte_de_Caja";
+            String fechaHoy = java.time.LocalDate.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String nombreSugerido = "Reporte_" + tipoLimpio + "_" + fechaHoy + ".pdf";
+
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Guardar corte de caja");
+            fileChooser.setInitialFileName(nombreSugerido);
+            fileChooser.getExtensionFilters().add(
+                    new javafx.stage.FileChooser.ExtensionFilter("Archivo PDF", "*.pdf"));
+
+            java.io.File docFolder = new java.io.File(System.getProperty("user.home") + "/Documents");
+            fileChooser.setInitialDirectory(docFolder.exists() ? docFolder
+                    : new java.io.File(System.getProperty("user.home")));
+
+            Stage stage = (Stage) lblFechaHoy.getScene().getWindow();
+            java.io.File destino = fileChooser.showSaveDialog(stage);
+            if (destino == null) return;
+
+            double contado = 0;
+            try { contado = Double.parseDouble(txtDineroContado.getText().trim()); } catch (Exception ignored) {}
+            double diferencia = contado - dineroEsperado;
+
+            SesionUsuario sesion = SesionUsuario.getInstancia();
+
+            pdf.generarCorteCaja(
+                    sesion.getNombre(),
+                    "Caja #" + sesion.getIdCaja(),
+                    lblHoraApertura.getText(),
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    fondoInicial,
+                    totalEfectivo,
+                    totalEntradas,
+                    totalSalidas,
+                    dineroEsperado,
+                    contado,
+                    diferencia,
+                    Integer.parseInt(lblNumTickets.getText()),
+                    txtObservaciones.getText().trim(),
+                    destino.getAbsolutePath()
+            );
+
+            Alert ok = new Alert(Alert.AlertType.INFORMATION);
+            ok.setTitle("PDF generado");
+            ok.setHeaderText(null);
+            ok.setContentText("Corte guardado en:\n" + destino.getName());
+            ok.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo generar el PDF.");
         }
     }
 }
