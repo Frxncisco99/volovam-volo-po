@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -15,7 +15,6 @@
             fx:controller="org.example.controlador.VentasController"
             stylesheets="@ventas.css">
 
-    <!-- SIDEBAR -->
     <left>
         <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
             <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
@@ -46,15 +45,11 @@
                 <Button onAction="#irAEmpleados" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Empleados" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
-                        text="Reportes">
-                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-chart-bar" iconSize="16" /></graphic>
+                <Button onAction="#irAReportes" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Reportes" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
-                        text="Corte de Caja">
-                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
+                <Button onAction="#irACorteCaja" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Corte de Caja" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Configuracion" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#C8A97E"/></graphic>
@@ -77,7 +72,19 @@
                     <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Punto de venta"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblFolio" style="-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-padding: 0 16 0 0;" text="Folio #0000"/>
+
+                <!-- Botones nuevos -->
+                <Button onAction="#abrirHistorial"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B4226; -fx-background-radius: 8; -fx-border-color: #6B4226; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;"
+                        text="📋 Historial" graphicTextGap="6"/>
+                <Button onAction="#abrirIngreso"
+                        style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 8; -fx-border-color: #2E7D32; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;"
+                        text="+ Ingreso"/>
+                <Button onAction="#abrirSalida"
+                        style="-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B; -fx-background-radius: 8; -fx-border-color: #C0392B; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;"
+                        text="- Salida"/>
+
+                <Label fx:id="lblFolio" style="-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-padding: 0 16;" text="Folio #0000"/>
                 <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 4 12; -fx-font-size: 11px;" text="Caja abierta"/>
             </HBox>
 
@@ -85,14 +92,14 @@
 
                 <!-- PRODUCTOS -->
                 <VBox spacing="10" style="-fx-background-color: #F5EFE6; -fx-padding: 16;" HBox.hgrow="ALWAYS">
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Productos disponibles"/>
 
-                    <!-- Buscador + Categorías -->
-                    <HBox spacing="8">
-                        <TextField fx:id="txtBuscar" promptText="Buscar producto... (F2)" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 13px;" HBox.hgrow="ALWAYS"/>
-                        <ComboBox fx:id="cmbCategoria" promptText="Categoría" prefWidth="140" style="-fx-background-radius: 8;"/>
-                    </HBox>
+                    <!-- Buscador -->
+                    <TextField fx:id="txtBuscar" promptText="Buscar producto... (F2)" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 14px;"/>
 
+                    <!-- Botones de categoría -->
+                    <FlowPane fx:id="panelCategorias" hgap="8" vgap="8"/>
+
+                    <!-- Lista productos -->
                     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox fx:id="listaProductos" spacing="8" style="-fx-padding: 4;"/>
                     </ScrollPane>
@@ -112,8 +119,6 @@
                         <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;"/>
                     </ScrollPane>
                     <Separator/>
-
-                    <!-- Resumen -->
                     <VBox spacing="6" style="-fx-padding: 4 0;">
                         <HBox alignment="CENTER_LEFT">
                             <Label style="-fx-font-size: 12px; -fx-text-fill: #7A5535;" text="Subtotal:"/>
@@ -132,7 +137,6 @@
                             <Label fx:id="lblTotal" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="\$0.00"/>
                         </HBox>
                     </VBox>
-
                     <Button fx:id="btnCobrar" onAction="#handleCobrar" prefHeight="45" prefWidth="350" style="-fx-background-color: #6B4226; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;" text="Cobrar  [Enter]"/>
                     <Button fx:id="btnCancelar" onAction="#handleCancelar" prefHeight="36" prefWidth="350" style="-fx-background-color: transparent; -fx-border-color: #C0392B; -fx-border-radius: 10; -fx-border-width: 1.2; -fx-text-fill: #C0392B; -fx-font-size: 13px; -fx-cursor: hand;" text="Cancelar venta  [ESC]"/>
                 </VBox>
