@@ -15,7 +15,7 @@ public class ConexionDB {
     public static Connection getConexion() {
         try {
             Connection con = DriverManager.getConnection(URL, USUARIO, CLAVE);
-            System.out.println("Conexión exitosa ✅");
+            System.out.println("Conexion exitosa");
             return con;
         } catch (SQLException e) {
             Alert alerta = new Alert(Alert.AlertType.ERROR);
