@@ -92,6 +92,51 @@
                 <Label text="Volovan Volo"
                        style="-fx-background-color: #6B1228; -fx-text-fill: #F5EFE0; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 5 14; -fx-background-radius: 20;"/>
             </HBox>
+            <HBox spacing="8" alignment="CENTER_LEFT"
+                  style="-fx-padding: 6 28 10 28; -fx-background-color: #F5EFE6;
+             -fx-border-color: transparent transparent #E0D5C5 transparent;
+             -fx-border-width: 1;">
+
+                <Label text="Acceso rápido:"
+                       style="-fx-font-size: 10px; -fx-font-weight: bold;
+                  -fx-text-fill: #6B4226; -fx-padding: 0 6 0 0;"/>
+
+                <Button fx:id="btnHoy"    text="Hoy"    onAction="#filtroRapido"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228;
+                   -fx-border-color: #C9A84C; -fx-border-width: 1;
+                   -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand;
+                   -fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+                <Button fx:id="btnAyer"   text="Ayer"   onAction="#filtroRapido"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228;
+                   -fx-border-color: #C9A84C; -fx-border-width: 1;
+                   -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand;
+                   -fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+                <Button fx:id="btnSemana" text="Esta semana" onAction="#filtroRapido"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228;
+                   -fx-border-color: #C9A84C; -fx-border-width: 1;
+                   -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand;
+                   -fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+                <Button fx:id="btnMes"    text="Este mes"   onAction="#filtroRapido"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228;
+                   -fx-border-color: #C9A84C; -fx-border-width: 1;
+                   -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand;
+                   -fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+                <Button fx:id="btnAnio"   text="Este año"   onAction="#filtroRapido"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228;
+                   -fx-border-color: #C9A84C; -fx-border-width: 1;
+                   -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand;
+                   -fx-font-size: 11px; -fx-font-weight: bold;"/>
+
+            </HBox>
 
             <!-- FILTROS -->
             <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 0 28 16 28;">

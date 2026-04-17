@@ -33,7 +33,6 @@ public class Ticket {
         this.cambio        = cambio;
         this.numeroCaja    = numeroCaja;
 
-        // Calcular subtotal sumando líneas
         this.subtotal = lineas.stream()
                 .mapToDouble(LineaTicket::getSubtotal)
                 .sum();
@@ -41,61 +40,83 @@ public class Ticket {
 
     // ─── Getters y Setters ───────────────────────────────────────────────────
 
-    public int getIdVenta()                  { return idVenta; }
-    public void setIdVenta(int idVenta)      { this.idVenta = idVenta; }
+    public int getIdVenta()                             { return idVenta; }
+    public void setIdVenta(int idVenta)                 { this.idVenta = idVenta; }
 
-    public LocalDateTime getFechaHora()                     { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora)       { this.fechaHora = fechaHora; }
+    public LocalDateTime getFechaHora()                 { return fechaHora; }
+    public void setFechaHora(LocalDateTime fechaHora)   { this.fechaHora = fechaHora; }
 
-    public String getNombreCajero()                         { return nombreCajero; }
-    public void setNombreCajero(String nombreCajero)        { this.nombreCajero = nombreCajero; }
+    public String getNombreCajero()                     { return nombreCajero; }
+    public void setNombreCajero(String n)               { this.nombreCajero = n; }
 
-    public List<LineaTicket> getLineas()                    { return lineas; }
-    public void setLineas(List<LineaTicket> lineas)         { this.lineas = lineas; }
+    public List<LineaTicket> getLineas()                { return lineas; }
+    public void setLineas(List<LineaTicket> lineas)     { this.lineas = lineas; }
 
-    public double getSubtotal()                             { return subtotal; }
-    public void setSubtotal(double subtotal)                { this.subtotal = subtotal; }
+    public double getSubtotal()                         { return subtotal; }
+    public void setSubtotal(double subtotal)            { this.subtotal = subtotal; }
 
-    public double getTotal()                                { return total; }
-    public void setTotal(double total)                      { this.total = total; }
+    public double getTotal()                            { return total; }
+    public void setTotal(double total)                  { this.total = total; }
 
-    public double getMontoRecibido()                        { return montoRecibido; }
-    public void setMontoRecibido(double montoRecibido)      { this.montoRecibido = montoRecibido; }
+    public double getMontoRecibido()                    { return montoRecibido; }
+    public void setMontoRecibido(double m)              { this.montoRecibido = m; }
 
-    public double getCambio()                               { return cambio; }
-    public void setCambio(double cambio)                    { this.cambio = cambio; }
+    public double getCambio()                           { return cambio; }
+    public void setCambio(double cambio)                { this.cambio = cambio; }
 
-    public int getNumeroCaja()                              { return numeroCaja; }
-    public void setNumeroCaja(int numeroCaja)               { this.numeroCaja = numeroCaja; }
+    public int getNumeroCaja()                          { return numeroCaja; }
+    public void setNumeroCaja(int numeroCaja)           { this.numeroCaja = numeroCaja; }
 
     // ─── Clase interna: una línea del ticket ────────────────────────────────
 
     public static class LineaTicket {
 
         private String nombreProducto;
-        private int cantidad;
+        private int    cantidad;
         private double precioUnitario;
+        private double costoUnitario;   // ← NUEVO: costo de compra del producto
         private double subtotal;
 
         public LineaTicket() {}
 
+        /**
+         * Constructor original — costoUnitario queda en 0 para no romper
+         * código existente que ya usa este constructor.
+         */
         public LineaTicket(String nombreProducto, int cantidad, double precioUnitario) {
+            this(nombreProducto, cantidad, precioUnitario, 0.0);
+        }
+
+        /**
+         * Constructor completo con costo unitario.
+         * Úsalo cuando tengas acceso al costo del producto (p.ej. desde la BD).
+         */
+        public LineaTicket(String nombreProducto, int cantidad,
+                           double precioUnitario, double costoUnitario) {
             this.nombreProducto = nombreProducto;
             this.cantidad       = cantidad;
             this.precioUnitario = precioUnitario;
+            this.costoUnitario  = costoUnitario;
             this.subtotal       = precioUnitario * cantidad;
         }
 
-        public String getNombreProducto()                          { return nombreProducto; }
-        public void setNombreProducto(String nombreProducto)       { this.nombreProducto = nombreProducto; }
+        public String getNombreProducto()                    { return nombreProducto; }
+        public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
 
-        public int getCantidad()                                   { return cantidad; }
-        public void setCantidad(int cantidad)                      { this.cantidad = cantidad; }
+        public int getCantidad()                             { return cantidad; }
+        public void setCantidad(int cantidad)                { this.cantidad = cantidad; }
 
-        public double getPrecioUnitario()                          { return precioUnitario; }
-        public void setPrecioUnitario(double precioUnitario)       { this.precioUnitario = precioUnitario; }
+        public double getPrecioUnitario()                    { return precioUnitario; }
+        public void setPrecioUnitario(double precioUnitario) {
+            this.precioUnitario = precioUnitario;
+            this.subtotal = precioUnitario * cantidad;
+        }
 
-        public double getSubtotal()                                { return subtotal; }
-        public void setSubtotal(double subtotal)                   { this.subtotal = subtotal; }
+        /** Costo de compra (para calcular ganancia en reportes). */
+        public double getCostoUnitario()                     { return costoUnitario; }
+        public void setCostoUnitario(double costoUnitario)   { this.costoUnitario = costoUnitario; }
+
+        public double getSubtotal()                          { return subtotal; }
+        public void setSubtotal(double subtotal)             { this.subtotal = subtotal; }
     }
 }
