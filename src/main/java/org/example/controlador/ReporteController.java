@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,6 +16,7 @@ import org.example.servicio.ReporteService;
 import org.example.servicio.ReportePDFService;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,8 @@ import javafx.scene.chart.XYChart;
 import java.awt.Desktop;
 
 import javafx.stage.FileChooser;
+import org.kordamp.ikonli.javafx.FontIcon;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -57,6 +61,25 @@ public class ReporteController {
     @FXML private Button btnSemana;
     @FXML private Button btnMes;
     @FXML private Button btnAnio;
+
+    @FXML private HBox hboxWifi;
+    @FXML private FontIcon iconWifi;
+    @FXML private Label lblWifi;
+
+    private void actualizarEstadoWifi() {
+        try {
+            InetAddress.getByName("8.8.8.8").isReachable(1000); // intenta conectar
+            lblWifi.setText("Conectado");
+            lblWifi.setStyle("-fx-text-fill: #2E7D32; -fx-font-size: 10px;");
+            iconWifi.setIconColor(javafx.scene.paint.Color.web("#2E7D32"));
+            hboxWifi.setStyle("-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;");
+        } catch (Exception e) {
+            lblWifi.setText("Sin conexión");
+            lblWifi.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 10px;");
+            iconWifi.setIconColor(javafx.scene.paint.Color.web("#C0392B"));
+            hboxWifi.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 12; -fx-padding: 2 10;");
+        }
+    }
 
     @FXML private BarChart<String, Number> chartVentas;
 
