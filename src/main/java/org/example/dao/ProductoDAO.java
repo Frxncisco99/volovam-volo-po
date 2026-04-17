@@ -116,4 +116,17 @@ public class ProductoDAO {
 
         return lista;
     }
+
+    // AJUSTE RÁPIDO DE STOCK — suma o resta sin tocar otros campos
+    public void ajustarStock(int idProducto, int cantidad) {
+        String sql = "UPDATE productos SET stock = stock + ? WHERE id_producto = ?";
+        try (Connection conn = ConexionDB.getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, cantidad);  // positivo = suma, negativo = resta
+            ps.setInt(2, idProducto);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
