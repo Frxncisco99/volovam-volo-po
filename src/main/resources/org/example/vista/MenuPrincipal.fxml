@@ -52,7 +52,7 @@
                 <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Corte de Caja">
                     <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cash-register" iconSize="16"/></graphic>
                 </Button>
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Configuracion">
+                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Configuracion">
                     <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cog" iconSize="16"/></graphic>
                 </Button>
             </VBox>
