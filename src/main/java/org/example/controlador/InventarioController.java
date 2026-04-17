@@ -8,6 +8,7 @@ import javafx.collections.transformation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -80,10 +81,11 @@ public class InventarioController {
             @Override
             protected void updateItem(Integer id, boolean empty) {
                 super.updateItem(id, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || id == null) { setText(null); setStyle(""); }
                 else {
                     setText("#" + String.format("%03d", id));
-                    setStyle("-fx-text-fill: #8B4A5A; -fx-font-size: 12px;");
+                    setStyle("-fx-text-fill: #8B4A5A; -fx-font-size: 12px; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -92,10 +94,11 @@ public class InventarioController {
             @Override
             protected void updateItem(String nombre, boolean empty) {
                 super.updateItem(nombre, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || nombre == null) { setText(null); setStyle(""); }
                 else {
                     setText(nombre);
-                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold;");
+                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -109,6 +112,7 @@ public class InventarioController {
             @Override
             protected void updateItem(String cat, boolean empty) {
                 super.updateItem(cat, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || cat == null) setGraphic(null);
                 else { badge.setText(cat); setGraphic(badge); }
             }
@@ -118,10 +122,11 @@ public class InventarioController {
             @Override
             protected void updateItem(Double precio, boolean empty) {
                 super.updateItem(precio, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || precio == null) { setText(null); setStyle(""); }
                 else {
                     setText(String.format("$%.2f", precio));
-                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold;");
+                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -130,13 +135,14 @@ public class InventarioController {
             @Override
             protected void updateItem(Integer stock, boolean empty) {
                 super.updateItem(stock, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || stock == null) { setText(null); setStyle(""); }
                 else {
                     Producto p = getTableView().getItems().get(getIndex());
                     setText(String.valueOf(stock));
                     setStyle(p.isBajoStock()
-                            ? "-fx-text-fill: #A32D2D; -fx-font-weight: bold;"
-                            : "-fx-text-fill: #6B4226;");
+                            ? "-fx-text-fill: #A32D2D; -fx-font-weight: bold; -fx-alignment: CENTER;"
+                            : "-fx-text-fill: #6B4226; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -149,6 +155,7 @@ public class InventarioController {
             @Override
             protected void updateItem(String estado, boolean empty) {
                 super.updateItem(estado, empty);
+                setAlignment(Pos.CENTER);
                 if (empty || estado == null) {
                     setGraphic(null);
                 } else if (estado.equals("Bajo")) {
@@ -169,26 +176,27 @@ public class InventarioController {
 
         colAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEditar   = new Button("Editar");
-            private final Button btnStock    = new Button("⇅ Stock");   // ← NUEVO
+            private final Button btnStock    = new Button("⇅ Stock");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox   caja        = new HBox(6, btnEditar, btnStock, btnEliminar); // ← NUEVO
+            private final HBox   caja        = new HBox(6, btnEditar, btnStock, btnEliminar);
             {
                 btnEditar.setStyle("-fx-background-color: #C9A84C; -fx-text-fill: #3D1A0A; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
-                btnStock.setStyle("-fx-background-color: #2E7D50; -fx-text-fill: white; " +    // ← NUEVO
+                btnStock.setStyle("-fx-background-color: #2E7D50; -fx-text-fill: white; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
                 btnEliminar.setStyle("-fx-background-color: #6B1228; -fx-text-fill: #F5EFE0; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
-                caja.setStyle("-fx-alignment: CENTER_LEFT; -fx-padding: 2 0;");
+                caja.setAlignment(Pos.CENTER);
+                caja.setStyle("-fx-padding: 2 0;");
 
                 btnEditar.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
                     abrirFormularioEditar(p);
                 });
-                btnStock.setOnAction(e -> {                                                     // ← NUEVO
+                btnStock.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
                     abrirAjusteStock(p);
                 });
@@ -248,7 +256,7 @@ public class InventarioController {
     }
 
     @FXML
-    private  void irAEmpleados(){
+    private void irAEmpleados() {
         cambiarEscena("/org/example/vista/Empleados.fxml");
     }
 
@@ -406,7 +414,6 @@ public class InventarioController {
         }
     }
 
-
     private void abrirFormularioEditar(Producto p) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -431,10 +438,8 @@ public class InventarioController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -445,10 +450,8 @@ public class InventarioController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/CorteCaja.fxml"));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -467,7 +470,7 @@ public class InventarioController {
             stage.setResizable(false);
             stage.setTitle("Ajustar Stock — " + p.getNombre());
             stage.showAndWait();
-            cargarProductos();   // refresca tabla y resumen al cerrar
+            cargarProductos();
         } catch (Exception e) {
             e.printStackTrace();
         }

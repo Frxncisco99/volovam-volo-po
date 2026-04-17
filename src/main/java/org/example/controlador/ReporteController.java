@@ -52,7 +52,29 @@ public class ReporteController {
     @FXML private Button btnCantidad;
     @FXML private Button btnIngresos;
 
+    @FXML private Button btnHoy;
+    @FXML private Button btnAyer;
+    @FXML private Button btnSemana;
+    @FXML private Button btnMes;
+    @FXML private Button btnAnio;
+
     @FXML private BarChart<String, Number> chartVentas;
+
+    // ── Estilos reutilizables ─────────────────────────────────────────────────
+    private static final String ESTILO_BTN_ACTIVO =
+            "-fx-background-color: #6B1228; -fx-text-fill: white; " +
+                    "-fx-border-color: #6B1228; -fx-border-width: 1; " +
+                    "-fx-border-radius: 20; -fx-background-radius: 20; " +
+                    "-fx-padding: 5 18; -fx-cursor: hand; " +
+                    "-fx-font-size: 11px; -fx-font-weight: bold;";
+
+    private static final String ESTILO_BTN_INACTIVO =
+            "-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; " +
+                    "-fx-border-color: #C9A84C; -fx-border-width: 1; " +
+                    "-fx-border-radius: 20; -fx-background-radius: 20; " +
+                    "-fx-padding: 5 18; -fx-cursor: hand; " +
+                    "-fx-font-size: 11px; -fx-font-weight: bold;";
+
 
     private String ultimaRutaPDF = null;
     private Map<String, Integer> ultimoTop = null;
@@ -358,6 +380,48 @@ public class ReporteController {
         // Estado visual de botones
         btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+    }
+
+    @FXML
+    private void filtroRapido(ActionEvent e) {
+        LocalDate hoy = LocalDate.now();
+        Button origen = (Button) e.getSource();
+
+        LocalDate inicio;
+        LocalDate fin = hoy;   // por defecto el fin es hoy
+
+        if (origen == btnHoy) {
+            inicio = hoy;
+
+        } else if (origen == btnAyer) {
+            inicio = hoy.minusDays(1);
+            fin    = hoy.minusDays(1);
+
+        } else if (origen == btnSemana) {
+            // Lunes de la semana actual (ISO: lunes = día 1)
+            inicio = hoy.with(java.time.DayOfWeek.MONDAY);
+
+        } else if (origen == btnMes) {
+            inicio = hoy.withDayOfMonth(1);
+
+        } else {   // btnAnio
+            inicio = hoy.withDayOfYear(1);
+        }
+
+        // Rellenar los DatePicker
+        dateInicio.setValue(inicio);
+        dateFin.setValue(fin);
+
+        // Resaltar el botón pulsado y apagar los demás
+        for (Button b : new Button[]{ btnHoy, btnAyer, btnSemana, btnMes, btnAnio }) {
+            b.setStyle(b == origen ? ESTILO_BTN_ACTIVO : ESTILO_BTN_INACTIVO);
+        }
+
+        // Lanzar el reporte automáticamente (requiere que cbTipoReporte tenga valor)
+        if (cbTipoReporte.getValue() == null) {
+            cbTipoReporte.setValue("Ventas");   // valor por defecto
+        }
+        generarReporte();
     }
 
 }
