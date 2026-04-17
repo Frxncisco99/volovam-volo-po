@@ -169,20 +169,28 @@ public class InventarioController {
 
         colAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEditar   = new Button("Editar");
+            private final Button btnStock    = new Button("⇅ Stock");   // ← NUEVO
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox   caja        = new HBox(8, btnEditar, btnEliminar);
+            private final HBox   caja        = new HBox(6, btnEditar, btnStock, btnEliminar); // ← NUEVO
             {
                 btnEditar.setStyle("-fx-background-color: #C9A84C; -fx-text-fill: #3D1A0A; " +
-                        "-fx-background-radius: 6; -fx-padding: 5 14; " +
+                        "-fx-background-radius: 6; -fx-padding: 5 10; " +
+                        "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
+                btnStock.setStyle("-fx-background-color: #2E7D50; -fx-text-fill: white; " +    // ← NUEVO
+                        "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
                 btnEliminar.setStyle("-fx-background-color: #6B1228; -fx-text-fill: #F5EFE0; " +
-                        "-fx-background-radius: 6; -fx-padding: 5 14; " +
+                        "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
                 caja.setStyle("-fx-alignment: CENTER_LEFT; -fx-padding: 2 0;");
 
                 btnEditar.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
                     abrirFormularioEditar(p);
+                });
+                btnStock.setOnAction(e -> {                                                     // ← NUEVO
+                    Producto p = getTableView().getItems().get(getIndex());
+                    abrirAjusteStock(p);
                 });
                 btnEliminar.setOnAction(e -> {
                     Producto p = getTableView().getItems().get(getIndex());
@@ -441,6 +449,25 @@ public class InventarioController {
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void abrirAjusteStock(Producto p) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/AjustarStock.fxml"));
+            Parent root = loader.load();
+            AjustarStockController ctrl = loader.getController();
+            ctrl.setProducto(p);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.setTitle("Ajustar Stock — " + p.getNombre());
+            stage.showAndWait();
+            cargarProductos();   // refresca tabla y resumen al cerrar
         } catch (Exception e) {
             e.printStackTrace();
         }
