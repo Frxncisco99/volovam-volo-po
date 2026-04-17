@@ -9,6 +9,10 @@ public class SesionUsuario {
     private String usuario;
     private int idRol;
     private String rol;
+    private double tipoCambioDolar;
+
+    public double getTipoCambioDolar() { return tipoCambioDolar; }
+    public void setTipoCambioDolar(double tipoCambioDolar) { this.tipoCambioDolar = tipoCambioDolar; }
 
     // Constructor privado
     private SesionUsuario() {
