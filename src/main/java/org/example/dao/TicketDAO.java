@@ -29,7 +29,7 @@ public class TicketDAO {
                         "WHERE v.id_venta = ?";
 
         String sqlDetalle =
-                "SELECT p.nombre, dv.cantidad, dv.precio_unitario, dv.subtotal " +
+                "SELECT p.nombre, dv.cantidad, dv.precio_unitario, dv.subtotal, p.costo " +
                         "FROM detalle_venta dv " +
                         "JOIN productos p ON dv.id_producto = p.id_producto " +
                         "WHERE dv.id_venta = ?";
@@ -65,7 +65,8 @@ public class TicketDAO {
                     LineaTicket linea = new LineaTicket(
                             rs.getString("nombre"),
                             rs.getInt("cantidad"),
-                            rs.getDouble("precio_unitario")
+                            rs.getDouble("precio_unitario"),
+                            rs.getDouble("costo")   // ← esto era lo que faltaba
                     );
                     linea.setSubtotal(rs.getDouble("subtotal"));
                     lineas.add(linea);

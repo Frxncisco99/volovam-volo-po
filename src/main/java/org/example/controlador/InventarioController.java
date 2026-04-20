@@ -22,8 +22,10 @@ import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.ExportarInventarioservice;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +60,25 @@ public class InventarioController {
     private final ChangeListener<String> filtroCategoriaListener = (o, a, b) -> aplicarFiltros();
     private final ChangeListener<String> filtroEstadoListener    = (o, a, b) -> aplicarFiltros();
 
+
+    @FXML private HBox hboxWifi;
+    @FXML private FontIcon iconWifi;
+    @FXML private Label lblWifi;
+
+    private void actualizarEstadoWifi() {
+        try {
+            InetAddress.getByName("8.8.8.8").isReachable(1000); // intenta conectar
+            lblWifi.setText("Conectado");
+            lblWifi.setStyle("-fx-text-fill: #2E7D32; -fx-font-size: 10px;");
+            iconWifi.setIconColor(javafx.scene.paint.Color.web("#2E7D32"));
+            hboxWifi.setStyle("-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;");
+        } catch (Exception e) {
+            lblWifi.setText("Sin conexión");
+            lblWifi.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 10px;");
+            iconWifi.setIconColor(javafx.scene.paint.Color.web("#C0392B"));
+            hboxWifi.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 12; -fx-padding: 2 10;");
+        }
+    }
     @FXML
     public void initialize() {
 
