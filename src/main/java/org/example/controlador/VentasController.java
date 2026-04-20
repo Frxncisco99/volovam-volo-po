@@ -27,6 +27,7 @@ public class VentasController {
 
     @FXML private VBox listaProductos;
     @FXML private VBox listaCarrito;
+
     @FXML private Label lblTotal;
     @FXML private Label lblSubtotal;
     @FXML private Label lblIva;
@@ -40,7 +41,14 @@ public class VentasController {
     @FXML private Button btnCobrar;
     @FXML private Label lblFecha;
     @FXML private FlowPane panelCategorias;
+    @FXML private Label lblClienteSeleccionado;
+    @FXML private Label lblCreditoDisponible;
 
+    private int idClienteSeleccionado = 1; // 1 = Público General por defecto
+    private String nombreClienteSeleccionado = "Publico General";
+    private double limiteCredito = 0;
+    private double saldoCliente = 0;
+    private HBox primerProducto = null;
     private String categoriaSeleccionada = "Todas";
     private Map<Integer, Object[]> carrito = new HashMap<>();
     private double total = 0;
@@ -50,6 +58,7 @@ public class VentasController {
         SesionUsuario sesion = SesionUsuario.getInstancia();
         lblNombreUsuario.setText(sesion.getNombre());
         lblRolUsuario.setText(sesion.getRol());
+
         String iniciales = sesion.getNombre().length() >= 2
                 ? sesion.getNombre().substring(0, 2).toUpperCase()
                 : sesion.getNombre().toUpperCase();
@@ -59,26 +68,47 @@ public class VentasController {
         cargarProductos("", "Todas");
         cargarFolio();
 
-        // Reemplaza los listeners anteriores por este
         txtBuscar.textProperty().addListener((obs, old, nuevo) ->
                 cargarProductos(nuevo, categoriaSeleccionada));
 
         Platform.runLater(() -> {
             Scene scene = lblTotal.getScene();
             if (scene != null) {
-                // Poner foco en cobrar al iniciar
-                btnCobrar.requestFocus();
+
+                // Foco en buscar
+                txtBuscar.requestFocus();
 
                 scene.setOnKeyPressed(e -> {
-                    // Enter solo si el foco NO está en un botón del sidebar
+
                     if (e.getCode() == KeyCode.ENTER) {
+
+                        // ENTER en buscar → agrega primer producto
+                        if (scene.getFocusOwner() == txtBuscar) {
+                            if (primerProducto != null) {
+                                primerProducto.fireEvent(
+                                        new javafx.scene.input.MouseEvent(
+                                                javafx.scene.input.MouseEvent.MOUSE_CLICKED,
+                                                0,0,0,0,
+                                                javafx.scene.input.MouseButton.PRIMARY,
+                                                1,
+                                                true,true,true,true,
+                                                true,true,true,true,true,true,
+                                                null
+                                        )
+                                );
+                            }
+                            return;
+                        }
+
+                        // ENTER normal → cobrar
                         if (!(scene.getFocusOwner() instanceof Button) ||
                                 scene.getFocusOwner() == btnCobrar) {
                             handleCobrar();
                         }
                     }
-                    if (e.getCode() == KeyCode.ESCAPE) handleCancelar();
-                    if (e.getCode() == KeyCode.F2) txtBuscar.requestFocus();
+
+                    if (e.getCode() == KeyCode.F2) handleCobrar();
+                    if (e.getCode() == KeyCode.F3) txtBuscar.requestFocus();
                 });
             }
         });
@@ -160,6 +190,7 @@ public class VentasController {
             }
 
             ResultSet rs = ps.executeQuery();
+            primerProducto = null;
             while (rs.next()) {
                 int id = rs.getInt("id_producto");
                 String nombre = rs.getString("nombre");
@@ -171,6 +202,12 @@ public class VentasController {
                 card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                 card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #00000010, 6, 0, 0, 1);");
 
+                if (primerProducto == null && stock > 0) {
+                    primerProducto = card;
+
+                    // opcional: resaltar visualmente
+                    card.setStyle(card.getStyle() + "; -fx-border-color: #6B4226; -fx-border-width: 2;");
+                }
                 // Indicador de stock (barra de color izquierda)
                 String colorStock;
                 String textoStock;
@@ -256,6 +293,10 @@ public class VentasController {
             carrito.put(id, new Object[]{nombre, precio, 1});
         }
         actualizarCarrito();
+        Platform.runLater(() -> {
+            txtBuscar.clear();
+            txtBuscar.requestFocus();
+        });
     }
 
     private void actualizarCarrito() {
@@ -347,22 +388,120 @@ public class VentasController {
         lblTotal.setText("$" + String.format("%.2f", total));
         lblCantidadItems.setText(totalItems + " items");
     }
+    @FXML
+    public void seleccionarCliente() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Seleccionar cliente");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        VBox contenido = new VBox(10);
+        contenido.setStyle("-fx-padding: 16; -fx-min-width: 400;");
+
+        TextField txtBuscarCliente = new TextField();
+        txtBuscarCliente.setPromptText("Buscar cliente...");
+        txtBuscarCliente.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+
+        ListView<String> listaClientes = new ListView<>();
+        listaClientes.setPrefHeight(250);
+
+        // Cargar clientes
+        java.util.List<int[]> idsClientes = new java.util.ArrayList<>();
+        java.util.List<double[]> creditosClientes = new java.util.ArrayList<>();
+
+        Runnable cargarLista = () -> {
+            listaClientes.getItems().clear();
+            idsClientes.clear();
+            creditosClientes.clear();
+
+            // Siempre mostrar Público General primero
+            listaClientes.getItems().add("Publico General");
+            idsClientes.add(new int[]{1});
+            creditosClientes.add(new double[]{0, 0});
+
+            String sql = "SELECT id_cliente, nombre, limite_credito, saldo_actual FROM clientes WHERE activo = 1 AND nombre != 'Publico General' AND nombre LIKE ?";
+            try (Connection con = ConexionDB.getConexion();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, "%" + txtBuscarCliente.getText().trim() + "%");
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    double limite = rs.getDouble("limite_credito");
+                    double saldo = rs.getDouble("saldo_actual");
+                    double disponible = limite - saldo;
+                    String texto = rs.getString("nombre") +
+                            (limite > 0 ? " — Disponible: $" + String.format("%.2f", disponible) : "");
+                    listaClientes.getItems().add(texto);
+                    idsClientes.add(new int[]{rs.getInt("id_cliente")});
+                    creditosClientes.add(new double[]{limite, saldo});
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+
+        cargarLista.run();
+        txtBuscarCliente.textProperty().addListener((obs, old, nuevo) -> cargarLista.run());
+
+        contenido.getChildren().addAll(txtBuscarCliente, listaClientes);
+        dialog.getDialogPane().setContent(contenido);
+
+        dialog.showAndWait().ifPresent(respuesta -> {
+            if (respuesta == ButtonType.OK) {
+                int index = listaClientes.getSelectionModel().getSelectedIndex();
+                if (index >= 0) {
+                    idClienteSeleccionado = idsClientes.get(index)[0];
+                    limiteCredito = creditosClientes.get(index)[0];
+                    saldoCliente = creditosClientes.get(index)[1];
+
+                    // Obtener nombre limpio sin el crédito disponible
+                    String itemSeleccionado = listaClientes.getItems().get(index);
+                    nombreClienteSeleccionado = itemSeleccionado.contains(" — ")
+                            ? itemSeleccionado.split(" — ")[0]
+                            : itemSeleccionado;
+
+                    lblClienteSeleccionado.setText(nombreClienteSeleccionado);
+
+                    if (limiteCredito > 0) {
+                        double disponible = limiteCredito - saldoCliente;
+                        lblCreditoDisponible.setText("Credito disponible: $" + String.format("%.2f", disponible));
+                        lblCreditoDisponible.setStyle("-fx-font-size: 11px; -fx-text-fill: " +
+                                (disponible <= 0 ? "#C0392B" : "#3B6D11") + ";");
+                    } else {
+                        lblCreditoDisponible.setText("");
+                    }
+                }
+            }
+        });
+    }
     @FXML
     public void handleCobrar() {
         if (carrito.isEmpty()) {
             mostrarAlerta("Carrito vacío", "Agrega productos antes de cobrar.");
             return;
         }
+
+        // Validar límite de crédito si es cliente con fiado
+        if (limiteCredito > 0) {
+            double disponible = limiteCredito - saldoCliente;
+            if (total > disponible) {
+                mostrarAlerta("Credito insuficiente",
+                        nombreClienteSeleccionado + " solo tiene $" +
+                                String.format("%.2f", disponible) + " de credito disponible.");
+                return;
+            }
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Pago.fxml"));
             Parent root = loader.load();
             PagoController pagoController = loader.getController();
-            pagoController.setDatos(total, carrito, this);
+            pagoController.setDatos(total, carrito, this, idClienteSeleccionado,
+                    nombreClienteSeleccionado, limiteCredito, saldoCliente);
             Stage stagePago = new Stage();
             stagePago.setTitle("Cobro");
             stagePago.setScene(new Scene(root));
             stagePago.setResizable(false);
+            stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL);          // ← bloquea la ventana de atrás
+            stagePago.initOwner(lblTotal.getScene().getWindow());                      // ← la ata a la ventana principal
             stagePago.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -391,7 +530,7 @@ public class VentasController {
         stage.setTitle("Historial de ventas del día");
 
         TableView<Map<String, Object>> tabla = new TableView<>();
-        tabla.setPrefWidth(680);
+        tabla.setPrefWidth(780);
 
         TableColumn<Map<String, Object>, String> colFolio = new TableColumn<>("Folio");
         colFolio.setCellValueFactory(d ->
@@ -404,6 +543,13 @@ public class VentasController {
                 new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("hora")));
         colHora.setPrefWidth(120);
 
+        // NUEVO: CLIENTE
+        TableColumn<Map<String, Object>, String> colCliente = new TableColumn<>("Cliente");
+        colCliente.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(
+                        (String) d.getValue().get("cliente")));
+        colCliente.setPrefWidth(180);
+
         TableColumn<Map<String, Object>, String> colCajero = new TableColumn<>("Cajero");
         colCajero.setCellValueFactory(d ->
                 new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("cajero")));
@@ -415,35 +561,43 @@ public class VentasController {
                         "$" + String.format("%.2f", (double) d.getValue().get("total"))));
         colTotal.setPrefWidth(100);
 
+        tabla.getColumns().addAll(colFolio, colHora, colCliente, colCajero, colTotal);
 
-        tabla.getColumns().addAll(colFolio, colHora, colCajero, colTotal);
-
-        // Cargar ventas del día
+        //  QUERY CON CLIENTE
         String sql = """
-    SELECT v.id_venta, DATE_FORMAT(v.fecha, '%H:%i:%s') AS hora,
-           u.nombre AS cajero, v.total
-    FROM ventas v
-    JOIN usuarios u ON v.id_usuario = u.id_usuario
-    WHERE DATE(v.fecha) = CURDATE()
-    ORDER BY v.fecha DESC
-""";
+        SELECT v.id_venta,
+               DATE_FORMAT(v.fecha, '%H:%i:%s') AS hora,
+               u.nombre AS cajero,
+               c.nombre AS cliente,
+               v.total
+        FROM ventas v
+        JOIN usuarios u ON v.id_usuario = u.id_usuario
+        JOIN clientes c ON v.id_cliente = c.id_cliente
+        WHERE DATE(v.fecha) = CURDATE()
+        ORDER BY v.fecha DESC
+    """;
+
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 Map<String, Object> fila = new HashMap<>();
                 fila.put("folio", rs.getInt("id_venta"));
                 fila.put("hora", rs.getString("hora"));
                 fila.put("cajero", rs.getString("cajero"));
+                fila.put("cliente", rs.getString("cliente")); // 🔥 CLAVE
                 fila.put("total", rs.getDouble("total"));
-                // ← sin metodo
+
                 tabla.getItems().add(fila);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Clic en fila → detalle
+        // Doble clic → detalle
         tabla.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2 && tabla.getSelectionModel().getSelectedItem() != null) {
                 Map<String, Object> fila = tabla.getSelectionModel().getSelectedItem();
@@ -452,13 +606,13 @@ public class VentasController {
             }
         });
 
-        Label hint = new Label("Doble clic en una venta para ver el detalle de productos");
-        hint.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px; -fx-padding: 4 0 0 0;");
+        Label hint = new Label("Doble clic para ver detalle");
+        hint.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px;");
 
         VBox layout = new VBox(10, tabla, hint);
         layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
 
-        stage.setScene(new Scene(layout, 700, 480));
+        stage.setScene(new Scene(layout, 800, 480));
         stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         stage.show();
     }
@@ -614,6 +768,13 @@ public class VentasController {
         actualizarCarrito();
         cargarProductos("", "Todas");
         cargarFolio();
+        // Resetear cliente
+        idClienteSeleccionado = 1;
+        nombreClienteSeleccionado = "Publico General";
+        limiteCredito = 0;
+        saldoCliente = 0;
+        lblClienteSeleccionado.setText("Publico General");
+        lblCreditoDisponible.setText("");
         mostrarAlerta("Venta completada", "La venta se registro correctamente.");
     }
 
@@ -659,13 +820,17 @@ public class VentasController {
 
     @FXML
     public void irAEmpleados() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Empleados.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) lblTotal.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!SesionUsuario.getInstancia().getRol().equals("admin")){
+            mostrarAlerta("Acceso Denegado","Solo el Administrador");
+        }else{
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Empleados.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) lblTotal.getScene().getWindow();
+                stage.getScene().setRoot(root);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
