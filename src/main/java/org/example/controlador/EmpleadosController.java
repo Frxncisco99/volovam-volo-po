@@ -44,9 +44,12 @@ public class EmpleadosController {
     // Cache de datos cargados de BD
     private List<ObservableList<String>> todosLosEmpleados = new ArrayList<>();
 
+
+
     // ─────────────────────────────────────────────
     @FXML
     public void initialize() {
+
         // Sesión (sin cambios)
         SesionUsuario sesion = SesionUsuario.getInstancia();
         lblNombreUsuario.setText(sesion.getNombre());
@@ -66,6 +69,7 @@ public class EmpleadosController {
 
         cargarEmpleados();
     }
+
 
     // ─────────────────────────────────────────────
     // CARGA DESDE BD (lógica original intacta, solo guarda en cache)

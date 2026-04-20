@@ -197,7 +197,15 @@ public class MenuPrincipal implements Initializable {
 
     @FXML
     private void irAEmpleados() {
+        if (!SesionUsuario.getInstancia().getRol().equals("admin")){
+            mostrarAlerta("Acceso Denegado","Solo el Administrador");
+        }else {
         cambiarEscena("/org/example/vista/Empleados.fxml");
+    }
+    }
+    @FXML
+    private void irAClientes() {
+        cambiarEscena("/org/example/vista/Clientes.fxml");
     }
 
     @FXML
@@ -242,5 +250,12 @@ public class MenuPrincipal implements Initializable {
 
     public void abrirInventarioDesdeAfuera() {
         cambiarEscena("/org/example/vista/Inventario.fxml");
+    }
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
     }
 }
