@@ -114,6 +114,17 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label fx:id="lblCantidadItems" style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="0 items"/>
                     </HBox>
+                    <!-- Selector de cliente -->
+                    <VBox spacing="4">
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Cliente:"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label fx:id="lblClienteSeleccionado" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Publico General" HBox.hgrow="ALWAYS"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button onAction="#seleccionarCliente" style="-fx-background-color: transparent; -fx-border-color: #6B4226; -fx-border-radius: 6; -fx-border-width: 1; -fx-text-fill: #6B4226; -fx-background-radius: 6; -fx-padding: 3 8; -fx-cursor: hand; -fx-font-size: 11px;" text="Cambiar"/>
+                        </HBox>
+                        <Label fx:id="lblCreditoDisponible" style="-fx-font-size: 11px; -fx-text-fill: #3B6D11;" text=""/>
+                    </VBox>
+                    <Separator/>
                     <Separator/>
                     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;"/>
