@@ -52,10 +52,11 @@
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
                 <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 4 8;" text="GESTION"/>
-                <Button prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
-                        text="Empleados" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="white"/></graphic>
+                <Button graphicTextGap="12" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Empleados">
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-users" iconSize="16"/></graphic>
+                </Button>
+                <Button prefHeight="40" prefWidth="206" onAction="#irAClientes" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Clientes" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
                 <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"

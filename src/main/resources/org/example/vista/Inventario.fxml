@@ -59,6 +59,9 @@
                         text="Empleados">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
+                <Button prefHeight="40" prefWidth="206" onAction="#irAClientes" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Clientes" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#C8A97E"/></graphic>
+                </Button>
                 <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
                         text="Reportes">

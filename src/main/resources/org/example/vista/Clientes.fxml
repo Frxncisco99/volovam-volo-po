@@ -53,6 +53,9 @@
                 <Button prefHeight="40" prefWidth="206" onAction="#irACorteCaja" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Corte de Caja" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
+                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Configuracion">
+                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cog" iconSize="16"/></graphic>
+                </Button>
             </VBox>
             <Separator style="-fx-opacity: 0.2;"/>
             <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" style="-fx-background-color: transparent; -fx-text-fill: #C0392B; -fx-cursor: hand;" text="Cerrar sesion" graphicTextGap="10">

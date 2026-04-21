@@ -304,6 +304,12 @@ public class InventarioController {
         }
     }
 
+    @FXML
+    private void irAClientes() {
+        cambiarEscena("/org/example/vista/Clientes.fxml");
+    }
+
+
     // ── Exportar PDF ─────────────────────────────────────────────────────────
 
     @FXML
@@ -497,4 +503,7 @@ public class InventarioController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
+
 }

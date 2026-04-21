@@ -45,7 +45,6 @@ public class MenuPrincipal implements Initializable {
     @FXML private Label lblProductosVendidos;
     @FXML private Label lblProductosBajos;
     @FXML private VBox listaUltimasVentas;
-    @FXML private VBox listaTopProductos;
     @FXML private Label lblSinVentas;
     @FXML private Label lblSinTop;
     @FXML private PieChart graficaVentas;

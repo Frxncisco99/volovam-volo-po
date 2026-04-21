@@ -424,6 +424,10 @@ public class ConfiguracionController {
     @FXML private void irAEmpleados()  { navegar("/org/example/vista/Empleados.fxml"); }
     @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
     @FXML private void irACorteCaja()  { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML
+    private void irAClientes() {
+        navegar ("/org/example/vista/Clientes.fxml");
+    }
 
     @FXML
     private void btnCerrar() {
@@ -443,4 +447,7 @@ public class ConfiguracionController {
             e.printStackTrace();
         }
     }
+
+
+
 }
