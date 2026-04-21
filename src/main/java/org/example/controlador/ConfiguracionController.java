@@ -229,6 +229,7 @@ public class ConfiguracionController {
     @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
     @FXML private void irACorteCaja()  { navegar("/org/example/vista/CorteCaja.fxml"); }
 
+
     @FXML
     private void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);

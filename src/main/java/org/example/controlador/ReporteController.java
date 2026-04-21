@@ -108,6 +108,9 @@ public class ReporteController {
         cambiarEscena("/org/example/vista/CorteCaja.fxml");
     }
 
+    @FXML
+    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");
+    }
     private void cambiarEscena(String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
