@@ -3,6 +3,7 @@ package org.example.controlador;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.example.dao.CategoriaDAO;
 import org.example.dao.ProductoDAO;
@@ -20,6 +21,12 @@ public class EditarProductoController {
     @FXML private TextField           txtStockMinimo;
     @FXML private ComboBox<Categoria> cbCategoria;
 
+    // Código de barras
+    @FXML private Button      btnToggleCodigo;
+    @FXML private HBox        hboxCodigo;
+    @FXML private TextField   txtCodigoBarras;
+
+    private boolean llevaCodigo = false;
     private Producto producto;
     private final ProductoDAO dao = new ProductoDAO();
 
@@ -52,6 +59,50 @@ public class EditarProductoController {
                 .filter(c -> c.getIdCategoria() == p.getIdCategoria())
                 .findFirst()
                 .ifPresent(cbCategoria::setValue);
+
+        // Si el producto ya tiene código, mostrar el campo precargado
+        String codigoExistente = p.getCodigoBarras();
+        if (codigoExistente != null && !codigoExistente.isBlank()) {
+            llevaCodigo = true;
+            txtCodigoBarras.setText(codigoExistente);
+            hboxCodigo.setVisible(true);
+            hboxCodigo.setManaged(true);
+            btnToggleCodigo.setText("Sí lleva ✓");
+            btnToggleCodigo.setStyle(
+                    "-fx-background-color: #3D8040; -fx-text-fill: white; " +
+                            "-fx-background-radius: 20; -fx-padding: 5 16; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+        }
+    }
+
+    @FXML
+    private void toggleCodigo() {
+        llevaCodigo = !llevaCodigo;
+        if (llevaCodigo) {
+            btnToggleCodigo.setText("Sí lleva ✓");
+            btnToggleCodigo.setStyle(
+                    "-fx-background-color: #3D8040; -fx-text-fill: white; " +
+                            "-fx-background-radius: 20; -fx-padding: 5 16; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+            hboxCodigo.setVisible(true);
+            hboxCodigo.setManaged(true);
+            txtCodigoBarras.requestFocus();
+        } else {
+            btnToggleCodigo.setText("No lleva");
+            btnToggleCodigo.setStyle(
+                    "-fx-background-color: #D4B896; -fx-text-fill: #5A3A1A; " +
+                            "-fx-background-radius: 20; -fx-padding: 5 16; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+            hboxCodigo.setVisible(false);
+            hboxCodigo.setManaged(false);
+            txtCodigoBarras.clear();
+        }
+    }
+
+    @FXML
+    private void limpiarCodigo() {
+        txtCodigoBarras.clear();
+        txtCodigoBarras.requestFocus();
     }
 
     @FXML
@@ -79,12 +130,22 @@ public class EditarProductoController {
             mostrarAlerta("Selecciona una categoría."); return;
         }
 
+        // Código de barras
+        String codigo = null;
+        if (llevaCodigo) {
+            codigo = txtCodigoBarras.getText().trim();
+            if (codigo.isEmpty()) {
+                mostrarAlerta("Escribe o escanea el código de barras, o desactiva la opción."); return;
+            }
+        }
+
         producto.setNombre(txtNombre.getText().trim());
         producto.setPrecio(precio);
         producto.setCosto(costo);
         producto.setStock(stock);
         producto.setStockMinimo(stockMinimo);
         producto.setIdCategoria(cbCategoria.getValue().getIdCategoria());
+        producto.setCodigoBarras(codigo); // null = quitar código existente
 
         dao.actualizarProducto(producto);
         cerrarVentana();

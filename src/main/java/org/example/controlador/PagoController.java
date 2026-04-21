@@ -54,7 +54,7 @@ public class PagoController {
     @FXML private Label lblCambioMixtoUSD;
 
     private double total;
-    private double tipoCambioDolar = 0;
+    private double tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar();;
     private Map<Integer, Object[]> carrito;
     private VentasController ventasController;
     private int idCliente = 1;
@@ -63,18 +63,7 @@ public class PagoController {
     private double saldoCliente = 0;
     private String metodoPago = "EFECTIVO";
 
-    // ─── Carga tipo de cambio desde BD ──────────────────────────────────────────
-    private void cargarTipoCambio() {
-        String sql = "SELECT tipo_cambio_dolar FROM caja WHERE id_caja = ?";
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, SesionUsuario.getInstancia().getIdCaja());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) tipoCambioDolar = rs.getDouble("tipo_cambio_dolar");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     // ─── setDatos ────────────────────────────────────────────────────────────────
     public void setDatos(double total, Map<Integer, Object[]> carrito,
@@ -176,8 +165,8 @@ public class PagoController {
             if (e.getCode() == javafx.scene.input.KeyCode.ENTER) handleConfirmar();
         });
 
-        // Cargar tipo de cambio y mostrar etiqueta
-        cargarTipoCambio();
+
+
         lblTipoCambio.setText("$" + String.format("%.2f", tipoCambioDolar) + " MXN/USD");
 
         // Efectivo por defecto + foco
