@@ -71,6 +71,17 @@ public class VentasController {
         txtBuscar.textProperty().addListener((obs, old, nuevo) ->
                 cargarProductos(nuevo, categoriaSeleccionada));
 
+        // ENTER en el buscador: si el texto coincide EXACTAMENTE con un código
+        // de barras → agrega al carrito y limpia (flujo para lector físico)
+        txtBuscar.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                String texto = txtBuscar.getText().trim();
+                if (!texto.isEmpty() && agregarPorCodigoExacto(texto)) {
+                    e.consume(); // evita que el handler global de ENTER vuelva a dispararse
+                }
+            }
+        });
+
         Platform.runLater(() -> {
             Scene scene = lblTotal.getScene();
             if (scene != null) {
@@ -176,17 +187,23 @@ public class VentasController {
 
         String sql;
         if (categoria == null || categoria.equals("Todas")) {
-            sql = "SELECT p.id_producto, p.nombre, p.precio, p.stock FROM productos p WHERE p.activo = 1 AND p.nombre LIKE ?";
+            sql = "SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.stock " +
+                    "FROM productos p " +
+                    "WHERE p.activo = 1 AND (p.nombre LIKE ? OR p.codigo_barras LIKE ?)";
         } else {
-            sql = "SELECT p.id_producto, p.nombre, p.precio, p.stock FROM productos p JOIN categorias c ON p.id_categoria = c.id_categoria WHERE p.activo = 1 AND p.nombre LIKE ? AND c.nombre = ?";
+            sql = "SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.stock " +
+                    "FROM productos p JOIN categorias c ON p.id_categoria = c.id_categoria " +
+                    "WHERE p.activo = 1 AND (p.nombre LIKE ? OR p.codigo_barras LIKE ?) AND c.nombre = ?";
         }
 
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, "%" + (filtro == null ? "" : filtro) + "%");
+            String patron = "%" + (filtro == null ? "" : filtro) + "%";
+            ps.setString(1, patron);
+            ps.setString(2, patron);
             if (categoria != null && !categoria.equals("Todas")) {
-                ps.setString(2, categoria);
+                ps.setString(3, categoria);
             }
 
             ResultSet rs = ps.executeQuery();
@@ -194,6 +211,7 @@ public class VentasController {
             while (rs.next()) {
                 int id = rs.getInt("id_producto");
                 String nombre = rs.getString("nombre");
+                String codigo = rs.getString("codigo_barras");
                 double precio = rs.getDouble("precio");
                 int stock = rs.getInt("stock");
 
@@ -204,31 +222,24 @@ public class VentasController {
 
                 if (primerProducto == null && stock > 0) {
                     primerProducto = card;
-
-                    // opcional: resaltar visualmente
                     card.setStyle(card.getStyle() + "; -fx-border-color: #6B4226; -fx-border-width: 2;");
                 }
-                // Indicador de stock (barra de color izquierda)
+
                 String colorStock;
                 String textoStock;
                 if (stock == 0) {
-                    colorStock = "#C0392B";
-                    textoStock = "Sin stock";
+                    colorStock = "#C0392B"; textoStock = "Sin stock";
                 } else if (stock <= 5) {
-                    colorStock = "#E67E22";
-                    textoStock = "Stock: " + stock;
+                    colorStock = "#E67E22"; textoStock = "Stock: " + stock;
                 } else {
-                    colorStock = "#27AE60";
-                    textoStock = "Stock: " + stock;
+                    colorStock = "#27AE60"; textoStock = "Stock: " + stock;
                 }
 
                 javafx.scene.layout.StackPane indicador = new javafx.scene.layout.StackPane();
-                indicador.setMinWidth(4);
-                indicador.setMaxWidth(4);
+                indicador.setMinWidth(4); indicador.setMaxWidth(4);
                 indicador.setMinHeight(40);
                 indicador.setStyle("-fx-background-color: " + colorStock + "; -fx-background-radius: 2;");
 
-                // Info del producto
                 VBox info = new VBox(3);
                 HBox.setHgrow(info, javafx.scene.layout.Priority.ALWAYS);
 
@@ -245,9 +256,16 @@ public class VentasController {
                 lblStockLabel.setStyle("-fx-text-fill: " + colorStock + "; -fx-font-size: 11px; -fx-background-color: " + colorStock + "22; -fx-background-radius: 6; -fx-padding: 2 8;");
 
                 filaBaja.getChildren().addAll(lblPrecio, lblStockLabel);
-                info.getChildren().addAll(lblNombre, filaBaja);
 
-                // Botón ➕
+                // Mostrar código de barras si existe
+                if (codigo != null && !codigo.isBlank()) {
+                    Label lblCodigo = new Label("↳ " + codigo);
+                    lblCodigo.setStyle("-fx-text-fill: #A0856A; -fx-font-size: 10px;");
+                    info.getChildren().addAll(lblNombre, filaBaja, lblCodigo);
+                } else {
+                    info.getChildren().addAll(lblNombre, filaBaja);
+                }
+
                 Button btnAgregar = new Button("+");
                 btnAgregar.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-cursor: hand; -fx-padding: 0; -fx-alignment: center;");
                 if (stock > 0) {
@@ -264,6 +282,36 @@ public class VentasController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Busca un producto por código de barras EXACTO y lo agrega al carrito.
+     * Retorna true si encontró y agregó el producto (para que ENTER no haga
+     * otra cosa), false si no había coincidencia exacta.
+     */
+    private boolean agregarPorCodigoExacto(String codigo) {
+        String sql = "SELECT id_producto, nombre, precio, stock FROM productos " +
+                "WHERE activo = 1 AND codigo_barras = ?";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, codigo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id      = rs.getInt("id_producto");
+                String nombre = rs.getString("nombre");
+                double precio = rs.getDouble("precio");
+                int stock   = rs.getInt("stock");
+                if (stock <= 0) {
+                    mostrarAlerta("Sin stock", "\"" + nombre + "\" no tiene unidades disponibles.");
+                    return true; // sí lo encontramos aunque no lo agreguemos
+                }
+                agregarAlCarrito(id, nombre, precio, stock);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     // Nuevo metodo para obtener stock real desde BD

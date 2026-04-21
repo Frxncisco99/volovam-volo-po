@@ -217,11 +217,6 @@ public class MenuPrincipal implements Initializable {
     private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
 
     @FXML
-    public void irAReportes(ActionEvent actionEvent) {
-        cambiarEscena("/org/example/vista/Reportes.fxml");
-    }
-
-    @FXML
     public void irAReportes() {
         cambiarEscena("/org/example/vista/Reportes.fxml");
     }

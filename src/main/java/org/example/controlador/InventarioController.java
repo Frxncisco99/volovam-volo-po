@@ -244,6 +244,7 @@ public class InventarioController {
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : caja);
             }
+
         });
 
         tablaProductos.setRowFactory(tv -> new TableRow<>() {

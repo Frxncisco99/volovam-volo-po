@@ -4,13 +4,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
@@ -77,13 +75,13 @@ public class LoginController {
         }
     }
     private boolean hayCajaAbierta() {
-        String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' AND id_usuario = ? ORDER BY fecha_apertura DESC LIMIT 1";
+        // La tabla caja no tiene id_usuario — buscamos cualquier caja abierta
+        // (en una panadería pequeña normalmente solo hay una caja activa a la vez)
+        String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, SesionUsuario.getInstancia().getIdUsuario());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                // Guardar el id_caja en sesión
                 SesionUsuario.getInstancia().setIdCaja(rs.getInt("id_caja"));
                 return true;
             }
