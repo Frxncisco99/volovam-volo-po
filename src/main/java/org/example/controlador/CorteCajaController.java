@@ -547,7 +547,8 @@ public class CorteCajaController {
     @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAVentas()    { navegar("/org/example/vista/Ventas.fxml"); }
     @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
-
+    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");
+    }
     @FXML
     public void btnCerrar() {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);

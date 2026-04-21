@@ -58,16 +58,12 @@ public class LoginController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-                // Solo cambia el root, sin tocar initStyle
-                stage.getScene().setFill(javafx.scene.paint.Color.TRANSPARENT);
                 stage.getScene().setRoot(root);
-
-                stage.setMaximized(false);
-                stage.setWidth(520);
-                stage.setHeight(600);
+                stage.setMaximized(false);  //  ventana pequeña
+                stage.setWidth(500);
+                stage.setHeight(400);
                 stage.centerOnScreen();
-
+                stage.show();
             }
         } else {
             mostrarAlerta("Error", "Usuario o contraseña incorrectos.");

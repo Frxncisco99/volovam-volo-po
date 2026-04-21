@@ -883,6 +883,10 @@ public class VentasController {
     }
 
     @FXML
+    private void irAConfiguracion() {
+        cambiarEscena("/org/example/vista/Configuracion.fxml"); }
+
+    @FXML
     public void btnCerrar() {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Salir");
