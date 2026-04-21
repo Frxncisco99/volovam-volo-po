@@ -358,4 +358,10 @@ public class ClientesController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    @FXML
+    private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");}
+
+
+
 }

@@ -927,4 +927,10 @@ public class VentasController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void irAClientes() {
+        cambiarEscena("/org/example/vista/Clientes.fxml");
+    }
+
 }

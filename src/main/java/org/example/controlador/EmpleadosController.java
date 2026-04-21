@@ -545,4 +545,9 @@ public class EmpleadosController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+
+    public void irAClientes(ActionEvent actionEvent) {
+        navegar("/org/example/vista/Clientes.fxml");
+    }
 }

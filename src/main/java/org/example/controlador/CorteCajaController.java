@@ -606,4 +606,6 @@ public class CorteCajaController {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
     }
+
+
 }
