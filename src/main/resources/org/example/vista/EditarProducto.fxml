@@ -8,7 +8,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.EditarProductoController"
       style="-fx-background-color: #F5F0E8;"
-      prefHeight="460" prefWidth="360">
+      prefHeight="520" prefWidth="360">
 
     <!-- HEADER -->
     <VBox style="-fx-background-color: #3D1C02; -fx-padding: 20 24 18 24;" spacing="3">
@@ -68,6 +68,33 @@
                          -fx-font-size: 13px; -fx-text-fill: #3A1F06;
                          -fx-padding: 2 4;"
                   maxWidth="Infinity" />
+
+        <!-- ── CÓDIGO DE BARRAS ── -->
+        <Label text="CÓDIGO DE BARRAS"
+               style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #A07848;
+                      -fx-padding: 4 0 4 0; -fx-border-color: #E8D8C4; -fx-border-width: 0 0 1 0;" />
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="¿Lleva código de barras?"
+                   style="-fx-font-size: 12px; -fx-text-fill: #5A3A1A;" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnToggleCodigo" text="No lleva" onAction="#toggleCodigo"
+                    style="-fx-background-color: #D4B896; -fx-text-fill: #5A3A1A;
+                           -fx-background-radius: 20; -fx-padding: 5 16;
+                           -fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;" />
+        </HBox>
+
+        <HBox fx:id="hboxCodigo" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false">
+            <TextField fx:id="txtCodigoBarras" promptText="Escanea o escribe el código"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: white; -fx-border-color: #D4A843;
+                              -fx-border-radius: 7; -fx-background-radius: 7;
+                              -fx-padding: 9 12; -fx-font-size: 13px; -fx-text-fill: #3A1F06;
+                              -fx-prompt-text-fill: #BBA07A;" />
+            <Button text="✕" onAction="#limpiarCodigo"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C0392B;
+                           -fx-font-size: 14px; -fx-cursor: hand; -fx-font-weight: bold;" />
+        </HBox>
 
     </VBox>
 

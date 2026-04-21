@@ -4,6 +4,7 @@ public class Producto {
 
     private int idProducto;
     private String nombre;
+    private String codigoBarras;   // ← NUEVO
     private double precio;
     private double costo;
     private int stock;
@@ -38,6 +39,9 @@ public class Producto {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
+    public String getCodigoBarras() { return codigoBarras; }
+    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
+
     public double getPrecio() { return precio; }
     public void setPrecio(double precio) { this.precio = precio; }
 
@@ -59,7 +63,6 @@ public class Producto {
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
 
-    // Método utilitario — usado en todo el sistema
     public boolean isBajoStock() {
         return stock <= stockMinimo;
     }

@@ -2,6 +2,7 @@ package org.example.controlador;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -18,6 +19,13 @@ public class AgregarProductoController {
     @FXML private TextField           txtStock;
     @FXML private TextField           txtStockMinimo;
     @FXML private ComboBox<Categoria> cbCategoria;
+
+    // Código de barras
+    @FXML private Button  btnToggleCodigo;
+    @FXML private HBox    hboxCodigo;
+    @FXML private TextField txtCodigoBarras;
+
+    private boolean llevaCodigo = false;
 
     private final ProductoDAO  productoDAO  = new ProductoDAO();
     private final CategoriaDAO categoriaDAO = new CategoriaDAO();
@@ -45,11 +53,43 @@ public class AgregarProductoController {
         permitirSoloNumeros(txtStockMinimo, false);
     }
 
+    /** Alterna entre "lleva código" / "no lleva código" */
+    @FXML
+    private void toggleCodigo() {
+        llevaCodigo = !llevaCodigo;
+        if (llevaCodigo) {
+            btnToggleCodigo.setText("Sí lleva ✓");
+            btnToggleCodigo.setStyle(
+                    "-fx-background-color: #3D8040; -fx-text-fill: white; " +
+                            "-fx-background-radius: 20; -fx-padding: 5 16; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+            hboxCodigo.setVisible(true);
+            hboxCodigo.setManaged(true);
+            txtCodigoBarras.requestFocus();
+        } else {
+            btnToggleCodigo.setText("No lleva");
+            btnToggleCodigo.setStyle(
+                    "-fx-background-color: #D4B896; -fx-text-fill: #5A3A1A; " +
+                            "-fx-background-radius: 20; -fx-padding: 5 16; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+            hboxCodigo.setVisible(false);
+            hboxCodigo.setManaged(false);
+            txtCodigoBarras.clear();
+        }
+    }
+
+    /** Botón ✕ — limpia el campo sin quitar el toggle */
+    @FXML
+    private void limpiarCodigo() {
+        txtCodigoBarras.clear();
+        txtCodigoBarras.requestFocus();
+    }
+
     @FXML
     private void guardarProducto() {
         String nombre = txtNombre.getText().trim();
-        if (nombre.isEmpty()) { error("El nombre del producto es obligatorio."); return; }
-        if (nombre.length() < 2) { error("El nombre debe tener al menos 2 caracteres."); return; }
+        if (nombre.isEmpty())         { error("El nombre del producto es obligatorio."); return; }
+        if (nombre.length() < 2)      { error("El nombre debe tener al menos 2 caracteres."); return; }
 
         double precio, costo;
         int stock, stockMinimo;
@@ -63,19 +103,25 @@ public class AgregarProductoController {
         try { stock = Integer.parseInt(txtStock.getText().trim()); }
         catch (NumberFormatException e) { error("El stock no es válido."); return; }
 
-        // Stock mínimo es opcional — si está vacío se usa 5 por defecto
         String minTxt = txtStockMinimo.getText().trim();
         try { stockMinimo = minTxt.isEmpty() ? 5 : Integer.parseInt(minTxt); }
         catch (NumberFormatException e) { error("El stock mínimo no es válido."); return; }
 
-        if (precio <= 0) { error("El precio debe ser mayor a 0."); return; }
-        if (costo  <= 0) { error("El costo debe ser mayor a 0.");  return; }
-        if (precio < costo) { error("El precio de venta no puede ser menor al costo."); return; }
-        if (stock < 0)  { error("El stock no puede ser negativo."); return; }
-        if (stockMinimo < 0) { error("El stock mínimo no puede ser negativo."); return; }
+        if (precio <= 0)   { error("El precio debe ser mayor a 0."); return; }
+        if (costo  <= 0)   { error("El costo debe ser mayor a 0.");  return; }
+        if (precio < costo){ error("El precio de venta no puede ser menor al costo."); return; }
+        if (stock  < 0)    { error("El stock no puede ser negativo."); return; }
+        if (stockMinimo < 0){ error("El stock mínimo no puede ser negativo."); return; }
 
         Categoria cat = cbCategoria.getValue();
-        if (cat == null) { error("Selecciona una categoría."); return; }
+        if (cat == null)   { error("Selecciona una categoría."); return; }
+
+        // Código de barras — solo si el toggle está activo
+        String codigo = null;
+        if (llevaCodigo) {
+            codigo = txtCodigoBarras.getText().trim();
+            if (codigo.isEmpty()) { error("Escribe o escanea el código de barras, o desactiva la opción."); return; }
+        }
 
         Producto p = new Producto();
         p.setNombre(nombre);
@@ -84,6 +130,7 @@ public class AgregarProductoController {
         p.setStock(stock);
         p.setStockMinimo(stockMinimo);
         p.setIdCategoria(cat.getIdCategoria());
+        p.setCodigoBarras(codigo); // null si no lleva
 
         productoDAO.insertarProducto(p);
         info("Producto guardado correctamente.");

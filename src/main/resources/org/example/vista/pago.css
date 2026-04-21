@@ -1,0 +1,200 @@
+/* ═══════════════════════════════════════════════════════════════
+   PAGO.CSS — Modal de cobro moderno oscuro
+   ═══════════════════════════════════════════════════════════════ */
+
+.root {
+    -fx-background-color: #110A04;
+    -fx-font-family: "Segoe UI";
+}
+
+/* ── Header ── */
+.pago-titulo {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+}
+
+/* ── Tarjeta info ── */
+.info-card {
+    -fx-background-color: #1A1008;
+    -fx-background-radius: 12;
+    -fx-padding: 12 16;
+    -fx-border-color: #2A1A0A;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.info-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #3D2810;
+    -fx-font-weight: bold;
+}
+
+.info-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C8A97E;
+}
+
+.total-display {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+}
+
+/* ── Botones de método ── */
+.metodo-btn {
+    -fx-background-color: #1A1008;
+    -fx-text-fill: #5A4020;
+    -fx-background-radius: 10;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 11px;
+    -fx-pref-height: 40;
+}
+.metodo-btn:hover {
+    -fx-background-color: #231608;
+    -fx-text-fill: #C8A97E;
+    -fx-border-color: #6A5030;
+}
+.metodo-btn-active {
+    -fx-background-color: linear-gradient(to bottom, #D4A843, #8B5E1A);
+    -fx-text-fill: #0F0A06;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-font-size: 11px;
+    -fx-pref-height: 40;
+    -fx-effect: dropshadow(gaussian, #D4A84350, 8, 0, 0, 2);
+}
+
+/* ── Panels ── */
+.panel-metodo {
+    -fx-background-color: #1A1008;
+    -fx-background-radius: 12;
+    -fx-padding: 14 16;
+    -fx-border-color: #2A1A0A;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.panel-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5A4020;
+    -fx-font-weight: bold;
+}
+
+.pago-field {
+    -fx-background-color: #231608;
+    -fx-text-fill: #D4A843;
+    -fx-prompt-text-fill: #3D2810;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #3D2810;
+    -fx-border-width: 1.5;
+    -fx-padding: 12;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+.pago-field:focused {
+    -fx-border-color: #D4A843;
+    -fx-effect: dropshadow(gaussian, #D4A84330, 8, 0, 0, 0);
+}
+
+.pago-field-sm {
+    -fx-background-color: #231608;
+    -fx-text-fill: #C8A97E;
+    -fx-prompt-text-fill: #3D2810;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #3D2810;
+    -fx-border-width: 1.5;
+    -fx-padding: 10;
+    -fx-font-size: 15px;
+}
+.pago-field-sm:focused {
+    -fx-border-color: #D4A843;
+}
+
+/* Cambio */
+.cambio-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #3D2810;
+}
+.cambio-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4CAF50;
+}
+.equivalente-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #3D2810;
+}
+
+/* Panel fiado */
+.panel-fiado {
+    -fx-background-color: #1A1208;
+    -fx-background-radius: 12;
+    -fx-padding: 14 16;
+    -fx-border-color: #4A3008;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+.fiado-info {
+    -fx-font-size: 12px;
+    -fx-text-fill: #D4A843;
+    -fx-font-weight: bold;
+}
+
+/* Tipo de cambio badge */
+.tipo-cambio-badge {
+    -fx-background-color: #231608;
+    -fx-background-radius: 8;
+    -fx-padding: 4 10;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+}
+
+/* ── Botones confirmar / cancelar ── */
+.btn-confirmar {
+    -fx-background-color: linear-gradient(to right, #D4A843, #8B5E1A);
+    -fx-background-radius: 12;
+    -fx-text-fill: #0F0A06;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, #D4A84550, 14, 0, 0, 3);
+}
+.btn-confirmar:hover {
+    -fx-background-color: linear-gradient(to right, #E8C55A, #A07020);
+    -fx-effect: dropshadow(gaussian, #D4A84570, 18, 0, 0, 4);
+}
+
+.btn-cancelar-pago {
+    -fx-background-color: transparent;
+    -fx-border-color: #3D1010;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.2;
+    -fx-text-fill: #6A2020;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-radius: 12;
+}
+.btn-cancelar-pago:hover {
+    -fx-border-color: #E53935;
+    -fx-text-fill: #E53935;
+}
+
+/* Separadores */
+.separator {
+    -fx-background-color: #2A1A0A;
+    -fx-opacity: 1;
+}

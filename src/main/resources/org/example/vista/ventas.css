@@ -15,3 +15,474 @@
     -fx-background-radius: 8;
     -fx-padding: 8 12;
 }
+/* ═══════════════════════════════════════════════════════════════
+   VENTAS.CSS — Diseño moderno oscuro para punto de venta
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Variables ── */
+.root {
+    -color-bg-deep:     #0F0A06;
+    -color-bg-dark:     #1A1008;
+    -color-bg-mid:      #231608;
+    -color-sidebar:     #160E05;
+    -color-surface:     #2A1A0A;
+    -color-surface2:    #341F0C;
+    -color-gold:        #D4A843;
+    -color-gold-soft:   #B8904F;
+    -color-gold-dim:    #7A5E30;
+    -color-cream:       #F5E6C8;
+    -color-text:        #EDE0C4;
+    -color-text-muted:  #8A7355;
+    -color-accent:      #E8B84B;
+    -color-green:       #4CAF50;
+    -color-red:         #E53935;
+    -color-border:      #3D2810;
+    -color-hover:       #3D2208;
+    -font-main: "Segoe UI", sans-serif;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    -fx-background-color: #160E05;
+}
+
+.sidebar-logo {
+    -fx-text-fill: #D4A843;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-sub {
+    -fx-text-fill: #5A4020;
+    -fx-font-size: 10px;
+    -fx-font-family: "Segoe UI";
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6A5030;
+    -fx-font-size: 12px;
+    -fx-background-radius: 10;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 16;
+    -fx-cursor: hand;
+    -fx-font-family: "Segoe UI";
+    -fx-pref-height: 42;
+    -fx-pref-width: 210;
+    -fx-transition: all 0.15s ease;
+}
+
+.nav-btn:hover {
+    -fx-background-color: #2A1A0A;
+    -fx-text-fill: #C8A97E;
+}
+
+.nav-btn-active {
+    -fx-background-color: linear-gradient(to right, #3D2208, #2A1600);
+    -fx-text-fill: #D4A843;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent transparent #D4A843;
+    -fx-border-width: 0 0 0 3;
+    -fx-background-radius: 0 10 10 0;
+}
+
+.nav-section-label {
+    -fx-text-fill: #3D2808;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 8 4 8;
+    -fx-font-family: "Segoe UI";
+}
+
+.avatar-circle {
+    -fx-background-color: linear-gradient(to bottom right, #D4A843, #8B5E1A);
+    -fx-text-fill: #160E05;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-background-radius: 20;
+    -fx-alignment: center;
+}
+
+/* ── Top bar ── */
+.topbar {
+    -fx-background-color: #1A1008;
+    -fx-padding: 14 24;
+    -fx-effect: dropshadow(gaussian, #00000060, 12, 0, 0, 3);
+    -fx-border-color: transparent transparent #2A1A0A transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.topbar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+    -fx-font-family: "Segoe UI";
+}
+
+.topbar-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: #4A3018;
+    -fx-font-family: "Segoe UI";
+}
+
+.badge-open {
+    -fx-background-color: #0D2010;
+    -fx-text-fill: #4CAF50;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-size: 11px;
+    -fx-border-color: #1E4020;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.folio-label {
+    -fx-text-fill: #4A3018;
+    -fx-font-size: 12px;
+    -fx-padding: 0 16;
+}
+
+/* Botones topbar */
+.btn-historial {
+    -fx-background-color: #231608;
+    -fx-text-fill: #8A7355;
+    -fx-background-radius: 8;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-font-family: "Segoe UI";
+}
+.btn-historial:hover {
+    -fx-background-color: #2A1A0A;
+    -fx-text-fill: #D4A843;
+    -fx-border-color: #D4A843;
+}
+
+.btn-ingreso {
+    -fx-background-color: #0D2010;
+    -fx-text-fill: #4CAF50;
+    -fx-background-radius: 8;
+    -fx-border-color: #1E4020;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+.btn-ingreso:hover { -fx-background-color: #142818; }
+
+.btn-salida {
+    -fx-background-color: #200808;
+    -fx-text-fill: #E53935;
+    -fx-background-radius: 8;
+    -fx-border-color: #3D1010;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+.btn-salida:hover { -fx-background-color: #2A0A0A; }
+
+/* ── Panel de productos ── */
+.productos-panel {
+    -fx-background-color: #0F0A06;
+    -fx-padding: 16;
+}
+
+.search-field {
+    -fx-background-color: #1A1008;
+    -fx-text-fill: #D4A843;
+    -fx-prompt-text-fill: #3D2810;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #3D2810;
+    -fx-border-width: 1.5;
+    -fx-padding: 11 14;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI";
+}
+.search-field:focused {
+    -fx-border-color: #D4A843;
+    -fx-effect: dropshadow(gaussian, #D4A84340, 8, 0, 0, 0);
+}
+
+/* Categorías */
+.cat-btn {
+    -fx-background-color: #1A1008;
+    -fx-text-fill: #5A4020;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+.cat-btn:hover {
+    -fx-background-color: #2A1A0A;
+    -fx-text-fill: #D4A843;
+    -fx-border-color: #D4A843;
+}
+.cat-btn-active {
+    -fx-background-color: linear-gradient(to right, #D4A843, #8B5E1A);
+    -fx-text-fill: #0F0A06;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+/* ── Cards de producto ── */
+.producto-card {
+    -fx-background-color: #1A1008;
+    -fx-background-radius: 14;
+    -fx-padding: 13 16;
+    -fx-effect: dropshadow(gaussian, #00000050, 6, 0, 0, 2);
+    -fx-border-color: #2A1A0A;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+.producto-card:hover {
+    -fx-background-color: #231608;
+    -fx-border-color: #D4A84360;
+    -fx-effect: dropshadow(gaussian, #D4A84320, 10, 0, 0, 0);
+}
+.producto-card-first {
+    -fx-background-color: #1A1008;
+    -fx-background-radius: 14;
+    -fx-padding: 13 16;
+    -fx-border-color: #D4A843;
+    -fx-border-radius: 14;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, #D4A84330, 10, 0, 0, 0);
+    -fx-cursor: hand;
+}
+
+.producto-nombre {
+    -fx-font-weight: bold;
+    -fx-text-fill: #C8A97E;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI";
+}
+
+.producto-precio {
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+    -fx-font-size: 15px;
+    -fx-font-family: "Segoe UI";
+}
+
+.btn-agregar {
+    -fx-background-color: linear-gradient(to bottom, #D4A843, #8B5E1A);
+    -fx-text-fill: #0F0A06;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
+.btn-agregar:hover {
+    -fx-background-color: linear-gradient(to bottom, #E8C55A, #A07020);
+    -fx-effect: dropshadow(gaussian, #D4A84360, 8, 0, 0, 0);
+}
+
+/* ── Carrito ── */
+.carrito-panel {
+    -fx-background-color: #1A1008;
+    -fx-padding: 16;
+    -fx-border-color: transparent transparent transparent #2A1A0A;
+    -fx-border-width: 0 0 0 1;
+}
+
+.carrito-titulo {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+    -fx-font-family: "Segoe UI";
+}
+
+.carrito-items-count {
+    -fx-text-fill: #3D2810;
+    -fx-font-size: 11px;
+    -fx-background-color: #231608;
+    -fx-background-radius: 10;
+    -fx-padding: 2 8;
+}
+
+.carrito-item {
+    -fx-background-color: #231608;
+    -fx-background-radius: 10;
+    -fx-padding: 8 10;
+    -fx-border-color: #2A1A0A;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.carrito-item-nombre {
+    -fx-text-fill: #C8A97E;
+    -fx-font-size: 12px;
+    -fx-font-family: "Segoe UI";
+}
+
+.carrito-item-precio {
+    -fx-text-fill: #D4A843;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.btn-cantidad {
+    -fx-background-color: #341F0C;
+    -fx-text-fill: #D4A843;
+    -fx-background-radius: 6;
+    -fx-min-width: 26;
+    -fx-min-height: 26;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+}
+.btn-cantidad:hover {
+    -fx-background-color: #D4A843;
+    -fx-text-fill: #0F0A06;
+}
+
+.cantidad-field {
+    -fx-background-color: #1A1008;
+    -fx-text-fill: #D4A843;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-alignment: center;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #3D2810;
+    -fx-border-width: 1;
+    -fx-pref-width: 50;
+    -fx-max-width: 50;
+}
+
+/* Cliente */
+.cliente-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #3D2810;
+}
+.cliente-nombre {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C8A97E;
+}
+.btn-cambiar-cliente {
+    -fx-background-color: transparent;
+    -fx-border-color: #3D2810;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #5A4020;
+    -fx-background-radius: 6;
+    -fx-padding: 3 8;
+    -fx-cursor: hand;
+    -fx-font-size: 11px;
+}
+.btn-cambiar-cliente:hover {
+    -fx-border-color: #D4A843;
+    -fx-text-fill: #D4A843;
+}
+
+/* Totales */
+.total-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #3D2810;
+}
+.total-value {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5A4020;
+}
+.total-grande {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D4A843;
+    -fx-font-family: "Segoe UI";
+}
+.total-grande-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C8A97E;
+}
+
+/* Botones cobrar / cancelar */
+.btn-cobrar {
+    -fx-background-color: linear-gradient(to right, #D4A843, #8B5E1A);
+    -fx-background-radius: 12;
+    -fx-text-fill: #0F0A06;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, #D4A84350, 12, 0, 0, 3);
+}
+.btn-cobrar:hover {
+    -fx-background-color: linear-gradient(to right, #E8C55A, #A07020);
+    -fx-effect: dropshadow(gaussian, #D4A84370, 16, 0, 0, 4);
+}
+
+.btn-cancelar {
+    -fx-background-color: transparent;
+    -fx-border-color: #3D1010;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.2;
+    -fx-text-fill: #6A2020;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-radius: 12;
+}
+.btn-cancelar:hover {
+    -fx-border-color: #E53935;
+    -fx-text-fill: #E53935;
+}
+
+/* Separadores */
+.separator {
+    -fx-background-color: #2A1A0A;
+    -fx-opacity: 0.6;
+}
+
+/* ScrollPane transparente */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #3D2810;
+    -fx-background-radius: 3;
+}
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #D4A843;
+}
+.scroll-bar:vertical .track,
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6;
+}
