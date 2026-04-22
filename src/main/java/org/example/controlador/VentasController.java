@@ -34,12 +34,12 @@ public class VentasController {
     @FXML private Label lblCantidadItems;
     @FXML private Label lblFolio;
     @FXML private TextField txtBuscar;
-    @FXML private ComboBox<String> cmbCategoria;
+
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
     @FXML private Button btnCobrar;
-    @FXML private Label lblFecha;
+
     @FXML private FlowPane panelCategorias;
     @FXML private Label lblClienteSeleccionado;
     @FXML private Label lblCreditoDisponible;
@@ -218,7 +218,7 @@ public class VentasController {
                 // Card principal
                 HBox card = new HBox(12);
                 card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #00000010, 6, 0, 0, 1);");
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #A0856A, 6, 0, 0, 1);");
 
                 if (primerProducto == null && stock > 0) {
                     primerProducto = card;
@@ -613,16 +613,16 @@ public class VentasController {
 
         //  QUERY CON CLIENTE
         String sql = """
-        SELECT v.id_venta,
-               DATE_FORMAT(v.fecha, '%H:%i:%s') AS hora,
-               u.nombre AS cajero,
-               c.nombre AS cliente,
-               v.total
-        FROM ventas v
-        JOIN usuarios u ON v.id_usuario = u.id_usuario
-        JOIN clientes c ON v.id_cliente = c.id_cliente
-        WHERE DATE(v.fecha) = CURDATE()
-        ORDER BY v.fecha DESC
+    SELECT v.id_venta,
+           DATE_FORMAT(v.fecha, '%H:%i:%s') AS hora,
+           u.nombre AS cajero,
+           COALESCE(c.nombre, 'Publico General') AS cliente,
+           v.total
+    FROM ventas v
+    JOIN usuarios u ON v.id_usuario = u.id_usuario
+    LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
+    WHERE DATE(v.fecha) = CURDATE()
+    ORDER BY v.fecha DESC
     """;
 
         try (Connection con = ConexionDB.getConexion();
