@@ -183,14 +183,31 @@ public class CorteCajaController {
                 lblHoraApertura.setText(horaApertura);
             }
 
-            // Total ventas (todos los métodos)
-            String sqlVentas = "SELECT COUNT(*), COALESCE(SUM(total), 0) FROM ventas WHERE id_caja = ?";
-            PreparedStatement psVentas = con.prepareStatement(sqlVentas);
-            psVentas.setInt(1, idCaja);
-            ResultSet rsVentas = psVentas.executeQuery();
-            if (rsVentas.next()) {
-                lblNumTickets.setText(String.valueOf(rsVentas.getInt(1)));
-                totalEfectivo = rsVentas.getDouble(2);
+            // Total ventas por metodo — solo lo que llega fisicamente a caja
+            String sqlEfectivo = """
+    SELECT 
+        COALESCE(SUM(
+            CASE p.tipo_pago
+                WHEN 'EFECTIVO'   THEN v.total
+                WHEN 'DOLARES'    THEN v.total
+                WHEN 'MIXTO'      THEN (p.monto_recibido - p.cambio)
+                WHEN 'MIXTO_USD'  THEN (p.monto_recibido - p.cambio)
+                ELSE 0
+            END
+        ), 0) AS efectivo_real,
+        COUNT(v.id_venta) AS num_tickets,
+        COALESCE(SUM(v.total), 0) AS total_ventas
+    FROM ventas v
+    LEFT JOIN pagos p ON p.id_venta = v.id_venta
+    WHERE v.id_caja = ?
+    """;
+
+            PreparedStatement psEf = con.prepareStatement(sqlEfectivo);
+            psEf.setInt(1, idCaja);
+            ResultSet rsEf = psEf.executeQuery();
+            if (rsEf.next()) {
+                lblNumTickets.setText(String.valueOf(rsEf.getInt("num_tickets")));
+                totalEfectivo = rsEf.getDouble("efectivo_real"); // ← solo efectivo físico
                 lblTotalEfectivo.setText("$" + String.format("%.2f", totalEfectivo));
             }
 
@@ -215,7 +232,7 @@ public class CorteCajaController {
         }
     }
 
-    // ─── Ventas por cajero ─────────────────────────────────────────────────
+    // Ventas por cajero
     private void cargarVentasPorCajero() {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
         ObservableList<String[]> datos = FXCollections.observableArrayList();
@@ -257,7 +274,7 @@ public class CorteCajaController {
         lblTotalCombinado.setText("$" + String.format("%.2f", totalGlobal));
     }
 
-    // ─── Métodos de pago ───────────────────────────────────────────────────
+    // Metodos de pago
     private void cargarMetodosPago() {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
         vboxMetodosPago.getChildren().clear();
@@ -266,15 +283,16 @@ public class CorteCajaController {
 
         try (Connection con = ConexionDB.getConexion()) {
             String sql = """
-                SELECT p.tipo_pago,
-                       COUNT(v.id_venta)           AS cantidad,
-                       COALESCE(SUM(v.total), 0)   AS total
-                FROM ventas v
-                JOIN pagos p ON p.id_venta = v.id_venta
-                WHERE v.id_caja = ?
-                GROUP BY p.tipo_pago
-                ORDER BY total DESC
-                """;
+    SELECT 
+        COALESCE(p.tipo_pago, 'FIADO') AS tipo_pago,
+        COUNT(v.id_venta) AS cantidad,
+        COALESCE(SUM(v.total), 0) AS total
+    FROM ventas v
+    LEFT JOIN pagos p ON p.id_venta = v.id_venta
+    WHERE v.id_caja = ?
+    GROUP BY COALESCE(p.tipo_pago, 'FIADO')
+    ORDER BY total DESC
+    """;
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, idCaja);
             ResultSet rs = ps.executeQuery();
@@ -547,7 +565,8 @@ public class CorteCajaController {
     @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAVentas()    { navegar("/org/example/vista/Ventas.fxml"); }
     @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
-
+    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");
+    }
     @FXML
     public void btnCerrar() {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);

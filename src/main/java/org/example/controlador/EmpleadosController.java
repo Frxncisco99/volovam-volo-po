@@ -478,6 +478,9 @@ public class EmpleadosController {
     }
 
     @FXML
+    private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");
+    }
+    @FXML
     public void btnCerrar() {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Salir");

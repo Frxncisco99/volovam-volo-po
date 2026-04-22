@@ -58,16 +58,12 @@ public class LoginController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-                // Solo cambia el root, sin tocar initStyle
-                stage.getScene().setFill(javafx.scene.paint.Color.TRANSPARENT);
                 stage.getScene().setRoot(root);
-
-                stage.setMaximized(false);
-                stage.setWidth(520);
-                stage.setHeight(600);
+                stage.setMaximized(false);  //  ventana pequeña
+                stage.setWidth(500);
+                stage.setHeight(400);
                 stage.centerOnScreen();
-
+                stage.show();
             }
         } else {
             mostrarAlerta("Error", "Usuario o contraseña incorrectos.");
@@ -76,7 +72,7 @@ public class LoginController {
     }
     private boolean hayCajaAbierta() {
         // La tabla caja no tiene id_usuario — buscamos cualquier caja abierta
-        // (en una panadería pequeña normalmente solo hay una caja activa a la vez)
+
         String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
