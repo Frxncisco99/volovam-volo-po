@@ -31,39 +31,59 @@ import java.util.Optional;
 
 public class InventarioController {
 
-    @FXML private TableView<Producto> tablaProductos;
-    @FXML private TableColumn<Producto, Integer> colId;
-    @FXML private TableColumn<Producto, String>  colNombre;
-    @FXML private TableColumn<Producto, Double>  colPrecio;
-    @FXML private TableColumn<Producto, String>  colCategoria;
-    @FXML private TableColumn<Producto, Integer> colStock;
-    @FXML private TableColumn<Producto, String>  colEstado;
-    @FXML private TableColumn<Producto, Void>    colAcciones;
+    @FXML
+    private TableView<Producto> tablaProductos;
+    @FXML
+    private TableColumn<Producto, Integer> colId;
+    @FXML
+    private TableColumn<Producto, String> colNombre;
+    @FXML
+    private TableColumn<Producto, Double> colPrecio;
+    @FXML
+    private TableColumn<Producto, String> colCategoria;
+    @FXML
+    private TableColumn<Producto, Integer> colStock;
+    @FXML
+    private TableColumn<Producto, String> colEstado;
+    @FXML
+    private TableColumn<Producto, Void> colAcciones;
 
-    @FXML private Label lblTotalProductos;
-    @FXML private Label lblStockBajo;
-    @FXML private Label lblValorTotal;
+    @FXML
+    private Label lblTotalProductos;
+    @FXML
+    private Label lblStockBajo;
+    @FXML
+    private Label lblValorTotal;
 
-    @FXML private TextField        txtBuscar;
-    @FXML private ComboBox<String> cbCategoria;
-    @FXML private ComboBox<String> cbEstado;
+    @FXML
+    private TextField txtBuscar;
+    @FXML
+    private ComboBox<String> cbCategoria;
+    @FXML
+    private ComboBox<String> cbEstado;
 
     // ── Sidebar ──────────────────────────────────────────────────────────────
-    @FXML private Label lblNombreUsuario;
-    @FXML private Label lblRolUsuario;
-    @FXML private Label lblAvatarIniciales;
+    @FXML
+    private Label lblNombreUsuario;
+    @FXML
+    private Label lblRolUsuario;
+    @FXML
+    private Label lblAvatarIniciales;
 
     private ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
-    private FilteredList<Producto>   filtro;
+    private FilteredList<Producto> filtro;
     private final ProductoDAO dao = new ProductoDAO();
 
     private final ChangeListener<String> filtroCategoriaListener = (o, a, b) -> aplicarFiltros();
-    private final ChangeListener<String> filtroEstadoListener    = (o, a, b) -> aplicarFiltros();
+    private final ChangeListener<String> filtroEstadoListener = (o, a, b) -> aplicarFiltros();
 
 
-    @FXML private HBox hboxWifi;
-    @FXML private FontIcon iconWifi;
-    @FXML private Label lblWifi;
+    @FXML
+    private HBox hboxWifi;
+    @FXML
+    private FontIcon iconWifi;
+    @FXML
+    private Label lblWifi;
 
     private void actualizarEstadoWifi() {
         try {
@@ -79,6 +99,7 @@ public class InventarioController {
             hboxWifi.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 12; -fx-padding: 2 10;");
         }
     }
+
     @FXML
     public void initialize() {
 
@@ -103,8 +124,10 @@ public class InventarioController {
             protected void updateItem(Integer id, boolean empty) {
                 super.updateItem(id, empty);
                 setAlignment(Pos.CENTER);
-                if (empty || id == null) { setText(null); setStyle(""); }
-                else {
+                if (empty || id == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
                     setText("#" + String.format("%03d", id));
                     setStyle("-fx-text-fill: #8B4A5A; -fx-font-size: 12px; -fx-alignment: CENTER;");
                 }
@@ -116,8 +139,10 @@ public class InventarioController {
             protected void updateItem(String nombre, boolean empty) {
                 super.updateItem(nombre, empty);
                 setAlignment(Pos.CENTER);
-                if (empty || nombre == null) { setText(null); setStyle(""); }
-                else {
+                if (empty || nombre == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
                     setText(nombre);
                     setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
@@ -126,16 +151,21 @@ public class InventarioController {
 
         colCategoria.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
+
             {
                 badge.setStyle("-fx-background-color: #F0EAD0; -fx-text-fill: #7A5E1A; " +
                         "-fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size: 11px;");
             }
+
             @Override
             protected void updateItem(String cat, boolean empty) {
                 super.updateItem(cat, empty);
                 setAlignment(Pos.CENTER);
                 if (empty || cat == null) setGraphic(null);
-                else { badge.setText(cat); setGraphic(badge); }
+                else {
+                    badge.setText(cat);
+                    setGraphic(badge);
+                }
             }
         });
 
@@ -144,8 +174,10 @@ public class InventarioController {
             protected void updateItem(Double precio, boolean empty) {
                 super.updateItem(precio, empty);
                 setAlignment(Pos.CENTER);
-                if (empty || precio == null) { setText(null); setStyle(""); }
-                else {
+                if (empty || precio == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
                     setText(String.format("$%.2f", precio));
                     setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
@@ -157,8 +189,10 @@ public class InventarioController {
             protected void updateItem(Integer stock, boolean empty) {
                 super.updateItem(stock, empty);
                 setAlignment(Pos.CENTER);
-                if (empty || stock == null) { setText(null); setStyle(""); }
-                else {
+                if (empty || stock == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
                     Producto p = getTableView().getItems().get(getIndex());
                     setText(String.valueOf(stock));
                     setStyle(p.isBajoStock()
@@ -173,6 +207,7 @@ public class InventarioController {
         );
         colEstado.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
+
             @Override
             protected void updateItem(String estado, boolean empty) {
                 super.updateItem(estado, empty);
@@ -196,10 +231,11 @@ public class InventarioController {
         });
 
         colAcciones.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEditar   = new Button("Editar");
-            private final Button btnStock    = new Button("⇅ Stock");
+            private final Button btnEditar = new Button("Editar");
+            private final Button btnStock = new Button("⇅ Stock");
             private final Button btnEliminar = new Button("Eliminar");
-            private final HBox   caja        = new HBox(6, btnEditar, btnStock, btnEliminar);
+            private final HBox caja = new HBox(6, btnEditar, btnStock, btnEliminar);
+
             {
                 btnEditar.setStyle("-fx-background-color: #C9A84C; -fx-text-fill: #3D1A0A; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
@@ -239,6 +275,7 @@ public class InventarioController {
                     });
                 });
             }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -283,7 +320,9 @@ public class InventarioController {
     }
 
     @FXML
-    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
+    private void irAConfiguracion() {
+        cambiarEscena("/org/example/vista/Configuracion.fxml");
+    }
 
 
     @FXML
@@ -374,9 +413,9 @@ public class InventarioController {
 
     private void aplicarFiltros() {
         if (filtro == null) return;
-        String texto     = txtBuscar.getText() == null ? "" : txtBuscar.getText().toLowerCase();
+        String texto = txtBuscar.getText() == null ? "" : txtBuscar.getText().toLowerCase();
         String categoria = cbCategoria.getValue();
-        String estado    = cbEstado.getValue();
+        String estado = cbEstado.getValue();
         filtro.setPredicate(p -> {
             boolean coincideTexto = texto.isEmpty()
                     || p.getNombre().toLowerCase().contains(texto)
@@ -416,7 +455,7 @@ public class InventarioController {
 
     private void actualizarResumen() {
         int total = listaProductos.size();
-        int bajo  = 0;
+        int bajo = 0;
         double valor = 0;
         for (Producto p : listaProductos) {
             if (p.isBajoStock()) bajo++;
@@ -507,7 +546,4 @@ public class InventarioController {
             e.printStackTrace();
         }
     }
-    @FXML
-    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
-
 }

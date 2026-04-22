@@ -72,7 +72,7 @@ public class LoginController {
     }
     private boolean hayCajaAbierta() {
         // La tabla caja no tiene id_usuario — buscamos cualquier caja abierta
-        // (en una panadería pequeña normalmente solo hay una caja activa a la vez)
+
         String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
