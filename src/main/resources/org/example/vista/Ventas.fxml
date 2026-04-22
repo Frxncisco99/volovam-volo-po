@@ -60,35 +60,84 @@
         <VBox maxHeight="Infinity" style="-fx-background-color: #F5EFE6;">
 
             <!-- TOPBAR -->
-            <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 14 24; -fx-effect: dropshadow(gaussian, #00000015, 8, 0, 0, 2);">
+            <HBox alignment="CENTER_LEFT" spacing="6"
+                  style="-fx-background-color: white; -fx-padding: 14 24;
+                         -fx-effect: dropshadow(gaussian, #00000015, 8, 0, 0, 2);">
                 <VBox spacing="2">
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Ventas" />
                     <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Punto de venta" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
 
-                <!-- Botones nuevos -->
-                <Button graphicTextGap="6" onAction="#abrirHistorial" style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B4226; -fx-background-radius: 8; -fx-border-color: #6B4226; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;" text="📋 Historial" />
-                <Button onAction="#abrirIngreso" style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 8; -fx-border-color: #2E7D32; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;" text="+ Ingreso" />
-                <Button onAction="#abrirSalida" style="-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B; -fx-background-radius: 8; -fx-border-color: #C0392B; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;" text="- Salida" />
+                <!-- Historial -->
+                <Button onAction="#abrirHistorial"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B4226;
+                               -fx-background-radius: 8; -fx-border-color: #6B4226; -fx-border-radius: 8;
+                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="📋 Historial" />
 
-                <Label fx:id="lblFolio" style="-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-padding: 0 16;" text="Folio #0000" />
-                <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 4 12; -fx-font-size: 11px;" text="Caja abierta" />
+                <!-- Ingreso / Salida -->
+                <Button onAction="#abrirIngreso"
+                        style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32;
+                               -fx-background-radius: 8; -fx-border-color: #2E7D32; -fx-border-radius: 8;
+                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="+ Ingreso" />
+                <Button onAction="#abrirSalida"
+                        style="-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B;
+                               -fx-background-radius: 8; -fx-border-color: #C0392B; -fx-border-radius: 8;
+                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="- Salida" />
+
+                <!-- ── NUEVOS: Devolución y En Espera ── -->
+                <Button onAction="#abrirDevoluciones"
+                        style="-fx-background-color: #FFF3E0; -fx-text-fill: #E65100;
+                               -fx-background-radius: 8; -fx-border-color: #E65100; -fx-border-radius: 8;
+                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="↩ Devolucion" />
+
+                <!-- Poner en espera -->
+                <Button onAction="#ponerEnEspera"
+                        style="-fx-background-color: #EDE7F6; -fx-text-fill: #4527A0;
+                               -fx-background-radius: 8; -fx-border-color: #4527A0; -fx-border-radius: 8;
+                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="⏸ En espera" />
+
+                <!-- Ver ventas en espera + badge contador -->
+                <StackPane>
+                    <Button onAction="#verVentasEnEspera"
+                            style="-fx-background-color: #E8EAF6; -fx-text-fill: #283593;
+                                   -fx-background-radius: 8; -fx-border-color: #283593; -fx-border-radius: 8;
+                                   -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;" text="📂 Ver espera" />
+                    <!-- Badge con el número de ventas en espera -->
+                    <Label fx:id="lblEnEspera" text=""
+                           visible="false" managed="false"
+                           style="-fx-background-color: #C0392B; -fx-text-fill: white;
+                                  -fx-background-radius: 10; -fx-padding: 1 5;
+                                  -fx-font-size: 9px; -fx-font-weight: bold;"
+                           StackPane.alignment="TOP_RIGHT"
+                           translateX="6" translateY="-4"/>
+                </StackPane>
+
+                <Label fx:id="lblFolio"
+                       style="-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-padding: 0 8;"
+                       text="Folio #0000" />
+                <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32;
+                              -fx-background-radius: 12; -fx-padding: 4 12; -fx-font-size: 11px;"
+                       text="Caja abierta" />
             </HBox>
 
             <HBox spacing="0" VBox.vgrow="ALWAYS">
 
                 <!-- PRODUCTOS -->
                 <VBox spacing="10" style="-fx-background-color: #F5EFE6; -fx-padding: 16;" HBox.hgrow="ALWAYS">
-
-                    <!-- Buscador -->
-                    <TextField fx:id="txtBuscar" promptText="Buscar producto... (F2)" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 14px;" />
-
-                    <!-- Botones de categoría -->
+                    <TextField fx:id="txtBuscar" promptText="Buscar producto... (F2)"
+                               style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #6B4226;
+                                      -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 14px;" />
                     <FlowPane fx:id="panelCategorias" hgap="8" vgap="8" />
-
-                    <!-- Lista productos -->
-                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                                VBox.vgrow="ALWAYS">
                         <VBox fx:id="listaProductos" spacing="8" style="-fx-padding: 4;" />
                     </ScrollPane>
                 </VBox>
@@ -96,25 +145,32 @@
                 <Separator orientation="VERTICAL" />
 
                 <!-- CARRITO -->
-                <VBox minWidth="340" prefWidth="380" spacing="10" style="-fx-background-color: white; -fx-padding: 16;">
+                <VBox minWidth="340" prefWidth="380" spacing="10"
+                      style="-fx-background-color: white; -fx-padding: 16;">
                     <HBox alignment="CENTER_LEFT">
                         <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Carrito" />
                         <Region HBox.hgrow="ALWAYS" />
                         <Label fx:id="lblCantidadItems" style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text="0 items" />
                     </HBox>
-                    <!-- Selector de cliente -->
                     <VBox spacing="4">
                         <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Cliente:" />
                         <HBox alignment="CENTER_LEFT" spacing="6">
-                            <Label fx:id="lblClienteSeleccionado" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Publico General" HBox.hgrow="ALWAYS" />
+                            <Label fx:id="lblClienteSeleccionado"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"
+                                   text="Publico General" HBox.hgrow="ALWAYS" />
                             <Region HBox.hgrow="ALWAYS" />
-                            <Button onAction="#seleccionarCliente" style="-fx-background-color: transparent; -fx-border-color: #6B4226; -fx-border-radius: 6; -fx-border-width: 1; -fx-text-fill: #6B4226; -fx-background-radius: 6; -fx-padding: 3 8; -fx-cursor: hand; -fx-font-size: 11px;" text="Cambiar" />
+                            <Button onAction="#seleccionarCliente"
+                                    style="-fx-background-color: transparent; -fx-border-color: #6B4226;
+                                           -fx-border-radius: 6; -fx-border-width: 1; -fx-text-fill: #6B4226;
+                                           -fx-background-radius: 6; -fx-padding: 3 8; -fx-cursor: hand;
+                                           -fx-font-size: 11px;" text="Cambiar" />
                         </HBox>
                         <Label fx:id="lblCreditoDisponible" style="-fx-font-size: 11px; -fx-text-fill: #3B6D11;" text="" />
                     </VBox>
                     <Separator />
-                    <Separator />
-                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                                VBox.vgrow="ALWAYS">
                         <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;" />
                     </ScrollPane>
                     <Separator />
@@ -136,8 +192,12 @@
                             <Label fx:id="lblTotal" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="\$0.00" />
                         </HBox>
                     </VBox>
-                    <Button fx:id="btnCobrar" onAction="#handleCobrar" prefHeight="45" prefWidth="350" style="-fx-background-color: #6B4226; -fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;" text="Cobrar  [F2]" />
-                    <Button fx:id="btnCancelar" onAction="#handleCancelar" prefHeight="36" prefWidth="350" style="-fx-background-color: transparent; -fx-border-color: #C0392B; -fx-border-radius: 10; -fx-border-width: 1.2; -fx-text-fill: #C0392B; -fx-font-size: 13px; -fx-cursor: hand;" text="Cancelar venta  [ESC]" />
+                    <Button fx:id="btnCobrar" onAction="#handleCobrar" prefHeight="45" prefWidth="350"
+                            style="-fx-background-color: #6B4226; -fx-background-radius: 10; -fx-text-fill: white;
+                                   -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;" text="Cobrar  [F2]" />
+                    <Button fx:id="btnCancelar" onAction="#handleCancelar" prefHeight="36" prefWidth="350"
+                            style="-fx-background-color: transparent; -fx-border-color: #C0392B; -fx-border-radius: 10;
+                                   -fx-border-width: 1.2; -fx-text-fill: #C0392B; -fx-font-size: 13px; -fx-cursor: hand;" text="Cancelar venta  [ESC]" />
                 </VBox>
             </HBox>
         </VBox>
