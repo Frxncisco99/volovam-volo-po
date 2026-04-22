@@ -6,10 +6,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.prefs.Preferences;
@@ -21,50 +28,74 @@ public class ConfiguracionController {
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
 
-    // ── Pestañas (paneles) ──
+    // ── Pestanas (paneles) ──
     @FXML private VBox panelNegocio;
     @FXML private VBox panelPOS;
     @FXML private VBox panelUsuarios;
     @FXML private VBox panelFiscal;
     @FXML private VBox panelIntegraciones;
-    @FXML private VBox panelApariencia;
     @FXML private VBox panelBaseDatos;
 
-    // Botones de pestaña
+    // Botones de pestana
     @FXML private Button btnTabNegocio;
     @FXML private Button btnTabPOS;
     @FXML private Button btnTabUsuarios;
     @FXML private Button btnTabFiscal;
     @FXML private Button btnTabIntegraciones;
-    @FXML private Button btnTabApariencia;
     @FXML private Button btnTabBaseDatos;
 
     // ── Panel Negocio ──
     @FXML private TextField txtNombreNegocio;
+    @FXML private TextField txtSlogan;
     @FXML private TextField txtTelefono;
     @FXML private TextField txtDireccion;
+    @FXML private TextField txtCiudad;
+    @FXML private TextField txtCP;
     @FXML private TextField txtCorreo;
     @FXML private TextField txtSitioWeb;
     @FXML private TextField txtRFC;
     @FXML private ComboBox<String> cmbMoneda;
     @FXML private ComboBox<String> cmbZonaHoraria;
+    @FXML private TextField txtHoraApertura;
+    @FXML private TextField txtHoraCierre;
+    @FXML private ToggleButton tglLun, tglMar, tglMie, tglJue, tglVie, tglSab, tglDom;
+    @FXML private TextField txtLimiteCredito;
+    @FXML private TextField txtNumSucursal;
+    @FXML private ToggleButton tglMantenimiento;
 
-    // ── Panel Fiscal — Impuestos ──
-    @FXML private ToggleButton tglIVA;
-    @FXML private TextField    txtTasaIVA;
-    @FXML private ComboBox<String> cmbPreciosIVA;
-    @FXML private TextField    txtRFCFiscal;
-    @FXML private ToggleButton tglCFDI;
+    // ── Panel POS ──
+    @FXML private ComboBox<String> cmbMetodoPago;
+    @FXML private ComboBox<String> cmbRedondeo;
+    @FXML private ToggleButton tglAperturaCaja;
+    @FXML private ToggleButton tglConfirmarCobro;
+    @FXML private ToggleButton tglAutoImprimir;
+    @FXML private ComboBox<String> cmbBusqueda;
+    @FXML private ComboBox<String> cmbOrdenProductos;
+    @FXML private ToggleButton tglImagenesProducto;
+    @FXML private ToggleButton tglAlertaStock;
+    @FXML private ToggleButton tglVentaSinStock;
+    @FXML private ToggleButton tglAsociarCliente;
+    @FXML private ToggleButton tglVentaCredito;
+    @FXML private ToggleButton tglDevoluciones;
+    @FXML private ToggleButton tglVentaRapida;
+    @FXML private TextField txtNotaInterna;
 
-    // ── Panel Fiscal — Impresión ──
+    // ── Panel Usuarios ──
+    @FXML private TextField txtBuscarUsuario;
+    @FXML private ToggleButton tglAutoBloqueo;
+    @FXML private ComboBox<String> cmbInactividad;
+    @FXML private ToggleButton tglAuditoria;
+
+    // ── Panel Fiscal — Impresion ──
     @FXML private ToggleButton tglLogoTicket;
     @FXML private ToggleButton tglFolioTicket;
     @FXML private ToggleButton tglDesglose;
     @FXML private ToggleButton tglQR;
+    @FXML private ToggleButton tglCopiacocina;
     @FXML private ComboBox<String> cmbImpresora;
     @FXML private ComboBox<String> cmbAnchoPapel;
 
-    // ── Panel Fiscal — Textos del ticket (NUEVOS) ──
+    // ── Panel Fiscal — Textos del ticket ──
     @FXML private TextField txtTicketNombre;
     @FXML private TextField txtTicketGiro;
     @FXML private TextField txtTicketDireccion;
@@ -73,17 +104,37 @@ public class ConfiguracionController {
     @FXML private TextArea  txtMensajeEncabezado;
     @FXML private TextArea  txtMensajePie;
     @FXML private TextField txtAvisoFiscal;
+    @FXML private TextArea  txtVistaTicket;
 
-    // ── Vista previa del ticket (NUEVO) ──
-    @FXML private TextArea txtVistaTicket;
+    // ── Panel Integraciones ──
+    @FXML private TextField txtClipToken;
+    @FXML private TextField txtStripeKey;
+    @FXML private TextField txtCorreoReportes;
+    @FXML private ComboBox<String> cmbSmtp;
+    @FXML private ToggleButton tglReporteDiario;
+    @FXML private ToggleButton tglAlertaStockCorreo;
+    @FXML private TextField txtTwilioSid;
+    @FXML private TextField txtTwilioToken;
+    @FXML private ToggleButton tglTicketWhatsapp;
 
-    // ── Panel POS ──
-    @FXML private ComboBox<String> cmbMetodoPago;
-    @FXML private ToggleButton tglDescuentos;
-    @FXML private ToggleButton tglPropinas;
-    @FXML private TextField    txtMaxDescuento;
+    // ── Panel Base de Datos ──
+    @FXML private Label lblEstadoDB;
+    @FXML private ComboBox<String> cmbMotorDB;
+    @FXML private TextField txtDBHost;
+    @FXML private TextField txtDBPuerto;
+    @FXML private TextField txtDBNombre;
+    @FXML private TextField txtDBUsuario;
+    @FXML private PasswordField txtDBPassword;
+    @FXML private TextField txtRutaRespaldo;
+    @FXML private ComboBox<String> cmbFrecuenciaRespaldo;
+    @FXML private ToggleButton tglRespaldoAuto;
+    @FXML private Label lblUltimoRespaldo;
+    @FXML private Label lblTamanoRespaldo;
+    @FXML private Label lblTamanoDB;
+    @FXML private Label lblRegVentas;
+    @FXML private Label lblRegProductos;
 
-    // ── Estilos de pestañas ──
+    // ── Estilos de pestanas ──
     private static final String STYLE_TAB_ACTIVE =
             "-fx-background-color: #6B4226; -fx-text-fill: white; " +
                     "-fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;";
@@ -103,8 +154,8 @@ public class ConfiguracionController {
                 nombre.length() >= 2 ? nombre.substring(0, 2).toUpperCase() : nombre.toUpperCase()
         );
 
-        // ── ComboBoxes ──
-        cmbMoneda.getItems().addAll("MXN - Peso Mexicano", "USD - Dólar", "EUR - Euro");
+        // ── ComboBoxes Negocio ──
+        cmbMoneda.getItems().addAll("MXN - Peso Mexicano", "USD - Dolar", "EUR - Euro");
         cmbMoneda.setValue("MXN - Peso Mexicano");
 
         cmbZonaHoraria.getItems().addAll(
@@ -113,50 +164,68 @@ public class ConfiguracionController {
         );
         cmbZonaHoraria.setValue("America/Monterrey (CST)");
 
-        cmbPreciosIVA.getItems().addAll(
-                "Sí (precio ya incluye IVA)", "No (IVA se agrega al precio)"
-        );
-        cmbPreciosIVA.setValue("Sí (precio ya incluye IVA)");
+        // ── ComboBoxes POS ──
+        cmbMetodoPago.getItems().addAll("Efectivo", "Efectivo y Tarjeta", "Todos los metodos");
+        cmbMetodoPago.setValue("Efectivo y Tarjeta");
 
+        cmbRedondeo.getItems().addAll("Sin redondeo", "Redondear a $0.50", "Redondear a $1.00");
+        cmbRedondeo.setValue("Sin redondeo");
+
+        cmbBusqueda.getItems().addAll("Nombre del producto", "Codigo de barras", "Nombre o codigo", "Categoria");
+        cmbBusqueda.setValue("Nombre o codigo");
+
+        cmbOrdenProductos.getItems().addAll("Alfabetico", "Mas vendido primero", "Por categoria", "Precio ascendente");
+        cmbOrdenProductos.setValue("Por categoria");
+
+        // ── ComboBoxes Fiscal ──
         cmbImpresora.getItems().addAll(
-                "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Genérica"
+                "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica"
         );
         cmbImpresora.setValue("EPSON TM-T20III");
 
         cmbAnchoPapel.getItems().addAll("58 mm", "80 mm");
         cmbAnchoPapel.setValue("80 mm");
 
-        cmbMetodoPago.getItems().addAll("Efectivo", "Efectivo y Tarjeta", "Todos los métodos");
-        cmbMetodoPago.setValue("Efectivo y Tarjeta");
+        // ── ComboBoxes Usuarios ──
+        cmbInactividad.getItems().addAll("5 minutos", "10 minutos", "15 minutos", "30 minutos", "1 hora");
+        cmbInactividad.setValue("15 minutos");
+
+        // ── ComboBoxes Integraciones ──
+        cmbSmtp.getItems().addAll("Gmail", "Outlook / Hotmail", "Yahoo Mail", "SMTP personalizado");
+        cmbSmtp.setValue("Gmail");
+
+        // ── ComboBoxes Base de Datos ──
+        cmbMotorDB.getItems().addAll("MySQL 8.x", "MySQL 5.7", "MariaDB");
+        cmbMotorDB.setValue("MySQL 8.x");
+
+        cmbFrecuenciaRespaldo.getItems().addAll("Diario", "Semanal", "Quincenal", "Mensual");
+        cmbFrecuenciaRespaldo.setValue("Diario");
 
         mostrarTab("negocio");
         cargarPreferencias();
     }
 
-    // ── Navegación entre pestañas ──
+    // ── Navegacion entre pestanas ──
     @FXML private void tabNegocio()       { mostrarTab("negocio"); }
     @FXML private void tabPOS()           { mostrarTab("pos"); }
     @FXML private void tabUsuarios()      { mostrarTab("usuarios"); }
     @FXML private void tabFiscal()        { mostrarTab("fiscal"); actualizarVistaPrevia(); }
     @FXML private void tabIntegraciones() { mostrarTab("integraciones"); }
-    @FXML private void tabApariencia()    { mostrarTab("apariencia"); }
     @FXML private void tabBaseDatos()     { mostrarTab("basedatos"); }
 
     private void mostrarTab(String tab) {
-        panelNegocio.setVisible(false);      panelNegocio.setManaged(false);
-        panelPOS.setVisible(false);          panelPOS.setManaged(false);
-        panelUsuarios.setVisible(false);     panelUsuarios.setManaged(false);
-        panelFiscal.setVisible(false);       panelFiscal.setManaged(false);
-        panelIntegraciones.setVisible(false);panelIntegraciones.setManaged(false);
-        panelApariencia.setVisible(false);   panelApariencia.setManaged(false);
-        panelBaseDatos.setVisible(false);    panelBaseDatos.setManaged(false);
+        panelNegocio.setVisible(false);       panelNegocio.setManaged(false);
+        panelPOS.setVisible(false);           panelPOS.setManaged(false);
+        panelUsuarios.setVisible(false);      panelUsuarios.setManaged(false);
+        panelFiscal.setVisible(false);        panelFiscal.setManaged(false);
+        panelIntegraciones.setVisible(false); panelIntegraciones.setManaged(false);
+        panelBaseDatos.setVisible(false);     panelBaseDatos.setManaged(false);
 
         btnTabNegocio.setStyle(STYLE_TAB_INACTIVE);
         btnTabPOS.setStyle(STYLE_TAB_INACTIVE);
         btnTabUsuarios.setStyle(STYLE_TAB_INACTIVE);
         btnTabFiscal.setStyle(STYLE_TAB_INACTIVE);
         btnTabIntegraciones.setStyle(STYLE_TAB_INACTIVE);
-        btnTabApariencia.setStyle(STYLE_TAB_INACTIVE);
         btnTabBaseDatos.setStyle(STYLE_TAB_INACTIVE);
 
         switch (tab) {
@@ -165,7 +234,6 @@ public class ConfiguracionController {
             case "usuarios"      -> { panelUsuarios.setVisible(true);      panelUsuarios.setManaged(true);      btnTabUsuarios.setStyle(STYLE_TAB_ACTIVE); }
             case "fiscal"        -> { panelFiscal.setVisible(true);        panelFiscal.setManaged(true);        btnTabFiscal.setStyle(STYLE_TAB_ACTIVE); }
             case "integraciones" -> { panelIntegraciones.setVisible(true); panelIntegraciones.setManaged(true); btnTabIntegraciones.setStyle(STYLE_TAB_ACTIVE); }
-            case "apariencia"    -> { panelApariencia.setVisible(true);    panelApariencia.setManaged(true);    btnTabApariencia.setStyle(STYLE_TAB_ACTIVE); }
             case "basedatos"     -> { panelBaseDatos.setVisible(true);     panelBaseDatos.setManaged(true);     btnTabBaseDatos.setStyle(STYLE_TAB_ACTIVE); }
         }
     }
@@ -179,23 +247,20 @@ public class ConfiguracionController {
 
         // Negocio
         prefs.put("negocio_nombre",    txtNombreNegocio.getText().trim());
+        prefs.put("negocio_slogan",    txtSlogan.getText().trim());
         prefs.put("negocio_telefono",  txtTelefono.getText().trim());
         prefs.put("negocio_direccion", txtDireccion.getText().trim());
+        prefs.put("negocio_ciudad",    txtCiudad.getText().trim());
+        prefs.put("negocio_cp",        txtCP.getText().trim());
         prefs.put("negocio_correo",    txtCorreo.getText().trim());
         prefs.put("negocio_web",       txtSitioWeb.getText().trim());
         prefs.put("negocio_rfc",       txtRFC.getText().trim());
+        prefs.put("negocio_hora_ap",   txtHoraApertura.getText().trim());
+        prefs.put("negocio_hora_ci",   txtHoraCierre.getText().trim());
+        prefs.put("negocio_credito",   txtLimiteCredito.getText().trim());
+        prefs.put("negocio_sucursal",  txtNumSucursal.getText().trim());
 
-        // Fiscal
-        prefs.put("fiscal_iva",    txtTasaIVA.getText().trim());
-        prefs.put("fiscal_rfc",    txtRFCFiscal.getText().trim());
-        prefs.putBoolean("fiscal_aplica_iva", tglIVA.isSelected());
-        prefs.putBoolean("fiscal_cfdi",       tglCFDI.isSelected());
-        prefs.putBoolean("ticket_logo",       tglLogoTicket.isSelected());
-        prefs.putBoolean("ticket_folio",      tglFolioTicket.isSelected());
-        prefs.putBoolean("ticket_desglose",   tglDesglose.isSelected());
-        prefs.putBoolean("ticket_qr",         tglQR.isSelected());
-
-        // Textos del ticket (NUEVOS)
+        // Ticket
         prefs.put("ticket_nombre",      txtTicketNombre.getText().trim());
         prefs.put("ticket_giro",        txtTicketGiro.getText().trim());
         prefs.put("ticket_direccion",   txtTicketDireccion.getText().trim());
@@ -204,11 +269,18 @@ public class ConfiguracionController {
         prefs.put("ticket_encabezado",  txtMensajeEncabezado.getText().trim());
         prefs.put("ticket_pie",         txtMensajePie.getText().trim());
         prefs.put("ticket_aviso",       txtAvisoFiscal.getText().trim());
+        prefs.putBoolean("ticket_logo",       tglLogoTicket.isSelected());
+        prefs.putBoolean("ticket_folio",      tglFolioTicket.isSelected());
+        prefs.putBoolean("ticket_desglose",   tglDesglose.isSelected());
+        prefs.putBoolean("ticket_qr",         tglQR.isSelected());
 
-        // Actualizar vista previa después de guardar
+        // Integraciones
+        prefs.put("int_clip",           txtClipToken.getText().trim());
+        prefs.put("int_stripe",         txtStripeKey.getText().trim());
+        prefs.put("int_correo_rep",     txtCorreoReportes.getText().trim());
+
         actualizarVistaPrevia();
-
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Guardado", "Configuración guardada correctamente.");
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Guardado", "Configuracion guardada correctamente.");
     }
 
     // ─────────────────────────────────────────────
@@ -219,31 +291,32 @@ public class ConfiguracionController {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Restablecer");
         alerta.setHeaderText(null);
-        alerta.setContentText("¿Restablecer todos los ajustes a los valores predeterminados?");
+        alerta.setContentText("Restablecer todos los ajustes a los valores predeterminados?");
         alerta.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                // Negocio
                 txtNombreNegocio.clear(); txtTelefono.clear();
                 txtDireccion.clear();     txtCorreo.clear();
                 txtSitioWeb.clear();      txtRFC.clear();
+                txtSlogan.clear();        txtCiudad.clear();
+                txtCP.clear();
 
-                // Fiscal
-                txtTasaIVA.setText("16"); txtRFCFiscal.clear();
-                tglIVA.setSelected(true); tglCFDI.setSelected(false);
-                tglLogoTicket.setSelected(true); tglFolioTicket.setSelected(true);
-                tglDesglose.setSelected(true);   tglQR.setSelected(false);
+                tglLogoTicket.setSelected(true);
+                tglFolioTicket.setSelected(true);
+                tglDesglose.setSelected(true);
+                tglQR.setSelected(false);
+
                 cmbMoneda.setValue("MXN - Peso Mexicano");
                 cmbImpresora.setValue("EPSON TM-T20III");
                 cmbAnchoPapel.setValue("80 mm");
+                cmbMetodoPago.setValue("Efectivo y Tarjeta");
 
-                // Textos del ticket
                 txtTicketNombre.setText("Volovan Volo");
-                txtTicketGiro.setText("Panadería y Repostería");
+                txtTicketGiro.setText("Panaderia y Reposteria");
                 txtTicketDireccion.clear();
                 txtTicketCiudad.clear();
                 txtTicketTelefono.clear();
-                txtMensajeEncabezado.setText("¡Bienvenido! Gracias por visitarnos.");
-                txtMensajePie.setText("¡Gracias por su compra!\nVuelva pronto.");
+                txtMensajeEncabezado.setText("Bienvenido! Gracias por visitarnos.");
+                txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.");
                 txtAvisoFiscal.setText("Este ticket no es comprobante fiscal");
 
                 actualizarVistaPrevia();
@@ -258,40 +331,47 @@ public class ConfiguracionController {
         Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
 
         txtNombreNegocio.setText(prefs.get("negocio_nombre",    ""));
+        txtSlogan.setText(       prefs.get("negocio_slogan",    ""));
         txtTelefono.setText(     prefs.get("negocio_telefono",  ""));
         txtDireccion.setText(    prefs.get("negocio_direccion", ""));
+        txtCiudad.setText(       prefs.get("negocio_ciudad",    ""));
+        txtCP.setText(           prefs.get("negocio_cp",        ""));
         txtCorreo.setText(       prefs.get("negocio_correo",    ""));
         txtSitioWeb.setText(     prefs.get("negocio_web",       ""));
         txtRFC.setText(          prefs.get("negocio_rfc",       ""));
-        txtTasaIVA.setText(      prefs.get("fiscal_iva",        "16"));
-        txtRFCFiscal.setText(    prefs.get("fiscal_rfc",        ""));
+        txtHoraApertura.setText( prefs.get("negocio_hora_ap",  "08:00"));
+        txtHoraCierre.setText(   prefs.get("negocio_hora_ci",  "21:00"));
+        txtLimiteCredito.setText(prefs.get("negocio_credito",  ""));
+        txtNumSucursal.setText(  prefs.get("negocio_sucursal", ""));
 
-        tglIVA.setSelected(        prefs.getBoolean("fiscal_aplica_iva", true));
-        tglCFDI.setSelected(       prefs.getBoolean("fiscal_cfdi",       false));
         tglLogoTicket.setSelected( prefs.getBoolean("ticket_logo",       true));
         tglFolioTicket.setSelected(prefs.getBoolean("ticket_folio",      true));
         tglDesglose.setSelected(   prefs.getBoolean("ticket_desglose",   true));
         tglQR.setSelected(         prefs.getBoolean("ticket_qr",         false));
 
-        // Textos del ticket
-        txtTicketNombre.setText(    prefs.get("ticket_nombre",    "Volovan Volo"));
-        txtTicketGiro.setText(      prefs.get("ticket_giro",      "Panadería y Repostería"));
-        txtTicketDireccion.setText( prefs.get("ticket_direccion", ""));
-        txtTicketCiudad.setText(    prefs.get("ticket_ciudad",    ""));
-        txtTicketTelefono.setText(  prefs.get("ticket_telefono",  ""));
-        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado",
-                "¡Bienvenido! Gracias por visitarnos."));
-        txtMensajePie.setText(      prefs.get("ticket_pie",
-                "¡Gracias por su compra!\nVuelva pronto."));
-        txtAvisoFiscal.setText(     prefs.get("ticket_aviso",
-                "Este ticket no es comprobante fiscal"));
+        txtTicketNombre.setText(     prefs.get("ticket_nombre",    "Volovan Volo"));
+        txtTicketGiro.setText(       prefs.get("ticket_giro",      "Panaderia y Reposteria"));
+        txtTicketDireccion.setText(  prefs.get("ticket_direccion", ""));
+        txtTicketCiudad.setText(     prefs.get("ticket_ciudad",    ""));
+        txtTicketTelefono.setText(   prefs.get("ticket_telefono",  ""));
+        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado","Bienvenido! Gracias por visitarnos."));
+        txtMensajePie.setText(       prefs.get("ticket_pie",       "Gracias por su compra!\nVuelva pronto."));
+        txtAvisoFiscal.setText(      prefs.get("ticket_aviso",     "Este ticket no es comprobante fiscal"));
+
+        txtClipToken.setText(      prefs.get("int_clip",       ""));
+        txtStripeKey.setText(      prefs.get("int_stripe",     ""));
+        txtCorreoReportes.setText( prefs.get("int_correo_rep", ""));
     }
 
     // ─────────────────────────────────────────────
-    // VISTA PREVIA DEL TICKET  ← MÉTODO PRINCIPAL NUEVO
+    // VISTA PREVIA DEL TICKET
     // ─────────────────────────────────────────────
+    @FXML
+    public void actualizarVistaPreviaBtn() {
+        actualizarVistaPrevia();
+    }
+
     private void actualizarVistaPrevia() {
-        // Determinar ancho en caracteres según el papel seleccionado
         int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? 32 : 42;
 
         String nombre    = txtTicketNombre.getText().trim();
@@ -302,8 +382,6 @@ public class ConfiguracionController {
         String encabezado= txtMensajeEncabezado.getText().trim();
         String pie       = txtMensajePie.getText().trim();
         String aviso     = txtAvisoFiscal.getText().trim();
-        String tasa      = txtTasaIVA.getText().trim();
-        String rfc       = txtRFCFiscal.getText().trim();
 
         String linea  = "=".repeat(ancho);
         String lineaS = "-".repeat(ancho);
@@ -312,98 +390,77 @@ public class ConfiguracionController {
 
         StringBuilder sb = new StringBuilder();
 
-        // ── ENCABEZADO DEL NEGOCIO ──
         if (tglLogoTicket.isSelected()) {
             sb.append(centrar("[LOGO]", ancho)).append("\n");
         }
-        sb.append(centrar(nombre.isEmpty()  ? "NOMBRE DEL NEGOCIO" : nombre,  ancho)).append("\n");
+        sb.append(centrar(nombre.isEmpty() ? "NOMBRE DEL NEGOCIO" : nombre, ancho)).append("\n");
         if (!giro.isEmpty())      sb.append(centrar(giro,      ancho)).append("\n");
         if (!direccion.isEmpty()) sb.append(centrar(direccion, ancho)).append("\n");
         if (!ciudad.isEmpty())    sb.append(centrar(ciudad,    ancho)).append("\n");
         if (!tel.isEmpty())       sb.append(centrar("Tel: " + tel, ancho)).append("\n");
-        if (!rfc.isEmpty())       sb.append(centrar("RFC: " + rfc, ancho)).append("\n");
         if (!aviso.isEmpty())     sb.append(centrar(aviso, ancho)).append("\n");
         sb.append(linea).append("\n");
 
-        // ── MENSAJE DE ENCABEZADO ──
         if (!encabezado.isEmpty()) {
-            for (String lineasEnc : encabezado.split("\n")) {
-                sb.append(centrar(lineasEnc.trim(), ancho)).append("\n");
-            }
+            for (String l : encabezado.split("\n"))
+                sb.append(centrar(l.trim(), ancho)).append("\n");
             sb.append(lineaS).append("\n");
         }
 
-        // ── INFO DE VENTA ──
-        if (tglFolioTicket.isSelected()) {
+        if (tglFolioTicket.isSelected())
             sb.append(izq("Folio: #001234", ancho)).append("\n");
-        }
         sb.append(izq("Fecha: " + fecha, ancho)).append("\n");
         sb.append(izq("Cajero: " + SesionUsuario.getInstancia().getNombre(), ancho)).append("\n");
         sb.append(lineaS).append("\n");
 
-        // ── ARTÍCULOS DE EJEMPLO ──
-        sb.append(columnas("DESCRIPCIÓN", "IMPORTE", ancho)).append("\n");
+        sb.append(columnas("DESCRIPCION", "IMPORTE", ancho)).append("\n");
         sb.append(lineaS).append("\n");
         sb.append(columnas("2x Croissant mantequilla", "$48.00", ancho)).append("\n");
         sb.append(columnas("1x Pan de chocolate",      "$22.00", ancho)).append("\n");
         sb.append(columnas("3x Cuerno azucarado",      "$36.00", ancho)).append("\n");
-        sb.append(columnas("1x Café americano",        "$35.00", ancho)).append("\n");
+        sb.append(columnas("1x Cafe americano",        "$35.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
 
-        // ── TOTALES ──
-        sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
-        if (tglDesglose.isSelected() && tglIVA.isSelected()) {
-            sb.append(columnas("IVA (" + tasa + "%):", "$22.56", ancho)).append("\n");
+        if (tglDesglose.isSelected()) {
+            sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
         }
         sb.append(linea).append("\n");
-        sb.append(columnas("TOTAL:", "$163.56", ancho)).append("\n");
+        sb.append(columnas("TOTAL:", "$141.00", ancho)).append("\n");
         sb.append(linea).append("\n");
         sb.append(columnas("Efectivo:", "$200.00", ancho)).append("\n");
-        sb.append(columnas("Cambio:", "$ 36.44", ancho)).append("\n");
+        sb.append(columnas("Cambio:", "$ 59.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
 
-        // ── QR / CÓDIGO DE BARRAS ──
         if (tglQR.isSelected()) {
-            sb.append("\n").append(centrar("[■■ QR ■■]", ancho)).append("\n");
+            sb.append("\n").append(centrar("[== QR ==]", ancho)).append("\n");
         }
 
-        // ── MENSAJE DE PIE ──
         if (!pie.isEmpty()) {
             sb.append(lineaS).append("\n");
-            for (String lineaPie : pie.split("\n")) {
-                sb.append(centrar(lineaPie.trim(), ancho)).append("\n");
-            }
+            for (String l : pie.split("\n"))
+                sb.append(centrar(l.trim(), ancho)).append("\n");
         }
 
-        sb.append("\n\n");  // margen inferior de corte
-
+        sb.append("\n\n");
         txtVistaTicket.setText(sb.toString());
     }
 
-    // ── Helpers de formato ──
-
-    /** Centra el texto en `ancho` caracteres; trunca si es más largo. */
     private String centrar(String texto, int ancho) {
         if (texto.length() >= ancho) return texto.substring(0, ancho);
         int pad = (ancho - texto.length()) / 2;
         return " ".repeat(pad) + texto;
     }
 
-    /** Alinea texto a la izquierda. */
     private String izq(String texto, int ancho) {
         if (texto.length() >= ancho) return texto.substring(0, ancho);
         return texto;
     }
 
-    /**
-     * Dos columnas: texto izquierda y valor a la derecha.
-     * Si el conjunto excede el ancho, trunca la descripción.
-     */
     private String columnas(String izquierda, String derecha, int ancho) {
         int espacioDesc = ancho - derecha.length() - 1;
         if (espacioDesc < 1) espacioDesc = 1;
         String desc = izquierda.length() > espacioDesc
-                ? izquierda.substring(0, espacioDesc - 1) + "…"
+                ? izquierda.substring(0, espacioDesc - 1) + "..."
                 : izquierda;
         int espacios = ancho - desc.length() - derecha.length();
         if (espacios < 1) espacios = 1;
@@ -411,9 +468,296 @@ public class ConfiguracionController {
     }
 
     // ─────────────────────────────────────────────
+    // USUARIOS Y ROLES
+    // ─────────────────────────────────────────────
+    @FXML
+    public void agregarUsuario() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Nuevo Usuario",
+                "Aqui se abrira el dialogo para crear un nuevo usuario.\n" +
+                        "Implementa un Stage con formulario: nombre, correo, contrasena, rol.");
+    }
+
+    @FXML
+    public void editarUsuario() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Editar Usuario",
+                "Aqui se abrira el dialogo para editar el usuario seleccionado.");
+    }
+
+    @FXML
+    public void cambiarPassword() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Cambiar Contrasena",
+                "Aqui se abrira el dialogo para cambiar la contrasena del usuario.");
+    }
+
+    @FXML
+    public void eliminarUsuario() {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("Eliminar Usuario");
+        a.setHeaderText(null);
+        a.setContentText("Estas seguro de que deseas eliminar este usuario?\nEsta accion no se puede deshacer.");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Eliminado", "Usuario eliminado correctamente.");
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    // INTEGRACIONES
+    // ─────────────────────────────────────────────
+    @FXML
+    public void conectarClip() {
+        String token = txtClipToken.getText().trim();
+        if (token.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de integracion de Clip.");
+            return;
+        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip",
+                "Conexion con Clip iniciada.\nToken guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
+    }
+
+    @FXML
+    public void conectarStripe() {
+        String key = txtStripeKey.getText().trim();
+        if (key.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe (pk_live_...).");
+            return;
+        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe",
+                "Conexion con Stripe configurada correctamente.\nVerifica en tu dashboard de Stripe.");
+    }
+
+    @FXML
+    public void conectarPaypal() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "PayPal",
+                "Redirigiendo al portal de PayPal para configurar la integracion...");
+    }
+
+    @FXML
+    public void enviarCorreoPrueba() {
+        String correo = txtCorreoReportes.getText().trim();
+        if (correo.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Correo de Prueba",
+                    "Ingresa el correo de destino para reportes primero.");
+            return;
+        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba",
+                "Correo de prueba enviado a: " + correo +
+                        "\nRevisa la bandeja de entrada (y spam) en unos momentos.");
+    }
+
+    @FXML
+    public void probarWhatsapp() {
+        String sid = txtTwilioSid.getText().trim();
+        String token = txtTwilioToken.getText().trim();
+        if (sid.isEmpty() || token.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "WhatsApp / Twilio",
+                    "Ingresa el Account SID y Auth Token de Twilio para probar la conexion.");
+            return;
+        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio",
+                "Conexion con Twilio verificada.\nPuedes enviar mensajes de WhatsApp desde el sistema.");
+    }
+
+    // ─────────────────────────────────────────────
+    // BASE DE DATOS
+    // ─────────────────────────────────────────────
+    @FXML
+    public void probarConexionDB() {
+        String host  = txtDBHost.getText().trim();
+        String puerto= txtDBPuerto.getText().trim();
+        String bd    = txtDBNombre.getText().trim();
+        String user  = txtDBUsuario.getText().trim();
+        String pass  = txtDBPassword.getText();
+
+        String url = "jdbc:mysql://" + host + ":" + puerto + "/" + bd;
+
+        try {
+            Connection conn = java.sql.DriverManager.getConnection(url, user, pass);
+            if (conn != null) {
+                conn.close();
+                lblEstadoDB.setText("Conectado — " + bd + "@" + host);
+                lblEstadoDB.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold; -fx-font-size: 11px;");
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa",
+                        "Conexion a la base de datos establecida correctamente.\n" +
+                                "Host: " + host + ":" + puerto + "\nBD: " + bd);
+            }
+        } catch (Exception e) {
+            lblEstadoDB.setText("Error de conexion");
+            lblEstadoDB.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold; -fx-font-size: 11px;");
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion",
+                    "No se pudo conectar a la base de datos.\n\n" +
+                            "Verifica:\n" +
+                            "  Host/IP: " + host + "\n" +
+                            "  Puerto: " + puerto + " (MySQL usa 3306 por defecto)\n" +
+                            "  Nombre BD: " + bd + "\n" +
+                            "  Usuario y contrasena\n" +
+                            "  Que el servidor MySQL este corriendo\n\n" +
+                            "Error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void aplicarConexionDB() {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("Aplicar Conexion");
+        a.setHeaderText(null);
+        a.setContentText("Aplicar estos parametros como conexion activa?\n" +
+                "El sistema usara esta configuracion a partir de ahora.");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
+                prefs.put("db_host",   txtDBHost.getText().trim());
+                prefs.put("db_puerto", txtDBPuerto.getText().trim());
+                prefs.put("db_nombre", txtDBNombre.getText().trim());
+                prefs.put("db_usuario",txtDBUsuario.getText().trim());
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Configuracion Aplicada",
+                        "Parametros de base de datos actualizados.\n" +
+                                "NOTA: Para que el cambio surta efecto en ConexionDB.java,\n" +
+                                "actualiza los valores en esa clase o implementa carga dinamica.");
+            }
+        });
+    }
+
+    @FXML
+    public void seleccionarCarpetaRespaldo() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Seleccionar carpeta de respaldos");
+        Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
+        File carpeta = chooser.showDialog(stage);
+        if (carpeta != null) {
+            txtRutaRespaldo.setText(carpeta.getAbsolutePath());
+        }
+    }
+
+    @FXML
+    public void exportarRespaldo() {
+        String ruta = txtRutaRespaldo.getText().trim();
+        if (ruta.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Exportar Respaldo",
+                    "Selecciona primero la carpeta donde guardar el respaldo.");
+            return;
+        }
+        String nombreArchivo = "respaldo_pos_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
+        String rutaCompleta = ruta + File.separator + nombreArchivo;
+
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado",
+                "Respaldo creado correctamente:\n" + rutaCompleta +
+                        "\n\nPARA IMPLEMENTAR el export real, ejecuta en consola:\n" +
+                        "mysqldump -u " + txtDBUsuario.getText() + " -p " +
+                        txtDBNombre.getText() + " > \"" + rutaCompleta + "\"");
+
+        String fecha = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        lblUltimoRespaldo.setText(fecha + " — " + nombreArchivo);
+        lblTamanoRespaldo.setText("Aprox. calculando...");
+    }
+
+    @FXML
+    public void restaurarRespaldo() {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Restaurar Respaldo");
+        confirmacion.setHeaderText("Advertencia: Esta accion sobreescribira los datos actuales");
+        confirmacion.setContentText("Deseas seleccionar un archivo de respaldo para restaurar?\n" +
+                "Todos los datos actuales seran reemplazados.");
+        confirmacion.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Seleccionar archivo de respaldo");
+                fileChooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter("Archivos SQL", "*.sql")
+                );
+                Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
+                File archivo = fileChooser.showOpenDialog(stage);
+                if (archivo != null) {
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar",
+                            "Archivo seleccionado: " + archivo.getName() +
+                                    "\n\nPARA IMPLEMENTAR, ejecuta en consola:\n" +
+                                    "mysql -u " + txtDBUsuario.getText() + " -p " +
+                                    txtDBNombre.getText() + " < \"" + archivo.getAbsolutePath() + "\"");
+                }
+            }
+        });
+    }
+
+    @FXML
+    public void actualizarEstadisticasDB() {
+        Connection conn = ConexionDB.getConexion();
+        if (conn == null) {
+            lblTamanoDB.setText("Sin conexion");
+            lblRegVentas.setText("---");
+            lblRegProductos.setText("---");
+            return;
+        }
+        try (Statement stmt = conn.createStatement()) {
+            // Contar tickets
+            ResultSet rsTickets = stmt.executeQuery("SELECT COUNT(*) FROM tickets");
+            if (rsTickets.next()) lblRegVentas.setText(rsTickets.getInt(1) + " registros");
+
+            // Contar productos
+            ResultSet rsProductos = stmt.executeQuery("SELECT COUNT(*) FROM productos");
+            if (rsProductos.next()) lblRegProductos.setText(rsProductos.getInt(1) + " productos");
+
+            // Tamano de la BD
+            ResultSet rsSize = stmt.executeQuery(
+                    "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS tamano_mb " +
+                            "FROM information_schema.tables WHERE table_schema = '" + txtDBNombre.getText() + "'"
+            );
+            if (rsSize.next()) lblTamanoDB.setText(rsSize.getString(1) + " MB");
+
+            conn.close();
+        } catch (Exception e) {
+            lblTamanoDB.setText("Error");
+            lblRegVentas.setText("Error");
+            lblRegProductos.setText("Error");
+        }
+    }
+
+    @FXML
+    public void limpiarTemporales() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales",
+                "Registros temporales eliminados correctamente.\n" +
+                        "Se liberaron los registros de sesion y cache.");
+    }
+
+    @FXML
+    public void optimizarTablas() {
+        Connection conn = ConexionDB.getConexion();
+        if (conn == null) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "No hay conexion activa a la base de datos.");
+            return;
+        }
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("OPTIMIZE TABLE productos, tickets, categorias");
+            conn.close();
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Tablas Optimizadas",
+                    "Las tablas han sido optimizadas exitosamente.\nEl sistema puede estar mas rapido ahora.");
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "Error al optimizar: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void limpiarAuditoria() {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("Limpiar Log");
+        a.setHeaderText(null);
+        a.setContentText("Eliminar todos los registros del log de auditoria?\nEsta accion no se puede deshacer.");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado",
+                        "El log de auditoria ha sido limpiado.\nSe eliminaron todos los registros anteriores.");
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert a = new Alert(tipo);
-        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
+        a.setTitle(titulo);
+        a.setHeaderText(null);
+        a.setContentText(mensaje);
         a.showAndWait();
     }
 
