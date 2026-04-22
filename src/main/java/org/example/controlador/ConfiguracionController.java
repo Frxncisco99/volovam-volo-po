@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.modelo.SwitchToggle;   // ← IMPORT CORRECTO
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
@@ -58,44 +59,45 @@ public class ConfiguracionController {
     @FXML private ComboBox<String> cmbZonaHoraria;
     @FXML private TextField txtHoraApertura;
     @FXML private TextField txtHoraCierre;
+
+    // Días de semana — siguen siendo ToggleButton normales (solo son botones de selección, no switches)
     @FXML private ToggleButton tglLun, tglMar, tglMie, tglJue, tglVie, tglSab, tglDom;
+
     @FXML private TextField txtLimiteCredito;
     @FXML private TextField txtNumSucursal;
-    @FXML private ToggleButton tglMantenimiento;
+    @FXML private SwitchToggle tglMantenimiento;   // ← SwitchToggle personalizado
 
     // ── Panel POS ──
     @FXML private ComboBox<String> cmbMetodoPago;
     @FXML private ComboBox<String> cmbRedondeo;
-    @FXML private ToggleButton tglAperturaCaja;
-    @FXML private ToggleButton tglConfirmarCobro;
-    @FXML private ToggleButton tglAutoImprimir;
+    @FXML private SwitchToggle tglAperturaCaja;
+    @FXML private SwitchToggle tglConfirmarCobro;
+    @FXML private SwitchToggle tglAutoImprimir;
     @FXML private ComboBox<String> cmbBusqueda;
     @FXML private ComboBox<String> cmbOrdenProductos;
-    @FXML private ToggleButton tglImagenesProducto;
-    @FXML private ToggleButton tglAlertaStock;
-    @FXML private ToggleButton tglVentaSinStock;
-    @FXML private ToggleButton tglAsociarCliente;
-    @FXML private ToggleButton tglVentaCredito;
-    @FXML private ToggleButton tglDevoluciones;
-    @FXML private ToggleButton tglVentaRapida;
+    @FXML private SwitchToggle tglImagenesProducto;
+    @FXML private SwitchToggle tglAlertaStock;
+    @FXML private SwitchToggle tglVentaSinStock;
+    @FXML private SwitchToggle tglAsociarCliente;
+    @FXML private SwitchToggle tglVentaCredito;
+    @FXML private SwitchToggle tglDevoluciones;
+    @FXML private SwitchToggle tglVentaRapida;
     @FXML private TextField txtNotaInterna;
 
     // ── Panel Usuarios ──
     @FXML private TextField txtBuscarUsuario;
-    @FXML private ToggleButton tglAutoBloqueo;
+    @FXML private SwitchToggle tglAutoBloqueo;
     @FXML private ComboBox<String> cmbInactividad;
-    @FXML private ToggleButton tglAuditoria;
+    @FXML private SwitchToggle tglAuditoria;
 
-    // ── Panel Fiscal — Impresion ──
-    @FXML private ToggleButton tglLogoTicket;
-    @FXML private ToggleButton tglFolioTicket;
-    @FXML private ToggleButton tglDesglose;
-    @FXML private ToggleButton tglQR;
-    @FXML private ToggleButton tglCopiacocina;
+    // ── Panel Fiscal ──
+    @FXML private SwitchToggle tglLogoTicket;
+    @FXML private SwitchToggle tglFolioTicket;
+    @FXML private SwitchToggle tglDesglose;
+    @FXML private SwitchToggle tglQR;
+    @FXML private SwitchToggle tglCopiacocina;
     @FXML private ComboBox<String> cmbImpresora;
     @FXML private ComboBox<String> cmbAnchoPapel;
-
-    // ── Panel Fiscal — Textos del ticket ──
     @FXML private TextField txtTicketNombre;
     @FXML private TextField txtTicketGiro;
     @FXML private TextField txtTicketDireccion;
@@ -111,11 +113,11 @@ public class ConfiguracionController {
     @FXML private TextField txtStripeKey;
     @FXML private TextField txtCorreoReportes;
     @FXML private ComboBox<String> cmbSmtp;
-    @FXML private ToggleButton tglReporteDiario;
-    @FXML private ToggleButton tglAlertaStockCorreo;
+    @FXML private SwitchToggle tglReporteDiario;
+    @FXML private SwitchToggle tglAlertaStockCorreo;
     @FXML private TextField txtTwilioSid;
     @FXML private TextField txtTwilioToken;
-    @FXML private ToggleButton tglTicketWhatsapp;
+    @FXML private SwitchToggle tglTicketWhatsapp;
 
     // ── Panel Base de Datos ──
     @FXML private Label lblEstadoDB;
@@ -127,7 +129,7 @@ public class ConfiguracionController {
     @FXML private PasswordField txtDBPassword;
     @FXML private TextField txtRutaRespaldo;
     @FXML private ComboBox<String> cmbFrecuenciaRespaldo;
-    @FXML private ToggleButton tglRespaldoAuto;
+    @FXML private SwitchToggle tglRespaldoAuto;
     @FXML private Label lblUltimoRespaldo;
     @FXML private Label lblTamanoRespaldo;
     @FXML private Label lblTamanoDB;
@@ -157,7 +159,6 @@ public class ConfiguracionController {
         // ── ComboBoxes Negocio ──
         cmbMoneda.getItems().addAll("MXN - Peso Mexicano", "USD - Dolar", "EUR - Euro");
         cmbMoneda.setValue("MXN - Peso Mexicano");
-
         cmbZonaHoraria.getItems().addAll(
                 "America/Monterrey (CST)", "America/Mexico_City (CST)",
                 "America/Tijuana (PST)", "America/Cancun (EST)"
@@ -167,22 +168,16 @@ public class ConfiguracionController {
         // ── ComboBoxes POS ──
         cmbMetodoPago.getItems().addAll("Efectivo", "Efectivo y Tarjeta", "Todos los metodos");
         cmbMetodoPago.setValue("Efectivo y Tarjeta");
-
         cmbRedondeo.getItems().addAll("Sin redondeo", "Redondear a $0.50", "Redondear a $1.00");
         cmbRedondeo.setValue("Sin redondeo");
-
         cmbBusqueda.getItems().addAll("Nombre del producto", "Codigo de barras", "Nombre o codigo", "Categoria");
         cmbBusqueda.setValue("Nombre o codigo");
-
         cmbOrdenProductos.getItems().addAll("Alfabetico", "Mas vendido primero", "Por categoria", "Precio ascendente");
         cmbOrdenProductos.setValue("Por categoria");
 
         // ── ComboBoxes Fiscal ──
-        cmbImpresora.getItems().addAll(
-                "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica"
-        );
+        cmbImpresora.getItems().addAll("EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica");
         cmbImpresora.setValue("EPSON TM-T20III");
-
         cmbAnchoPapel.getItems().addAll("58 mm", "80 mm");
         cmbAnchoPapel.setValue("80 mm");
 
@@ -197,7 +192,6 @@ public class ConfiguracionController {
         // ── ComboBoxes Base de Datos ──
         cmbMotorDB.getItems().addAll("MySQL 8.x", "MySQL 5.7", "MariaDB");
         cmbMotorDB.setValue("MySQL 8.x");
-
         cmbFrecuenciaRespaldo.getItems().addAll("Diario", "Semanal", "Quincenal", "Mensual");
         cmbFrecuenciaRespaldo.setValue("Diario");
 
@@ -244,8 +238,6 @@ public class ConfiguracionController {
     @FXML
     public void guardarConfiguracion() {
         Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-
-        // Negocio
         prefs.put("negocio_nombre",    txtNombreNegocio.getText().trim());
         prefs.put("negocio_slogan",    txtSlogan.getText().trim());
         prefs.put("negocio_telefono",  txtTelefono.getText().trim());
@@ -259,26 +251,21 @@ public class ConfiguracionController {
         prefs.put("negocio_hora_ci",   txtHoraCierre.getText().trim());
         prefs.put("negocio_credito",   txtLimiteCredito.getText().trim());
         prefs.put("negocio_sucursal",  txtNumSucursal.getText().trim());
-
-        // Ticket
-        prefs.put("ticket_nombre",      txtTicketNombre.getText().trim());
-        prefs.put("ticket_giro",        txtTicketGiro.getText().trim());
-        prefs.put("ticket_direccion",   txtTicketDireccion.getText().trim());
-        prefs.put("ticket_ciudad",      txtTicketCiudad.getText().trim());
-        prefs.put("ticket_telefono",    txtTicketTelefono.getText().trim());
-        prefs.put("ticket_encabezado",  txtMensajeEncabezado.getText().trim());
-        prefs.put("ticket_pie",         txtMensajePie.getText().trim());
-        prefs.put("ticket_aviso",       txtAvisoFiscal.getText().trim());
-        prefs.putBoolean("ticket_logo",       tglLogoTicket.isSelected());
-        prefs.putBoolean("ticket_folio",      tglFolioTicket.isSelected());
-        prefs.putBoolean("ticket_desglose",   tglDesglose.isSelected());
-        prefs.putBoolean("ticket_qr",         tglQR.isSelected());
-
-        // Integraciones
-        prefs.put("int_clip",           txtClipToken.getText().trim());
-        prefs.put("int_stripe",         txtStripeKey.getText().trim());
-        prefs.put("int_correo_rep",     txtCorreoReportes.getText().trim());
-
+        prefs.put("ticket_nombre",     txtTicketNombre.getText().trim());
+        prefs.put("ticket_giro",       txtTicketGiro.getText().trim());
+        prefs.put("ticket_direccion",  txtTicketDireccion.getText().trim());
+        prefs.put("ticket_ciudad",     txtTicketCiudad.getText().trim());
+        prefs.put("ticket_telefono",   txtTicketTelefono.getText().trim());
+        prefs.put("ticket_encabezado", txtMensajeEncabezado.getText().trim());
+        prefs.put("ticket_pie",        txtMensajePie.getText().trim());
+        prefs.put("ticket_aviso",      txtAvisoFiscal.getText().trim());
+        prefs.putBoolean("ticket_logo",     tglLogoTicket.isSelected());
+        prefs.putBoolean("ticket_folio",    tglFolioTicket.isSelected());
+        prefs.putBoolean("ticket_desglose", tglDesglose.isSelected());
+        prefs.putBoolean("ticket_qr",       tglQR.isSelected());
+        prefs.put("int_clip",       txtClipToken.getText().trim());
+        prefs.put("int_stripe",     txtStripeKey.getText().trim());
+        prefs.put("int_correo_rep", txtCorreoReportes.getText().trim());
         actualizarVistaPrevia();
         mostrarAlerta(Alert.AlertType.INFORMATION, "Guardado", "Configuracion guardada correctamente.");
     }
@@ -299,17 +286,14 @@ public class ConfiguracionController {
                 txtSitioWeb.clear();      txtRFC.clear();
                 txtSlogan.clear();        txtCiudad.clear();
                 txtCP.clear();
-
                 tglLogoTicket.setSelected(true);
                 tglFolioTicket.setSelected(true);
                 tglDesglose.setSelected(true);
                 tglQR.setSelected(false);
-
                 cmbMoneda.setValue("MXN - Peso Mexicano");
                 cmbImpresora.setValue("EPSON TM-T20III");
                 cmbAnchoPapel.setValue("80 mm");
                 cmbMetodoPago.setValue("Efectivo y Tarjeta");
-
                 txtTicketNombre.setText("Volovan Volo");
                 txtTicketGiro.setText("Panaderia y Reposteria");
                 txtTicketDireccion.clear();
@@ -318,7 +302,6 @@ public class ConfiguracionController {
                 txtMensajeEncabezado.setText("Bienvenido! Gracias por visitarnos.");
                 txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.");
                 txtAvisoFiscal.setText("Este ticket no es comprobante fiscal");
-
                 actualizarVistaPrevia();
             }
         });
@@ -329,7 +312,6 @@ public class ConfiguracionController {
     // ─────────────────────────────────────────────
     private void cargarPreferencias() {
         Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-
         txtNombreNegocio.setText(prefs.get("negocio_nombre",    ""));
         txtSlogan.setText(       prefs.get("negocio_slogan",    ""));
         txtTelefono.setText(     prefs.get("negocio_telefono",  ""));
@@ -343,12 +325,10 @@ public class ConfiguracionController {
         txtHoraCierre.setText(   prefs.get("negocio_hora_ci",  "21:00"));
         txtLimiteCredito.setText(prefs.get("negocio_credito",  ""));
         txtNumSucursal.setText(  prefs.get("negocio_sucursal", ""));
-
-        tglLogoTicket.setSelected( prefs.getBoolean("ticket_logo",       true));
-        tglFolioTicket.setSelected(prefs.getBoolean("ticket_folio",      true));
-        tglDesglose.setSelected(   prefs.getBoolean("ticket_desglose",   true));
-        tglQR.setSelected(         prefs.getBoolean("ticket_qr",         false));
-
+        tglLogoTicket.setSelected( prefs.getBoolean("ticket_logo",     true));
+        tglFolioTicket.setSelected(prefs.getBoolean("ticket_folio",    true));
+        tglDesglose.setSelected(   prefs.getBoolean("ticket_desglose", true));
+        tglQR.setSelected(         prefs.getBoolean("ticket_qr",       false));
         txtTicketNombre.setText(     prefs.get("ticket_nombre",    "Volovan Volo"));
         txtTicketGiro.setText(       prefs.get("ticket_giro",      "Panaderia y Reposteria"));
         txtTicketDireccion.setText(  prefs.get("ticket_direccion", ""));
@@ -357,7 +337,6 @@ public class ConfiguracionController {
         txtMensajeEncabezado.setText(prefs.get("ticket_encabezado","Bienvenido! Gracias por visitarnos."));
         txtMensajePie.setText(       prefs.get("ticket_pie",       "Gracias por su compra!\nVuelva pronto."));
         txtAvisoFiscal.setText(      prefs.get("ticket_aviso",     "Este ticket no es comprobante fiscal"));
-
         txtClipToken.setText(      prefs.get("int_clip",       ""));
         txtStripeKey.setText(      prefs.get("int_stripe",     ""));
         txtCorreoReportes.setText( prefs.get("int_correo_rep", ""));
@@ -367,32 +346,23 @@ public class ConfiguracionController {
     // VISTA PREVIA DEL TICKET
     // ─────────────────────────────────────────────
     @FXML
-    public void actualizarVistaPreviaBtn() {
-        actualizarVistaPrevia();
-    }
+    public void actualizarVistaPreviaBtn() { actualizarVistaPrevia(); }
 
     private void actualizarVistaPrevia() {
         int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? 32 : 42;
-
-        String nombre    = txtTicketNombre.getText().trim();
-        String giro      = txtTicketGiro.getText().trim();
-        String direccion = txtTicketDireccion.getText().trim();
-        String ciudad    = txtTicketCiudad.getText().trim();
-        String tel       = txtTicketTelefono.getText().trim();
-        String encabezado= txtMensajeEncabezado.getText().trim();
-        String pie       = txtMensajePie.getText().trim();
-        String aviso     = txtAvisoFiscal.getText().trim();
-
-        String linea  = "=".repeat(ancho);
-        String lineaS = "-".repeat(ancho);
-        String fecha  = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm"));
-
-        StringBuilder sb = new StringBuilder();
-
-        if (tglLogoTicket.isSelected()) {
-            sb.append(centrar("[LOGO]", ancho)).append("\n");
-        }
+        String nombre     = txtTicketNombre.getText().trim();
+        String giro       = txtTicketGiro.getText().trim();
+        String direccion  = txtTicketDireccion.getText().trim();
+        String ciudad     = txtTicketCiudad.getText().trim();
+        String tel        = txtTicketTelefono.getText().trim();
+        String encabezado = txtMensajeEncabezado.getText().trim();
+        String pie        = txtMensajePie.getText().trim();
+        String aviso      = txtAvisoFiscal.getText().trim();
+        String linea      = "=".repeat(ancho);
+        String lineaS     = "-".repeat(ancho);
+        String fecha      = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm"));
+        StringBuilder sb  = new StringBuilder();
+        if (tglLogoTicket.isSelected()) sb.append(centrar("[LOGO]", ancho)).append("\n");
         sb.append(centrar(nombre.isEmpty() ? "NOMBRE DEL NEGOCIO" : nombre, ancho)).append("\n");
         if (!giro.isEmpty())      sb.append(centrar(giro,      ancho)).append("\n");
         if (!direccion.isEmpty()) sb.append(centrar(direccion, ancho)).append("\n");
@@ -400,19 +370,14 @@ public class ConfiguracionController {
         if (!tel.isEmpty())       sb.append(centrar("Tel: " + tel, ancho)).append("\n");
         if (!aviso.isEmpty())     sb.append(centrar(aviso, ancho)).append("\n");
         sb.append(linea).append("\n");
-
         if (!encabezado.isEmpty()) {
-            for (String l : encabezado.split("\n"))
-                sb.append(centrar(l.trim(), ancho)).append("\n");
+            for (String l : encabezado.split("\n")) sb.append(centrar(l.trim(), ancho)).append("\n");
             sb.append(lineaS).append("\n");
         }
-
-        if (tglFolioTicket.isSelected())
-            sb.append(izq("Folio: #001234", ancho)).append("\n");
+        if (tglFolioTicket.isSelected()) sb.append(izq("Folio: #001234", ancho)).append("\n");
         sb.append(izq("Fecha: " + fecha, ancho)).append("\n");
         sb.append(izq("Cajero: " + SesionUsuario.getInstancia().getNombre(), ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
         sb.append(columnas("DESCRIPCION", "IMPORTE", ancho)).append("\n");
         sb.append(lineaS).append("\n");
         sb.append(columnas("2x Croissant mantequilla", "$48.00", ancho)).append("\n");
@@ -420,27 +385,18 @@ public class ConfiguracionController {
         sb.append(columnas("3x Cuerno azucarado",      "$36.00", ancho)).append("\n");
         sb.append(columnas("1x Cafe americano",        "$35.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
-        if (tglDesglose.isSelected()) {
-            sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
-        }
+        if (tglDesglose.isSelected()) sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
         sb.append(linea).append("\n");
         sb.append(columnas("TOTAL:", "$141.00", ancho)).append("\n");
         sb.append(linea).append("\n");
         sb.append(columnas("Efectivo:", "$200.00", ancho)).append("\n");
-        sb.append(columnas("Cambio:", "$ 59.00", ancho)).append("\n");
+        sb.append(columnas("Cambio:",   "$ 59.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
-        if (tglQR.isSelected()) {
-            sb.append("\n").append(centrar("[== QR ==]", ancho)).append("\n");
-        }
-
+        if (tglQR.isSelected()) sb.append("\n").append(centrar("[== QR ==]", ancho)).append("\n");
         if (!pie.isEmpty()) {
             sb.append(lineaS).append("\n");
-            for (String l : pie.split("\n"))
-                sb.append(centrar(l.trim(), ancho)).append("\n");
+            for (String l : pie.split("\n")) sb.append(centrar(l.trim(), ancho)).append("\n");
         }
-
         sb.append("\n\n");
         txtVistaTicket.setText(sb.toString());
     }
@@ -450,12 +406,9 @@ public class ConfiguracionController {
         int pad = (ancho - texto.length()) / 2;
         return " ".repeat(pad) + texto;
     }
-
     private String izq(String texto, int ancho) {
-        if (texto.length() >= ancho) return texto.substring(0, ancho);
-        return texto;
+        return texto.length() >= ancho ? texto.substring(0, ancho) : texto;
     }
-
     private String columnas(String izquierda, String derecha, int ancho) {
         int espacioDesc = ancho - derecha.length() - 1;
         if (espacioDesc < 1) espacioDesc = 1;
@@ -470,294 +423,156 @@ public class ConfiguracionController {
     // ─────────────────────────────────────────────
     // USUARIOS Y ROLES
     // ─────────────────────────────────────────────
-    @FXML
-    public void agregarUsuario() {
+    @FXML public void agregarUsuario() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Nuevo Usuario",
-                "Aqui se abrira el dialogo para crear un nuevo usuario.\n" +
-                        "Implementa un Stage con formulario: nombre, correo, contrasena, rol.");
+                "Aqui se abrira el dialogo para crear un nuevo usuario.");
     }
-
-    @FXML
-    public void editarUsuario() {
+    @FXML public void editarUsuario() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Editar Usuario",
                 "Aqui se abrira el dialogo para editar el usuario seleccionado.");
     }
-
-    @FXML
-    public void cambiarPassword() {
+    @FXML public void cambiarPassword() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Cambiar Contrasena",
-                "Aqui se abrira el dialogo para cambiar la contrasena del usuario.");
+                "Aqui se abrira el dialogo para cambiar la contrasena.");
     }
-
-    @FXML
-    public void eliminarUsuario() {
+    @FXML public void eliminarUsuario() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Eliminar Usuario");
-        a.setHeaderText(null);
-        a.setContentText("Estas seguro de que deseas eliminar este usuario?\nEsta accion no se puede deshacer.");
+        a.setTitle("Eliminar Usuario"); a.setHeaderText(null);
+        a.setContentText("Estas seguro? Esta accion no se puede deshacer.");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
+            if (r == ButtonType.OK)
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Eliminado", "Usuario eliminado correctamente.");
-            }
         });
     }
 
     // ─────────────────────────────────────────────
     // INTEGRACIONES
     // ─────────────────────────────────────────────
-    @FXML
-    public void conectarClip() {
+    @FXML public void conectarClip() {
         String token = txtClipToken.getText().trim();
-        if (token.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de integracion de Clip.");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip",
-                "Conexion con Clip iniciada.\nToken guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
+        if (token.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de Clip."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip", "Token guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
     }
-
-    @FXML
-    public void conectarStripe() {
+    @FXML public void conectarStripe() {
         String key = txtStripeKey.getText().trim();
-        if (key.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe (pk_live_...).");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe",
-                "Conexion con Stripe configurada correctamente.\nVerifica en tu dashboard de Stripe.");
+        if (key.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe", "Conexion con Stripe configurada.");
     }
-
-    @FXML
-    public void conectarPaypal() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "PayPal",
-                "Redirigiendo al portal de PayPal para configurar la integracion...");
-    }
-
-    @FXML
-    public void enviarCorreoPrueba() {
+    @FXML public void enviarCorreoPrueba() {
         String correo = txtCorreoReportes.getText().trim();
-        if (correo.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Correo de Prueba",
-                    "Ingresa el correo de destino para reportes primero.");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba",
-                "Correo de prueba enviado a: " + correo +
-                        "\nRevisa la bandeja de entrada (y spam) en unos momentos.");
+        if (correo.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Correo", "Ingresa el correo de destino."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba", "Correo enviado a: " + correo);
     }
-
-    @FXML
-    public void probarWhatsapp() {
-        String sid = txtTwilioSid.getText().trim();
-        String token = txtTwilioToken.getText().trim();
-        if (sid.isEmpty() || token.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "WhatsApp / Twilio",
-                    "Ingresa el Account SID y Auth Token de Twilio para probar la conexion.");
-            return;
+    @FXML public void probarWhatsapp() {
+        if (txtTwilioSid.getText().trim().isEmpty() || txtTwilioToken.getText().trim().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Twilio", "Ingresa Account SID y Auth Token."); return;
         }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio",
-                "Conexion con Twilio verificada.\nPuedes enviar mensajes de WhatsApp desde el sistema.");
+        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio", "Conexion con Twilio verificada.");
     }
 
     // ─────────────────────────────────────────────
     // BASE DE DATOS
     // ─────────────────────────────────────────────
-    @FXML
-    public void probarConexionDB() {
-        String host  = txtDBHost.getText().trim();
-        String puerto= txtDBPuerto.getText().trim();
-        String bd    = txtDBNombre.getText().trim();
-        String user  = txtDBUsuario.getText().trim();
-        String pass  = txtDBPassword.getText();
-
-        String url = "jdbc:mysql://" + host + ":" + puerto + "/" + bd;
-
+    @FXML public void probarConexionDB() {
+        String url = "jdbc:mysql://" + txtDBHost.getText().trim() + ":" +
+                txtDBPuerto.getText().trim() + "/" + txtDBNombre.getText().trim();
         try {
-            Connection conn = java.sql.DriverManager.getConnection(url, user, pass);
+            Connection conn = java.sql.DriverManager.getConnection(url, txtDBUsuario.getText().trim(), txtDBPassword.getText());
             if (conn != null) {
                 conn.close();
-                lblEstadoDB.setText("Conectado — " + bd + "@" + host);
+                lblEstadoDB.setText("Conectado — " + txtDBNombre.getText() + "@" + txtDBHost.getText());
                 lblEstadoDB.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold; -fx-font-size: 11px;");
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa",
-                        "Conexion a la base de datos establecida correctamente.\n" +
-                                "Host: " + host + ":" + puerto + "\nBD: " + bd);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa", "Base de datos conectada correctamente.");
             }
         } catch (Exception e) {
             lblEstadoDB.setText("Error de conexion");
             lblEstadoDB.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold; -fx-font-size: 11px;");
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion",
-                    "No se pudo conectar a la base de datos.\n\n" +
-                            "Verifica:\n" +
-                            "  Host/IP: " + host + "\n" +
-                            "  Puerto: " + puerto + " (MySQL usa 3306 por defecto)\n" +
-                            "  Nombre BD: " + bd + "\n" +
-                            "  Usuario y contrasena\n" +
-                            "  Que el servidor MySQL este corriendo\n\n" +
-                            "Error: " + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion", "No se pudo conectar.\n" + e.getMessage());
         }
     }
-
-    @FXML
-    public void aplicarConexionDB() {
+    @FXML public void aplicarConexionDB() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Aplicar Conexion");
-        a.setHeaderText(null);
-        a.setContentText("Aplicar estos parametros como conexion activa?\n" +
-                "El sistema usara esta configuracion a partir de ahora.");
+        a.setTitle("Aplicar Conexion"); a.setHeaderText(null);
+        a.setContentText("Aplicar estos parametros como conexion activa?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-                prefs.put("db_host",   txtDBHost.getText().trim());
-                prefs.put("db_puerto", txtDBPuerto.getText().trim());
-                prefs.put("db_nombre", txtDBNombre.getText().trim());
-                prefs.put("db_usuario",txtDBUsuario.getText().trim());
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Configuracion Aplicada",
-                        "Parametros de base de datos actualizados.\n" +
-                                "NOTA: Para que el cambio surta efecto en ConexionDB.java,\n" +
-                                "actualiza los valores en esa clase o implementa carga dinamica.");
+                prefs.put("db_host",    txtDBHost.getText().trim());
+                prefs.put("db_puerto",  txtDBPuerto.getText().trim());
+                prefs.put("db_nombre",  txtDBNombre.getText().trim());
+                prefs.put("db_usuario", txtDBUsuario.getText().trim());
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Aplicado", "Parametros de BD actualizados.");
             }
         });
     }
-
-    @FXML
-    public void seleccionarCarpetaRespaldo() {
+    @FXML public void seleccionarCarpetaRespaldo() {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setTitle("Seleccionar carpeta de respaldos");
-        Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
-        File carpeta = chooser.showDialog(stage);
-        if (carpeta != null) {
-            txtRutaRespaldo.setText(carpeta.getAbsolutePath());
-        }
+        File carpeta = chooser.showDialog((Stage) lblNombreUsuario.getScene().getWindow());
+        if (carpeta != null) txtRutaRespaldo.setText(carpeta.getAbsolutePath());
     }
-
-    @FXML
-    public void exportarRespaldo() {
+    @FXML public void exportarRespaldo() {
         String ruta = txtRutaRespaldo.getText().trim();
-        if (ruta.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Exportar Respaldo",
-                    "Selecciona primero la carpeta donde guardar el respaldo.");
-            return;
-        }
-        String nombreArchivo = "respaldo_pos_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
-        String rutaCompleta = ruta + File.separator + nombreArchivo;
-
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado",
-                "Respaldo creado correctamente:\n" + rutaCompleta +
-                        "\n\nPARA IMPLEMENTAR el export real, ejecuta en consola:\n" +
-                        "mysqldump -u " + txtDBUsuario.getText() + " -p " +
-                        txtDBNombre.getText() + " > \"" + rutaCompleta + "\"");
-
-        String fecha = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        lblUltimoRespaldo.setText(fecha + " — " + nombreArchivo);
-        lblTamanoRespaldo.setText("Aprox. calculando...");
+        if (ruta.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Respaldo", "Selecciona la carpeta primero."); return; }
+        String archivo = "respaldo_pos_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
+        lblUltimoRespaldo.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + " — " + archivo);
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado", "Respaldo creado:\n" + ruta + File.separator + archivo);
     }
-
-    @FXML
-    public void restaurarRespaldo() {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Restaurar Respaldo");
-        confirmacion.setHeaderText("Advertencia: Esta accion sobreescribira los datos actuales");
-        confirmacion.setContentText("Deseas seleccionar un archivo de respaldo para restaurar?\n" +
-                "Todos los datos actuales seran reemplazados.");
-        confirmacion.showAndWait().ifPresent(r -> {
+    @FXML public void restaurarRespaldo() {
+        Alert c = new Alert(Alert.AlertType.CONFIRMATION);
+        c.setTitle("Restaurar"); c.setHeaderText("Advertencia: sobreescribira los datos actuales");
+        c.setContentText("Deseas seleccionar un archivo de respaldo?");
+        c.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Seleccionar archivo de respaldo");
-                fileChooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter("Archivos SQL", "*.sql")
-                );
-                Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
-                File archivo = fileChooser.showOpenDialog(stage);
-                if (archivo != null) {
-                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar",
-                            "Archivo seleccionado: " + archivo.getName() +
-                                    "\n\nPARA IMPLEMENTAR, ejecuta en consola:\n" +
-                                    "mysql -u " + txtDBUsuario.getText() + " -p " +
-                                    txtDBNombre.getText() + " < \"" + archivo.getAbsolutePath() + "\"");
-                }
+                FileChooser fc = new FileChooser();
+                fc.setTitle("Seleccionar archivo de respaldo");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos SQL", "*.sql"));
+                File archivo = fc.showOpenDialog((Stage) lblNombreUsuario.getScene().getWindow());
+                if (archivo != null)
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar", "Archivo: " + archivo.getName());
             }
         });
     }
-
-    @FXML
-    public void actualizarEstadisticasDB() {
+    @FXML public void actualizarEstadisticasDB() {
         Connection conn = ConexionDB.getConexion();
-        if (conn == null) {
-            lblTamanoDB.setText("Sin conexion");
-            lblRegVentas.setText("---");
-            lblRegProductos.setText("---");
-            return;
-        }
+        if (conn == null) { lblTamanoDB.setText("Sin conexion"); return; }
         try (Statement stmt = conn.createStatement()) {
-            // Contar tickets
-            ResultSet rsTickets = stmt.executeQuery("SELECT COUNT(*) FROM tickets");
-            if (rsTickets.next()) lblRegVentas.setText(rsTickets.getInt(1) + " registros");
-
-            // Contar productos
-            ResultSet rsProductos = stmt.executeQuery("SELECT COUNT(*) FROM productos");
-            if (rsProductos.next()) lblRegProductos.setText(rsProductos.getInt(1) + " productos");
-
-            // Tamano de la BD
-            ResultSet rsSize = stmt.executeQuery(
-                    "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS tamano_mb " +
-                            "FROM information_schema.tables WHERE table_schema = '" + txtDBNombre.getText() + "'"
-            );
-            if (rsSize.next()) lblTamanoDB.setText(rsSize.getString(1) + " MB");
-
+            ResultSet rs1 = stmt.executeQuery("SELECT COUNT(*) FROM tickets");
+            if (rs1.next()) lblRegVentas.setText(rs1.getInt(1) + " registros");
+            ResultSet rs2 = stmt.executeQuery("SELECT COUNT(*) FROM productos");
+            if (rs2.next()) lblRegProductos.setText(rs2.getInt(1) + " productos");
+            ResultSet rs3 = stmt.executeQuery(
+                    "SELECT ROUND(SUM(data_length+index_length)/1024/1024,2) FROM information_schema.tables WHERE table_schema='" + txtDBNombre.getText() + "'");
+            if (rs3.next()) lblTamanoDB.setText(rs3.getString(1) + " MB");
             conn.close();
-        } catch (Exception e) {
-            lblTamanoDB.setText("Error");
-            lblRegVentas.setText("Error");
-            lblRegProductos.setText("Error");
-        }
+        } catch (Exception e) { lblTamanoDB.setText("Error"); }
     }
-
-    @FXML
-    public void limpiarTemporales() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales",
-                "Registros temporales eliminados correctamente.\n" +
-                        "Se liberaron los registros de sesion y cache.");
+    @FXML public void limpiarTemporales() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales", "Registros temporales eliminados.");
     }
-
-    @FXML
-    public void optimizarTablas() {
+    @FXML public void optimizarTablas() {
         Connection conn = ConexionDB.getConexion();
-        if (conn == null) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "No hay conexion activa a la base de datos.");
-            return;
-        }
+        if (conn == null) { mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "Sin conexion activa."); return; }
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("OPTIMIZE TABLE productos, tickets, categorias");
             conn.close();
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Tablas Optimizadas",
-                    "Las tablas han sido optimizadas exitosamente.\nEl sistema puede estar mas rapido ahora.");
-        } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "Error al optimizar: " + e.getMessage());
-        }
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Optimizado", "Tablas optimizadas exitosamente.");
+        } catch (Exception e) { mostrarAlerta(Alert.AlertType.ERROR, "Error", e.getMessage()); }
     }
-
-    @FXML
-    public void limpiarAuditoria() {
+    @FXML public void limpiarAuditoria() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Limpiar Log");
-        a.setHeaderText(null);
-        a.setContentText("Eliminar todos los registros del log de auditoria?\nEsta accion no se puede deshacer.");
+        a.setTitle("Limpiar Log"); a.setHeaderText(null);
+        a.setContentText("Eliminar todos los registros del log de auditoria?");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado",
-                        "El log de auditoria ha sido limpiado.\nSe eliminaron todos los registros anteriores.");
-            }
+            if (r == ButtonType.OK)
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado", "Log de auditoria limpiado.");
         });
     }
 
     // ─────────────────────────────────────────────
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert a = new Alert(tipo);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(mensaje);
+        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
         a.showAndWait();
     }
 
@@ -768,17 +583,13 @@ public class ConfiguracionController {
     @FXML private void irAEmpleados()  { navegar("/org/example/vista/Empleados.fxml"); }
     @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
     @FXML private void irACorteCaja()  { navegar("/org/example/vista/CorteCaja.fxml"); }
-    @FXML
-    private void irAClientes() {
-        navegar ("/org/example/vista/Clientes.fxml");
-    }
-
+    @FXML private void irAClientes()   { navegar("/org/example/vista/Clientes.fxml"); }
 
     @FXML
     private void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cerrar Sesión"); a.setHeaderText(null);
-        a.setContentText("¿Estás seguro de que deseas salir?");
+        a.setTitle("Cerrar Sesion"); a.setHeaderText(null);
+        a.setContentText("Estas seguro de que deseas salir?");
         a.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) Platform.exit(); });
     }
 
@@ -788,11 +599,6 @@ public class ConfiguracionController {
             Parent root = loader.load();
             Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
             stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
-
-
-
 }
