@@ -1,5 +1,7 @@
 package org.example.controlador;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -17,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.dao.CategoriaDAO;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
@@ -26,7 +29,11 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class InventarioController {
@@ -43,6 +50,8 @@ public class InventarioController {
     @FXML private Label lblTotalProductos;
     @FXML private Label lblStockBajo;
     @FXML private Label lblValorTotal;
+    @FXML private Label lblFecha;
+    @FXML private Label lblHora;
 
     @FXML private TextField        txtBuscar;
     @FXML private ComboBox<String> cbCategoria;
@@ -505,5 +514,22 @@ public class InventarioController {
     }
     @FXML
     private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
+
+    private void mostrarFecha() {
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("EEEE, d 'de' MMMM 'de' yyyy", new Locale("es", "MX"));
+        String fechaHoy = LocalDate.now().format(formatter);
+        lblFecha.setText(fechaHoy.substring(0, 1).toUpperCase() + fechaHoy.substring(1));
+    }
+
+    private void iniciarReloj() {
+        DateTimeFormatter fmtHora = DateTimeFormatter.ofPattern("HH:mm:ss");
+        Timeline reloj = new Timeline(new KeyFrame(Duration.seconds(1), e ->
+                lblHora.setText(LocalTime.now().format(fmtHora))
+        ));
+        reloj.setCycleCount(Timeline.INDEFINITE);
+        reloj.play();
+        lblHora.setText(LocalTime.now().format(fmtHora));
+    }
 
 }
