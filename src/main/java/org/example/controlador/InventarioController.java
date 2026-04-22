@@ -546,4 +546,5 @@ public class InventarioController {
             e.printStackTrace();
         }
     }
+  
 }
