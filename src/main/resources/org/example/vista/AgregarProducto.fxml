@@ -10,7 +10,7 @@
       style="-fx-background-color: #F5F0E8;"
       prefHeight="540" prefWidth="360">
 
-    <!-- HEADER -->
+
     <VBox style="-fx-background-color: #3D1C02; -fx-padding: 20 24 18 24;" spacing="3">
         <Label text="Nuevo Producto"
                style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #FDF0D5;" />
@@ -18,7 +18,7 @@
                style="-fx-font-size: 11px; -fx-text-fill: #A07848;" />
     </VBox>
 
-    <!-- BODY -->
+    // Contenido
     <VBox spacing="12" style="-fx-padding: 22 24 18 24; -fx-background-color: #FDF8F0;" VBox.vgrow="ALWAYS">
 
         <Label text="INFORMACIÓN GENERAL"
@@ -75,12 +75,12 @@
                            -fx-cursor: hand;" />
         </HBox>
 
-        <!-- ── CÓDIGO DE BARRAS ── -->
+       // Codigo de barras
         <Label text="CÓDIGO DE BARRAS"
                style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #A07848;
                       -fx-padding: 4 0 4 0; -fx-border-color: #E8D8C4; -fx-border-width: 0 0 1 0;" />
 
-        <!-- Toggle: lleva código / no lleva -->
+        // Lleva codigo o no
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Label text="¿Lleva código de barras?"
                    style="-fx-font-size: 12px; -fx-text-fill: #5A3A1A;" />
@@ -91,7 +91,7 @@
                            -fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;" />
         </HBox>
 
-        <!-- Campo de código — oculto por defecto -->
+        // Campo de codigo oculto
         <HBox fx:id="hboxCodigo" spacing="8" alignment="CENTER_LEFT" visible="false" managed="false">
             <TextField fx:id="txtCodigoBarras" promptText="Escanea o escribe el código"
                        HBox.hgrow="ALWAYS"
@@ -106,7 +106,7 @@
 
     </VBox>
 
-    <!-- FOOTER -->
+   ///
     <HBox spacing="10" style="-fx-padding: 14 24 20 24; -fx-background-color: #FAF4EA;
                                -fx-border-color: #E8D8C4; -fx-border-width: 1 0 0 0;"
           alignment="CENTER_RIGHT">

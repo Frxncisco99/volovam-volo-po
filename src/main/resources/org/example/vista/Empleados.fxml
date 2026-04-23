@@ -16,7 +16,7 @@
             fx:controller="org.example.controlador.EmpleadosController"
             stylesheets="@menuPrincipal.css">
 
-    <!-- ═══════════ SIDEBAR (sin cambios) ═══════════ -->
+    // SIDEBAR
     <left>
         <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
             <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
@@ -83,11 +83,11 @@
         </VBox>
     </left>
 
-    <!-- ═══════════ CENTRO ═══════════ -->
+    // CENTRO
     <center>
         <VBox style="-fx-background-color: #F5EFE6;">
 
-            <!-- TOPBAR -->
+            // topbar
             <HBox alignment="CENTER_LEFT" styleClass="topbar">
                 <VBox spacing="2">
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Empleados"/>
@@ -99,7 +99,7 @@
                         text="+ Nuevo empleado"/>
             </HBox>
 
-            <!-- STATS BAR -->
+            // stats bar
             <HBox spacing="14" style="-fx-padding: 16 20 0 20;">
 
                 <HBox spacing="12" alignment="CENTER_LEFT"
@@ -144,7 +144,7 @@
 
             </HBox>
 
-            <!-- FILTROS -->
+            // filtros
             <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 14 20 10 20;">
                 <TextField fx:id="txtBuscar" promptText="Buscar por nombre o usuario…" prefWidth="240"
                            style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-padding: 8 12; -fx-font-size: 12px; -fx-background-color: white;"/>
@@ -158,7 +158,7 @@
                 <Label fx:id="lblConteo" style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text=""/>
             </HBox>
 
-            <!-- TARJETAS -->
+            // tarjetas
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
                 <FlowPane fx:id="flowTarjetas" hgap="16" vgap="16"

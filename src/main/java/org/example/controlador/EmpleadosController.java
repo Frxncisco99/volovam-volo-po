@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class EmpleadosController {
 
-    // ── Nuevos fx:id para tarjetas ──
+    // id para tarjetas
     @FXML private FlowPane flowTarjetas;
     @FXML private TextField txtBuscar;
     @FXML private ComboBox<String> cmbFiltroRol;
@@ -36,21 +36,19 @@ public class EmpleadosController {
     @FXML private Label lblStatInactivos;
     @FXML private Label lblStatRoles;
 
-    // ── Sidebar labels (sin cambios) ──
+    // Sidebar labels
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
 
-    // Cache de datos cargados de BD
+    // Cache de datos
     private List<ObservableList<String>> todosLosEmpleados = new ArrayList<>();
 
 
-
-    // ─────────────────────────────────────────────
     @FXML
     public void initialize() {
 
-        // Sesión (sin cambios)
+        // Sesión
         SesionUsuario sesion = SesionUsuario.getInstancia();
         lblNombreUsuario.setText(sesion.getNombre());
         lblRolUsuario.setText(sesion.getRol());
@@ -59,10 +57,10 @@ public class EmpleadosController {
                 : sesion.getNombre().toUpperCase();
         lblAvatarIniciales.setText(iniciales);
 
-        // Filtros fijos de estado
+        // Filtros de estado
         cmbFiltroEstado.setItems(FXCollections.observableArrayList("Activo", "Inactivo"));
 
-        // Listeners en tiempo real
+        // Listeners
         txtBuscar.textProperty().addListener((o, ov, nv) -> renderTarjetas());
         cmbFiltroRol.valueProperty().addListener((o, ov, nv) -> renderTarjetas());
         cmbFiltroEstado.valueProperty().addListener((o, ov, nv) -> renderTarjetas());
@@ -71,9 +69,8 @@ public class EmpleadosController {
     }
 
 
-    // ─────────────────────────────────────────────
-    // CARGA DESDE BD (lógica original intacta, solo guarda en cache)
-    // ─────────────────────────────────────────────
+
+    // Cargar desde BD
     private void cargarEmpleados() {
         todosLosEmpleados.clear();
         Set<String> roles = new HashSet<>();
@@ -97,16 +94,14 @@ public class EmpleadosController {
             e.printStackTrace();
         }
 
-        // Poblar combo de roles con los que existen en BD
+        // Poblar combo de roles
         cmbFiltroRol.setItems(FXCollections.observableArrayList(roles));
 
         actualizarStats();
         renderTarjetas();
     }
 
-    // ─────────────────────────────────────────────
-    // STATS BAR
-    // ─────────────────────────────────────────────
+    // Stats bar
     private void actualizarStats() {
         long total    = todosLosEmpleados.size();
         long activos  = todosLosEmpleados.stream().filter(f -> "Activo".equals(f.get(4))).count();
@@ -119,9 +114,7 @@ public class EmpleadosController {
         lblStatRoles.setText(String.valueOf(roles));
     }
 
-    // ─────────────────────────────────────────────
-    // RENDER DE TARJETAS
-    // ─────────────────────────────────────────────
+    // Render de tarjetas
     private void renderTarjetas() {
         String buscar  = txtBuscar.getText() == null ? "" : txtBuscar.getText().toLowerCase().trim();
         String filtRol = cmbFiltroRol.getValue();
@@ -144,9 +137,7 @@ public class EmpleadosController {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CONSTRUCCIÓN DE UNA TARJETA
-    // ─────────────────────────────────────────────
+    // Construcción de tarjeta
     private VBox crearTarjeta(ObservableList<String> fila) {
         String id     = fila.get(0);
         String nombre = fila.get(1);
@@ -155,7 +146,7 @@ public class EmpleadosController {
         String estado = fila.get(4);
         boolean activo = "Activo".equals(estado);
 
-        // ── Contenedor principal ──
+        // Contenedor principal
         VBox card = new VBox();
         card.setPrefWidth(260);
         card.setMaxWidth(260);
@@ -171,13 +162,13 @@ public class EmpleadosController {
                 "dropshadow(gaussian,rgba(61,31,13,0.20),24,0,0,6)",
                 "dropshadow(gaussian,rgba(61,31,13,0.10),12,0,0,3)")));
 
-        // ── HEADER con gradiente ──
+        // Header con gradiente
         StackPane header = new StackPane();
         header.setPrefHeight(90);
         header.setStyle("-fx-background-color: linear-gradient(to bottom right, #3D1F0D, #6B4226); " +
                 "-fx-background-radius: 16 16 0 0;");
 
-        // Badge rol (esquina superior derecha)
+        // Badge rol
         Label rolBadge = new Label(rol);
         rolBadge.setStyle("-fx-background-color: rgba(212,168,67,0.22); -fx-text-fill: #D4A843; " +
                 "-fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 20; " +
@@ -186,7 +177,7 @@ public class EmpleadosController {
         StackPane.setAlignment(rolBadge, Pos.TOP_RIGHT);
         StackPane.setMargin(rolBadge, new Insets(10, 10, 0, 0));
 
-        // Avatar con iniciales (esquina inferior izquierda)
+        // Avatar con iniciales
         String ini = nombre.trim().isEmpty() ? "??" :
                 nombre.trim().split("\\s+").length >= 2
                         ? String.valueOf(nombre.trim().charAt(0)).toUpperCase() +
@@ -203,7 +194,7 @@ public class EmpleadosController {
         StackPane.setAlignment(avatar, Pos.BOTTOM_LEFT);
         StackPane.setMargin(avatar, new Insets(0, 0, -20, 16));
 
-        // Badge estado (esquina inferior derecha)
+        // Badge estado
         Label estadoBadge = new Label(activo ? "● Activo" : "○ Inactivo");
         estadoBadge.setStyle(activo
                 ? "-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 3 10;"
@@ -213,7 +204,7 @@ public class EmpleadosController {
 
         header.getChildren().addAll(rolBadge, avatar, estadoBadge);
 
-        // ── BODY ──
+        // Contenido
         VBox body = new VBox(4);
         body.setPadding(new Insets(28, 16, 8, 16));
 
@@ -226,7 +217,7 @@ public class EmpleadosController {
 
         body.getChildren().addAll(lblNombre, lblUsuario);
 
-        // ── META CHIPS ──
+        // Chips
         HBox chips = new HBox(8);
         chips.setPadding(new Insets(8, 16, 8, 16));
         chips.setStyle("-fx-border-color: #F0E8DC; -fx-border-width: 1 0 0 0;");
@@ -235,7 +226,7 @@ public class EmpleadosController {
         Label chipRol = crearChip("🎭 " + rol);
         chips.getChildren().addAll(chipId, chipRol);
 
-        // ── ACCIONES ──
+        // Acciones
         HBox acciones = new HBox(8);
         acciones.setPadding(new Insets(8, 16, 14, 16));
         acciones.setAlignment(Pos.CENTER_LEFT);
@@ -293,9 +284,7 @@ public class EmpleadosController {
         return chip;
     }
 
-    // ─────────────────────────────────────────────
-    // TOGGLE ACTIVO / INACTIVO
-    // ─────────────────────────────────────────────
+    // Toggle activo/inactivo
     private void toggleEstado(int id, String nombre, boolean estaActivo) {
         int nuevoValor = estaActivo ? 0 : 1;
         String sql = "UPDATE usuarios SET activo = ? WHERE id_usuario = ?";
@@ -311,9 +300,7 @@ public class EmpleadosController {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // FILTRO LIMPIAR
-    // ─────────────────────────────────────────────
+    // Filtro limpiar
     @FXML
     public void limpiarFiltros() {
         txtBuscar.clear();
@@ -321,9 +308,7 @@ public class EmpleadosController {
         cmbFiltroEstado.setValue(null);
     }
 
-    // ─────────────────────────────────────────────
-    // CRUD — lógica original sin cambios
-    // ─────────────────────────────────────────────
+    // Crud
     @FXML
     public void handleNuevoEmpleado() {
         mostrarDialogoEmpleado(0, "", "", "cajero");
@@ -464,68 +449,18 @@ public class EmpleadosController {
         });
     }
 
-    // ─────────────────────────────────────────────
-    // NAVEGACIÓN — sin cambios
-    // ─────────────────────────────────────────────
-    @FXML
-    public void irADashboard() {
+    // Navegación
+    @FXML public void irADashboard() {
         navegar("/org/example/vista/MenuPrincipal.fxml");
     }
-
-    @FXML
-    public void irAVentas() {
+    @FXML public void irAVentas() {
         navegar("/org/example/vista/Ventas.fxml");
     }
-
-    @FXML
-    private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");
-    }
-    @FXML
-    public void btnCerrar() {
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
-        alerta.setTitle("Salir");
-        alerta.setHeaderText(null);
-        alerta.setContentText("¿Seguro que deseas salir?");
-        alerta.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) Platform.exit();
-        });
-    }
-
-    @FXML
-    public void irAReportes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void irACorteCaja(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/CorteCaja.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void irAInventario(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAClientes() {navegar ("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
+    @FXML private void irACorteCaja()  { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");}
 
     private void navegar(String ruta) {
         try {
@@ -538,16 +473,22 @@ public class EmpleadosController {
         }
     }
 
+    @FXML
+    public void btnCerrar() {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Salir");
+        alerta.setHeaderText(null);
+        alerta.setContentText("¿Seguro que deseas salir?");
+        alerta.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) Platform.exit();
+        });
+    }
+
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setTitle(titulo);
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
-    }
-
-
-    public void irAClientes(ActionEvent actionEvent) {
-        navegar("/org/example/vista/Clientes.fxml");
     }
 }

@@ -17,7 +17,7 @@
       spacing="0"
       style="-fx-background-color: #F5EFE6;">
 
-    <!-- TOPBAR -->
+    <!-- topbar -->
     <HBox alignment="CENTER_LEFT"
           style="-fx-background-color: #3D1F0D; -fx-padding: 14 20;">
         <VBox spacing="1">
@@ -32,10 +32,10 @@
                text="Folio # --"/>
     </HBox>
 
-    <!-- RESUMEN -->
+    <!-- resumen -->
     <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 14 20;">
 
-        <!-- Logo + Info negocio -->
+        <!-- info de negocio -->
         <HBox spacing="14" alignment="CENTER_LEFT">
             <ImageView fitWidth="80" fitHeight="80" preserveRatio="true">
                 <image>
@@ -113,7 +113,7 @@
         </HBox>
     </VBox>
 
-    <!-- VISTA PREVIA -->
+    <!-- Vista previa -->
     <VBox spacing="6" style="-fx-padding: 12 20;" VBox.vgrow="ALWAYS">
         <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"
                text="Vista previa del ticket"/>
@@ -129,7 +129,7 @@
                          -fx-text-fill: #3D1F0D;"/>
     </VBox>
 
-    <!-- BOTONES -->
+    <!-- Botones -->
     <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 12 20;">
         <Separator/>
         <HBox spacing="10">

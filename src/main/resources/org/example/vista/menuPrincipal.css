@@ -18,11 +18,11 @@
     -fx-effect: dropshadow(gaussian, #00000015, 8, 0, 0, 2);
 }
 .button:hover {
-    -fx-background-color: #5d4037 !important; /* Un café un poco más claro */
+    -fx-background-color: #5d4037 !important;
     -fx-text-fill: white !important;
 }
 
-/* Esto cambia el color del icono al pasar el mouse */
+/* cambiar color al seleccionar */
 .button:hover .font-icon {
     -fx-icon-color: white;
 }

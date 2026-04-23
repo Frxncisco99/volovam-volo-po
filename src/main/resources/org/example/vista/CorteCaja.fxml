@@ -76,7 +76,7 @@
     <center>
         <VBox style="-fx-background-color: #F5EFE6;">
 
-            <!-- TOP BAR -->
+            // TOP BAR
             <HBox alignment="CENTER_LEFT" styleClass="topbar">
                 <VBox spacing="2">
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Corte de Caja"/>
@@ -87,7 +87,7 @@
                 <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 4 12; -fx-font-size: 11px;" text="Caja abierta"/>
             </HBox>
 
-            <!-- CARDS RESUMEN SUPERIOR -->
+            /// resumen
             <HBox spacing="12" style="-fx-padding: 16 20 0 20;">
                 <VBox spacing="4" styleClass="card" HBox.hgrow="ALWAYS">
                     <Label style="-fx-text-fill: #7A5535; -fx-font-size: 10px;" text="CAJERO"/>
@@ -107,16 +107,16 @@
                 </VBox>
             </HBox>
 
-            <!-- TABS -->
+            /// TABS
             <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS"
                      style="-fx-padding: 12 20 0 20; -fx-background-color: transparent; -fx-tab-min-height: 36px;">
 
-                <!-- ═══ TAB 1: CORTE ACTUAL ═══ -->
+                // TAB corte actual
                 <Tab text="Corte Actual">
                     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox spacing="14" style="-fx-padding: 16 4 20 4;">
 
-                            <!-- RESUMEN VENTAS -->
+                            // Resumen ventas
                             <VBox spacing="10" styleClass="card">
                                 <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Resumen de ventas"/>
                                 <Separator/>
@@ -143,7 +143,7 @@
                                 </HBox>
                             </VBox>
 
-                            <!-- CONTEO FISICO -->
+                            // Conteo
                             <VBox spacing="10" styleClass="card">
                                 <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Conteo fisico de efectivo"/>
                                 <Separator/>
@@ -160,14 +160,14 @@
                                 <Label fx:id="lblEstadoDiferencia" style="-fx-font-size: 12px; -fx-font-weight: bold;" text=""/>
                             </VBox>
 
-                            <!-- OBSERVACIONES -->
+                           // observaciones
                             <VBox spacing="8" styleClass="card">
                                 <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Observaciones"/>
                                 <Label fx:id="lblObsRequerida" style="-fx-text-fill: #C0392B; -fx-font-size: 11px;" text="* Requerido si hay diferencia"/>
                                 <TextArea fx:id="txtObservaciones" promptText="Escribe una observacion si hay diferencia..." prefHeight="80" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-font-size: 13px;"/>
                             </VBox>
 
-                            <!-- BOTONES -->
+                            // botones
                             <HBox spacing="12">
                                 <Button onAction="#irADashboard" prefHeight="44" prefWidth="200" style="-fx-background-color: transparent; -fx-border-color: #6B4226; -fx-border-radius: 10; -fx-border-width: 1.2; -fx-text-fill: #6B4226; -fx-font-size: 13px; -fx-cursor: hand; -fx-background-radius: 10;" text="Cancelar"/>
                                 <Button onAction="#exportarCortePDF" prefHeight="44" prefWidth="200"
@@ -180,7 +180,7 @@
                     </ScrollPane>
                 </Tab>
 
-                <!-- ═══ TAB 2: VENTAS POR CAJERO ═══ -->
+                // TAB ventas por cajero
                 <Tab text="Ventas por Cajero">
                     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox spacing="14" style="-fx-padding: 16 4 20 4;">
@@ -206,7 +206,7 @@
                                 </TableView>
                             </VBox>
 
-                            <!-- TOTAL GLOBAL -->
+                            // TOTAL
                             <VBox styleClass="card" spacing="8">
                                 <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Total global de la caja"/>
                                 <Separator/>
@@ -221,7 +221,7 @@
                     </ScrollPane>
                 </Tab>
 
-                <!-- ═══ TAB 3: MÉTODOS DE PAGO ═══ -->
+                // TAB metodos de pago
                 <Tab text="Métodos de Pago">
                     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                         <VBox spacing="14" style="-fx-padding: 16 4 20 4;">
@@ -234,13 +234,13 @@
                                     </VBox>
                                 </HBox>
                                 <Separator/>
-                                <!-- Contenedor dinámico — se llena desde Java -->
+                                // contenedor
                                 <VBox fx:id="vboxMetodosPago" spacing="8"/>
-                                <!-- Placeholder si no hay datos -->
+
                                 <Label fx:id="lblSinMetodos" style="-fx-text-fill: #7A5535; -fx-font-size: 12px;" text="No se registraron ventas en esta caja." visible="false" managed="false"/>
                             </VBox>
 
-                            <!-- RESUMEN TOTAL -->
+                            // RESUMEN  total
                             <VBox styleClass="card" spacing="8">
                                 <Separator/>
                                 <HBox alignment="CENTER_LEFT">
@@ -254,11 +254,11 @@
                     </ScrollPane>
                 </Tab>
 
-                <!-- ═══ TAB 4: HISTORIAL DE CORTES ═══ -->
+                // TAB historial de cortes
                 <Tab text="Historial de Cortes">
                     <VBox spacing="12" style="-fx-padding: 16 4 20 4;">
 
-                        <!-- FILTRO -->
+                       // filtro
                         <HBox spacing="12" alignment="CENTER_LEFT" styleClass="card">
                             <Label style="-fx-text-fill: #7A5535; -fx-font-size: 13px;" text="Mostrar últimos:"/>
                             <Button onAction="#cargarHistorial10" prefHeight="32" prefWidth="70"
@@ -271,7 +271,7 @@
                             <Label fx:id="lblTotalCortes" style="-fx-text-fill: #7A5535; -fx-font-size: 11px;" text=""/>
                         </HBox>
 
-                        <!-- TABLA HISTORIAL -->
+                        /// tabla historial
                         <TableView fx:id="tablaHistorial" VBox.vgrow="ALWAYS" style="-fx-background-radius: 8;">
                             <columns>
                                 <TableColumn fx:id="colHisId" text="#" prefWidth="45"/>

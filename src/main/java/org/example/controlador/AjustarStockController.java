@@ -24,7 +24,7 @@ public class AjustarStockController {
         lblStockActual.setText(String.valueOf(p.getStock()));
         actualizarPreview();
 
-        // Actualiza preview en tiempo real al escribir
+        // Actualizar preview
         txtCantidad.textProperty().addListener((o, a, b) -> actualizarPreview());
     }
 

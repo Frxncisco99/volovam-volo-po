@@ -89,7 +89,7 @@ public class ReporteController {
 
     @FXML private BarChart<String, Number> chartVentas;
 
-    // ── Estilos reutilizables ─────────────────────────────────────────────────
+    // Estilos
     private static final String ESTILO_BTN_ACTIVO =
             "-fx-background-color: #6B1228; -fx-text-fill: white; " +
                     "-fx-border-color: #6B1228; -fx-border-width: 1; " +
@@ -116,30 +116,21 @@ public class ReporteController {
 
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
-    // 🔁 NAVEGACIÓN
-    @FXML
-    private void irAVentas() {
+    // Navegación
+    @FXML private void irADashboard()  { cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAVentas() {
         cambiarEscena("/org/example/vista/Ventas.fxml");
     }
-
-    @FXML
-    private void irAInventario() {
+    @FXML private void irAInventario() {
         cambiarEscena("/org/example/vista/Inventario.fxml");
     }
-
-    @FXML
-    private void irAEmpleados() {
+    @FXML private void irAEmpleados() {
         cambiarEscena("/org/example/vista/Empleados.fxml");
     }
+    @FXML private void irAClientes() {cambiarEscena ("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irACorteCaja() {cambiarEscena("/org/example/vista/CorteCaja.fxml");}
+    @FXML private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
 
-    @FXML
-    private void irACorteCaja() {
-        cambiarEscena("/org/example/vista/CorteCaja.fxml");
-    }
-
-    @FXML
-    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");
-    }
     private void cambiarEscena(String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
@@ -150,9 +141,7 @@ public class ReporteController {
         }
     }
 
-
-
-    //  INIT
+    // Init
     @FXML
     public void initialize() {
         cargarDatosUsuario();
@@ -198,9 +187,7 @@ public class ReporteController {
         lblAvatarIniciales.setText(iniciales);
     }
 
-
-
-    //  GENERAR REPORTE
+    // Genera reporte
     @FXML
     private void generarReporte() {
 
@@ -243,7 +230,7 @@ public class ReporteController {
                 lblProductoTopCantidad.setText("No hay ventas en el periodo");
             }
 
-            //  GRAFICA
+            // Grafica
             chartVentas.getData().clear();
 
             XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -276,7 +263,7 @@ public class ReporteController {
             double promedio = service.calcularPromedio(tickets);
             Map<String, Integer> top = service.topProductos(tickets);
 
-            // Nombre sugerido automático: Reporte_Ventas_2025-01-15.pdf
+            // Nombre automatico
             String tipoLimpio = cbTipoReporte.getValue()
                     .replace(" ", "_")
                     .replace("á","a").replace("é","e")
@@ -285,7 +272,7 @@ public class ReporteController {
             String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String nombreSugerido = "Reporte_" + tipoLimpio + "_" + fechaHoy + ".pdf";
 
-            // Abrir explorador de archivos nativo
+            // Abrir explorador de archivos
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar reporte PDF");
             fileChooser.setInitialFileName(nombreSugerido);
@@ -293,16 +280,16 @@ public class ReporteController {
                     new FileChooser.ExtensionFilter("Archivo PDF", "*.pdf")
             );
 
-            // Directorio inicial: Documents si existe, si no home
+            // Directorio inicial
             File docFolder = new File(System.getProperty("user.home") + "/Documents");
             fileChooser.setInitialDirectory(docFolder.exists() ? docFolder
                     : new File(System.getProperty("user.home")));
 
-            // Obtener la ventana actual para el diálogo modal
+            // Obtener la ventana actual
             Stage stage = (Stage) cbTipoReporte.getScene().getWindow();
             File archivoDestino = fileChooser.showSaveDialog(stage);
 
-            if (archivoDestino == null) return; // El usuario canceló
+            if (archivoDestino == null) return;
 
             ultimaRutaPDF = archivoDestino.getAbsolutePath();
 
@@ -327,7 +314,7 @@ public class ReporteController {
         }
     }
 
-    //  GRAFICA
+    // Grafica
     private void cargarGrafica(Map<String, Integer> datos) {
         if (graficaProductos == null) return;
 
@@ -343,7 +330,7 @@ public class ReporteController {
         graficaProductos.getData().add(series);
     }
 
-    //  ABRIR PDF
+    // Abrir pdf
     @FXML
     private void abrirPDF() {
         try {
@@ -360,7 +347,7 @@ public class ReporteController {
         }
     }
 
-    //  ALERTA
+    // Generar alerta
     private void alerta(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText(null);
@@ -368,9 +355,6 @@ public class ReporteController {
         a.showAndWait();
     }
 
-    public void irADashboard(ActionEvent actionEvent) {
-        cambiarEscena("/org/example/vista/MenuPrincipal.fxml");
-    }
 
     public void btnCerrar(ActionEvent actionEvent) {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
@@ -397,7 +381,7 @@ public class ReporteController {
         }
         chartVentas.getData().add(series);
 
-        // Estado visual de botones
+        // Estado de botones
         btnCantidad.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
         chartVentas.setVisible(true);
@@ -410,7 +394,7 @@ public class ReporteController {
     private void verGraficaIngresos() {
         if (ultimosTickets == null) { alerta("Genera un reporte primero"); return; }
 
-        // Calcular ingresos por producto sumando subtotales de líneas
+        // Calcular ingresos por producto
         Map<String, Double> ingresosPorProducto = new java.util.LinkedHashMap<>();
         for (Ticket t : ultimosTickets) {
             if (t.getLineas() == null) continue;
@@ -439,7 +423,7 @@ public class ReporteController {
         }
         chartVentas.getData().add(series);
 
-        // Estado visual de botones
+        // Estado de botones
         btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
         chartVentas.setVisible(true);
@@ -454,7 +438,7 @@ public class ReporteController {
         Button origen = (Button) e.getSource();
 
         LocalDate inicio;
-        LocalDate fin = hoy;   // por defecto el fin es hoy
+        LocalDate fin = hoy;
 
         if (origen == btnHoy) {
             inicio = hoy;
@@ -464,7 +448,7 @@ public class ReporteController {
             fin    = hoy.minusDays(1);
 
         } else if (origen == btnSemana) {
-            // Lunes de la semana actual (ISO: lunes = día 1)
+
             inicio = hoy.with(java.time.DayOfWeek.MONDAY);
 
         } else if (origen == btnMes) {

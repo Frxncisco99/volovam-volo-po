@@ -60,7 +60,7 @@ public class EditarProductoController {
                 .findFirst()
                 .ifPresent(cbCategoria::setValue);
 
-        // Si el producto ya tiene código, mostrar el campo precargado
+        // Si el producto ya tiene código
         String codigoExistente = p.getCodigoBarras();
         if (codigoExistente != null && !codigoExistente.isBlank()) {
             llevaCodigo = true;
@@ -145,8 +145,7 @@ public class EditarProductoController {
         producto.setStock(stock);
         producto.setStockMinimo(stockMinimo);
         producto.setIdCategoria(cbCategoria.getValue().getIdCategoria());
-        producto.setCodigoBarras(codigo); // null = quitar código existente
-
+        producto.setCodigoBarras(codigo);
         dao.actualizarProducto(producto);
         cerrarVentana();
     }
