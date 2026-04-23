@@ -28,6 +28,14 @@ import java.util.Map;
 import java.io.File;
 import java.text.DecimalFormat;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
 
 
 import javafx.scene.chart.BarChart;
@@ -66,6 +74,12 @@ public class ReporteController {
     @FXML private Button btnSemana;
     @FXML private Button btnMes;
     @FXML private Button btnAnio;
+
+    @FXML private Button btnTabla;
+    @FXML private TableView<FilaReporte> tablaReporte;
+    @FXML private TableColumn<FilaReporte, String>  colTablaProducto;
+    @FXML private TableColumn<FilaReporte, Integer> colTablaCantidad;
+    @FXML private TableColumn<FilaReporte, Double>  colTablaIngresos;
 
 
 
@@ -386,6 +400,10 @@ public class ReporteController {
         // Estado visual de botones
         btnCantidad.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        chartVentas.setVisible(true);
+        chartVentas.setManaged(true);
+        tablaReporte.setVisible(false);
+        tablaReporte.setManaged(false);
     }
 
     @FXML
@@ -424,6 +442,10 @@ public class ReporteController {
         // Estado visual de botones
         btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        chartVentas.setVisible(true);
+        chartVentas.setManaged(true);
+        tablaReporte.setVisible(false);
+        tablaReporte.setManaged(false);
     }
 
     @FXML
@@ -448,7 +470,7 @@ public class ReporteController {
         } else if (origen == btnMes) {
             inicio = hoy.withDayOfMonth(1);
 
-        } else {   // btnAnio
+        } else {   // btnAño
             inicio = hoy.withDayOfYear(1);
         }
 
@@ -510,6 +532,57 @@ public class ReporteController {
             cbTipoReporte.setValue("Ventas");
         }
         generarReporte();
+    }
+
+    @FXML
+    private void verTabla() {
+        if (ultimoTop == null) { alerta("Genera un reporte primero"); return; }
+
+        colTablaProducto.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getProducto()));
+        colTablaCantidad.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCantidad()).asObject());
+        colTablaIngresos.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getIngresos()).asObject());
+
+        Map<String, Double> ingresosPorProducto = new java.util.LinkedHashMap<>();
+        if (ultimosTickets != null) {
+            for (Ticket t : ultimosTickets) {
+                if (t.getLineas() == null) continue;
+                for (Ticket.LineaTicket linea : t.getLineas()) {
+                    ingresosPorProducto.merge(linea.getNombreProducto(), linea.getSubtotal(), Double::sum);
+                }
+            }
+        }
+
+        ObservableList<FilaReporte> filas = FXCollections.observableArrayList();
+        for (Map.Entry<String, Integer> e : ultimoTop.entrySet()) {
+            double ing = ingresosPorProducto.getOrDefault(e.getKey(), 0.0);
+            filas.add(new FilaReporte(e.getKey(), e.getValue(), ing));
+        }
+        tablaReporte.setItems(filas);
+
+        chartVentas.setVisible(false);
+        chartVentas.setManaged(false);
+        tablaReporte.setVisible(true);
+        tablaReporte.setManaged(true);
+
+        btnTabla.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+    }
+
+    public static class FilaReporte {
+        private final SimpleStringProperty  producto;
+        private final SimpleIntegerProperty cantidad;
+        private final SimpleDoubleProperty  ingresos;
+
+        public FilaReporte(String producto, int cantidad, double ingresos) {
+            this.producto = new SimpleStringProperty(producto);
+            this.cantidad = new SimpleIntegerProperty(cantidad);
+            this.ingresos = new SimpleDoubleProperty(ingresos);
+        }
+
+        public String  getProducto() { return producto.get(); }
+        public int     getCantidad() { return cantidad.get(); }
+        public double  getIngresos() { return ingresos.get(); }
     }
 
 
