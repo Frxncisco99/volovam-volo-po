@@ -10,7 +10,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.controlador.ReporteController">
 
-    <!-- SIDEBAR -->
+    <!-- sidebar -->
     <left>
         <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
             <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
@@ -54,7 +54,8 @@
                 <Button prefHeight="40" prefWidth="206" onAction="#irAClientes" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Clientes" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <!-- ACTIVO -->
+
+                //ACTIVO
                 <Button graphicTextGap="12" prefHeight="40" prefWidth="206"
                         style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
                         text="Reportes">
@@ -80,11 +81,11 @@
         </VBox>
     </left>
 
-    <!-- CONTENIDO -->
+    ///
     <center>
         <VBox style="-fx-background-color: #EDEADE;" VBox.vgrow="ALWAYS">
 
-            <!-- TOPBAR — igual al MenuPrincipal -->
+            <!-- topbar -->
             <HBox alignment="CENTER_LEFT" styleClass="topbar"
                   style="-fx-background-color: white; -fx-padding: 14 28; -fx-border-color: transparent transparent #E8DDD0 transparent; -fx-border-width: 1;">
                 <VBox spacing="2">
@@ -93,14 +94,17 @@
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
                 <HBox spacing="10" alignment="CENTER">
-                    <!-- Indicador WiFi -->
+
+
+                    //wifi
                     <HBox fx:id="hboxWifi" spacing="5" alignment="CENTER"
                           style="-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;">
                         <FontIcon fx:id="iconWifi" iconLiteral="fas-wifi" iconSize="12" iconColor="#2E7D32"/>
                         <Label fx:id="lblWifi" text="Conectado"
                                style="-fx-text-fill: #2E7D32; -fx-font-size: 10px;"/>
                     </HBox>
-                    <!-- Hora + badge caja -->
+
+                    //hora y badge de caja
                     <VBox alignment="CENTER_RIGHT" spacing="2">
                         <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
                         <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta"/>
@@ -127,7 +131,7 @@
                         style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C; -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"/>
             </HBox>
 
-            <!-- FILTROS -->
+            <!-- Filtros -->
             <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 0 28 16 28;">
                 <DatePicker fx:id="dateInicio"
                             style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #C9A84C; -fx-border-width: 0.5; -fx-background-color: #F5EFE6; -fx-font-size: 12px;"/>
@@ -143,7 +147,7 @@
                         style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C; -fx-border-width: 0.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;"/>
             </HBox>
 
-            <!-- CARDS -->
+            <!-- Cards -->
             <HBox spacing="12" style="-fx-padding: 0 28 16 28;">
                 <VBox HBox.hgrow="ALWAYS"
                       style="-fx-background-color: white; -fx-border-color: #E0D5C5; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;">
@@ -183,7 +187,7 @@
                 </VBox>
             </HBox>
 
-            <!-- GRAFICA -->
+            <!-- Grafica -->
             <VBox VBox.vgrow="ALWAYS" style="-fx-padding: 0 28 28 28;">
                 <VBox VBox.vgrow="ALWAYS"
                       style="-fx-background-color: white; -fx-border-color: #E0D5C5; -fx-border-width: 1; -fx-background-radius: 12; -fx-border-radius: 12;">

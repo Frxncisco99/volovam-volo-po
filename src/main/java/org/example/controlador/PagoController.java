@@ -45,7 +45,7 @@ public class PagoController {
     @FXML private Label lblEquivalentePesos;
     @FXML private Label lblTipoCambio;
 
-    // Mixto pesos + dólares
+    // Mixto pesos y dólares
     @FXML private Button btnMixtoUSD;
     @FXML private VBox panelMixtoUSD;
     @FXML private TextField txtPesosMixtoUSD;
@@ -65,7 +65,7 @@ public class PagoController {
 
 
 
-    // ─── setDatos ────────────────────────────────────────────────────────────────
+    // Datos
     public void setDatos(double total, Map<Integer, Object[]> carrito,
                          VentasController ventasController,
                          int idCliente, String nombreCliente,
@@ -104,7 +104,7 @@ public class PagoController {
             }
         });
 
-        // Listener mixto pesos + tarjeta
+        // Listener mixto pesos y tarjeta
         Runnable calcularMixto = () -> {
             try {
                 double ef  = Double.parseDouble(txtEfectivoMixto.getText().isEmpty() ? "0" : txtEfectivoMixto.getText());
@@ -137,7 +137,7 @@ public class PagoController {
             }
         });
 
-        // Listener mixto pesos + dólares
+        // Listener mixto pesos y dólares
         Runnable calcularMixtoUSD = () -> {
             try {
                 double pesos   = Double.parseDouble(txtPesosMixtoUSD.getText().isEmpty()   ? "0" : txtPesosMixtoUSD.getText());
@@ -169,12 +169,12 @@ public class PagoController {
 
         lblTipoCambio.setText("$" + String.format("%.2f", tipoCambioDolar) + " MXN/USD");
 
-        // Efectivo por defecto + foco
+        // Efectivo por defecto
         seleccionarEfectivo();
         javafx.application.Platform.runLater(() -> txtDineroRecibido.requestFocus());
     }
 
-    // ─── Muestra solo el panel indicado, oculta todos los demás ─────────────────
+    // Mostrar solo el panel indicado
     private void mostrarPanel(VBox panel) {
         panelEfectivo.setVisible(false);      panelEfectivo.setManaged(false);
         panelTarjeta.setVisible(false);       panelTarjeta.setManaged(false);
@@ -187,7 +187,7 @@ public class PagoController {
         panel.setManaged(true);
     }
 
-    // ─── Resalta botón activo ────────────────────────────────────────────────────
+    // Resalta botón activo
     private void resaltarBoton(Button activo) {
         String estiloActivo   = "-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;";
         String estiloInactivo = "-fx-background-color: white; -fx-text-fill: #6B4226; -fx-background-radius: 8; -fx-border-color: #6B4226; -fx-border-radius: 8; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 12px;";
@@ -201,7 +201,8 @@ public class PagoController {
         activo.setStyle(estiloActivo);
     }
 
-    // ─── Selectores de método ────────────────────────────────────────────────────
+    // Selectores de metodo
+
     @FXML public void seleccionarEfectivo() {
         metodoPago = "EFECTIVO";
         mostrarPanel(panelEfectivo);
@@ -248,7 +249,7 @@ public class PagoController {
         txtPesosMixtoUSD.requestFocus();
     }
 
-    // ─── Confirmar cobro ─────────────────────────────────────────────────────────
+    // Confirmar cobro
     @FXML
     public void handleConfirmar() {
         double montoEfectivo = 0;
@@ -337,7 +338,7 @@ public class PagoController {
                                         pesos, dolares, enPesos, suma, total - suma));
                         return;
                     }
-                    montoEfectivo = suma; // total recibido expresado en pesos
+                    montoEfectivo = suma;
                 } catch (NumberFormatException e) {
                     mostrarAlerta("Error", "Ingresa montos válidos.");
                     return;
@@ -348,12 +349,12 @@ public class PagoController {
         guardarVenta(montoEfectivo, montoTarjeta, cambio);
     }
 
-    // ─── Guardar venta en BD ─────────────────────────────────────────────────────
+    // Guardar venta
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
 
-            // 1. Venta
+            // Venta
             PreparedStatement psVenta = con.prepareStatement(
                     "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente) VALUES (?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
@@ -367,7 +368,7 @@ public class PagoController {
             rs.next();
             int idVenta = rs.getInt(1);
 
-            // 2. Detalle + stock
+            // Detalle y stock
             for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
                 int idProducto  = entry.getKey();
                 double precio   = (double) entry.getValue()[1];
@@ -390,7 +391,7 @@ public class PagoController {
                 psStock.executeUpdate();
             }
 
-            // 3. Pago
+            // Pago
             if (metodoPago.equals("FIADO")) {
                 PreparedStatement psSaldo = con.prepareStatement(
                         "UPDATE clientes SET saldo_actual = saldo_actual + ? WHERE id_cliente = ?");

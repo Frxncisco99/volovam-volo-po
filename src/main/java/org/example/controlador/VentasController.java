@@ -44,7 +44,8 @@ public class VentasController {
     @FXML private Label lblClienteSeleccionado;
     @FXML private Label lblCreditoDisponible;
 
-    private int idClienteSeleccionado = 1; // 1 = Público General por defecto
+    // Público General por defecto
+    private int idClienteSeleccionado = 1;
     private String nombreClienteSeleccionado = "Publico General";
     private double limiteCredito = 0;
     private double saldoCliente = 0;
@@ -71,13 +72,13 @@ public class VentasController {
         txtBuscar.textProperty().addListener((obs, old, nuevo) ->
                 cargarProductos(nuevo, categoriaSeleccionada));
 
-        // ENTER en el buscador: si el texto coincide EXACTAMENTE con un código
-        // de barras → agrega al carrito y limpia (flujo para lector físico)
+        // Si coincide con un código de barras agrega al carrito y limpia
         txtBuscar.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 String texto = txtBuscar.getText().trim();
                 if (!texto.isEmpty() && agregarPorCodigoExacto(texto)) {
-                    e.consume(); // evita que el handler global de ENTER vuelva a dispararse
+                    // evita que enter vuelva a dispararse
+                    e.consume();
                 }
             }
         });
@@ -93,7 +94,7 @@ public class VentasController {
 
                     if (e.getCode() == KeyCode.ENTER) {
 
-                        // ENTER en buscar → agrega primer producto
+                        // ENTER para agregar producto
                         if (scene.getFocusOwner() == txtBuscar) {
                             if (primerProducto != null) {
                                 primerProducto.fireEvent(
@@ -111,7 +112,7 @@ public class VentasController {
                             return;
                         }
 
-                        // ENTER normal → cobrar
+                        // enter para cobrar
                         if (!(scene.getFocusOwner() instanceof Button) ||
                                 scene.getFocusOwner() == btnCobrar) {
                             handleCobrar();
@@ -141,7 +142,7 @@ public class VentasController {
     private void cargarCategorias() {
         panelCategorias.getChildren().clear();
 
-        // Botón "Todas"
+        // Botón
         Button btnTodas = crearBotonCategoria("Todas", true);
         panelCategorias.getChildren().add(btnTodas);
 
@@ -163,7 +164,7 @@ public class VentasController {
         actualizarEstiloCategoria(btn, activo);
         btn.setOnAction(e -> {
             categoriaSeleccionada = nombre;
-            // Actualizar estilos de todos los botones
+            // Estilos de los botones
             panelCategorias.getChildren().forEach(node -> {
                 if (node instanceof Button b) {
                     actualizarEstiloCategoria(b, b.getText().equals(nombre));
@@ -257,7 +258,7 @@ public class VentasController {
 
                 filaBaja.getChildren().addAll(lblPrecio, lblStockLabel);
 
-                // Mostrar código de barras si existe
+                // Mostrar código de barras
                 if (codigo != null && !codigo.isBlank()) {
                     Label lblCodigo = new Label("↳ " + codigo);
                     lblCodigo.setStyle("-fx-text-fill: #A0856A; -fx-font-size: 10px;");
@@ -284,11 +285,8 @@ public class VentasController {
         }
     }
 
-    /**
-     * Busca un producto por código de barras EXACTO y lo agrega al carrito.
-     * Retorna true si encontró y agregó el producto (para que ENTER no haga
-     * otra cosa), false si no había coincidencia exacta.
-     */
+
+    // Busca producto por codigo de barras true si lo encontró y false si no
     private boolean agregarPorCodigoExacto(String codigo) {
         String sql = "SELECT id_producto, nombre, precio, stock FROM productos " +
                 "WHERE activo = 1 AND codigo_barras = ?";
@@ -303,7 +301,7 @@ public class VentasController {
                 int stock   = rs.getInt("stock");
                 if (stock <= 0) {
                     mostrarAlerta("Sin stock", "\"" + nombre + "\" no tiene unidades disponibles.");
-                    return true; // sí lo encontramos aunque no lo agreguemos
+                    return true;
                 }
                 agregarAlCarrito(id, nombre, precio, stock);
                 return true;
@@ -314,7 +312,7 @@ public class VentasController {
         return false;
     }
 
-    // Nuevo metodo para obtener stock real desde BD
+    // Metodo para obtener stock desde BD
     private int obtenerStock(int idProducto) {
         String sql = "SELECT stock FROM productos WHERE id_producto = ?";
         try (Connection con = ConexionDB.getConexion();
@@ -384,7 +382,7 @@ public class VentasController {
             TextField tfCantidad = new TextField(String.valueOf(cantidad));
             tfCantidad.setStyle("-fx-text-fill: #6B4226; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #6B4226; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
 
-            // ← Lógica con validación de stock
+            // Validación de stock
             Runnable validarYActualizar = () -> {
                 try {
                     int nuevaCantidad = Integer.parseInt(tfCantidad.getText().trim());
@@ -461,7 +459,7 @@ public class VentasController {
             idsClientes.clear();
             creditosClientes.clear();
 
-            // Siempre mostrar Público General primero
+            // Mostrar Público General
             listaClientes.getItems().add("Publico General");
             idsClientes.add(new int[]{1});
             creditosClientes.add(new double[]{0, 0});
@@ -500,7 +498,7 @@ public class VentasController {
                     limiteCredito = creditosClientes.get(index)[0];
                     saldoCliente = creditosClientes.get(index)[1];
 
-                    // Obtener nombre limpio sin el crédito disponible
+                    // Nombre sin el crédito disponible
                     String itemSeleccionado = listaClientes.getItems().get(index);
                     nombreClienteSeleccionado = itemSeleccionado.contains(" — ")
                             ? itemSeleccionado.split(" — ")[0]
@@ -527,7 +525,7 @@ public class VentasController {
             return;
         }
 
-        // Validar límite de crédito si es cliente con fiado
+
         if (limiteCredito > 0) {
             double disponible = limiteCredito - saldoCliente;
             if (total > disponible) {
@@ -548,8 +546,8 @@ public class VentasController {
             stagePago.setTitle("Cobro");
             stagePago.setScene(new Scene(root));
             stagePago.setResizable(false);
-            stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL);          // ← bloquea la ventana de atrás
-            stagePago.initOwner(lblTotal.getScene().getWindow());                      // ← la ata a la ventana principal
+            stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stagePago.initOwner(lblTotal.getScene().getWindow());
             stagePago.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -570,8 +568,8 @@ public class VentasController {
             }
         });
     }
-    // ─── HISTORIAL DE VENTAS ────────────────────────────────────────────────────
 
+    // Historial de ventas
     @FXML
     public void abrirHistorial() {
         Stage stage = new Stage();
@@ -591,7 +589,7 @@ public class VentasController {
                 new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("hora")));
         colHora.setPrefWidth(120);
 
-        // NUEVO: CLIENTE
+        // Nuevo cliente
         TableColumn<Map<String, Object>, String> colCliente = new TableColumn<>("Cliente");
         colCliente.setCellValueFactory(d ->
                 new javafx.beans.property.SimpleStringProperty(
@@ -611,7 +609,7 @@ public class VentasController {
 
         tabla.getColumns().addAll(colFolio, colHora, colCliente, colCajero, colTotal);
 
-        //  QUERY CON CLIENTE
+        //  Cliente
         String sql = """
     SELECT v.id_venta,
            DATE_FORMAT(v.fecha, '%H:%i:%s') AS hora,
@@ -635,7 +633,7 @@ public class VentasController {
                 fila.put("folio", rs.getInt("id_venta"));
                 fila.put("hora", rs.getString("hora"));
                 fila.put("cajero", rs.getString("cajero"));
-                fila.put("cliente", rs.getString("cliente")); // 🔥 CLAVE
+                fila.put("cliente", rs.getString("cliente"));
                 fila.put("total", rs.getDouble("total"));
 
                 tabla.getItems().add(fila);
@@ -645,7 +643,7 @@ public class VentasController {
             e.printStackTrace();
         }
 
-        // Doble clic → detalle
+        // Clic para detalles
         tabla.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2 && tabla.getSelectionModel().getSelectedItem() != null) {
                 Map<String, Object> fila = tabla.getSelectionModel().getSelectedItem();
@@ -729,15 +727,13 @@ public class VentasController {
         stage.show();
     }
 
-// ─── INGRESO DE EFECTIVO ────────────────────────────────────────────────────
-
+// Ingreso de efectiv
     @FXML
     public void abrirIngreso() {
         abrirMovimientoCaja("INGRESO");
     }
 
-// ─── SALIDA DE EFECTIVO ─────────────────────────────────────────────────────
-
+// Retiro de efectivo
     @FXML
     public void abrirSalida() {
         abrirMovimientoCaja("RETIRO");
@@ -785,7 +781,7 @@ public class VentasController {
             String sql = "INSERT INTO movimientos_caja (id_caja, tipo, monto, motivo, id_usuario) VALUES (?, ?, ?, ?, ?)";
             try (Connection con = ConexionDB.getConexion();
                  PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, SesionUsuario.getInstancia().getIdCaja()); // ← dinámico, el que se guardó al abrir caja
+                ps.setInt(1, SesionUsuario.getInstancia().getIdCaja());
                 ps.setString(2, tipo);
                 ps.setDouble(3, monto);
                 ps.setString(4, motivoTxt);
@@ -826,65 +822,25 @@ public class VentasController {
         mostrarAlerta("Venta completada", "La venta se registro correctamente.");
     }
 
-    @FXML
-    public void irADashboard() {
+    // Navegación
+    @FXML private void irADashboard()  {  cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAInventario() {  cambiarEscena("/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAEmpleados()  {  cambiarEscena("/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes() { cambiarEscena ("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes()   {  cambiarEscena("/org/example/vista/Reportes.fxml"); }
+    @FXML private void irACorteCaja()  {  cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAConfiguracion() { cambiarEscena("/org/example/vista/Configuracion.fxml"); }
+
+    private void cambiarEscena(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-            Stage stage = (Stage) lblTotal.getScene().getWindow();
+            Stage stage = (Stage) lblTotal.getScene().getWindow(); // ← FIX
             stage.getScene().setRoot(root);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    @FXML
-    public void irAInventario(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void irAReportes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void irAEmpleados() {
-        if (!SesionUsuario.getInstancia().getRol().equals("admin")){
-            mostrarAlerta("Acceso Denegado","Solo el Administrador");
-        }else{
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Empleados.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) lblTotal.getScene().getWindow();
-                stage.getScene().setRoot(root);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @FXML
-    private void irAConfiguracion() {
-        cambiarEscena("/org/example/vista/Configuracion.fxml"); }
 
     @FXML
     public void btnCerrar() {
@@ -904,33 +860,4 @@ public class VentasController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
-
-    private void cambiarEscena(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage stage = (Stage) lblTotal.getScene().getWindow(); // ← FIX
-            stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void irACorteCaja() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/CorteCaja.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) lblTotal.getScene().getWindow(); // ← FIX
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void irAClientes() {
-        cambiarEscena("/org/example/vista/Clientes.fxml");
-    }
-
 }

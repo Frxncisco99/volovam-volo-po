@@ -315,11 +315,15 @@ public class ClientesController {
         dialog.showAndWait();
     }
 
+    //Navegación
     @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
     @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
     @FXML public void irAReportes() { navegar("/org/example/vista/Reportes.fxml"); }
     @FXML public void irACorteCaja() { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml"); }
+
 
     @FXML
     public void btnCerrar() {
@@ -358,10 +362,4 @@ public class ClientesController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
-
-    @FXML
-    private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");}
-
-
-
 }

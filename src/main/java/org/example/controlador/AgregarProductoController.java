@@ -53,7 +53,7 @@ public class AgregarProductoController {
         permitirSoloNumeros(txtStockMinimo, false);
     }
 
-    /** Alterna entre "lleva código" / "no lleva código" */
+    // Alterna entre lleva código/no lleva código
     @FXML
     private void toggleCodigo() {
         llevaCodigo = !llevaCodigo;
@@ -78,7 +78,7 @@ public class AgregarProductoController {
         }
     }
 
-    /** Botón ✕ — limpia el campo sin quitar el toggle */
+    // Boton para limpiar el campo
     @FXML
     private void limpiarCodigo() {
         txtCodigoBarras.clear();
@@ -116,7 +116,7 @@ public class AgregarProductoController {
         Categoria cat = cbCategoria.getValue();
         if (cat == null)   { error("Selecciona una categoría."); return; }
 
-        // Código de barras — solo si el toggle está activo
+        // Código de barras (si el toggle está activo)
         String codigo = null;
         if (llevaCodigo) {
             codigo = txtCodigoBarras.getText().trim();
@@ -130,7 +130,7 @@ public class AgregarProductoController {
         p.setStock(stock);
         p.setStockMinimo(stockMinimo);
         p.setIdCategoria(cat.getIdCategoria());
-        p.setCodigoBarras(codigo); // null si no lleva
+        p.setCodigoBarras(codigo);
 
         productoDAO.insertarProducto(p);
         info("Producto guardado correctamente.");

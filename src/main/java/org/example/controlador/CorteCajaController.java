@@ -26,7 +26,7 @@ import java.util.*;
 
 public class CorteCajaController {
 
-    // ── Corte Actual ─────────────────────────────────────────────────────────
+    // Corte actual
     @FXML private Label lblFechaHoy;
     @FXML private Label lblIdCaja;
     @FXML private Label lblCajero;
@@ -43,12 +43,12 @@ public class CorteCajaController {
     @FXML private TextField txtDineroContado;
     @FXML private TextArea txtObservaciones;
 
-    // ── Sidebar ───────────────────────────────────────────────────────────────
+    // Sidebar
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
 
-    // ── Tab Cajeros ───────────────────────────────────────────────────────────
+    // Tab cajeros
     @FXML private TableView<String[]> tablaCajeros;
     @FXML private TableColumn<String[], String> colCajeroNombre;
     @FXML private TableColumn<String[], String> colCajeroTickets;
@@ -56,12 +56,12 @@ public class CorteCajaController {
     @FXML private TableColumn<String[], String> colCajeroPromedio;
     @FXML private Label lblTotalCombinado;
 
-    // ── Tab Métodos de Pago ───────────────────────────────────────────────────
+    // Tab métodos de pago
     @FXML private VBox vboxMetodosPago;
     @FXML private Label lblSinMetodos;
     @FXML private Label lblTotalMetodos;
 
-    // ── Tab Historial ─────────────────────────────────────────────────────────
+    // Tab historial
     @FXML private TableView<String[]> tablaHistorial;
     @FXML private TableColumn<String[], String> colHisId;
     @FXML private TableColumn<String[], String> colHisCajero;
@@ -74,7 +74,7 @@ public class CorteCajaController {
     @FXML private TableColumn<String[], String> colHisDiferencia;
     @FXML private Label lblTotalCortes;
 
-    // ── Estado interno ────────────────────────────────────────────────────────
+    // Estado interno
     private double fondoInicial = 0;
     private double totalEfectivo = 0;
     private double totalEntradas = 0;
@@ -82,7 +82,7 @@ public class CorteCajaController {
     private double dineroEsperado = 0;
     private final ReportePDFService pdf = new ReportePDFService();
 
-    // Etiquetas de métodos de pago legibles
+    // Opciones de pago
     private static final Map<String, String> LABELS_METODO = new LinkedHashMap<>();
     static {
         LABELS_METODO.put("EFECTIVO",      "Efectivo");
@@ -94,7 +94,8 @@ public class CorteCajaController {
         LABELS_METODO.put("MIXTO_USD",     "Mixto USD");
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
+
+
     @FXML
     public void initialize() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
@@ -124,14 +125,14 @@ public class CorteCajaController {
         lblObsRequerida.setVisible(false);
     }
 
-    // ─── Configuración de columnas ─────────────────────────────────────────
+    // Configuración de columnas
     private void configurarTablasCajeros() {
         colCajeroNombre.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[0]));
         colCajeroTickets.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[1]));
         colCajeroTotal.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[2]));
         colCajeroPromedio.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[3]));
 
-        // Colorear diferencia positiva/negativa en tabla de cajeros
+
         tablaCajeros.setRowFactory(tv -> new TableRow<>());
     }
 
@@ -146,7 +147,7 @@ public class CorteCajaController {
         colHisReal.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[7]));
         colHisDiferencia.setCellValueFactory(d -> new SimpleStringProperty(d.getValue()[8]));
 
-        // Color rojo/verde en celda de diferencia
+        // Colores de diferencia en celda
         colHisDiferencia.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -164,7 +165,7 @@ public class CorteCajaController {
         });
     }
 
-    // ─── Resumen principal ─────────────────────────────────────────────────
+    // Resumen principal
     private void cargarResumen() {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
         try (Connection con = ConexionDB.getConexion()) {
@@ -183,7 +184,7 @@ public class CorteCajaController {
                 lblHoraApertura.setText(horaApertura);
             }
 
-            // Total ventas por metodo — solo lo que llega fisicamente a caja
+            // Total ventas (efectivo)
             String sqlEfectivo = """
     SELECT 
         COALESCE(SUM(
@@ -200,14 +201,14 @@ public class CorteCajaController {
     FROM ventas v
     LEFT JOIN pagos p ON p.id_venta = v.id_venta
     WHERE v.id_caja = ?
-    """;
+""";
 
             PreparedStatement psEf = con.prepareStatement(sqlEfectivo);
             psEf.setInt(1, idCaja);
             ResultSet rsEf = psEf.executeQuery();
             if (rsEf.next()) {
                 lblNumTickets.setText(String.valueOf(rsEf.getInt("num_tickets")));
-                totalEfectivo = rsEf.getDouble("efectivo_real"); // ← solo efectivo físico
+                totalEfectivo = rsEf.getDouble("efectivo_real");
                 lblTotalEfectivo.setText("$" + String.format("%.2f", totalEfectivo));
             }
 
@@ -325,7 +326,7 @@ public class CorteCajaController {
         fila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         fila.setSpacing(8);
 
-        // Ícono de punto
+        // Icono de punto
         Label punto = new Label("●");
         punto.setStyle("-fx-text-fill: #D4A843; -fx-font-size: 10px;");
 
@@ -345,7 +346,7 @@ public class CorteCajaController {
         return fila;
     }
 
-    // ─── Historial de cortes ───────────────────────────────────────────────
+    // Historial de cortes
     @FXML
     public void cargarHistorial10() { cargarHistorial(10); }
     @FXML
@@ -400,7 +401,7 @@ public class CorteCajaController {
         lblTotalCortes.setText(datos.size() + " corte(s) encontrados");
     }
 
-    // ─── Diferencia en tiempo real ─────────────────────────────────────────
+    // Diferencia en tiempo real
     private void calcularDiferencia(String texto) {
         try {
             double contado = Double.parseDouble(texto);
@@ -429,7 +430,7 @@ public class CorteCajaController {
         }
     }
 
-    // ─── Cerrar caja ───────────────────────────────────────────────────────
+    // Cerrar caja
     @FXML
     public void handleCerrarCaja() {
         String textoContado = txtDineroContado.getText().trim();
@@ -523,7 +524,7 @@ public class CorteCajaController {
         }
     }
 
-    // ─── Exportar PDF (sin cerrar) ─────────────────────────────────────────
+    // Exportar PDF
     @FXML
     private void exportarCortePDF() {
         try {
@@ -561,12 +562,16 @@ public class CorteCajaController {
         }
     }
 
-    // ─── Navegación ────────────────────────────────────────────────────────
+    // Navegación
     @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAVentas()    { navegar("/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAClientes() {navegar ("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
     @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");
-    }
+    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");}
+
+
     @FXML
     public void btnCerrar() {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
@@ -584,37 +589,8 @@ public class CorteCajaController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    @FXML
-    public void irAReportes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) { e.printStackTrace(); }
-    }
 
-    @FXML
-    public void irAInventario(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    @FXML
-    public void irAClientes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Clientes.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    // ─── Alertas ───────────────────────────────────────────────────────────
+    // Alertas
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
@@ -624,6 +600,4 @@ public class CorteCajaController {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
     }
-
-
 }

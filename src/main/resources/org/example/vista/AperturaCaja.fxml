@@ -10,12 +10,12 @@
 
 <StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.AperturaCajaController">
 
-    <!-- Tarjeta principal -->
+    // Tarjeta principal
     <VBox alignment="CENTER" maxWidth="420" spacing="28" style="-fx-background-color: F5EFE6; -fx-background-radius: 24; -fx-padding: 44 40 44 40; -fx-effect: dropshadow(gaussian, #00000025, 30, 0, 0, 10);" StackPane.alignment="CENTER">
 
-        <!-- Encabezado -->
+        ///
         <VBox alignment="CENTER" spacing="6">
-            <Label style="-fx-font-size: 26px; -fx-font-weight: bold;                           -fx-text-fill: #3D1F0D;" text="Apertura de Caja" />
+            <Label style="-fx-font-size: 26px; -fx-font-weight: bold;    -fx-text-fill: #3D1F0D;" text="Apertura de Caja" />
             <HBox alignment="CENTER" spacing="8">
                 <Label fx:id="lblUsuario" style="-fx-font-size: 13px; -fx-text-fill: #7A5535;" />
                 <Label style="-fx-text-fill: #C8A97E;" text="•" />
@@ -23,37 +23,37 @@
             </HBox>
         </VBox>
 
-        <!-- Separador -->
+        // Separador
         <Region prefHeight="1" prefWidth="340" style="-fx-background-color: #EDE0D0;" />
 
-        <!-- Campo monto inicial -->
+        // Monto inicial
         <VBox spacing="8">
-            <Label style="-fx-font-size: 13px; -fx-font-weight: bold;                           -fx-text-fill: #6B4226;" text="Monto inicial en caja" />
-            <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-background-color: #FDF8F2;                          -fx-background-radius: 14;                          -fx-border-color: #D4B896;                          -fx-border-radius: 14;                          -fx-border-width: 1.5;">
-                <Label style="-fx-font-size: 18px; -fx-font-weight: bold;                               -fx-text-fill: #6B4226; -fx-padding: 0 4 0 16;" text="\$" />
-                <TextField fx:id="txtMontoInicial" promptText="0.00" style="-fx-background-color: transparent;                                   -fx-border-color: transparent;                                   -fx-font-size: 20px; -fx-font-weight: bold;                                   -fx-text-fill: #3D1F0D; -fx-padding: 12 12 12 4;" HBox.hgrow="ALWAYS" />
-                <Label style="-fx-font-size: 12px; -fx-font-weight: bold;                               -fx-text-fill: #C8A97E; -fx-padding: 0 16 0 0;" text="MXN" />
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold;  -fx-text-fill: #6B4226;" text="Monto inicial en caja" />
+            <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-background-color: #FDF8F2;          -fx-background-radius: 14;  -fx-border-color: #D4B896;-fx-border-radius: 14; -fx-border-width: 1.5;">
+                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-padding: 0 4 0 16;" text="\$" />
+                <TextField fx:id="txtMontoInicial" promptText="0.00" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 20px; -fx-font-weight: bold;  -fx-text-fill: #3D1F0D; -fx-padding: 12 12 12 4;" HBox.hgrow="ALWAYS" />
+                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #C8A97E; -fx-padding: 0 16 0 0;" text="MXN" />
             </HBox>
         </VBox>
 
-        <!-- Campo tipo de cambio -->
+        // Tipo de cambio
         <VBox spacing="8">
             <Label style="-fx-font-size: 13px; -fx-font-weight: bold;                           -fx-text-fill: #6B4226;" text="Tipo de cambio del dólar" />
-            <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-background-color: #FDF8F2;                          -fx-background-radius: 14;                          -fx-border-color: #D4B896;                          -fx-border-radius: 14;                          -fx-border-width: 1.5;">
+            <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-background-color: #FDF8F2;                          -fx-background-radius: 14; -fx-border-color: #D4B896; -fx-border-radius: 14; -fx-border-width: 1.5;">
                 <Label style="-fx-font-size: 18px; -fx-font-weight: bold;                               -fx-text-fill: #D4A843; -fx-padding: 0 4 0 16;" text="\$" />
-                <TextField fx:id="txtTipoCambio" promptText="17.50" style="-fx-background-color: transparent;                                   -fx-border-color: transparent;                                   -fx-font-size: 20px; -fx-font-weight: bold;                                   -fx-text-fill: #3D1F0D; -fx-padding: 12 12 12 4;" HBox.hgrow="ALWAYS" />
+                <TextField fx:id="txtTipoCambio" promptText="17.50" style="-fx-background-color: transparent;                                   -fx-border-color: transparent; -fx-font-size: 20px; -fx-font-weight: bold;                                   -fx-text-fill: #3D1F0D; -fx-padding: 12 12 12 4;" HBox.hgrow="ALWAYS" />
                 <Label style="-fx-font-size: 12px; -fx-font-weight: bold;                               -fx-text-fill: #C8A97E; -fx-padding: 0 16 0 0;" text="MXN / USD" />
             </HBox>
 
-            <!-- Equivalencia en tiempo real -->
-            <HBox fx:id="boxEjemplo" alignment="CENTER" spacing="6" style="-fx-background-color: #F0F7EE;                          -fx-background-radius: 10;                          -fx-padding: 8 16;">
+            // Equivalencia
+            <HBox fx:id="boxEjemplo" alignment="CENTER" spacing="6" style="-fx-background-color: #F0F7EE; -fx-background-radius: 10; -fx-padding: 8 16;">
                 <Label style="-fx-font-size: 12px;" text="🔄" />
-                <Label fx:id="lblEjemplo" style="-fx-font-size: 12px; -fx-text-fill: #3B6D11;                               -fx-font-weight: bold;" text="Ingresa el tipo de cambio" />
+                <Label fx:id="lblEjemplo" style="-fx-font-size: 12px; -fx-text-fill: #3B6D11; -fx-font-weight: bold;" text="Ingresa el tipo de cambio" />
             </HBox>
         </VBox>
 
-        <!-- Botón -->
-        <Button onAction="#handleAbrirCaja" prefHeight="50" prefWidth="340" style="-fx-background-color: #6B4226;                        -fx-background-radius: 14;                        -fx-text-fill: white;                        -fx-font-size: 16px;                        -fx-font-weight: bold;                        -fx-cursor: hand;                        -fx-effect: dropshadow(gaussian, #6B422640, 12, 0, 0, 4);" text="Abrir Caja" />
+        // Boton
+        <Button onAction="#handleAbrirCaja" prefHeight="50" prefWidth="340" style="-fx-background-color: #6B4226; -fx-background-radius: 14; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, #6B422640, 12, 0, 0, 4);" text="Abrir Caja" />
 
     </VBox>
 </StackPane>

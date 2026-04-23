@@ -62,7 +62,7 @@ public class InventarioController {
     @FXML
     private ComboBox<String> cbEstado;
 
-    // ── Sidebar ──────────────────────────────────────────────────────────────
+    // Sidebar
     @FXML
     private Label lblNombreUsuario;
     @FXML
@@ -103,7 +103,7 @@ public class InventarioController {
     @FXML
     public void initialize() {
 
-        // ── Datos del usuario en sidebar ─────────────────────────────────────
+        // Datos del usuario
         SesionUsuario sesion = SesionUsuario.getInstancia();
         lblNombreUsuario.setText(sesion.getNombre());
         lblRolUsuario.setText(sesion.getRol());
@@ -112,7 +112,7 @@ public class InventarioController {
                 : sesion.getNombre().toUpperCase();
         lblAvatarIniciales.setText(iniciales);
 
-        // ── Columnas ─────────────────────────────────────────────────────────
+        // Columnas
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
@@ -302,28 +302,24 @@ public class InventarioController {
         cbEstado.valueProperty().addListener(filtroEstadoListener);
     }
 
-    // ── Navegación ───────────────────────────────────────────────────────────
-
-    @FXML
-    private void irADashboard() {
+    // Navegación
+    @FXML private void irADashboard() {
         cambiarEscena("/org/example/vista/MenuPrincipal.fxml");
     }
-
-    @FXML
-    private void irAVentas() {
+    @FXML private void irAVentas() {
         cambiarEscena("/org/example/vista/Ventas.fxml");
     }
-
-    @FXML
-    private void irAEmpleados() {
+    @FXML private void irAEmpleados() {
         cambiarEscena("/org/example/vista/Empleados.fxml");
     }
-
-    @FXML
-    private void irAConfiguracion() {
+    @FXML private void irAClientes() {
+        cambiarEscena("/org/example/vista/Clientes.fxml");
+    }
+    @FXML private void irAReportes()   { cambiarEscena("/org/example/vista/Reportes.fxml"); }
+    @FXML private void irACorteCaja()  { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAConfiguracion() {
         cambiarEscena("/org/example/vista/Configuracion.fxml");
     }
-
 
     @FXML
     private void btnCerrar() {
@@ -347,14 +343,7 @@ public class InventarioController {
         }
     }
 
-    @FXML
-    private void irAClientes() {
-        cambiarEscena("/org/example/vista/Clientes.fxml");
-    }
-
-
-    // ── Exportar PDF ─────────────────────────────────────────────────────────
-
+    // Exportar PDF
     @FXML
     private void exportarPDF() {
         Alert opcion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -399,8 +388,7 @@ public class InventarioController {
         }
     }
 
-    // ── Filtros ──────────────────────────────────────────────────────────────
-
+    // Filtros
     private void cargarFiltros() {
         cbCategoria.getItems().clear();
         new CategoriaDAO().obtenerCategorias()
@@ -440,8 +428,7 @@ public class InventarioController {
         aplicarFiltros();
     }
 
-    // ── Productos ────────────────────────────────────────────────────────────
-
+    // Productos
     private void cargarProductos() {
         listaProductos.setAll(dao.obtenerProductos());
         if (filtro == null) {
@@ -504,30 +491,6 @@ public class InventarioController {
         }
     }
 
-    @FXML
-    public void irAReportes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void irACorteCaja(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/CorteCaja.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void abrirAjusteStock(Producto p) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -546,5 +509,4 @@ public class InventarioController {
             e.printStackTrace();
         }
     }
-  
 }
