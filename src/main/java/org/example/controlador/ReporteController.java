@@ -1,5 +1,7 @@
 package org.example.controlador;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
 
+import javafx.util.Duration;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.ReporteService;
@@ -18,10 +21,20 @@ import org.example.servicio.ReportePDFService;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.io.File;
 import java.text.DecimalFormat;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 
 
@@ -44,8 +57,8 @@ public class ReporteController {
     @FXML private Label lblTotal;
     @FXML private Label lblTickets;
     @FXML private Label lblPromedio;
-
     @FXML private Label lblFecha;
+    @FXML private Label lblHora;
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
@@ -62,24 +75,17 @@ public class ReporteController {
     @FXML private Button btnMes;
     @FXML private Button btnAnio;
 
-    @FXML private HBox hboxWifi;
-    @FXML private FontIcon iconWifi;
-    @FXML private Label lblWifi;
+    @FXML private Button btnTabla;
+    @FXML private TableView<FilaReporte> tablaReporte;
+    @FXML private TableColumn<FilaReporte, String>  colTablaProducto;
+    @FXML private TableColumn<FilaReporte, Integer> colTablaCantidad;
+    @FXML private TableColumn<FilaReporte, Double>  colTablaIngresos;
 
-    private void actualizarEstadoWifi() {
-        try {
-            InetAddress.getByName("8.8.8.8").isReachable(1000);
-            lblWifi.setText("Conectado");
-            lblWifi.setStyle("-fx-text-fill: #2E7D32; -fx-font-size: 10px;");
-            iconWifi.setIconColor(javafx.scene.paint.Color.web("#2E7D32"));
-            hboxWifi.setStyle("-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;");
-        } catch (Exception e) {
-            lblWifi.setText("Sin conexión");
-            lblWifi.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 10px;");
-            iconWifi.setIconColor(javafx.scene.paint.Color.web("#C0392B"));
-            hboxWifi.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 12; -fx-padding: 2 10;");
-        }
-    }
+
+
+    @FXML private ComboBox<String> cbMesSel;
+    @FXML private ComboBox<Integer> cbAnioSel;
+
 
     @FXML private BarChart<String, Number> chartVentas;
 
@@ -139,12 +145,36 @@ public class ReporteController {
     @FXML
     public void initialize() {
         cargarDatosUsuario();
+
         cbTipoReporte.getItems().addAll(
                 "Ventas",
                 "Productos más vendidos",
                 "Bajo stock"
         );
+
+        cbMesSel.getItems().addAll(
+                "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+        );
+        cbMesSel.setValue("Enero");
+
+        int anioActual = LocalDate.now().getYear();
+        for (int a = anioActual; a >= anioActual - 5; a--) {
+            cbAnioSel.getItems().add(a);
+        }
+        cbAnioSel.setValue(anioActual);
+
+        DateTimeFormatter fmtHora = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        javafx.animation.Timeline reloj = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+                    lblHora.setText(LocalDateTime.now().format(fmtHora));
+                })
+        );
+        reloj.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        reloj.play();
     }
+
     private void cargarDatosUsuario() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
         String nombre = sesion.getNombre();
@@ -354,6 +384,10 @@ public class ReporteController {
         // Estado de botones
         btnCantidad.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        chartVentas.setVisible(true);
+        chartVentas.setManaged(true);
+        tablaReporte.setVisible(false);
+        tablaReporte.setManaged(false);
     }
 
     @FXML
@@ -392,6 +426,10 @@ public class ReporteController {
         // Estado de botones
         btnIngresos.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
         btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        chartVentas.setVisible(true);
+        chartVentas.setManaged(true);
+        tablaReporte.setVisible(false);
+        tablaReporte.setManaged(false);
     }
 
     @FXML
@@ -416,7 +454,7 @@ public class ReporteController {
         } else if (origen == btnMes) {
             inicio = hoy.withDayOfMonth(1);
 
-        } else {
+        } else {   // btnAño
             inicio = hoy.withDayOfYear(1);
         }
 
@@ -435,5 +473,101 @@ public class ReporteController {
         }
         generarReporte();
     }
+
+    @FXML
+    private void irAClientes() {
+        cambiarEscena("/org/example/vista/Clientes.fxml");
+    }
+
+    @FXML
+    private void filtroMesEspecifico() {
+        String mesStr = cbMesSel.getValue();
+        Integer anio  = cbAnioSel.getValue();
+
+        if (mesStr == null || anio == null) {
+            alerta("Selecciona mes y año");
+            return;
+        }
+
+        String[] nombres = {
+                "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+        };
+
+        int mes = -1;
+        for (int i = 0; i < nombres.length; i++) {
+            if (nombres[i].equals(mesStr)) {
+                mes = i + 1;
+                break;
+            }
+        }
+
+        LocalDate inicio = LocalDate.of(anio, mes, 1);
+        LocalDate fin    = inicio.withDayOfMonth(inicio.lengthOfMonth());
+
+        dateInicio.setValue(inicio);
+        dateFin.setValue(fin);
+
+        for (Button b : new Button[]{ btnHoy, btnAyer, btnSemana, btnMes, btnAnio }) {
+            b.setStyle(ESTILO_BTN_INACTIVO);
+        }
+
+        if (cbTipoReporte.getValue() == null) {
+            cbTipoReporte.setValue("Ventas");
+        }
+        generarReporte();
+    }
+
+    @FXML
+    private void verTabla() {
+        if (ultimoTop == null) { alerta("Genera un reporte primero"); return; }
+
+        colTablaProducto.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getProducto()));
+        colTablaCantidad.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getCantidad()).asObject());
+        colTablaIngresos.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getIngresos()).asObject());
+
+        Map<String, Double> ingresosPorProducto = new java.util.LinkedHashMap<>();
+        if (ultimosTickets != null) {
+            for (Ticket t : ultimosTickets) {
+                if (t.getLineas() == null) continue;
+                for (Ticket.LineaTicket linea : t.getLineas()) {
+                    ingresosPorProducto.merge(linea.getNombreProducto(), linea.getSubtotal(), Double::sum);
+                }
+            }
+        }
+
+        ObservableList<FilaReporte> filas = FXCollections.observableArrayList();
+        for (Map.Entry<String, Integer> e : ultimoTop.entrySet()) {
+            double ing = ingresosPorProducto.getOrDefault(e.getKey(), 0.0);
+            filas.add(new FilaReporte(e.getKey(), e.getValue(), ing));
+        }
+        tablaReporte.setItems(filas);
+
+        chartVentas.setVisible(false);
+        chartVentas.setManaged(false);
+        tablaReporte.setVisible(true);
+        tablaReporte.setManaged(true);
+
+        btnTabla.setStyle("-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;");
+        btnCantidad.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+        btnIngresos.setStyle("-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;");
+    }
+
+    public static class FilaReporte {
+        private final SimpleStringProperty  producto;
+        private final SimpleIntegerProperty cantidad;
+        private final SimpleDoubleProperty  ingresos;
+
+        public FilaReporte(String producto, int cantidad, double ingresos) {
+            this.producto = new SimpleStringProperty(producto);
+            this.cantidad = new SimpleIntegerProperty(cantidad);
+            this.ingresos = new SimpleDoubleProperty(ingresos);
+        }
+
+        public String  getProducto() { return producto.get(); }
+        public int     getCantidad() { return cantidad.get(); }
+        public double  getIngresos() { return ingresos.get(); }
+    }
+
 
 }

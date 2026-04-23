@@ -90,33 +90,20 @@
                   style="-fx-background-color: white; -fx-padding: 14 28; -fx-border-color: transparent transparent #E8DDD0 transparent; -fx-border-width: 1;">
                 <VBox spacing="2">
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Reportes de Ventas"/>
-                    <Label fx:id="lblFecha" style="-fx-font-size: 11px; -fx-text-fill: #7A5535;"/>
+                    <Label fx:id="lblFecha" style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Análisis y estadísticas de ventas"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <HBox spacing="10" alignment="CENTER">
-
-
-                    //wifi
-                    <HBox fx:id="hboxWifi" spacing="5" alignment="CENTER"
-                          style="-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;">
-                        <FontIcon fx:id="iconWifi" iconLiteral="fas-wifi" iconSize="12" iconColor="#2E7D32"/>
-                        <Label fx:id="lblWifi" text="Conectado"
-                               style="-fx-text-fill: #2E7D32; -fx-font-size: 10px;"/>
-                    </HBox>
-
-                    //hora y badge de caja
-                    <VBox alignment="CENTER_RIGHT" spacing="2">
-                        <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
-                        <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta"/>
-                    </VBox>
-                </HBox>
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+                    <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta"/>
+                </VBox>
             </HBox>
 
             <!-- Barra de acceso rápido -->
             <HBox spacing="8" alignment="CENTER_LEFT"
-                  style="-fx-padding: 6 28 10 28; -fx-background-color: #F5EFE6;
-                         -fx-border-color: transparent transparent #E0D5C5 transparent;
-                         -fx-border-width: 1;">
+                  style="-fx-padding: 6 28 4 28; -fx-background-color: #F5EFE6;
+             -fx-border-color: transparent transparent #E0D5C5 transparent;
+             -fx-border-width: 1;">
                 <Label text="Acceso rápido:"
                        style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-padding: 0 6 0 0;"/>
                 <Button fx:id="btnHoy"    text="Hoy"    onAction="#filtroRapido"
@@ -131,7 +118,26 @@
                         style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C; -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"/>
             </HBox>
 
-            <!-- Filtros -->
+            <!-- Selector de mes específico -->
+            <HBox spacing="8" alignment="CENTER_LEFT"
+                  style="-fx-padding: 6 28 10 28; -fx-background-color: #F5EFE6;
+             -fx-border-color: transparent transparent #E0D5C5 transparent;
+             -fx-border-width: 1;">
+                <Label text="Mes específico:"
+                       style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-padding: 0 6 0 0;"/>
+                <ComboBox fx:id="cbMesSel" prefWidth="130"
+                          style="-fx-background-color: #F5EFE6; -fx-border-color: #C9A84C; -fx-border-width: 1;
+                     -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;"/>
+                <ComboBox fx:id="cbAnioSel" prefWidth="90"
+                          style="-fx-background-color: #F5EFE6; -fx-border-color: #C9A84C; -fx-border-width: 1;
+                     -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;"/>
+                <Button text="Ver mes" onAction="#filtroMesEspecifico"
+                        style="-fx-background-color: #F5EFE6; -fx-text-fill: #6B1228; -fx-border-color: #C9A84C;
+                   -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20;
+                   -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <!-- FILTROS -->
             <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 0 28 16 28;">
                 <DatePicker fx:id="dateInicio"
                             style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #C9A84C; -fx-border-width: 0.5; -fx-background-color: #F5EFE6; -fx-font-size: 12px;"/>
@@ -201,13 +207,26 @@
                                     style="-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;"/>
                             <Button fx:id="btnIngresos" onAction="#verGraficaIngresos" text="Ingresos"
                                     style="-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;"/>
+                            <Button fx:id="btnTabla" onAction="#verTabla" text="Tabla"
+                                    style="-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;"/>
                         </HBox>
                     </HBox>
+
                     <BarChart fx:id="chartVentas" VBox.vgrow="ALWAYS"
                               style="-fx-background-color: transparent; -fx-padding: 0 12 0 12;">
                         <xAxis><CategoryAxis label="Productos"/></xAxis>
                         <yAxis><NumberAxis label="Cantidad"/></yAxis>
                     </BarChart>
+
+                    <TableView fx:id="tablaReporte" VBox.vgrow="ALWAYS"
+                               visible="false" managed="false"
+                               style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;">
+                        <columns>
+                            <TableColumn fx:id="colTablaProducto"  text="PRODUCTO"  prefWidth="300"/>
+                            <TableColumn fx:id="colTablaCantidad"  text="CANTIDAD"  prefWidth="120"/>
+                            <TableColumn fx:id="colTablaIngresos"  text="INGRESOS"  prefWidth="150"/>
+                        </columns>
+                    </TableView>
                 </VBox>
             </VBox>
 

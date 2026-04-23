@@ -98,24 +98,14 @@
             <HBox alignment="CENTER_LEFT" styleClass="topbar"
                   style="-fx-background-color: white; -fx-padding: 14 28; -fx-border-color: transparent transparent #E8DDD0 transparent; -fx-border-width: 1;">
                 <VBox spacing="2">
-                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Inventario y Productos"/>
-                    <Label fx:id="lblFecha" style="-fx-font-size: 11px; -fx-text-fill: #7A5535;"/>
+                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Inventario"/>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Gestión de productos y stock"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <HBox spacing="10" alignment="CENTER">
-                    //wifi
-                    <HBox fx:id="hboxWifi" spacing="5" alignment="CENTER"
-                          style="-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;">
-                        <FontIcon fx:id="iconWifi" iconLiteral="fas-wifi" iconSize="12" iconColor="#2E7D32"/>
-                        <Label fx:id="lblWifi" text="Conectado"
-                               style="-fx-text-fill: #2E7D32; -fx-font-size: 10px;"/>
-                    </HBox>
-                    // hora y badge caja
-                    <VBox alignment="CENTER_RIGHT" spacing="2">
-                        <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
-                        <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta"/>
-                    </VBox>
-                </HBox>
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"/>
+                    <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 12; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta"/>
+                </VBox>
             </HBox>
 
             <HBox spacing="14" style="-fx-padding: 20 28 24 28;">
@@ -142,7 +132,7 @@
                 <HBox spacing="16" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
                       style="-fx-background-color: #F5EFE6; -fx-background-radius: 12; -fx-border-color: #D4C9B0; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 18 20;">
                     <VBox alignment="CENTER" style="-fx-background-color: #F0EAD0; -fx-background-radius: 10; -fx-min-width: 42; -fx-min-height: 42; -fx-max-width: 42; -fx-max-height: 42;">
-                        <Label text="\$\$" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C9A84C;" />
+                        <Label text="\$" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C9A84C;" />
                     </VBox>
                     <VBox spacing="4">
                         <Label text="VALOR TOTAL" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #8B4A5A;" />
