@@ -112,3 +112,34 @@
 .text-area:focused .content {
     -fx-background-color: white;
 }
+/* ===== TOGGLE BUTTONS CON ANIMACION ===== */
+
+.toggle-btn-switch {
+    -fx-background-color: #CCBBAA;
+    -fx-background-radius: 12;
+    -fx-min-width: 44;
+    -fx-min-height: 24;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.toggle-btn-switch:selected {
+    -fx-background-color: #D4A843;
+}
+
+.toggle-btn-switch:hover {
+    -fx-opacity: 0.85;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.toggle-btn-switch:pressed {
+    -fx-scale-x: 0.92;
+    -fx-scale-y: 0.92;
+    -fx-opacity: 0.75;
+}
+
+.toggle-btn-switch:selected:hover {
+    -fx-background-color: #C49A35;
+}

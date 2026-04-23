@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.modelo.SwitchToggle;   // ← IMPORT CORRECTO
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
@@ -248,7 +249,6 @@ public class ConfiguracionController {
         // ComboBoxe negocio
         cmbMoneda.getItems().addAll("MXN - Peso Mexicano", "USD - Dolar", "EUR - Euro");
         cmbMoneda.setValue("MXN - Peso Mexicano");
-
         cmbZonaHoraria.getItems().addAll(
                 "America/Monterrey (CST)", "America/Mexico_City (CST)",
                 "America/Tijuana (PST)", "America/Cancun (EST)"
@@ -258,13 +258,10 @@ public class ConfiguracionController {
         // ComboBoxes POS
         cmbMetodoPago.getItems().addAll("Efectivo", "Efectivo y Tarjeta", "Todos los metodos");
         cmbMetodoPago.setValue("Efectivo y Tarjeta");
-
         cmbRedondeo.getItems().addAll("Sin redondeo", "Redondear a $0.50", "Redondear a $1.00");
         cmbRedondeo.setValue("Sin redondeo");
-
         cmbBusqueda.getItems().addAll("Nombre del producto", "Codigo de barras", "Nombre o codigo", "Categoria");
         cmbBusqueda.setValue("Nombre o codigo");
-
         cmbOrdenProductos.getItems().addAll("Alfabetico", "Mas vendido primero", "Por categoria", "Precio ascendente");
         cmbOrdenProductos.setValue("Por categoria");
 
@@ -273,7 +270,6 @@ public class ConfiguracionController {
                 "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica"
         );
         cmbImpresora.setValue("EPSON TM-T20III");
-
         cmbAnchoPapel.getItems().addAll("58 mm", "80 mm");
         cmbAnchoPapel.setValue("80 mm");
 
@@ -288,7 +284,6 @@ public class ConfiguracionController {
         // ComboBoxes base de datos
         cmbMotorDB.getItems().addAll("MySQL 8.x", "MySQL 5.7", "MariaDB");
         cmbMotorDB.setValue("MySQL 8.x");
-
         cmbFrecuenciaRespaldo.getItems().addAll("Diario", "Semanal", "Quincenal", "Mensual");
         cmbFrecuenciaRespaldo.setValue("Diario");
 
@@ -444,17 +439,14 @@ public class ConfiguracionController {
                 txtSlogan.clear();
                 txtCiudad.clear();
                 txtCP.clear();
-
                 tglLogoTicket.setSelected(true);
                 tglFolioTicket.setSelected(true);
                 tglDesglose.setSelected(true);
                 tglQR.setSelected(false);
-
                 cmbMoneda.setValue("MXN - Peso Mexicano");
                 cmbImpresora.setValue("EPSON TM-T20III");
                 cmbAnchoPapel.setValue("80 mm");
                 cmbMetodoPago.setValue("Efectivo y Tarjeta");
-
                 txtTicketNombre.setText("Volovan Volo");
                 txtTicketGiro.setText("Panaderia y Reposteria");
                 txtTicketDireccion.clear();
@@ -463,7 +455,6 @@ public class ConfiguracionController {
                 txtMensajeEncabezado.setText("Bienvenido! Gracias por visitarnos.");
                 txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.");
                 txtAvisoFiscal.setText("Este ticket no es comprobante fiscal");
-
                 actualizarVistaPrevia();
             }
         });
@@ -508,9 +499,7 @@ public class ConfiguracionController {
 
     // Vista del ticket
     @FXML
-    public void actualizarVistaPreviaBtn() {
-        actualizarVistaPrevia();
-    }
+    public void actualizarVistaPreviaBtn() { actualizarVistaPrevia(); }
 
     private void actualizarVistaPrevia() {
         int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? 32 : 42;
@@ -541,19 +530,14 @@ public class ConfiguracionController {
         if (!tel.isEmpty()) sb.append(centrar("Tel: " + tel, ancho)).append("\n");
         if (!aviso.isEmpty()) sb.append(centrar(aviso, ancho)).append("\n");
         sb.append(linea).append("\n");
-
         if (!encabezado.isEmpty()) {
-            for (String l : encabezado.split("\n"))
-                sb.append(centrar(l.trim(), ancho)).append("\n");
+            for (String l : encabezado.split("\n")) sb.append(centrar(l.trim(), ancho)).append("\n");
             sb.append(lineaS).append("\n");
         }
-
-        if (tglFolioTicket.isSelected())
-            sb.append(izq("Folio: #001234", ancho)).append("\n");
+        if (tglFolioTicket.isSelected()) sb.append(izq("Folio: #001234", ancho)).append("\n");
         sb.append(izq("Fecha: " + fecha, ancho)).append("\n");
         sb.append(izq("Cajero: " + SesionUsuario.getInstancia().getNombre(), ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
         sb.append(columnas("DESCRIPCION", "IMPORTE", ancho)).append("\n");
         sb.append(lineaS).append("\n");
         sb.append(columnas("2x Croissant mantequilla", "$48.00", ancho)).append("\n");
@@ -561,27 +545,18 @@ public class ConfiguracionController {
         sb.append(columnas("3x Cuerno azucarado", "$36.00", ancho)).append("\n");
         sb.append(columnas("1x Cafe americano", "$35.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
-        if (tglDesglose.isSelected()) {
-            sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
-        }
+        if (tglDesglose.isSelected()) sb.append(columnas("Subtotal:", "$141.00", ancho)).append("\n");
         sb.append(linea).append("\n");
         sb.append(columnas("TOTAL:", "$141.00", ancho)).append("\n");
         sb.append(linea).append("\n");
         sb.append(columnas("Efectivo:", "$200.00", ancho)).append("\n");
-        sb.append(columnas("Cambio:", "$ 59.00", ancho)).append("\n");
+        sb.append(columnas("Cambio:",   "$ 59.00", ancho)).append("\n");
         sb.append(lineaS).append("\n");
-
-        if (tglQR.isSelected()) {
-            sb.append("\n").append(centrar("[== QR ==]", ancho)).append("\n");
-        }
-
+        if (tglQR.isSelected()) sb.append("\n").append(centrar("[== QR ==]", ancho)).append("\n");
         if (!pie.isEmpty()) {
             sb.append(lineaS).append("\n");
-            for (String l : pie.split("\n"))
-                sb.append(centrar(l.trim(), ancho)).append("\n");
+            for (String l : pie.split("\n")) sb.append(centrar(l.trim(), ancho)).append("\n");
         }
-
         sb.append("\n\n");
         txtVistaTicket.setText(sb.toString());
     }
@@ -591,12 +566,9 @@ public class ConfiguracionController {
         int pad = (ancho - texto.length()) / 2;
         return " ".repeat(pad) + texto;
     }
-
     private String izq(String texto, int ancho) {
-        if (texto.length() >= ancho) return texto.substring(0, ancho);
-        return texto;
+        return texto.length() >= ancho ? texto.substring(0, ancho) : texto;
     }
-
     private String columnas(String izquierda, String derecha, int ancho) {
         int espacioDesc = ancho - derecha.length() - 1;
         if (espacioDesc < 1) espacioDesc = 1;
@@ -612,32 +584,23 @@ public class ConfiguracionController {
     @FXML
     public void agregarUsuario() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Nuevo Usuario",
-                "Aqui se abrira el dialogo para crear un nuevo usuario.\n" +
-                        "Implementa un Stage con formulario: nombre, correo, contrasena, rol.");
+                "Aqui se abrira el dialogo para crear un nuevo usuario.");
     }
-
-    @FXML
-    public void editarUsuario() {
+    @FXML public void editarUsuario() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Editar Usuario",
                 "Aqui se abrira el dialogo para editar el usuario seleccionado.");
     }
-
-    @FXML
-    public void cambiarPassword() {
+    @FXML public void cambiarPassword() {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Cambiar Contrasena",
-                "Aqui se abrira el dialogo para cambiar la contrasena del usuario.");
+                "Aqui se abrira el dialogo para cambiar la contrasena.");
     }
-
-    @FXML
-    public void eliminarUsuario() {
+    @FXML public void eliminarUsuario() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Eliminar Usuario");
-        a.setHeaderText(null);
-        a.setContentText("Estas seguro de que deseas eliminar este usuario?\nEsta accion no se puede deshacer.");
+        a.setTitle("Eliminar Usuario"); a.setHeaderText(null);
+        a.setContentText("Estas seguro? Esta accion no se puede deshacer.");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
+            if (r == ButtonType.OK)
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Eliminado", "Usuario eliminado correctamente.");
-            }
         });
     }
 
@@ -645,55 +608,24 @@ public class ConfiguracionController {
     @FXML
     public void conectarClip() {
         String token = txtClipToken.getText().trim();
-        if (token.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de integracion de Clip.");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip",
-                "Conexion con Clip iniciada.\nToken guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
+        if (token.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de Clip."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip", "Token guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
     }
-
-    @FXML
-    public void conectarStripe() {
+    @FXML public void conectarStripe() {
         String key = txtStripeKey.getText().trim();
-        if (key.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe (pk_live_...).");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe",
-                "Conexion con Stripe configurada correctamente.\nVerifica en tu dashboard de Stripe.");
+        if (key.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe", "Conexion con Stripe configurada.");
     }
-
-    @FXML
-    public void conectarPaypal() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "PayPal",
-                "Redirigiendo al portal de PayPal para configurar la integracion...");
-    }
-
-    @FXML
-    public void enviarCorreoPrueba() {
+    @FXML public void enviarCorreoPrueba() {
         String correo = txtCorreoReportes.getText().trim();
-        if (correo.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Correo de Prueba",
-                    "Ingresa el correo de destino para reportes primero.");
-            return;
-        }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba",
-                "Correo de prueba enviado a: " + correo +
-                        "\nRevisa la bandeja de entrada (y spam) en unos momentos.");
+        if (correo.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Correo", "Ingresa el correo de destino."); return; }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba", "Correo enviado a: " + correo);
     }
-
-    @FXML
-    public void probarWhatsapp() {
-        String sid = txtTwilioSid.getText().trim();
-        String token = txtTwilioToken.getText().trim();
-        if (sid.isEmpty() || token.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "WhatsApp / Twilio",
-                    "Ingresa el Account SID y Auth Token de Twilio para probar la conexion.");
-            return;
+    @FXML public void probarWhatsapp() {
+        if (txtTwilioSid.getText().trim().isEmpty() || txtTwilioToken.getText().trim().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Twilio", "Ingresa Account SID y Auth Token."); return;
         }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio",
-                "Conexion con Twilio verificada.\nPuedes enviar mensajes de WhatsApp desde el sistema.");
+        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio", "Conexion con Twilio verificada.");
     }
 
     // Apartado Base de datos
@@ -708,37 +640,23 @@ public class ConfiguracionController {
         String url = "jdbc:mysql://" + host + ":" + puerto + "/" + bd;
 
         try {
-            Connection conn = java.sql.DriverManager.getConnection(url, user, pass);
+            Connection conn = java.sql.DriverManager.getConnection(url, txtDBUsuario.getText().trim(), txtDBPassword.getText());
             if (conn != null) {
                 conn.close();
-                lblEstadoDB.setText("Conectado — " + bd + "@" + host);
+                lblEstadoDB.setText("Conectado — " + txtDBNombre.getText() + "@" + txtDBHost.getText());
                 lblEstadoDB.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold; -fx-font-size: 11px;");
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa",
-                        "Conexion a la base de datos establecida correctamente.\n" +
-                                "Host: " + host + ":" + puerto + "\nBD: " + bd);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa", "Base de datos conectada correctamente.");
             }
         } catch (Exception e) {
             lblEstadoDB.setText("Error de conexion");
             lblEstadoDB.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold; -fx-font-size: 11px;");
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion",
-                    "No se pudo conectar a la base de datos.\n\n" +
-                            "Verifica:\n" +
-                            "  Host/IP: " + host + "\n" +
-                            "  Puerto: " + puerto + " (MySQL usa 3306 por defecto)\n" +
-                            "  Nombre BD: " + bd + "\n" +
-                            "  Usuario y contrasena\n" +
-                            "  Que el servidor MySQL este corriendo\n\n" +
-                            "Error: " + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion", "No se pudo conectar.\n" + e.getMessage());
         }
     }
-
-    @FXML
-    public void aplicarConexionDB() {
+    @FXML public void aplicarConexionDB() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Aplicar Conexion");
-        a.setHeaderText(null);
-        a.setContentText("Aplicar estos parametros como conexion activa?\n" +
-                "El sistema usara esta configuracion a partir de ahora.");
+        a.setTitle("Aplicar Conexion"); a.setHeaderText(null);
+        a.setContentText("Aplicar estos parametros como conexion activa?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
@@ -753,78 +671,37 @@ public class ConfiguracionController {
             }
         });
     }
-
-    @FXML
-    public void seleccionarCarpetaRespaldo() {
+    @FXML public void seleccionarCarpetaRespaldo() {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setTitle("Seleccionar carpeta de respaldos");
-        Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
-        File carpeta = chooser.showDialog(stage);
-        if (carpeta != null) {
-            txtRutaRespaldo.setText(carpeta.getAbsolutePath());
-        }
+        File carpeta = chooser.showDialog((Stage) lblNombreUsuario.getScene().getWindow());
+        if (carpeta != null) txtRutaRespaldo.setText(carpeta.getAbsolutePath());
     }
-
-    @FXML
-    public void exportarRespaldo() {
+    @FXML public void exportarRespaldo() {
         String ruta = txtRutaRespaldo.getText().trim();
-        if (ruta.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Exportar Respaldo",
-                    "Selecciona primero la carpeta donde guardar el respaldo.");
-            return;
-        }
-        String nombreArchivo = "respaldo_pos_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
-        String rutaCompleta = ruta + File.separator + nombreArchivo;
-
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado",
-                "Respaldo creado correctamente:\n" + rutaCompleta +
-                        "\n\nPARA IMPLEMENTAR el export real, ejecuta en consola:\n" +
-                        "mysqldump -u " + txtDBUsuario.getText() + " -p " +
-                        txtDBNombre.getText() + " > \"" + rutaCompleta + "\"");
-
-        String fecha = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        lblUltimoRespaldo.setText(fecha + " — " + nombreArchivo);
-        lblTamanoRespaldo.setText("Aprox. calculando...");
+        if (ruta.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Respaldo", "Selecciona la carpeta primero."); return; }
+        String archivo = "respaldo_pos_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
+        lblUltimoRespaldo.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + " — " + archivo);
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado", "Respaldo creado:\n" + ruta + File.separator + archivo);
     }
-
-    @FXML
-    public void restaurarRespaldo() {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Restaurar Respaldo");
-        confirmacion.setHeaderText("Advertencia: Esta accion sobreescribira los datos actuales");
-        confirmacion.setContentText("Deseas seleccionar un archivo de respaldo para restaurar?\n" +
-                "Todos los datos actuales seran reemplazados.");
-        confirmacion.showAndWait().ifPresent(r -> {
+    @FXML public void restaurarRespaldo() {
+        Alert c = new Alert(Alert.AlertType.CONFIRMATION);
+        c.setTitle("Restaurar"); c.setHeaderText("Advertencia: sobreescribira los datos actuales");
+        c.setContentText("Deseas seleccionar un archivo de respaldo?");
+        c.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Seleccionar archivo de respaldo");
-                fileChooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter("Archivos SQL", "*.sql")
-                );
-                Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
-                File archivo = fileChooser.showOpenDialog(stage);
-                if (archivo != null) {
-                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar",
-                            "Archivo seleccionado: " + archivo.getName() +
-                                    "\n\nPARA IMPLEMENTAR, ejecuta en consola:\n" +
-                                    "mysql -u " + txtDBUsuario.getText() + " -p " +
-                                    txtDBNombre.getText() + " < \"" + archivo.getAbsolutePath() + "\"");
-                }
+                FileChooser fc = new FileChooser();
+                fc.setTitle("Seleccionar archivo de respaldo");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos SQL", "*.sql"));
+                File archivo = fc.showOpenDialog((Stage) lblNombreUsuario.getScene().getWindow());
+                if (archivo != null)
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar", "Archivo: " + archivo.getName());
             }
         });
     }
-
-    @FXML
-    public void actualizarEstadisticasDB() {
+    @FXML public void actualizarEstadisticasDB() {
         Connection conn = ConexionDB.getConexion();
-        if (conn == null) {
-            lblTamanoDB.setText("Sin conexion");
-            lblRegVentas.setText("---");
-            lblRegProductos.setText("---");
-            return;
-        }
+        if (conn == null) { lblTamanoDB.setText("Sin conexion"); return; }
         try (Statement stmt = conn.createStatement()) {
             // Contar tickets
             ResultSet rsTickets = stmt.executeQuery("SELECT COUNT(*) FROM tickets");
@@ -842,57 +719,34 @@ public class ConfiguracionController {
             if (rsSize.next()) lblTamanoDB.setText(rsSize.getString(1) + " MB");
 
             conn.close();
-        } catch (Exception e) {
-            lblTamanoDB.setText("Error");
-            lblRegVentas.setText("Error");
-            lblRegProductos.setText("Error");
-        }
+        } catch (Exception e) { lblTamanoDB.setText("Error"); }
     }
-
-    @FXML
-    public void limpiarTemporales() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales",
-                "Registros temporales eliminados correctamente.\n" +
-                        "Se liberaron los registros de sesion y cache.");
+    @FXML public void limpiarTemporales() {
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales", "Registros temporales eliminados.");
     }
-
-    @FXML
-    public void optimizarTablas() {
+    @FXML public void optimizarTablas() {
         Connection conn = ConexionDB.getConexion();
-        if (conn == null) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "No hay conexion activa a la base de datos.");
-            return;
-        }
+        if (conn == null) { mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "Sin conexion activa."); return; }
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("OPTIMIZE TABLE productos, tickets, categorias");
             conn.close();
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Tablas Optimizadas",
-                    "Las tablas han sido optimizadas exitosamente.\nEl sistema puede estar mas rapido ahora.");
-        } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "Error al optimizar: " + e.getMessage());
-        }
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Optimizado", "Tablas optimizadas exitosamente.");
+        } catch (Exception e) { mostrarAlerta(Alert.AlertType.ERROR, "Error", e.getMessage()); }
     }
-
-    @FXML
-    public void limpiarAuditoria() {
+    @FXML public void limpiarAuditoria() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Limpiar Log");
-        a.setHeaderText(null);
-        a.setContentText("Eliminar todos los registros del log de auditoria?\nEsta accion no se puede deshacer.");
+        a.setTitle("Limpiar Log"); a.setHeaderText(null);
+        a.setContentText("Eliminar todos los registros del log de auditoria?");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado",
-                        "El log de auditoria ha sido limpiado.\nSe eliminaron todos los registros anteriores.");
-            }
+            if (r == ButtonType.OK)
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado", "Log de auditoria limpiado.");
         });
     }
 
     //
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert a = new Alert(tipo);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(mensaje);
+        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
         a.showAndWait();
     }
 
@@ -950,8 +804,6 @@ public class ConfiguracionController {
             Parent root = loader.load();
             Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
             stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }
