@@ -1,5 +1,7 @@
 package org.example.controlador;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
 
+import javafx.util.Duration;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.ReporteService;
@@ -18,7 +21,9 @@ import org.example.servicio.ReportePDFService;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -44,8 +49,8 @@ public class ReporteController {
     @FXML private Label lblTotal;
     @FXML private Label lblTickets;
     @FXML private Label lblPromedio;
-
     @FXML private Label lblFecha;
+    @FXML private Label lblHora;
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
@@ -62,24 +67,11 @@ public class ReporteController {
     @FXML private Button btnMes;
     @FXML private Button btnAnio;
 
-    @FXML private HBox hboxWifi;
-    @FXML private FontIcon iconWifi;
-    @FXML private Label lblWifi;
 
-    private void actualizarEstadoWifi() {
-        try {
-            InetAddress.getByName("8.8.8.8").isReachable(1000); // intenta conectar
-            lblWifi.setText("Conectado");
-            lblWifi.setStyle("-fx-text-fill: #2E7D32; -fx-font-size: 10px;");
-            iconWifi.setIconColor(javafx.scene.paint.Color.web("#2E7D32"));
-            hboxWifi.setStyle("-fx-background-color: #E8F5E9; -fx-background-radius: 12; -fx-padding: 2 10;");
-        } catch (Exception e) {
-            lblWifi.setText("Sin conexión");
-            lblWifi.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 10px;");
-            iconWifi.setIconColor(javafx.scene.paint.Color.web("#C0392B"));
-            hboxWifi.setStyle("-fx-background-color: #FDECEC; -fx-background-radius: 12; -fx-padding: 2 10;");
-        }
-    }
+
+    @FXML private ComboBox<String> cbMesSel;
+    @FXML private ComboBox<Integer> cbAnioSel;
+
 
     @FXML private BarChart<String, Number> chartVentas;
 
@@ -146,16 +138,40 @@ public class ReporteController {
 
 
 
-    // 🔧 INIT
+    //  INIT
     @FXML
     public void initialize() {
         cargarDatosUsuario();
+
         cbTipoReporte.getItems().addAll(
                 "Ventas",
                 "Productos más vendidos",
                 "Bajo stock"
         );
+
+        cbMesSel.getItems().addAll(
+                "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+        );
+        cbMesSel.setValue("Enero");
+
+        int anioActual = LocalDate.now().getYear();
+        for (int a = anioActual; a >= anioActual - 5; a--) {
+            cbAnioSel.getItems().add(a);
+        }
+        cbAnioSel.setValue(anioActual);
+
+        DateTimeFormatter fmtHora = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        javafx.animation.Timeline reloj = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+                    lblHora.setText(LocalDateTime.now().format(fmtHora));
+                })
+        );
+        reloj.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        reloj.play();
     }
+
     private void cargarDatosUsuario() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
         String nombre = sesion.getNombre();
@@ -168,7 +184,9 @@ public class ReporteController {
         lblAvatarIniciales.setText(iniciales);
     }
 
-    // 📊 GENERAR REPORTE
+
+
+    //  GENERAR REPORTE
     @FXML
     private void generarReporte() {
 
@@ -211,7 +229,7 @@ public class ReporteController {
                 lblProductoTopCantidad.setText("No hay ventas en el periodo");
             }
 
-            // 📊 GRAFICA
+            //  GRAFICA
             chartVentas.getData().clear();
 
             XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -295,7 +313,7 @@ public class ReporteController {
         }
     }
 
-    // 📊 GRAFICA
+    //  GRAFICA
     private void cargarGrafica(Map<String, Integer> datos) {
         if (graficaProductos == null) return;
 
@@ -311,7 +329,7 @@ public class ReporteController {
         graficaProductos.getData().add(series);
     }
 
-    // 📂 ABRIR PDF
+    //  ABRIR PDF
     @FXML
     private void abrirPDF() {
         try {
@@ -328,7 +346,7 @@ public class ReporteController {
         }
     }
 
-    // 🔔 ALERTA
+    //  ALERTA
     private void alerta(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText(null);
@@ -443,9 +461,9 @@ public class ReporteController {
             b.setStyle(b == origen ? ESTILO_BTN_ACTIVO : ESTILO_BTN_INACTIVO);
         }
 
-        // Lanzar el reporte automáticamente (requiere que cbTipoReporte tenga valor)
+        // Lanzar el reporte automáticamente
         if (cbTipoReporte.getValue() == null) {
-            cbTipoReporte.setValue("Ventas");   // valor por defecto
+            cbTipoReporte.setValue("Ventas");
         }
         generarReporte();
     }
@@ -453,6 +471,45 @@ public class ReporteController {
     @FXML
     private void irAClientes() {
         cambiarEscena("/org/example/vista/Clientes.fxml");
+    }
+
+    @FXML
+    private void filtroMesEspecifico() {
+        String mesStr = cbMesSel.getValue();
+        Integer anio  = cbAnioSel.getValue();
+
+        if (mesStr == null || anio == null) {
+            alerta("Selecciona mes y año");
+            return;
+        }
+
+        String[] nombres = {
+                "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+        };
+
+        int mes = -1;
+        for (int i = 0; i < nombres.length; i++) {
+            if (nombres[i].equals(mesStr)) {
+                mes = i + 1;
+                break;
+            }
+        }
+
+        LocalDate inicio = LocalDate.of(anio, mes, 1);
+        LocalDate fin    = inicio.withDayOfMonth(inicio.lengthOfMonth());
+
+        dateInicio.setValue(inicio);
+        dateFin.setValue(fin);
+
+        for (Button b : new Button[]{ btnHoy, btnAyer, btnSemana, btnMes, btnAnio }) {
+            b.setStyle(ESTILO_BTN_INACTIVO);
+        }
+
+        if (cbTipoReporte.getValue() == null) {
+            cbTipoReporte.setValue("Ventas");
+        }
+        generarReporte();
     }
 
 
