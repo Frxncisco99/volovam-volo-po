@@ -46,13 +46,13 @@ public class TicketController {
         lblRecibido.setText("$" + String.format("%.2f", ticket.getMontoRecibido()));
         lblCambio.setText("$" + String.format("%.2f", ticket.getCambio()));
 
-        // Total de artículos (suma de cantidades)
+        // Total de artículos
         int totalArticulos = ticket.getLineas().stream()
                 .mapToInt(Ticket.LineaTicket::getCantidad)
                 .sum();
         lblArticulos.setText(String.valueOf(totalArticulos));
 
-        // Vista previa monoespaciada
+        // Vista previa
         txtVistaPrevia.setText(ticketService.textoPlano(ticket));
         txtVistaPrevia.setEditable(false);
     }

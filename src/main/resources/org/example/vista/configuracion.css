@@ -1,15 +1,12 @@
-/* ====================================================
-   CONFIGURACION.CSS — Volovan Volo POS
-   ==================================================== */
 
-/* ── Labels de campo ── */
+/*Labels de campo */
 .cfg-label {
     -fx-text-fill: #7A5535;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
 }
 
-/* ── TextField / ComboBox base ── */
+/* Combobox base */
 .cfg-field {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
@@ -28,7 +25,7 @@
     -fx-background-radius: 8;
 }
 
-/* ── Botones de dia de la semana ── */
+/* Botones de dia de la semana */
 .dia-btn {
     -fx-min-width: 30;
     -fx-min-height: 30;
@@ -51,7 +48,7 @@
     -fx-text-fill: white;
 }
 
-/* ── Botones de accion en tabla de usuarios ── */
+/* Botones en tabla de usuarios */
 .btn-editar {
     -fx-background-color: #EBF3FB;
     -fx-text-fill: #2980B9;
@@ -97,17 +94,17 @@
     -fx-text-fill: white;
 }
 
-/* ── Hover para ToggleButton (switch) ── */
+/* Hover para switch */
 .toggle-button:hover {
     -fx-opacity: 0.85;
 }
 
-/* ── ScrollPane limpio ── */
+/* Scrollpane limpio */
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
 
-/* ── TextArea del ticket (override) ── */
+/* Textarea del ticket */
 .text-area .content {
     -fx-background-color: white;
 }

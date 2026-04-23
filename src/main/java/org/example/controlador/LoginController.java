@@ -42,9 +42,9 @@ public class LoginController {
             return;
         }
 
-        // Validar cen la base de datos
+        // Validar la base de datos
         if (validarCredenciales(usuario, contrasena)) {
-            // Verificar si ya hay caja abierta
+            // Verificar si hay caja abierta
             if (hayCajaAbierta()) {
                 // Ir directo al menú
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
@@ -59,7 +59,7 @@ public class LoginController {
                 Parent root = loader.load();
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.getScene().setRoot(root);
-                stage.setMaximized(false);  //  ventana pequeña
+                stage.setMaximized(false);
                 stage.setWidth(500);
                 stage.setHeight(400);
                 stage.centerOnScreen();
@@ -71,8 +71,9 @@ public class LoginController {
         }
     }
     private boolean hayCajaAbierta() {
-        // La tabla caja no tiene id_usuario — buscamos cualquier caja abierta
 
+
+        // Busca cualquier caja abierta
         String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {

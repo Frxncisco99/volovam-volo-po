@@ -1,20 +1,17 @@
-/* ═══════════════════════════════════════════════════════════════
-   PAGO.CSS — Modal de cobro moderno oscuro
-   ═══════════════════════════════════════════════════════════════ */
 
 .root {
     -fx-background-color: #110A04;
     -fx-font-family: "Segoe UI";
 }
 
-/* ── Header ── */
+/* Encabezado */
 .pago-titulo {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #D4A843;
 }
 
-/* ── Tarjeta info ── */
+/* Info de tarjeta */
 .info-card {
     -fx-background-color: #1A1008;
     -fx-background-radius: 12;
@@ -42,7 +39,7 @@
     -fx-text-fill: #D4A843;
 }
 
-/* ── Botones de método ── */
+/* ── Botones de metodo */
 .metodo-btn {
     -fx-background-color: #1A1008;
     -fx-text-fill: #5A4020;
@@ -72,7 +69,7 @@
     -fx-effect: dropshadow(gaussian, #D4A84350, 8, 0, 0, 2);
 }
 
-/* ── Panels ── */
+/* Panels */
 .panel-metodo {
     -fx-background-color: #1A1008;
     -fx-background-radius: 12;
@@ -163,7 +160,7 @@
     -fx-text-fill: #D4A843;
 }
 
-/* ── Botones confirmar / cancelar ── */
+/* Botones confirmar/cancelar */
 .btn-confirmar {
     -fx-background-color: linear-gradient(to right, #D4A843, #8B5E1A);
     -fx-background-radius: 12;

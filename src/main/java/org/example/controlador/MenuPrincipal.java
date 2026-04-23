@@ -91,7 +91,7 @@ public class MenuPrincipal implements Initializable {
 
         try (Connection con = ConexionDB.getConexion()) {
 
-            // 1. Ventas del día
+            // Ventas del dia
             String sqlVentas = "SELECT COUNT(*), COALESCE(SUM(total), 0) FROM ventas WHERE id_caja = ? AND DATE(fecha) = CURDATE()";
             PreparedStatement psVentas = con.prepareStatement(sqlVentas);
             psVentas.setInt(1, idCaja);
@@ -104,7 +104,7 @@ public class MenuPrincipal implements Initializable {
                 lblVentasDelta.setText(numVentas == 0 ? "sin ventas aun" : numVentas + " tickets registrados");
             }
 
-            // 2. Productos vendidos hoy
+            // Productos vendidos hoy
             String sqlProductos = "SELECT COALESCE(SUM(dv.cantidad), 0) FROM detalle_venta dv JOIN ventas v ON dv.id_venta = v.id_venta WHERE v.id_caja = ? AND DATE(v.fecha) = CURDATE()";
             PreparedStatement psProductos = con.prepareStatement(sqlProductos);
             psProductos.setInt(1, idCaja);
@@ -113,7 +113,7 @@ public class MenuPrincipal implements Initializable {
                 lblProductosVendidos.setText(String.valueOf(rsProductos.getInt(1)));
             }
 
-            // 3. Stock bajo
+            // Stock bajo
             String sqlStock = "SELECT COUNT(*) FROM productos WHERE stock <= stock_minimo AND activo = 1";
             PreparedStatement psStock = con.prepareStatement(sqlStock);
             ResultSet rsStock = psStock.executeQuery();
@@ -121,7 +121,7 @@ public class MenuPrincipal implements Initializable {
                 lblProductosBajos.setText(String.valueOf(rsStock.getInt(1)));
             }
 
-            // 4. Últimas 5 ventas
+            // Ultimas 5 ventas
             String sqlUltimas = "SELECT v.id_venta, v.fecha, v.total FROM ventas v WHERE v.id_caja = ? AND DATE(v.fecha) = CURDATE() ORDER BY v.fecha DESC LIMIT 15";
             PreparedStatement psUltimas = con.prepareStatement(sqlUltimas);
             psUltimas.setInt(1, idCaja);
@@ -158,7 +158,7 @@ public class MenuPrincipal implements Initializable {
 
             lblSinVentas.setVisible(!hayVentas);
 
-            // 5. Gráfica pastel — top productos
+            // Gráfica de productos
             String sqlTop = "SELECT p.nombre, SUM(dv.cantidad) as total FROM detalle_venta dv JOIN ventas v ON dv.id_venta = v.id_venta JOIN productos p ON dv.id_producto = p.id_producto WHERE v.id_caja = ? AND DATE(v.fecha) = CURDATE() GROUP BY p.id_producto ORDER BY total DESC LIMIT 5";
             PreparedStatement psTop = con.prepareStatement(sqlTop);
             psTop.setInt(1, idCaja);
@@ -184,41 +184,20 @@ public class MenuPrincipal implements Initializable {
         }
     }
 
-    @FXML
-    private void irAVentas() {
-        cambiarEscena("/org/example/vista/Ventas.fxml");
-    }
-
-    @FXML
-    private void abrirInventario() {
-        cambiarEscena("/org/example/vista/Inventario.fxml");
-    }
-
-    @FXML
-    private void irAEmpleados() {
-        if (!SesionUsuario.getInstancia().getRol().equals("admin")){
-            mostrarAlerta("Acceso Denegado","Solo el Administrador");
-        }else {
-        cambiarEscena("/org/example/vista/Empleados.fxml");
-    }
-    }
-    @FXML
-    private void irAClientes() {
+    // Navegación
+    @FXML private void irAVentas() {cambiarEscena("/org/example/vista/Ventas.fxml");}
+    @FXML private void abrirInventario() {cambiarEscena("/org/example/vista/Inventario.fxml");}
+    @FXML private void irAEmpleados()  { cambiarEscena("/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes() {
         cambiarEscena("/org/example/vista/Clientes.fxml");
     }
-
-    @FXML
-    private void irACorteCaja() {
-        cambiarEscena("/org/example/vista/CorteCaja.fxml");
-    }
-
-    @FXML
-    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
-
-    @FXML
-    public void irAReportes() {
+    @FXML public void irAReportes() {
         cambiarEscena("/org/example/vista/Reportes.fxml");
     }
+    @FXML private void irACorteCaja() {
+        cambiarEscena("/org/example/vista/CorteCaja.fxml");
+    }
+    @FXML private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
 
     private void cambiarEscena(String fxmlPath) {
         try {

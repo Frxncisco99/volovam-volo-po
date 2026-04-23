@@ -67,7 +67,7 @@
     <center>
         <VBox style="-fx-background-color: #F5EFE6;">
 
-            <!-- TOPBAR -->
+            // topbar
             <HBox alignment="CENTER_LEFT" styleClass="topbar">
                 <VBox spacing="2">
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Dashboard"/>
@@ -83,9 +83,9 @@
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                 <VBox spacing="16" style="-fx-padding: 20;">
 
-                    <!-- CARDS MÉTRICAS -->
+                    // cards
                     <HBox spacing="12">
-                        <!-- Ventas -->
+                        // Ventas
                         <VBox spacing="6" styleClass="card" HBox.hgrow="ALWAYS" onMouseClicked="#irAReportes" style="-fx-cursor: hand;">
                             <HBox alignment="CENTER_LEFT">
                                 <Label style="-fx-text-fill: #7A5535; -fx-font-size: 10px; -fx-font-weight: bold;" text="VENTAS HOY"/>
@@ -127,10 +127,10 @@
                         </VBox>
                     </HBox>
 
-                    <!-- FILA 2: ÚLTIMAS VENTAS + TOP PRODUCTOS -->
+                    /// ULTIMAS VENTAS Y TOP PRODUCTOS
                     <HBox spacing="12">
 
-                        <!-- ÚLTIMAS VENTAS -->
+                        <!-- ultimas ventas -->
                         <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
                             <HBox alignment="CENTER_LEFT" spacing="8">
                                 <FontIcon iconColor="#6B4226" iconLiteral="fas-history" iconSize="14"/>
@@ -150,10 +150,10 @@
                             <Label fx:id="lblSinVentas" style="-fx-text-fill: #C8A97E; -fx-font-size: 12px; -fx-alignment: center; -fx-padding: 20 0;" text="Sin ventas hoy"/>
                         </VBox>
 
-                        <!-- TOP PRODUCTOS + ACCESOS RÁPIDOS -->
+                        <!-- productos y acceso rapido -->
                         <VBox spacing="12" prefWidth="300">
 
-                            <!-- TOP PRODUCTOS CON GRÁFICA -->
+                            <!-- productos con grafica -->
                             <VBox spacing="10" styleClass="card">
                                 <HBox alignment="CENTER_LEFT" spacing="8">
                                     <FontIcon iconColor="#6B4226" iconLiteral="fas-crown" iconSize="14"/>
@@ -164,7 +164,7 @@
                                 <Label fx:id="lblSinTop" style="-fx-text-fill: #C8A97E; -fx-font-size: 12px;" text="Sin datos aun"/>
                             </VBox>
 
-                            <!-- ACCESOS RÁPIDOS -->
+                            <!-- Accesos rapidos -->
                             <VBox spacing="8" styleClass="card">
                                 <Label style="-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;" text="Acceso rapido"/>
                                 <Separator/>
