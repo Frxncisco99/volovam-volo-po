@@ -27,7 +27,7 @@ public class LoginController {
     public void initialize() {
         Connection con = ConexionDB.getConexion();
         if (con != null) {
-            System.out.println("BD conectada ✅");
+            System.out.println("Base de Datos conectada al 99%");
         }
     }
 
