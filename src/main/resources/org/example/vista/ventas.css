@@ -15,11 +15,8 @@
     -fx-background-radius: 8;
     -fx-padding: 8 12;
 }
-/* ═══════════════════════════════════════════════════════════════
-   VENTAS.CSS — Diseño moderno oscuro para punto de venta
-   ═══════════════════════════════════════════════════════════════ */
 
-/* ── Variables ── */
+/* Variables */
 .root {
     -color-bg-deep:     #0F0A06;
     -color-bg-dark:     #1A1008;
@@ -41,7 +38,7 @@
     -font-main: "Segoe UI", sans-serif;
 }
 
-/* ── Sidebar ── */
+/* Sidebar*/
 .sidebar {
     -fx-background-color: #160E05;
 }
@@ -105,7 +102,7 @@
     -fx-alignment: center;
 }
 
-/* ── Top bar ── */
+/* Topbar*/
 .topbar {
     -fx-background-color: #1A1008;
     -fx-padding: 14 24;
@@ -189,7 +186,7 @@
 }
 .btn-salida:hover { -fx-background-color: #2A0A0A; }
 
-/* ── Panel de productos ── */
+/* Panel de productos */
 .productos-panel {
     -fx-background-color: #0F0A06;
     -fx-padding: 16;
@@ -212,7 +209,7 @@
     -fx-effect: dropshadow(gaussian, #D4A84340, 8, 0, 0, 0);
 }
 
-/* Categorías */
+/* Categorias */
 .cat-btn {
     -fx-background-color: #1A1008;
     -fx-text-fill: #5A4020;
@@ -241,7 +238,7 @@
     -fx-border-width: 0;
 }
 
-/* ── Cards de producto ── */
+/* Cards de producto */
 .producto-card {
     -fx-background-color: #1A1008;
     -fx-background-radius: 14;
@@ -301,7 +298,7 @@
     -fx-effect: dropshadow(gaussian, #D4A84360, 8, 0, 0, 0);
 }
 
-/* ── Carrito ── */
+/* Carrito */
 .carrito-panel {
     -fx-background-color: #1A1008;
     -fx-padding: 16;
@@ -423,7 +420,7 @@
     -fx-text-fill: #C8A97E;
 }
 
-/* Botones cobrar / cancelar */
+/* Botones cobrar/cancelar */
 .btn-cobrar {
     -fx-background-color: linear-gradient(to right, #D4A843, #8B5E1A);
     -fx-background-radius: 12;

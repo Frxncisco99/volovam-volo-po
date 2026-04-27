@@ -34,7 +34,7 @@ public class AperturaCajaController {
         lblFecha.setText(LocalDateTime.now().format(formatter));
         lblUsuario.setText("Cajero: " + SesionUsuario.getInstancia().getNombre());
 
-        // Actualizar ejemplo en tiempo real
+        // Actualizar ejemplo
         txtTipoCambio.textProperty().addListener((obs, old, nuevo) -> {
             try {
                 double tc = Double.parseDouble(nuevo);
@@ -86,7 +86,7 @@ public class AperturaCajaController {
                 }
             }
 
-            // Ir al MenuPrincipal
+            // Ir a MenuPrincipal
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
             Parent root = loader.load();

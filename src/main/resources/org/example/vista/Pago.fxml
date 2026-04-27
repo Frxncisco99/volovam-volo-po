@@ -122,7 +122,7 @@
                    style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3B6D11;"/>
         </HBox>
     </VBox>
-    <!-- Panel mixto pesos + dólares -->
+    <!-- Panel mixto pesos y dólares -->
     <VBox fx:id="panelMixtoUSD" spacing="8" visible="false" managed="false"
           style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;">
         <Label text="Pesos mexicanos (MXN):" style="-fx-font-size: 13px; -fx-text-fill: #6B4226;"/>

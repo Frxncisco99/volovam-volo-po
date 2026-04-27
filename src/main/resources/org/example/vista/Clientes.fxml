@@ -37,7 +37,7 @@
                 <Button prefHeight="40" prefWidth="206" onAction="#irAVentas" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Ventas / Caja" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Inventario" graphicTextGap="12">
+                <Button prefHeight="40" prefWidth="206" onAction="#irAInventario" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Inventario" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#C8A97E"/></graphic>
                 </Button>
                 <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 4 8;" text="GESTION"/>
@@ -78,10 +78,10 @@
 
             <VBox spacing="16" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
 
-                <!-- BUSCADOR -->
+                //Buscador
                 <TextField fx:id="txtBuscar" promptText="Buscar cliente..." style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 13px;"/>
 
-                <!-- LISTA DE CLIENTES -->
+                // Lista de clientes
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                     <VBox fx:id="listaClientes" spacing="10" style="-fx-padding: 4;"/>
                 </ScrollPane>

@@ -26,7 +26,7 @@
             </image>
         </ImageView>
 
-        <!-- Campo Usuario -->
+        <!-- Campo usuario -->
         <StackPane maxWidth="330" prefHeight="52" style="-fx-padding: 0 0 10 0;">
             <children>
                 <Region style="-fx-background-color: #FFFFFF;                                  -fx-background-radius: 12;                                  -fx-border-color: #6B4226;                                  -fx-border-radius: 12;                                  -fx-border-width: 1.4;" />
@@ -39,7 +39,7 @@
             </children>
         </StackPane>
 
-        <!-- Campo Contraseña -->
+        <!-- Campo contraseña -->
         <StackPane maxWidth="330" prefHeight="68.0" prefWidth="326.0" style="-fx-padding: 0 0 22 0;">
             <children>
                 <Region style="-fx-background-color: #FFFFFF;                                  -fx-background-radius: 12;                                  -fx-border-color: #6B4226;                                  -fx-border-radius: 12;                                  -fx-border-width: 1.4;" />
