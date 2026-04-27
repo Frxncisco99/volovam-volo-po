@@ -469,7 +469,5 @@ public class InventarioController {
             e.printStackTrace();
         }
     }
-    @FXML
-    private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
 
 }

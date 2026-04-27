@@ -9,7 +9,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.example.modelo.SwitchToggle;   // ← IMPORT CORRECTO
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 

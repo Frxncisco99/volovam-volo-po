@@ -78,10 +78,10 @@
 
             <VBox spacing="16" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
 
-                //Buscador
+                <!--Buscador-->
                 <TextField fx:id="txtBuscar" promptText="Buscar cliente..." style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 13px;"/>
 
-                // Lista de clientes
+                <!-- Lista de clientes-->
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
                     <VBox fx:id="listaClientes" spacing="10" style="-fx-padding: 4;"/>
                 </ScrollPane>
