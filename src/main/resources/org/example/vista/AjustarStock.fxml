@@ -1,83 +1,154 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<VBox spacing="0" alignment="CENTER"
+<VBox spacing="0" alignment="TOP_CENTER"
       xmlns="http://javafx.com/javafx/23"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.AjustarStockController"
-      style="-fx-background-color: #F5F0E8;"
-      prefHeight="340" prefWidth="340">
+      style="-fx-background-color: #F5EDD8;"
+      prefHeight="500" prefWidth="380">
 
     <!-- HEADER -->
-    <VBox style="-fx-background-color: #2E7D50; -fx-padding: 20 24 16 24;" spacing="4">
-        <Label text="Ajustar Stock"
-               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" />
-        <Label fx:id="lblNombreProducto" text="Producto"
-               style="-fx-font-size: 12px; -fx-text-fill: #A8D5B8;" />
+    <VBox style="-fx-background-color: #5C2D0E; -fx-padding: 20 24 18 24;" spacing="3">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="⬡" style="-fx-font-size: 20px; -fx-text-fill: #D4A35A;" />
+            <Label text="Ajustar Stock"
+                   style="-fx-font-size: 17px; -fx-font-weight: bold;
+                          -fx-text-fill: #FDF4E3; -fx-font-family: 'Georgia';" />
+        </HBox>
+        <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 2 0 0 0;">
+            <Label fx:id="lblNombreProducto" text="Nombre del producto"
+                   style="-fx-font-size: 13px; -fx-text-fill: #D4A35A; -fx-font-weight: bold;" />
+        </HBox>
     </VBox>
 
     <!-- STOCK ACTUAL -->
-    <VBox alignment="CENTER" spacing="4"
-          style="-fx-background-color: #FDF8F0; -fx-padding: 22 24 10 24;">
+    <VBox alignment="CENTER" spacing="2"
+          style="-fx-background-color: #FDF4E3; -fx-padding: 20 24 16 24;
+                 -fx-border-color: #E6D2B0; -fx-border-width: 0 0 1 0;">
         <Label text="STOCK ACTUAL"
-               style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #A07848;" />
-        <Label fx:id="lblStockActual" text="0"
-               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #3D1A0A;" />
+               style="-fx-font-size: 9px; -fx-font-weight: bold;
+                      -fx-text-fill: #A07848; -fx-letter-spacing: 1.5;" />
+        <StackPane>
+            <Rectangle arcWidth="16" arcHeight="16" width="96" height="72"
+                       style="-fx-fill: #F5EDD8; -fx-stroke: #D4A35A; -fx-stroke-width: 1.5;" />
+            <Label fx:id="lblStockActual" text="0"
+                   style="-fx-font-size: 44px; -fx-font-weight: bold;
+                          -fx-text-fill: #5C2D0E; -fx-font-family: 'Georgia';" />
+        </StackPane>
+        <Label text="unidades en existencia"
+               style="-fx-font-size: 10px; -fx-text-fill: #B8935A;" />
     </VBox>
 
-    <!-- CONTROLES -->
-    <VBox spacing="14" style="-fx-padding: 10 24 14 24; -fx-background-color: #FDF8F0;">
+    <!-- SECCIÓN DE AJUSTE -->
+    <VBox spacing="14" style="-fx-padding: 18 24 16 24; -fx-background-color: #FDF4E3;">
 
-        <Label text="CANTIDAD A AJUSTAR"
-               style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #A07848;" />
+        <!-- ══ SELECTOR DE MODO ══ -->
+        <VBox spacing="6">
+            <Label text="OPERACIÓN"
+                   style="-fx-font-size: 9px; -fx-font-weight: bold;
+                          -fx-text-fill: #7A5020; -fx-letter-spacing: 1;" />
 
-        <HBox spacing="10" alignment="CENTER">
-            <Button fx:id="btnMenos" text="−" onAction="#restar"
-                    style="-fx-background-color: #6B1228; -fx-text-fill: white;
-                           -fx-font-size: 22px; -fx-font-weight: bold;
-                           -fx-background-radius: 8; -fx-min-width: 48; -fx-min-height: 48;
-                           -fx-cursor: hand;" />
-            <TextField fx:id="txtCantidad" text="1" alignment="CENTER"
-                       prefWidth="100"
-                       style="-fx-background-color: white; -fx-border-color: #D4B896;
-                              -fx-border-radius: 8; -fx-background-radius: 8;
-                              -fx-padding: 10 12; -fx-font-size: 20px;
-                              -fx-font-weight: bold; -fx-text-fill: #3A1F06;
-                              -fx-alignment: center;" />
-            <Button fx:id="btnMas" text="+" onAction="#sumar"
-                    style="-fx-background-color: #2E7D50; -fx-text-fill: white;
-                           -fx-font-size: 22px; -fx-font-weight: bold;
-                           -fx-background-radius: 8; -fx-min-width: 48; -fx-min-height: 48;
-                           -fx-cursor: hand;" />
+            <HBox spacing="0" alignment="CENTER_LEFT">
+                <!-- Botón AÑADIR -->
+                <ToggleButton fx:id="btnModoAnadir" text="▲  Añadir"
+                              prefHeight="36" prefWidth="156"
+                              onAction="#seleccionarModoAnadir"
+                              style="-fx-background-color: #2E7D50;
+                                     -fx-text-fill: white;
+                                     -fx-font-size: 12px; -fx-font-weight: bold;
+                                     -fx-background-radius: 8 0 0 8;
+                                     -fx-border-radius: 8 0 0 8;
+                                     -fx-cursor: hand;" />
+                <!-- Botón RESTAR -->
+                <ToggleButton fx:id="btnModoRestar" text="▼  Restar"
+                              prefHeight="36" prefWidth="156"
+                              onAction="#seleccionarModoRestar"
+                              style="-fx-background-color: #F2C4CE;
+                                     -fx-text-fill: #9A2A3A;
+                                     -fx-font-size: 12px; -fx-font-weight: bold;
+                                     -fx-background-radius: 0 8 8 0;
+                                     -fx-border-radius: 0 8 8 0;
+                                     -fx-border-color: #D4708A;
+                                     -fx-border-width: 1.5;
+                                     -fx-cursor: hand;" />
+            </HBox>
+        </VBox>
+
+        <!-- CANTIDAD -->
+        <VBox spacing="8">
+            <HBox alignment="CENTER_LEFT" spacing="6">
+                <Rectangle width="3" height="14" arcWidth="3" arcHeight="3"
+                           fx:id="barraIndicadora"
+                           style="-fx-fill: #2E7D50;" />
+                <Label text="CANTIDAD"
+                       style="-fx-font-size: 9px; -fx-font-weight: bold;
+                              -fx-text-fill: #7A5020; -fx-letter-spacing: 1;" />
+                <Label fx:id="lblModo" text="▲  AÑADIENDO"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold;
+                              -fx-text-fill: #1A5C36; -fx-background-color: #C8EDD8;
+                              -fx-background-radius: 20; -fx-padding: 3 12;
+                              -fx-border-color: #6DBF96; -fx-border-radius: 20;
+                              -fx-border-width: 1;" />
+            </HBox>
+
+            <!-- Controles +/- -->
+            <HBox spacing="8" alignment="CENTER">
+                <Button fx:id="btnMenos" text="−" onAction="#restar"
+                        prefWidth="52" prefHeight="52"
+                        style="-fx-background-color: #6B1228; -fx-text-fill: white;
+                               -fx-font-size: 24px; -fx-font-weight: bold;
+                               -fx-background-radius: 10; -fx-cursor: hand;" />
+                <TextField fx:id="txtCantidad" text="1" alignment="CENTER"
+                           prefWidth="110" prefHeight="52"
+                           style="-fx-background-color: white;
+                                  -fx-border-color: #C8A472;
+                                  -fx-border-radius: 10; -fx-background-radius: 10;
+                                  -fx-border-width: 1.5; -fx-padding: 0 12;
+                                  -fx-font-size: 24px; -fx-font-weight: bold;
+                                  -fx-text-fill: #4A2000; -fx-alignment: center;" />
+                <Button fx:id="btnMas" text="+" onAction="#sumar"
+                        prefWidth="52" prefHeight="52"
+                        style="-fx-background-color: #2E7D50; -fx-text-fill: white;
+                               -fx-font-size: 24px; -fx-font-weight: bold;
+                               -fx-background-radius: 10; -fx-cursor: hand;" />
+            </HBox>
+        </VBox>
+
+        <!-- Preview resultado -->
+        <HBox alignment="CENTER">
+            <Label fx:id="lblPreview" text="▲  Stock resultante: 1"
+                   style="-fx-font-size: 12px; -fx-font-weight: bold;
+                          -fx-text-fill: #1A5C36; -fx-background-color: #C8EDD8;
+                          -fx-background-radius: 20; -fx-padding: 5 16;
+                          -fx-border-color: #6DBF96; -fx-border-radius: 20;
+                          -fx-border-width: 1;" />
         </HBox>
 
-        <Label fx:id="lblPreview" text="Stock resultante: 1"
-               style="-fx-font-size: 12px; -fx-text-fill: #5A8A6A;
-                      -fx-alignment: center; -fx-font-weight: bold;"
-               alignment="CENTER" maxWidth="Infinity" />
     </VBox>
 
+    <!-- SEPARADOR -->
+    <Region prefHeight="1"
+            style="-fx-background-color: linear-gradient(to right, transparent, #D4B896, transparent);"
+            maxWidth="Infinity" />
+
     <!-- FOOTER -->
-    <HBox spacing="10" style="-fx-padding: 14 24 20 24;
-                               -fx-background-color: #FAF4EA;
-                               -fx-border-color: #E8D8C4; -fx-border-width: 1 0 0 0;"
-          alignment="CENTER_RIGHT">
-        <Button text="Cancelar" onAction="#cancelar"
-                style="-fx-background-color: transparent; -fx-border-color: #C4A070;
-                       -fx-border-radius: 7; -fx-background-radius: 7;
-                       -fx-text-fill: #7A4E28; -fx-font-size: 13px; -fx-font-weight: bold;
-                       -fx-padding: 8 18; -fx-cursor: hand;" />
-        <Button text="Restar stock" onAction="#confirmarRestar"
-                style="-fx-background-color: #6B1228; -fx-text-fill: white;
-                       -fx-background-radius: 7; -fx-border-radius: 7;
-                       -fx-font-size: 13px; -fx-font-weight: bold;
-                       -fx-padding: 8 18; -fx-cursor: hand;" />
-        <Button text="Añadir stock" onAction="#confirmarAnadir"
+    <HBox spacing="8" alignment="CENTER"
+          style="-fx-padding: 16 24 20 24; -fx-background-color: #F5EDD8;">
+        <Button text="Cancelar" onAction="#cancelar" prefHeight="40"
+                style="-fx-background-color: transparent;
+                       -fx-border-color: #C4A070; -fx-border-width: 1.5;
+                       -fx-border-radius: 8; -fx-background-radius: 8;
+                       -fx-text-fill: #7A4E28; -fx-font-size: 12px;
+                       -fx-font-weight: bold; -fx-padding: 0 18; -fx-cursor: hand;" />
+        <Button text="Confirmar" onAction="#confirmar" prefHeight="40"
+                fx:id="btnConfirmar"
                 style="-fx-background-color: #2E7D50; -fx-text-fill: white;
-                       -fx-background-radius: 7; -fx-border-radius: 7;
-                       -fx-font-size: 13px; -fx-font-weight: bold;
-                       -fx-padding: 8 18; -fx-cursor: hand;" />
+                       -fx-background-radius: 8; -fx-border-radius: 8;
+                       -fx-font-size: 12px; -fx-font-weight: bold;
+                       -fx-padding: 0 28; -fx-cursor: hand;" />
     </HBox>
 
 </VBox>

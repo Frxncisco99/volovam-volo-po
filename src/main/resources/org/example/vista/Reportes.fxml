@@ -197,7 +197,7 @@
                       style="-fx-background-color: white; -fx-border-color: #E0D5C5; -fx-border-width: 1; -fx-background-radius: 12; -fx-border-radius: 12;">
                     <HBox alignment="CENTER_LEFT"
                           style="-fx-padding: 14 18 12 18; -fx-border-color: transparent transparent #F0EAE0 transparent; -fx-border-width: 1;">
-                        <Label text="Productos mas vendidos"
+                        <Label text="Productos mas vendidos "
                                style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3D1A0A;"
                                HBox.hgrow="ALWAYS"/>
                         <HBox spacing="4">
