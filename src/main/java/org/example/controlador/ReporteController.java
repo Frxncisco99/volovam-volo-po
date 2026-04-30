@@ -1,33 +1,24 @@
 package org.example.controlador;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
-
-import javafx.util.Duration;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.ReporteService;
 import org.example.servicio.ReportePDFService;
-
 import java.io.IOException;
-import java.net.InetAddress;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.io.File;
 import java.text.DecimalFormat;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -35,16 +26,10 @@ import javafx.scene.control.TableView;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
-
-
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import java.awt.Desktop;
-
 import javafx.stage.FileChooser;
-import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -472,11 +457,6 @@ public class ReporteController {
             cbTipoReporte.setValue("Ventas");
         }
         generarReporte();
-    }
-
-    @FXML
-    private void irAClientes() {
-        cambiarEscena("/org/example/vista/Clientes.fxml");
     }
 
     @FXML

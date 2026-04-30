@@ -7,7 +7,7 @@
 
 <BorderPane stylesheets="@menuPrincipal.css, @configuracion.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ConfiguracionController">
 
-    // Sidebar
+    <!--Sidebar-->
     <left>
         <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
             <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
@@ -58,11 +58,11 @@
         </VBox>
     </left>
 
-    /// Contenido
+    <!-- Contenido-->
     <center>
         <VBox prefWidth="960" style="-fx-background-color: #F5EFE6;">
 
-            // Topbar
+            <!--Topbar-->
             <HBox alignment="CENTER_LEFT" styleClass="topbar" style="-fx-padding: 18 24; -fx-spacing: 12;">
                 <VBox spacing="2" HBox.hgrow="ALWAYS">
                     <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #3D1F0D;" text="Configuracion" />
@@ -72,7 +72,7 @@
                 <Button onAction="#guardarConfiguracion" style="-fx-background-color: #D4A843; -fx-text-fill: white; -fx-font-weight: bold;                                -fx-background-radius: 8; -fx-padding: 9 20; -fx-cursor: hand; -fx-font-size: 12px;" text="Guardar Cambios" />
             </HBox>
 
-            // Barra de pestañas
+            <!--Barra de pestañas-->
             <HBox spacing="6" style="-fx-padding: 0 24 14 24; -fx-background-color: #F5EFE6;">
                 <Button fx:id="btnTabNegocio" onAction="#tabNegocio" style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;" text="Negocio" />
                 <Button fx:id="btnTabPOS" onAction="#tabPOS" style="-fx-background-color: white; -fx-text-fill: #6B4226; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #D4C5B0; -fx-border-radius: 20;" text="POS / Caja" />
@@ -85,11 +85,11 @@
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
                 <VBox style="-fx-padding: 0 24 24 24; -fx-spacing: 16;">
 
-                    // Panel negocio
+                    <!--Panel de negocios-->
                     <VBox fx:id="panelNegocio" spacing="16">
                         <HBox spacing="16">
 
-                            //info general
+                            <!--info general-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -114,7 +114,7 @@
                             </VBox>
 
 
-                            // Regional
+                            <!--Regional-->
 
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
@@ -147,7 +147,7 @@
                                 <ComboBox fx:id="cmbZonaHoraria" maxWidth="Infinity" styleClass="cfg-combo" />
                             </VBox>
 
-                            // HORARIO Y OPERACION
+                            <!-- HORARIO Y OPERACION-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -200,11 +200,11 @@
                         </HBox>
                     </VBox>
 
-                    // PANEL pos y caja
+                    <!--PANEL pos y caja-->
                     <VBox fx:id="panelPOS" spacing="16" visible="false" managed="false">
                         <HBox spacing="16">
 
-                            // OPERACION DE CAJA
+                            <!-- OPERACION DE CAJA-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -243,7 +243,7 @@
                                 </HBox>
                             </VBox>
 
-                            // PRODUCTOS Y BUSQUEDA
+                            <!--PRODUCTOS Y BUSQUEDA-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -282,7 +282,7 @@
                                 </HBox>
                             </VBox>
 
-                            VENTAS Y CLIENTES
+                            <!--VENTAS Y CLIENTES-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -328,7 +328,7 @@
                         </HBox>
                     </VBox>
 
-                    // PANEL usuarios y roles
+                    <!--PANEL usuarios y roles-->
                     <VBox fx:id="panelUsuarios" spacing="16" visible="false" managed="false">
                         <HBox spacing="12" alignment="CENTER_LEFT"
                               style="-fx-background-color: white; -fx-padding: 16 20; -fx-background-radius: 12;
@@ -342,7 +342,7 @@
                         </HBox>
 
                         <HBox spacing="16">
-                            // LISTA USUARIOS
+                            <!--LISTA USUARIOS-->
                             <VBox spacing="10" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -357,7 +357,6 @@
                                 </HBox>
                                 <Separator />
 
-                                ///
                                 <HBox style="-fx-background-color: #3D1F0D; -fx-padding: 8 12; -fx-background-radius: 6;">
                                     <Label prefWidth="140" style="-fx-text-fill: #D4A843; -fx-font-size: 10px; -fx-font-weight: bold;" text="USUARIO" />
                                     <Label prefWidth="110" style="-fx-text-fill: #D4A843; -fx-font-size: 10px; -fx-font-weight: bold;" text="ROL" />
@@ -366,7 +365,7 @@
                                     <Label prefWidth="100" style="-fx-text-fill: #D4A843; -fx-font-size: 10px; -fx-font-weight: bold;" text="ACCIONES" />
                                 </HBox>
 
-                                // FILA ADMIN
+                                <!--FILA ADMIN-->
                                 <HBox alignment="CENTER_LEFT"
                                       style="-fx-background-color: #FDF8F2; -fx-padding: 10 12; -fx-background-radius: 8;">
                                     <HBox spacing="8" alignment="CENTER_LEFT" prefWidth="140">
@@ -390,7 +389,7 @@
                                     </HBox>
                                 </HBox>
 
-                                // FILA CAJERO
+                                <!--FILA CAJERO-->
                                 <HBox alignment="CENTER_LEFT"
                                       style="-fx-padding: 10 12; -fx-background-radius: 8;">
                                     <HBox spacing="8" alignment="CENTER_LEFT" prefWidth="140">
@@ -414,7 +413,7 @@
                                     </HBox>
                                 </HBox>
 
-                                // FILA GERENTE
+                                <!--FILA GERENTE-->
                                 <HBox alignment="CENTER_LEFT"
                                       style="-fx-background-color: #FDF8F2; -fx-padding: 10 12; -fx-background-radius: 8;">
                                     <HBox spacing="8" alignment="CENTER_LEFT" prefWidth="140">
@@ -439,7 +438,7 @@
                                 </HBox>
                             </VBox>
 
-                            // ROLES Y PERMISOS
+                            <!--ROLES Y PERMISOS-->
                             <VBox spacing="10" prefWidth="320"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -505,11 +504,11 @@
                         </HBox>
                     </VBox>
 
-                    // PANEL: FISCAL (tickets)
+                    <!-- PANEL: FISCAL (tickets)-->
                     <VBox fx:id="panelFiscal" spacing="16" visible="false" managed="false">
                         <HBox spacing="16">
 
-                            // IMPRESION DE TICKETS
+                            <!-- IMPRESION DE TICKETS-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -556,7 +555,7 @@
                                 </HBox>
                             </VBox>
 
-                            // Textos del ticket
+                            <!-- Textos del ticket-->
                             <VBox spacing="10" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -587,7 +586,7 @@
                                 <Button maxWidth="Infinity" onAction="#actualizarVistaPreviaBtn" style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold;                                                -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 11px;" text="Actualizar Vista Previa" />
                             </VBox>
 
-                            // Vista previa del ticket
+                            <!--Vista previa del ticket-->
                             <VBox spacing="10" prefWidth="260"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -600,7 +599,7 @@
                                 </HBox>
                                 <Separator/>
 
-                                //Simulacion papel de ticket
+                                <!--Simulacion papel de ticket-->
                                 <VBox VBox.vgrow="ALWAYS"
                                       style="-fx-background-color: white;
                                              -fx-border-color: #D4C5B0; -fx-border-width: 1;
@@ -628,12 +627,12 @@
                         </HBox>
                     </VBox>
 
-                    // PANEL INTEGRACIONES
+                    <!--PANEL INTEGRACIONES-->
                     <VBox fx:id="panelIntegraciones" spacing="16" visible="false" managed="false">
                         <HBox spacing="16">
 
 
-                            // PAGOS DIGITALES
+                            <!--PAGOS DIGITALES-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -664,7 +663,7 @@
                                 </VBox>
                             </VBox>
 
-                            // NOTIFICACIONES
+                            <!-- NOTIFICACIONES-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -695,7 +694,7 @@
                                 <Button maxWidth="Infinity" onAction="#enviarCorreoPrueba" style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold;                                                -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 11px;" text="Enviar Correo de Prueba" />
                             </VBox>
 
-                            // whatsapp
+                            <!--whatsapp-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -726,11 +725,11 @@
                         </HBox>
                     </VBox>
 
-                    // PANEL base de datos
+                    <!--PANEL base de datos-->
                     <VBox fx:id="panelBaseDatos" spacing="16" visible="false" managed="false">
                         <HBox spacing="16">
 
-                            // conexion
+                            <!--conexion-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -770,7 +769,7 @@
                                 </HBox>
                             </VBox>
 
-                            // respaldos
+                            <!--respaldos-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
@@ -806,7 +805,7 @@
                                 </HBox>
                             </VBox>
 
-                            // Mantenimiento
+                            <!--Mantenimiento-->
                             <VBox spacing="12" HBox.hgrow="ALWAYS"
                                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;
                                          -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">

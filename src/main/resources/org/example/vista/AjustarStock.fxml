@@ -17,7 +17,7 @@
                style="-fx-font-size: 12px; -fx-text-fill: #A8D5B8;" />
     </VBox>
 
-    <!-- STOCK ACTUAL -->
+    <!--Stock actual-->
     <VBox alignment="CENTER" spacing="4"
           style="-fx-background-color: #FDF8F0; -fx-padding: 22 24 10 24;">
         <Label text="STOCK ACTUAL"
@@ -26,7 +26,8 @@
                style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #3D1A0A;" />
     </VBox>
 
-    <!-- CONTROLES -->
+  <!--Controles-->
+
     <VBox spacing="14" style="-fx-padding: 10 24 14 24; -fx-background-color: #FDF8F0;">
 
         <Label text="CANTIDAD A AJUSTAR"
