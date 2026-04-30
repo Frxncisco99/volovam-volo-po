@@ -142,10 +142,14 @@
             </HBox>
 
             <!-- Grafica -->
-            <VBox style="-fx-padding: 0 28 28 28;" VBox.vgrow="ALWAYS">
-                <VBox style="-fx-background-color: white; -fx-border-color: #E0D5C5; -fx-border-width: 1; -fx-background-radius: 12; -fx-border-radius: 12;" VBox.vgrow="ALWAYS">
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 14 18 12 18; -fx-border-color: transparent transparent #F0EAE0 transparent; -fx-border-width: 1;">
-                        <Label prefHeight="19.0" prefWidth="173.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3D1A0A;" text="Productos mas vendidos" HBox.hgrow="ALWAYS" />
+            <VBox VBox.vgrow="ALWAYS" style="-fx-padding: 0 28 28 28;">
+                <VBox VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #E0D5C5; -fx-border-width: 1; -fx-background-radius: 12; -fx-border-radius: 12;">
+                    <HBox alignment="CENTER_LEFT"
+                          style="-fx-padding: 14 18 12 18; -fx-border-color: transparent transparent #F0EAE0 transparent; -fx-border-width: 1;">
+                        <Label text="Productos mas vendidos "
+                               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3D1A0A;"
+                               HBox.hgrow="ALWAYS"/>
                         <HBox spacing="4">
                             <Button fx:id="btnCantidad" onAction="#verGraficaCantidad" style="-fx-background-color: #6B1228; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand; -fx-border-width: 0;" text="Cantidad" />
                             <Button fx:id="btnIngresos" onAction="#verGraficaIngresos" style="-fx-background-color: transparent; -fx-text-fill: #8B5A3A; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 10px; -fx-padding: 4 10; -fx-cursor: hand;" text="Ingresos" />

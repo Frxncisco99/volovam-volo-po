@@ -9,7 +9,7 @@
       style="-fx-background-color: #F5F0E8;"
       prefHeight="340" prefWidth="340">
 
-
+    <!-- HEADER -->
     <VBox style="-fx-background-color: #2E7D50; -fx-padding: 20 24 16 24;" spacing="4">
         <Label text="Ajustar Stock"
                style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" />
@@ -59,7 +59,7 @@
                alignment="CENTER" maxWidth="Infinity" />
     </VBox>
 
-
+    <!-- FOOTER -->
     <HBox spacing="10" style="-fx-padding: 14 24 20 24;
                                -fx-background-color: #FAF4EA;
                                -fx-border-color: #E8D8C4; -fx-border-width: 1 0 0 0;"
