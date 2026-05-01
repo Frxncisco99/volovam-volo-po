@@ -191,7 +191,13 @@ public class ReporteController {
             LocalDateTime inicio = dateInicio.getValue().atStartOfDay();
             LocalDateTime fin = dateFin.getValue().atTime(23, 59);
 
+// ← AGREGA ESTO TEMPORALMENTE
+            System.out.println("Buscando desde: " + inicio + " hasta: " + fin);
+
             List<Ticket> tickets = service.obtenerTickets(inicio, fin);
+
+// ← Y ESTO
+            System.out.println("Tickets encontrados: " + tickets.size());
 
             double total = service.calcularTotal(tickets);
             int cantidad = service.contarTickets(tickets);

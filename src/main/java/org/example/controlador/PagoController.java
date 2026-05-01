@@ -54,7 +54,7 @@ public class PagoController {
     @FXML private Label lblCambioMixtoUSD;
 
     private double total;
-    private double tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar();;
+    private double tipoCambioDolar ;
     private Map<Integer, Object[]> carrito;
     private VentasController ventasController;
     private int idCliente = 1;
@@ -70,7 +70,8 @@ public class PagoController {
                          VentasController ventasController,
                          int idCliente, String nombreCliente,
                          double limiteCredito, double saldoCliente) {
-        this.total            = total;
+        this.tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar(); // ← aquí
+        this.total = total;
         this.carrito          = carrito;
         this.ventasController = ventasController;
         this.idCliente        = idCliente;

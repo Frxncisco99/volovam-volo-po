@@ -126,26 +126,43 @@ public class TicketDAO {
         SELECT v.id_venta
         FROM ventas v
         WHERE v.fecha BETWEEN ? AND ?
+        ORDER BY v.fecha DESC
     """;
 
-        List<Ticket> lista = new ArrayList<>();
+        // Paso 1 — recolectar todos los IDs primero (cierra el ResultSet antes de continuar)
+        List<Integer> ids = new ArrayList<>();
 
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
+
             ps.setTimestamp(1, Timestamp.valueOf(inicio));
             ps.setTimestamp(2, Timestamp.valueOf(fin));
 
-            ResultSet rs = ps.executeQuery();
+            // TEMPORAL - borrar después
+            System.out.println("▶ Query BETWEEN " + Timestamp.valueOf(inicio) + " AND " + Timestamp.valueOf(fin));
 
-            while (rs.next()) {
-                int idVenta = rs.getInt("id_venta");
-
-                // reutilizamos tu método existente (clave 🔥)
-                Ticket t = obtenerTicketPorVenta(idVenta);
-                lista.add(t);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("id_venta"));
+                    System.out.println("  → ID encontrado: " + rs.getInt("id_venta"));  // ← ya cerrado, usar ids
+                }
             }
+            System.out.println("▶ Total IDs: " + ids.size());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("id_venta"));
+                }
+            } // ← el ResultSet se cierra aquí antes de hacer más consultas
         }
+
+        // Paso 2 — ahora sí obtener cada ticket con su propia conexión
+        List<Ticket> lista = new ArrayList<>();
+        for (int idVenta : ids) {
+            lista.add(obtenerTicketPorVenta(idVenta));
+        }
+
 
         return lista;
     }
