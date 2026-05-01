@@ -25,9 +25,11 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        Connection con = ConexionDB.getConexion();
-        if (con != null) {
-            System.out.println("Base de Datos conectada al 99%");
+        // Solo verificar que conecta, sin dejar conexión abierta
+        try (Connection con = ConexionDB.getConexion()) {
+            if (con != null) System.out.println("BD lista");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -71,15 +73,13 @@ public class LoginController {
         }
     }
     private boolean hayCajaAbierta() {
-
-
-        // Busca cualquier caja abierta
-        String sql = "SELECT id_caja FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
+        String sql = "SELECT id_caja, tipo_cambio_dolar FROM caja WHERE estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 SesionUsuario.getInstancia().setIdCaja(rs.getInt("id_caja"));
+                SesionUsuario.getInstancia().setTipoCambioDolar(rs.getDouble("tipo_cambio_dolar"));
                 return true;
             }
         } catch (Exception e) {

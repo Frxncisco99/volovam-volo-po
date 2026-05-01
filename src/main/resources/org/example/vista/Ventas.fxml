@@ -72,17 +72,6 @@
                 <Button onAction="#abrirIngreso" style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-background-radius: 8; -fx-border-color: #2E7D32; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;" text="+ Ingreso" />
                 <Button onAction="#abrirSalida" style="-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B; -fx-background-radius: 8; -fx-border-color: #C0392B; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold; -fx-margin: 0 0 0 8;" text="- Salida" />
 
-                <!-- Ingreso / Salida -->
-                <Button onAction="#abrirIngreso"
-                        style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32;
-                               -fx-background-radius: 8; -fx-border-color: #2E7D32; -fx-border-radius: 8;
-                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
-                               -fx-font-size: 12px; -fx-font-weight: bold;" text="+ Ingreso" />
-                <Button onAction="#abrirSalida"
-                        style="-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B;
-                               -fx-background-radius: 8; -fx-border-color: #C0392B; -fx-border-radius: 8;
-                               -fx-border-width: 1; -fx-padding: 6 14; -fx-cursor: hand;
-                               -fx-font-size: 12px; -fx-font-weight: bold;" text="- Salida" />
 
                 <!-- ── NUEVOS: Devolución y En Espera ── -->
                 <Button onAction="#abrirDevoluciones"

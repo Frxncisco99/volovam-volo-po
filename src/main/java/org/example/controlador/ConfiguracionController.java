@@ -2,6 +2,7 @@ package org.example.controlador;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import org.example.modelo.SwitchToggle;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -101,29 +102,29 @@ public class ConfiguracionController {
     @FXML
     private ComboBox<String> cmbRedondeo;
     @FXML
-    private ToggleButton tglAperturaCaja;
+    private org.example.modelo.SwitchToggle tglAperturaCaja;
     @FXML
-    private ToggleButton tglConfirmarCobro;
+    private org.example.modelo.SwitchToggle tglConfirmarCobro;
     @FXML
-    private ToggleButton tglAutoImprimir;
+    private org.example.modelo.SwitchToggle tglAutoImprimir;
     @FXML
     private ComboBox<String> cmbBusqueda;
     @FXML
     private ComboBox<String> cmbOrdenProductos;
     @FXML
-    private ToggleButton tglImagenesProducto;
+    private org.example.modelo.SwitchToggle tglImagenesProducto;
     @FXML
-    private ToggleButton tglAlertaStock;
+    private org.example.modelo.SwitchToggle tglAlertaStock;
     @FXML
-    private ToggleButton tglVentaSinStock;
+    private org.example.modelo.SwitchToggle tglVentaSinStock;
     @FXML
-    private ToggleButton tglAsociarCliente;
+    private org.example.modelo.SwitchToggle tglAsociarCliente;
     @FXML
-    private ToggleButton tglVentaCredito;
+    private org.example.modelo.SwitchToggle tglVentaCredito;
     @FXML
-    private ToggleButton tglDevoluciones;
+    private org.example.modelo.SwitchToggle tglDevoluciones;
     @FXML
-    private ToggleButton tglVentaRapida;
+    private org.example.modelo.SwitchToggle tglVentaRapida;
     @FXML
     private TextField txtNotaInterna;
 
@@ -131,23 +132,23 @@ public class ConfiguracionController {
     @FXML
     private TextField txtBuscarUsuario;
     @FXML
-    private ToggleButton tglAutoBloqueo;
+    private org.example.modelo.SwitchToggle tglAutoBloqueo;
     @FXML
     private ComboBox<String> cmbInactividad;
     @FXML
-    private ToggleButton tglAuditoria;
+    private org.example.modelo.SwitchToggle tglAuditoria;
 
     // Panel fiscal
     @FXML
-    private ToggleButton tglLogoTicket;
+    private org.example.modelo.SwitchToggle tglLogoTicket;
     @FXML
-    private ToggleButton tglFolioTicket;
+    private org.example.modelo.SwitchToggle tglFolioTicket;
     @FXML
-    private ToggleButton tglDesglose;
+    private org.example.modelo.SwitchToggle tglDesglose;
     @FXML
-    private ToggleButton tglQR;
+    private org.example.modelo.SwitchToggle tglQR;
     @FXML
-    private ToggleButton tglCopiacocina;
+    private org.example.modelo.SwitchToggle tglCopiacocina;
     @FXML
     private ComboBox<String> cmbImpresora;
     @FXML
@@ -183,15 +184,15 @@ public class ConfiguracionController {
     @FXML
     private ComboBox<String> cmbSmtp;
     @FXML
-    private ToggleButton tglReporteDiario;
+    private org.example.modelo.SwitchToggle tglReporteDiario;
     @FXML
-    private ToggleButton tglAlertaStockCorreo;
+    private org.example.modelo.SwitchToggle tglAlertaStockCorreo;
     @FXML
     private TextField txtTwilioSid;
     @FXML
     private TextField txtTwilioToken;
     @FXML
-    private ToggleButton tglTicketWhatsapp;
+    private org.example.modelo.SwitchToggle tglTicketWhatsapp;
 
     // Panel base de datos
     @FXML
@@ -213,7 +214,7 @@ public class ConfiguracionController {
     @FXML
     private ComboBox<String> cmbFrecuenciaRespaldo;
     @FXML
-    private ToggleButton tglRespaldoAuto;
+    private org.example.modelo.SwitchToggle tglRespaldoAuto;
     @FXML
     private Label lblUltimoRespaldo;
     @FXML

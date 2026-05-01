@@ -503,60 +503,63 @@ public class VentasController {
                                     double monto,
                                     String tipoReembolso,
                                     Stage stage) {
-        try (Connection con = ConexionDB.getConexion()) {
+        Connection con = ConexionDB.getConexion();
+        if (con == null) {
+            mostrarAlerta("Error de conexión", "No se pudo conectar a la base de datos.");
+            return;
+        }
+        try {
             con.setAutoCommit(false);
-            try {
-                // 1. Insertar en tabla devoluciones
-                String sqlDev = "INSERT INTO devoluciones (id_venta, id_usuario, monto_devuelto, tipo_reembolso) VALUES (?,?,?,?)";
-                int idDevolucion;
-                try (PreparedStatement ps = con.prepareStatement(sqlDev, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-                    ps.setInt(1, idVenta);
-                    ps.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
-                    ps.setDouble(3, monto);
-                    ps.setString(4, tipoReembolso);
-                    ps.executeUpdate();
-                    ResultSet rk = ps.getGeneratedKeys();
-                    idDevolucion = rk.next() ? rk.getInt(1) : 0;
-                }
 
-                // 2. Por cada producto seleccionado: devolver stock y registrar detalle
-                String sqlDetDev = "INSERT INTO detalle_devolucion (id_devolucion, id_producto, cantidad) VALUES (?,?,?)";
-                String sqlStock  = "UPDATE productos SET stock = stock + ? WHERE id_producto = ?";
-                for (int i = 0; i < checkboxes.size(); i++) {
-                    if (checkboxes.get(i).isSelected()) {
-                        int cant       = spinners.get(i).getValue();
-                        int idProducto = idsYCants.get(i)[0];
+            // 1. Insertar en tabla devoluciones
+            int idDevolucion;
+            try (PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO devoluciones (id_venta, id_usuario, monto_devuelto, tipo_reembolso) VALUES (?,?,?,?)",
+                    java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, idVenta);
+                ps.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
+                ps.setDouble(3, monto);
+                ps.setString(4, tipoReembolso);
+                ps.executeUpdate();
+                ResultSet rk = ps.getGeneratedKeys();
+                idDevolucion = rk.next() ? rk.getInt(1) : 0;
+            }
 
-                        try (PreparedStatement ps = con.prepareStatement(sqlDetDev)) {
-                            ps.setInt(1, idDevolucion);
-                            ps.setInt(2, idProducto);
-                            ps.setInt(3, cant);
-                            ps.executeUpdate();
-                        }
-                        try (PreparedStatement ps = con.prepareStatement(sqlStock)) {
-                            ps.setInt(1, cant);
-                            ps.setInt(2, idProducto);
-                            ps.executeUpdate();
-                        }
+            // 2. Por cada producto: devolver stock y registrar detalle
+            for (int i = 0; i < checkboxes.size(); i++) {
+                if (checkboxes.get(i).isSelected()) {
+                    int cant       = spinners.get(i).getValue();
+                    int idProducto = idsYCants.get(i)[0];
+
+                    try (PreparedStatement ps = con.prepareStatement(
+                            "INSERT INTO detalle_devolucion (id_devolucion, id_producto, cantidad) VALUES (?,?,?)")) {
+                        ps.setInt(1, idDevolucion);
+                        ps.setInt(2, idProducto);
+                        ps.setInt(3, cant);
+                        ps.executeUpdate();
+                    }
+                    try (PreparedStatement ps = con.prepareStatement(
+                            "UPDATE productos SET stock = stock + ? WHERE id_producto = ?")) {
+                        ps.setInt(1, cant);
+                        ps.setInt(2, idProducto);
+                        ps.executeUpdate();
                     }
                 }
-
-                con.commit();
-
-                stage.close();
-                mostrarAlerta("Devolucion completada",
-                        "Se devolvió $" + String.format("%.2f", monto) +
-                                " via " + tipoReembolso + ".\nEl inventario fue actualizado.");
-                cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
-
-            } catch (Exception ex) {
-                con.rollback();
-                ex.printStackTrace();
-                mostrarAlerta("Error", "No se pudo procesar la devolución: " + ex.getMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarAlerta("Error de conexión", "No se pudo conectar a la base de datos.");
+
+            con.commit();
+            stage.close();
+            mostrarAlerta("Devolucion completada",
+                    "Se devolvió $" + String.format("%.2f", monto) +
+                            " via " + tipoReembolso + ".\nEl inventario fue actualizado.");
+            cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
+
+        } catch (Exception ex) {
+            try { con.rollback(); } catch (Exception ignored) {}
+            ex.printStackTrace();
+            mostrarAlerta("Error", "No se pudo procesar la devolución: " + ex.getMessage());
+        } finally {
+            try { con.setAutoCommit(true); } catch (Exception ignored) {}
         }
     }
 
@@ -760,8 +763,13 @@ public class VentasController {
             Parent root = loader.load();
             PagoController pagoController = loader.getController();
             pagoController.setDatos(total, carrito, this, idClienteSeleccionado, nombreClienteSeleccionado, limiteCredito, saldoCliente);
-            Stage stagePago = new Stage(); stagePago.setTitle("Cobro"); stagePago.setScene(new Scene(root)); stagePago.setResizable(false);
-            stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL); stagePago.initOwner(lblTotal.getScene().getWindow()); stagePago.show();
+            Stage stagePago = new Stage();
+            stagePago.setTitle("Cobro");
+            stagePago.setScene(new Scene(root));
+            stagePago.setResizable(false);
+            stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stagePago.initOwner(btnCobrar.getScene().getWindow());
+            stagePago.show();
         } catch (Exception e) { e.printStackTrace(); }
     }
 
