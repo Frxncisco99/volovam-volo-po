@@ -128,6 +128,9 @@ public class ConfiguracionController {
     @FXML
     private TextField txtNotaInterna;
 
+    private final org.example.servicio.TicketImpresora impresora =
+            new org.example.servicio.TicketImpresora();
+
     // Panel Usuarios
     @FXML
     private TextField txtBuscarUsuario;
@@ -153,6 +156,8 @@ public class ConfiguracionController {
     private ComboBox<String> cmbImpresora;
     @FXML
     private ComboBox<String> cmbAnchoPapel;
+    @FXML private org.example.modelo.SwitchToggle tglMostrarFecha;
+    @FXML private org.example.modelo.SwitchToggle tglMostrarCajero;
 
     // Panel fiscal (ticket)
     @FXML
@@ -173,6 +178,7 @@ public class ConfiguracionController {
     private TextField txtAvisoFiscal;
     @FXML
     private TextArea txtVistaTicket;
+
 
     // Panel integraciones
     @FXML
@@ -289,6 +295,22 @@ public class ConfiguracionController {
 
         mostrarTab("negocio");
         cargarPreferencias();
+
+        // ── Preview en tiempo real ────────────────────────────────────────────
+        Runnable refresh = this::actualizarVistaPrevia;
+        txtTicketNombre.textProperty()   .addListener((o,v,n) -> refresh.run());
+        txtTicketGiro.textProperty()     .addListener((o,v,n) -> refresh.run());
+        txtTicketDireccion.textProperty().addListener((o,v,n) -> refresh.run());
+        txtTicketCiudad.textProperty()   .addListener((o,v,n) -> refresh.run());
+        txtTicketTelefono.textProperty() .addListener((o,v,n) -> refresh.run());
+        txtMensajeEncabezado.textProperty().addListener((o,v,n) -> refresh.run());
+        txtMensajePie.textProperty()     .addListener((o,v,n) -> refresh.run());
+        txtAvisoFiscal.textProperty()    .addListener((o,v,n) -> refresh.run());
+        tglLogoTicket.selectedProperty() .addListener((o,v,n) -> refresh.run());
+        tglFolioTicket.selectedProperty().addListener((o,v,n) -> refresh.run());
+        tglDesglose.selectedProperty()   .addListener((o,v,n) -> refresh.run());
+        tglQR.selectedProperty()         .addListener((o,v,n) -> refresh.run());
+        cmbAnchoPapel.valueProperty()    .addListener((o,v,n) -> refresh.run());
     }
 
     // Navegacion de pestañas
@@ -411,6 +433,8 @@ public class ConfiguracionController {
         prefs.putBoolean("ticket_folio", tglFolioTicket.isSelected());
         prefs.putBoolean("ticket_desglose", tglDesglose.isSelected());
         prefs.putBoolean("ticket_qr", tglQR.isSelected());
+        // después de:  prefs.putBoolean("ticket_qr", tglQR.isSelected());
+        prefs.put("ticket_ancho", cmbAnchoPapel.getValue());
 
         // Integraciones
         prefs.put("int_clip", txtClipToken.getText().trim());
@@ -805,5 +829,100 @@ public class ConfiguracionController {
             Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void imprimirTicketPrueba() {
+        int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? 32 : 48;
+
+        java.util.List<org.example.modelo.Ticket.LineaTicket> lineas = java.util.List.of(
+                new org.example.modelo.Ticket.LineaTicket("Croissant mantequilla", 2, 24.00),
+                new org.example.modelo.Ticket.LineaTicket("Pan de chocolate",      1, 22.00),
+                new org.example.modelo.Ticket.LineaTicket("Cuerno azucarado",      3, 12.00),
+                new org.example.modelo.Ticket.LineaTicket("Cafe americano",        1, 35.00)
+        );
+        org.example.modelo.Ticket muestra = new org.example.modelo.Ticket(
+                1234,
+                java.time.LocalDateTime.now(),
+                SesionUsuario.getInstancia().getNombre(),
+                lineas, 141.00, 200.00, 59.00, 1
+        );
+
+        try {
+            impresora.imprimirConConfig(muestra,
+                    txtTicketNombre.getText().trim(),
+                    txtTicketGiro.getText().trim(),
+                    txtTicketDireccion.getText().trim(),
+                    txtTicketCiudad.getText().trim(),
+                    txtTicketTelefono.getText().trim(),
+                    txtMensajeEncabezado.getText().trim(),
+                    txtMensajePie.getText().trim(),
+                    txtAvisoFiscal.getText().trim(),
+                    tglLogoTicket.isSelected(),
+                    tglFolioTicket.isSelected(),
+                    tglDesglose.isSelected(),
+                    tglQR.isSelected(),
+                    ancho
+            );
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Ticket de Prueba",
+                    "Ticket de prueba enviado a la impresora correctamente.");
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Impresion",
+                    "No se pudo imprimir el ticket de prueba.\n" +
+                            "Verifica que la impresora este encendida.\n\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void abrirVistaPrevia() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/vista/TicketPreview.fxml"));
+            javafx.scene.Parent root = loader.load();
+            TicketPreviewController ctrl = loader.getController();
+
+            // Ticket de muestra
+            java.util.List<org.example.modelo.Ticket.LineaTicket> lineas = java.util.List.of(
+                    new org.example.modelo.Ticket.LineaTicket("Croissant mantequilla", 2, 24.00),
+                    new org.example.modelo.Ticket.LineaTicket("Pan de chocolate",      1, 22.00),
+                    new org.example.modelo.Ticket.LineaTicket("Cuerno azucarado",      3, 12.00),
+                    new org.example.modelo.Ticket.LineaTicket("Cafe americano",        1, 35.00)
+            );
+            org.example.modelo.Ticket muestra = new org.example.modelo.Ticket(
+                    1234, java.time.LocalDateTime.now(),
+                    SesionUsuario.getInstancia().getNombre(),
+                    lineas, 141.00, 200.00, 59.00, 1
+            );
+
+            ctrl.configurar(muestra,
+                    "/org/example/Imagenes/logo_volovan.png",
+                    txtTicketNombre.getText().trim(),
+                    txtTicketGiro.getText().trim(),
+                    txtTicketDireccion.getText().trim(),
+                    txtTicketCiudad.getText().trim(),
+                    txtTicketTelefono.getText().trim(),
+                    txtMensajeEncabezado.getText().trim(),
+                    txtMensajePie.getText().trim(),
+                    txtAvisoFiscal.getText().trim(),
+                    tglLogoTicket.isSelected(),
+                    tglFolioTicket.isSelected(),
+                    tglDesglose.isSelected(),
+                    tglQR.isSelected(),
+                    tglMostrarFecha  != null && tglMostrarFecha.isSelected(),
+                    tglMostrarCajero != null && tglMostrarCajero.isSelected()
+            );
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Vista Previa — Ticket 58mm");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setResizable(false);
+            stage.initOwner(lblNombreUsuario.getScene().getWindow());
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                    "No se pudo abrir la vista previa.\n" + e.getMessage());
+        }
     }
 }

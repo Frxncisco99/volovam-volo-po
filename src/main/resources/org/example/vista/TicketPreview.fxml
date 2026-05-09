@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<!--
+    TicketPreview.fxml
+    Modal de vista previa del ticket térmico de 58mm.
+    Ubicación: src/main/resources/org/example/vista/TicketPreview.fxml
+    Controlador: org.example.controlador.TicketPreviewController
+-->
+<VBox xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.TicketPreviewController"
+      prefWidth="320" prefHeight="680"
+      spacing="0"
+      style="-fx-background-color: #2C1A0E;">
+
+    <!-- Topbar del modal -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-background-color: #3D1F0D; -fx-padding: 12 16; -fx-spacing: 10;">
+        <FontIcon iconLiteral="fas-receipt" iconSize="16" iconColor="#D4A843"/>
+        <VBox HBox.hgrow="ALWAYS" spacing="1">
+            <Label style="-fx-text-fill: #D4A843; -fx-font-size: 13px; -fx-font-weight: bold;"
+                   text="Vista Previa del Ticket"/>
+            <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px;"
+                   text="Simulacion papel termico 58mm"/>
+        </VBox>
+        <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-style: italic;"
+               text="* Datos de ejemplo"/>
+    </HBox>
+
+    <!-- Área de la simulación del papel -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background: #2C1A0E; -fx-background-color: #2C1A0E; -fx-padding: 20 30;">
+
+        <VBox alignment="CENTER" spacing="0">
+
+            <!-- Borde superior del rollo de papel -->
+            <Label style="-fx-text-fill: #BBA98A; -fx-font-size: 7px; -fx-padding: 0 0 0 0; -fx-font-family: monospace;"
+                   text="▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼"/>
+
+            <!-- El papel del ticket -->
+            <VBox style="-fx-background-color: #FEFEFE;
+                         -fx-min-width: 226;
+                         -fx-max-width: 226;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 18, 0, 0, 6);">
+
+                <!-- Contenido del ticket -->
+                <VBox fx:id="contenedorTicket"
+                      spacing="3"
+                      style="-fx-padding: 10 8 4 8;
+                             -fx-background-color: #FEFEFE;
+                             -fx-min-width: 210;
+                             -fx-max-width: 226;">
+                    <!-- Los nodos se añaden dinámicamente desde TicketPreviewController -->
+                </VBox>
+            </VBox>
+
+            <!-- Borde inferior del rollo de papel -->
+            <Label style="-fx-text-fill: #BBA98A; -fx-font-size: 7px; -fx-font-family: monospace;"
+                   text="▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼"/>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- Panel de acciones -->
+    <VBox style="-fx-background-color: #3D1F0D; -fx-padding: 12 16; -fx-spacing: 8;">
+        <HBox spacing="10">
+            <Button prefHeight="38" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                    onAction="#handleImprimir"
+                    graphicTextGap="8"
+                    style="-fx-background-color: #D4A843; -fx-text-fill: white; -fx-font-weight: bold;
+                           -fx-background-radius: 8; -fx-font-size: 12px; -fx-cursor: hand;"
+                    text="Imprimir ticket">
+                <graphic><FontIcon iconLiteral="fas-print" iconSize="14" iconColor="white"/></graphic>
+            </Button>
+            <Button prefHeight="38" prefWidth="90"
+                    onAction="#handleCerrar"
+                    style="-fx-background-color: transparent; -fx-border-color: #C8A97E;
+                           -fx-border-radius: 8; -fx-border-width: 1.2;
+                           -fx-text-fill: #C8A97E; -fx-font-size: 12px; -fx-cursor: hand;"
+                    text="Cerrar"/>
+        </HBox>
+        <Label style="-fx-text-fill: #7A5535; -fx-font-size: 9px; -fx-alignment: center; -fx-max-width: Infinity;"
+               text="Los cambios en Configuracion se reflejan al reabrir esta ventana"/>
+    </VBox>
+
+</VBox>
