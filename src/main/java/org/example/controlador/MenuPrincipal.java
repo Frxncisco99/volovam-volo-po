@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.controlador.Temamanager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -57,6 +58,12 @@ public class MenuPrincipal implements Initializable {
         iniciarReloj();
         cargarDatosUsuario();
         cargarDashboard();
+        // Registrar scene para cambios de tema
+        Platform.runLater(() -> {
+            if (lblFecha.getScene() != null) {
+                Temamanager.get().registrarScene(lblFecha.getScene());
+            }
+        });
     }
 
     private void mostrarFecha() {
