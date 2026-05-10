@@ -375,12 +375,13 @@ public class PagoController {
             con.setAutoCommit(false);
 
             PreparedStatement psVenta = con.prepareStatement(
-                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago) VALUES (?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
             psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
             psVenta.setInt(4, idCliente);
+            psVenta.setString(5, metodoPago);   // ← única línea nueva
             psVenta.executeUpdate();
 
             ResultSet rs = psVenta.getGeneratedKeys();

@@ -275,7 +275,6 @@ public class ReporteController {
         boolean tieneMetodoPago = columnaExiste("ventas", "metodo_pago");
         boolean tieneEstado     = columnaExiste("ventas", "estado");
 
-        String colMetodo = tieneMetodoPago ? "COALESCE(v.metodo_pago, 'Efectivo')" : "'Efectivo'";
         String colEstado = tieneEstado     ? "COALESCE(v.estado, 'completada')"    : "'completada'";
 
         String sql =
@@ -285,14 +284,15 @@ public class ReporteController {
                         "  DATE_FORMAT(v.fecha, '%H:%i')    AS hora, " +
                         "  COALESCE(c.nombre, 'Publico General') AS cliente, " +
                         "  u.nombre AS cajero, " +
-                        "  " + colMetodo + " AS metodo_pago, " +
+                        "  COALESCE(p.tipo_pago, v.metodo_pago, 'Efectivo') AS metodo_pago, " +
                         "  (SELECT COALESCE(SUM(dv2.cantidad),0) " +
                         "     FROM detalle_venta dv2 WHERE dv2.id_venta = v.id_venta) AS total_articulos, " +
                         "  v.total, " +
-                        "  " + colEstado + " AS estado " +
+                        "  COALESCE(v.estado, 'completada') AS estado " +
                         "FROM ventas v " +
                         "JOIN usuarios u ON v.id_usuario = u.id_usuario " +
                         "LEFT JOIN clientes c ON v.id_cliente = c.id_cliente " +
+                        "LEFT JOIN pagos p ON p.id_venta = v.id_venta " +
                         "WHERE v.fecha BETWEEN ? AND ? " +
                         "ORDER BY v.fecha DESC";
 
