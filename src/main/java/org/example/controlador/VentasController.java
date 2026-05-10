@@ -784,20 +784,102 @@ public class VentasController {
     }
 
     private void mostrarDetalleVenta(int idVenta) {
-        Stage stage = new Stage(); stage.setTitle("Detalle venta #" + String.format("%04d", idVenta));
-        TableView<Map<String, Object>> tabla = new TableView<>(); tabla.setPrefWidth(480);
-        TableColumn<Map<String, Object>, String> colProd   = new TableColumn<>("Producto"); colProd.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("producto"))); colProd.setPrefWidth(200);
-        TableColumn<Map<String, Object>, String> colCant   = new TableColumn<>("Cant.");    colCant.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.valueOf((int) d.getValue().get("cantidad")))); colCant.setPrefWidth(70);
-        TableColumn<Map<String, Object>, String> colPrecio = new TableColumn<>("Precio");   colPrecio.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("precio")))); colPrecio.setPrefWidth(100);
-        TableColumn<Map<String, Object>, String> colSub    = new TableColumn<>("Subtotal"); colSub.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("subtotal")))); colSub.setPrefWidth(100);
+        Stage stage = new Stage();
+        stage.setTitle("Detalle venta #" + String.format("%04d", idVenta));
+
+        TableView<Map<String, Object>> tabla = new TableView<>();
+        tabla.setPrefWidth(480);
+
+        TableColumn<Map<String, Object>, String> colProd   = new TableColumn<>("Producto");
+        colProd.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("producto")));
+        colProd.setPrefWidth(200);
+
+        TableColumn<Map<String, Object>, String> colCant   = new TableColumn<>("Cant.");
+        colCant.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.valueOf((int) d.getValue().get("cantidad"))));
+        colCant.setPrefWidth(70);
+
+        TableColumn<Map<String, Object>, String> colPrecio = new TableColumn<>("Precio");
+        colPrecio.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("precio"))));
+        colPrecio.setPrefWidth(100);
+
+        TableColumn<Map<String, Object>, String> colSub    = new TableColumn<>("Subtotal");
+        colSub.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("subtotal"))));
+        colSub.setPrefWidth(100);
+
         tabla.getColumns().addAll(colProd, colCant, colPrecio, colSub);
-        String sql = "SELECT p.nombre AS producto, dv.cantidad, dv.precio_unitario AS precio, (dv.cantidad * dv.precio_unitario) AS subtotal FROM detalle_venta dv JOIN productos p ON dv.id_producto = p.id_producto WHERE dv.id_venta = ?";
-        try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idVenta); ResultSet rs = ps.executeQuery();
-            while (rs.next()) { Map<String, Object> fila = new HashMap<>(); fila.put("producto", rs.getString("producto")); fila.put("cantidad", rs.getInt("cantidad")); fila.put("precio", rs.getDouble("precio")); fila.put("subtotal", rs.getDouble("subtotal")); tabla.getItems().add(fila); }
+
+        String sql = "SELECT p.nombre AS producto, dv.cantidad, dv.precio_unitario AS precio, " +
+                "(dv.cantidad * dv.precio_unitario) AS subtotal " +
+                "FROM detalle_venta dv " +
+                "JOIN productos p ON dv.id_producto = p.id_producto " +
+                "WHERE dv.id_venta = ?";
+
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVenta);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> fila = new HashMap<>();
+                fila.put("producto", rs.getString("producto"));
+                fila.put("cantidad", rs.getInt("cantidad"));
+                fila.put("precio",   rs.getDouble("precio"));
+                fila.put("subtotal", rs.getDouble("subtotal"));
+                tabla.getItems().add(fila);
+            }
         } catch (Exception e) { e.printStackTrace(); }
-        VBox layout = new VBox(10, tabla); layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
-        stage.setScene(new Scene(layout, 520, 360)); stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); stage.show();
+
+        // ── Botón cancelar venta (solo visible si tiene permiso) ──────────────
+        Button btnCancelar = new Button("Cancelar esta venta");
+        btnCancelar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; " +
+                "-fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; " +
+                "-fx-font-weight: bold;");
+        btnCancelar.setMaxWidth(Double.MAX_VALUE);
+        btnCancelar.setVisible(org.example.servicio.PermisoService.puede(
+                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA));
+        btnCancelar.setManaged(btnCancelar.isVisible());
+        btnCancelar.setOnAction(e -> manejarCancelacion(idVenta, stage::close));
+
+        VBox layout = new VBox(10, tabla, btnCancelar);
+        layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
+        stage.setScene(new Scene(layout, 520, 400));
+        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        stage.show();
+    }
+    private void manejarCancelacion(int idVenta, Runnable onExito) {
+        if (!org.example.servicio.PermisoService.puede(
+                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA)) {
+            mostrarAlerta("Acceso denegado",
+                    "No tienes permiso para cancelar ventas.\n" +
+                            "Requiere rol: Admin o Supervisor.");
+            return;
+        }
+
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("Cancelar venta");
+        dialog.setHeaderText("Cancelar " + org.example.servicio.FolioService.venta(idVenta));
+        dialog.setContentText("Motivo de cancelación (obligatorio):");
+
+        dialog.showAndWait().ifPresent(motivo -> {
+            if (motivo.trim().isEmpty()) {
+                mostrarAlerta("Motivo requerido", "Debes ingresar un motivo para cancelar.");
+                return;
+            }
+            try {
+                new org.example.servicio.CancelacionService().cancelarVenta(idVenta, motivo.trim());
+                mostrarAlerta("Venta cancelada",
+                        org.example.servicio.FolioService.venta(idVenta) +
+                                " cancelada correctamente.\nEl stock fue restaurado.");
+                if (onExito != null) onExito.run();
+                cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
+            } catch (IllegalStateException e) {
+                mostrarAlerta("No permitido", e.getMessage());
+            } catch (SecurityException e) {
+                mostrarAlerta("Acceso denegado", e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                mostrarAlerta("Error", "No se pudo cancelar: " + e.getMessage());
+            }
+        });
     }
 
     @FXML public void abrirIngreso() { abrirMovimientoCaja("INGRESO"); }
