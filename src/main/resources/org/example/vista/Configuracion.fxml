@@ -671,7 +671,7 @@
                                 <TextArea fx:id="txtMensajePie" prefRowCount="2" promptText="Ej. Gracias por su compra! Vuelva pronto."
                                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-font-size: 11px;" wrapText="true"/>
                                 <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 9px; -fx-font-weight: bold;" text="AVISO FISCAL"/>
-                                <TextField fx:id="txtAvisoFiscal" promptText="Este ticket no es comprobante fiscal" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-padding: 8 12; -fx-font-size: 12px; -fx-background-color: white;"/>
+                                <TextArea fx:id="txtAvisoFiscal" promptText="Este ticket no es comprobante fiscal" prefHeight="60" wrapText="true" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-padding: 8 12; -fx-font-size: 12px; -fx-background-color: white;"/>
                                 <HBox spacing="8">
                                     <Button HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#abrirVistaPrevia"
                                             style="-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-size: 11px;"

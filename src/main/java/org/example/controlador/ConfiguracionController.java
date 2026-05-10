@@ -107,7 +107,7 @@ public class ConfiguracionController {
     @FXML private TextField txtTicketTelefono;
     @FXML private TextArea  txtMensajeEncabezado;
     @FXML private TextArea  txtMensajePie;
-    @FXML private TextField txtAvisoFiscal;
+    @FXML private TextArea txtAvisoFiscal;
     // txtVistaTicket ELIMINADO — la preview vive solo en el modal TicketPreview.fxml
 
     // Panel integraciones
@@ -306,9 +306,9 @@ public class ConfiguracionController {
                 txtTicketDireccion.clear();
                 txtTicketCiudad.clear();
                 txtTicketTelefono.clear();
-                txtMensajeEncabezado.setText("Bienvenido! \nGracias por visitarnos.");
-                txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.");
-                txtAvisoFiscal.setText("Este ticket no es \ncomprobante fiscal");
+                txtMensajeEncabezado.setText("Bienvenido!\nGracias por visitarnos.");
+                txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.\nfacebook.com/VolovanVolo");
+                txtAvisoFiscal.setText("Este ticket no es\nComprobante fiscal");
             }
         });
     }
@@ -340,9 +340,9 @@ public class ConfiguracionController {
         txtTicketDireccion.setText(prefs.get("ticket_direccion", ""));
         txtTicketCiudad.setText(prefs.get("ticket_ciudad", ""));
         txtTicketTelefono.setText(prefs.get("ticket_telefono", ""));
-        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado", "Bienvenido! \nGracias por visitarnos."));
-        txtMensajePie.setText(prefs.get("ticket_pie", "Gracias por su compra!\nVuelva pronto."));
-        txtAvisoFiscal.setText(prefs.get("ticket_aviso", "Este ticket no es \ncomprobante fiscal"));
+        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado", "Bienvenido!\nGracias por visitarnos."));
+        txtMensajePie.setText(prefs.get("ticket_pie", "Gracias por su compra!\nVuelva pronto.\nfacebook.com/VolovanVolo"));
+        txtAvisoFiscal.setText(prefs.get("ticket_aviso", "Este ticket no es\nComprobante fiscal"));
 
         String anchoPref = prefs.get("ticket_ancho", "58 mm");
         if (cmbAnchoPapel.getItems().contains(anchoPref)) cmbAnchoPapel.setValue(anchoPref);

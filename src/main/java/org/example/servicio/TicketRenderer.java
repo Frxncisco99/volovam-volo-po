@@ -48,12 +48,6 @@ public final class TicketRenderer {
 
         StringBuilder sb = new StringBuilder();
 
-        // ── 1. LOGO ───────────────────────────────────────────────────────────
-        if (mostrarLogo) {
-            sb.append(BLK).append('\n');
-            sb.append(centro("", ancho)).append('\n');
-            sb.append(BLK).append('\n');
-        }
 
         // ── 2. ENCABEZADO NEGOCIO ─────────────────────────────────────────────
         sb.append(centro(safe(nombre, "MI NEGOCIO").toUpperCase(), ancho)).append('\n');
@@ -66,7 +60,7 @@ public final class TicketRenderer {
 
         // Mensaje de encabezado personalizado
         if (!blank(encabezado)) {
-            for (String l : encabezado.split("\n"))
+            for (String l : encabezado.split("\\r?\\n"))
                 if (!blank(l)) sb.append(centro(l.trim(), ancho)).append('\n');
             sb.append(SEP1).append('\n');
         }
@@ -139,18 +133,20 @@ public final class TicketRenderer {
         sb.append(derechaFmt("Efectivo:", ticket.getMontoRecibido(), ancho)).append('\n');
         sb.append(derechaFmt("Cambio:",   ticket.getCambio(),        ancho)).append('\n');
 
-        // ── 6. QR ─────────────────────────────────────────────────────────────
-        if (mostrarQR) {
-            sb.append('\n');
-            sb.append(SEP1).append('\n');
-            sb.append(centro("[ CODIGO QR ]", ancho)).append('\n');
-            sb.append(SEP1).append('\n');
-        }
+
+        // ── 6. SEPARADOR ──────────────────────────────────────────────────────
+        sb.append('\n');
+        sb.append(SEP1).append('\n');
 
         // ── 7. AVISO FISCAL ───────────────────────────────────────────────────
         if (!blank(aviso)) {
             sb.append('\n');
-            sb.append(centro(aviso, ancho)).append('\n');
+
+            for (String l : aviso.split("\\r?\\n")) {
+                if (!blank(l)) {
+                    sb.append(centro(l.trim(), ancho)).append('\n');
+                }
+            }
         }
 
         // ── 8. PIE ────────────────────────────────────────────────────────────
