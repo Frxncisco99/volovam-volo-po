@@ -6,6 +6,7 @@
 
 <BorderPane stylesheets="@ventas.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.VentasController">
 
+    <!-- SIDEBAR -->
     <left>
         <!-- Sidebar azul marino igual que el Dashboard -->
         <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
@@ -109,15 +110,18 @@
                                -fx-cursor: hand;" text="Configuracion">
                     <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cog" iconSize="16" /></graphic>
                 </Button>
+
             </VBox>
             <Separator style="-fx-opacity: 0.15;" />
             <Button fx:id="btnCerrarSesion" graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;" text="Cerrar sesion" textFill="RED">
                 <graphic><FontIcon iconColor="rgba(255,150,150,0.9)" iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
             </Button>
+
         </VBox>
     </left>
 
+    <!-- CONTENIDO -->
     <center>
         <!-- Fondo azul claro igual que el Dashboard -->
         <VBox maxHeight="Infinity" style="-fx-background-color: #f0f7ff;">
@@ -199,11 +203,15 @@
                     <ScrollPane fitToWidth="true"
                                 style="-fx-background-color: transparent; -fx-border-color: transparent;"
                                 VBox.vgrow="ALWAYS">
-                        <VBox fx:id="listaProductos" spacing="8" style="-fx-padding: 4;" />
+                        <VBox fx:id="listaProductos" spacing="8" style="-fx-padding: 4;"/>
                     </ScrollPane>
                 </VBox>
 
-                <Separator orientation="VERTICAL" />
+                <Separator orientation="VERTICAL"/>
+
+                <!-- Carrito -->
+                <VBox minWidth="340" prefWidth="380" spacing="10"
+                      style="-fx-background-color: white; -fx-padding: 16;">
 
                 <!-- Carrito -->
                 <VBox minWidth="340" prefWidth="380" spacing="10" style="-fx-background-color: white; -fx-padding: 16;">
@@ -212,6 +220,7 @@
                         <Region HBox.hgrow="ALWAYS" />
                         <Label fx:id="lblCantidadItems" style="-fx-text-fill: #6a96b8; -fx-font-size: 11px;" text="0 items" />
                     </HBox>
+
                     <VBox spacing="4">
                         <Label style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" text="Cliente:" />
                         <HBox alignment="CENTER_LEFT" spacing="6">
@@ -229,13 +238,17 @@
                         </HBox>
                         <Label fx:id="lblCreditoDisponible" style="-fx-font-size: 11px; -fx-text-fill: #2e7d32;" text="" />
                     </VBox>
-                    <Separator />
+
+                    <Separator/>
+
                     <ScrollPane fitToWidth="true"
                                 style="-fx-background-color: transparent; -fx-border-color: transparent;"
                                 VBox.vgrow="ALWAYS">
-                        <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;" />
+                        <VBox fx:id="listaCarrito" spacing="6" style="-fx-padding: 4;"/>
                     </ScrollPane>
-                    <Separator />
+
+                    <Separator/>
+
                     <VBox spacing="6" style="-fx-padding: 4 0;">
                         <HBox alignment="CENTER_LEFT">
                             <Label style="-fx-font-size: 12px; -fx-text-fill: #6a96b8;" text="Subtotal:" />
@@ -247,13 +260,14 @@
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="lblIva" style="-fx-font-size: 12px; -fx-text-fill: #0d3d5e;" text="\$0.00" />
                         </HBox>
-                        <Separator />
+                        <Separator/>
                         <HBox alignment="CENTER_LEFT">
                             <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Total:" />
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="lblTotal" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a6fa8;" text="\$0.00" />
                         </HBox>
                     </VBox>
+
                     <Button fx:id="btnCobrar" onAction="#handleCobrar" prefHeight="45" prefWidth="350"
                             style="-fx-background-color: #1a6fa8; -fx-background-radius: 10;
                                    -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;

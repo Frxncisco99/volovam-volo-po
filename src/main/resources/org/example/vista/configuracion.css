@@ -1,31 +1,35 @@
-
-/*Labels de campo */
+/* Labels de campo */
 .cfg-label {
-    -fx-text-fill: #7A5535;
+    -fx-text-fill: #6a96b8;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
 }
 
-/* Combobox base */
+/* TextField */
 .cfg-field {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #D4C5B0;
-    -fx-border-width: 1;
+    -fx-border-color: #1a6fa8;
+    -fx-border-width: 0.5;
     -fx-padding: 6 10;
     -fx-font-size: 12px;
+    -fx-background-color: white;
 }
 
 .cfg-field:focused {
-    -fx-border-color: #D4A843;
+    -fx-border-color: #0d3d5e;
     -fx-border-width: 1.5;
 }
 
+/* ComboBox */
 .cfg-combo {
     -fx-background-radius: 8;
+    -fx-border-color: #1a6fa8;
+    -fx-border-width: 0.5;
+    -fx-background-color: white;
 }
 
-/* Botones de dia de la semana */
+/* Botones dia de la semana */
 .dia-btn {
     -fx-min-width: 30;
     -fx-min-height: 30;
@@ -34,24 +38,24 @@
     -fx-font-weight: bold;
     -fx-font-size: 11px;
     -fx-cursor: hand;
-    -fx-background-color: #E8DDD0;
-    -fx-text-fill: #7A5535;
+    -fx-background-color: #e8f3fb;
+    -fx-text-fill: #6a96b8;
 }
 
 .dia-btn:selected {
-    -fx-background-color: #6B4226;
+    -fx-background-color: #1a6fa8;
     -fx-text-fill: white;
 }
 
 .dia-btn:hover {
-    -fx-background-color: #C8A97E;
+    -fx-background-color: #4d9ec7;
     -fx-text-fill: white;
 }
 
-/* Botones en tabla de usuarios */
+/* Botones tabla de usuarios */
 .btn-editar {
     -fx-background-color: #EBF3FB;
-    -fx-text-fill: #2980B9;
+    -fx-text-fill: #1a6fa8;
     -fx-background-radius: 6;
     -fx-padding: 4 10;
     -fx-font-size: 11px;
@@ -60,13 +64,13 @@
 }
 
 .btn-editar:hover {
-    -fx-background-color: #2980B9;
+    -fx-background-color: #1a6fa8;
     -fx-text-fill: white;
 }
 
 .btn-clave {
-    -fx-background-color: #FDF0D5;
-    -fx-text-fill: #D4A843;
+    -fx-background-color: #e8f3fb;
+    -fx-text-fill: #1a6fa8;
     -fx-background-radius: 6;
     -fx-padding: 4 10;
     -fx-font-size: 11px;
@@ -75,7 +79,7 @@
 }
 
 .btn-clave:hover {
-    -fx-background-color: #D4A843;
+    -fx-background-color: #1a6fa8;
     -fx-text-fill: white;
 }
 
@@ -99,12 +103,12 @@
     -fx-opacity: 0.85;
 }
 
-/* Scrollpane limpio */
+/* ScrollPane limpio */
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
 
-/* Textarea del ticket */
+/* TextArea */
 .text-area .content {
     -fx-background-color: white;
 }
@@ -112,10 +116,10 @@
 .text-area:focused .content {
     -fx-background-color: white;
 }
-/* ===== TOGGLE BUTTONS CON ANIMACION ===== */
 
+/* ===== SWITCH TOGGLE ===== */
 .toggle-btn-switch {
-    -fx-background-color: #CCBBAA;
+    -fx-background-color: #b0c4d8;
     -fx-background-radius: 12;
     -fx-min-width: 44;
     -fx-min-height: 24;
@@ -125,7 +129,7 @@
 }
 
 .toggle-btn-switch:selected {
-    -fx-background-color: #D4A843;
+    -fx-background-color: #1a6fa8;
 }
 
 .toggle-btn-switch:hover {
@@ -141,5 +145,5 @@
 }
 
 .toggle-btn-switch:selected:hover {
-    -fx-background-color: #C49A35;
+    -fx-background-color: #155e96;
 }

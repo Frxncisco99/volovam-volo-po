@@ -306,9 +306,9 @@ public class ConfiguracionController {
                 txtTicketDireccion.clear();
                 txtTicketCiudad.clear();
                 txtTicketTelefono.clear();
-                txtMensajeEncabezado.setText("Bienvenido! Gracias por visitarnos.");
+                txtMensajeEncabezado.setText("Bienvenido! \nGracias por visitarnos.");
                 txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.");
-                txtAvisoFiscal.setText("Este ticket no es comprobante fiscal");
+                txtAvisoFiscal.setText("Este ticket no es \ncomprobante fiscal");
             }
         });
     }
@@ -340,9 +340,9 @@ public class ConfiguracionController {
         txtTicketDireccion.setText(prefs.get("ticket_direccion", ""));
         txtTicketCiudad.setText(prefs.get("ticket_ciudad", ""));
         txtTicketTelefono.setText(prefs.get("ticket_telefono", ""));
-        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado", "Bienvenido! Gracias por visitarnos."));
+        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado", "Bienvenido! \nGracias por visitarnos."));
         txtMensajePie.setText(prefs.get("ticket_pie", "Gracias por su compra!\nVuelva pronto."));
-        txtAvisoFiscal.setText(prefs.get("ticket_aviso", "Este ticket no es comprobante fiscal"));
+        txtAvisoFiscal.setText(prefs.get("ticket_aviso", "Este ticket no es \ncomprobante fiscal"));
 
         String anchoPref = prefs.get("ticket_ancho", "58 mm");
         if (cmbAnchoPapel.getItems().contains(anchoPref)) cmbAnchoPapel.setValue(anchoPref);
