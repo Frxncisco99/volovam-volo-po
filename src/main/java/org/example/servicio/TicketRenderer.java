@@ -4,28 +4,17 @@ import org.example.modelo.Ticket;
 import java.time.format.DateTimeFormatter;
 
 /**
- * ══════════════════════════════════════════════════════════════════════
- *  TicketRenderer  ·  Fuente única de verdad del layout del ticket
- * ══════════════════════════════════════════════════════════════════════
+ * TicketRenderer — Fuente única de verdad del layout del ticket.
  *
- *  Genera el String canónico del ticket en formato monoespaciado.
- *  Tanto la vista previa (TextArea) como la impresión ESC/POS consumen
- *  este mismo String → lo que se ve en pantalla = lo que sale impreso.
+ * Genera el String canónico en formato monoespaciado.
+ * La vista previa (TextArea) y la impresora ESC/POS consumen
+ * exactamente este mismo String → fidelidad 1:1 garantizada.
  *
- *  Ubicación: src/main/java/org/example/servicio/TicketRenderer.java
- *
- *  Callers:
- *    TicketPreviewController  → preview modal
- *    ConfiguracionController  → mini-preview inline
- *    TicketImpresora          → impresión real ESC/POS
- *    TicketService            → textoPlano() para TicketController
+ * Ubicación: src/main/java/org/example/servicio/TicketRenderer.java
  */
 public final class TicketRenderer {
 
-    /** Columnas para papel 58 mm (32 chars a 12 CPI). */
     public static final int ANCHO_58MM = 32;
-
-    /** Columnas para papel 80 mm (42 chars a 12 CPI). */
     public static final int ANCHO_80MM = 42;
 
     private static final DateTimeFormatter FMT =
@@ -33,171 +22,189 @@ public final class TicketRenderer {
 
     private TicketRenderer() {}
 
-    // ── API pública ───────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    //  API pública
+    // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Genera el texto completo del ticket.
-     *
-     * @param ticket          Datos de la venta (nunca null).
-     * @param nombre          Nombre del negocio en ticket.
-     * @param giro            Giro/descripción.
-     * @param direccion       Dirección física.
-     * @param ciudad          Ciudad / C.P.
-     * @param telefono        Teléfono de contacto.
-     * @param encabezado      Mensaje de bienvenida (multilinea \n permitido).
-     * @param pie             Mensaje de despedida (multilinea \n permitido).
-     * @param aviso           Aviso fiscal (ej. "No es comprobante fiscal").
-     * @param mostrarLogo     Imprime marcador [LOGO] para el logo gráfico.
-     * @param mostrarFolio    Imprime número de folio.
-     * @param mostrarDesglose Imprime línea de subtotal.
-     * @param mostrarQR       Imprime marcador [QR].
-     * @param mostrarFecha    Imprime fecha y hora.
-     * @param mostrarCajero   Imprime nombre del cajero.
-     * @param ancho           Usar ANCHO_58MM (32) o ANCHO_80MM (42).
-     */
     public static String generar(Ticket ticket,
-                                 String nombre,    String giro,
-                                 String direccion, String ciudad, String telefono,
-                                 String encabezado, String pie,  String aviso,
-                                 boolean mostrarLogo,   boolean mostrarFolio,
+                                 String nombre,     String giro,
+                                 String direccion,  String ciudad,  String telefono,
+                                 String encabezado, String pie,     String aviso,
+                                 boolean mostrarLogo,     boolean mostrarFolio,
                                  boolean mostrarDesglose, boolean mostrarQR,
-                                 boolean mostrarFecha, boolean mostrarCajero,
+                                 boolean mostrarFecha,    boolean mostrarCajero,
                                  int ancho) {
 
-        final String SEP  = rep('=', ancho);
-        final String SEPM = rep('-', ancho);
+        // Separadores
+        final String SEP2 = rep('=', ancho);           // ════  sección principal
+        final String SEP1 = rep('-', ancho);           // ────  sección secundaria
+        final String BLK  = "";                        // línea vacía
 
-        // Para 58 mm: 3 columnas (nombre|cant|importe)
-        // Para 80 mm: 4 columnas (nombre|cant|p.u.|subt.)
+        // Columnas de productos
+        // 58 mm (32): nombre(19) + sp(1) + cant(3) + sp(1) + importe(8)  = 32
+        // 80 mm (42): nombre(19) + sp(1) + cant(3) + sp(1) + pu(8) + sp(1) + sub(9) = 42
         final boolean tresCol = (ancho <= ANCHO_58MM);
-        // nameWidth fijo para que las columnas numéricas siempre cuadren
-        final int nw = tresCol ? (ancho - 13) : (ancho - 23);  // 19 / 19
+        final int NW = tresCol ? 19 : 19;   // nombre siempre 19 chars
 
         StringBuilder sb = new StringBuilder();
 
-        // ── Encabezado negocio ────────────────────────────────────────────────
-        if (mostrarLogo)
-            sb.append(centro("[  LOGO  ]", ancho)).append('\n');
+        // ── 1. LOGO ───────────────────────────────────────────────────────────
+        if (mostrarLogo) {
+            sb.append(BLK).append('\n');
+            sb.append(centro("", ancho)).append('\n');
+            sb.append(BLK).append('\n');
+        }
 
-        sb.append(centro(safe(nombre, "NEGOCIO").toUpperCase(), ancho)).append('\n');
-        if (!blank(giro))      sb.append(centro(giro,         ancho)).append('\n');
-        if (!blank(direccion)) sb.append(centro(direccion,    ancho)).append('\n');
-        if (!blank(ciudad))    sb.append(centro(ciudad,       ancho)).append('\n');
+        // ── 2. ENCABEZADO NEGOCIO ─────────────────────────────────────────────
+        sb.append(centro(safe(nombre, "MI NEGOCIO").toUpperCase(), ancho)).append('\n');
+        if (!blank(giro))      sb.append(centro(giro,          ancho)).append('\n');
+        if (!blank(direccion)) sb.append(centro(direccion,     ancho)).append('\n');
+        if (!blank(ciudad))    sb.append(centro(ciudad,        ancho)).append('\n');
         if (!blank(telefono))  sb.append(centro("Tel: " + telefono, ancho)).append('\n');
-        if (!blank(aviso))     sb.append(centro(aviso,        ancho)).append('\n');
-        sb.append(SEP).append('\n');
 
+        sb.append(SEP2).append('\n');
+
+        // Mensaje de encabezado personalizado
         if (!blank(encabezado)) {
             for (String l : encabezado.split("\n"))
-                sb.append(centro(l.trim(), ancho)).append('\n');
-            sb.append(SEPM).append('\n');
+                if (!blank(l)) sb.append(centro(l.trim(), ancho)).append('\n');
+            sb.append(SEP1).append('\n');
         }
 
-        // ── Datos de la venta ─────────────────────────────────────────────────
+        // ── 3. DATOS DE VENTA ─────────────────────────────────────────────────
         if (mostrarFolio)
-            sb.append("Folio : #").append(String.format("%06d", ticket.getIdVenta()))
-                    .append('\n');
+            sb.append(par("Folio", String.format("#%06d", ticket.getIdVenta()), ancho)).append('\n');
         if (mostrarFecha)
-            sb.append("Fecha : ").append(ticket.getFechaHora().format(FMT)).append('\n');
+            sb.append(par("Fecha", ticket.getFechaHora().format(FMT), ancho)).append('\n');
         if (mostrarCajero)
-            sb.append("Cajero: ").append(ticket.getNombreCajero()).append('\n');
-        sb.append("Caja  : ").append(ticket.getNumeroCaja()).append('\n');
-        sb.append(SEPM).append('\n');
+            sb.append(par("Cajero", ticket.getNombreCajero(), ancho)).append('\n');
+        sb.append(par("Caja", String.valueOf(ticket.getNumeroCaja()), ancho)).append('\n');
 
-        // ── Cabecera de columnas ──────────────────────────────────────────────
+        sb.append(SEP1).append('\n');
+
+        // ── 4. TABLA DE PRODUCTOS ─────────────────────────────────────────────
         if (tresCol) {
-            sb.append(String.format("%-" + nw + "s %4s %7s\n",
-                    "PRODUCTO", "CANT", "IMPORTE"));
+            // Cabecera: nombre(19) cant(3) importe(8) con 1 esp entre cols = 32
+            sb.append(String.format("%-19s %3s %8s\n", "DESCRIPCION", "QTY", "IMPORTE"));
         } else {
-            sb.append(String.format("%-" + nw + "s %4s %8s %8s\n",
-                    "PRODUCTO", "CANT", "P.U.", "SUBT."));
+            sb.append(String.format("%-19s %3s %8s %9s\n",
+                    "DESCRIPCION", "QTY", "P.U.", "TOTAL"));
         }
-        sb.append(SEPM).append('\n');
+        sb.append(SEP1).append('\n');
 
-        // ── Líneas de producto ────────────────────────────────────────────────
         for (Ticket.LineaTicket l : ticket.getLineas()) {
-            String prod  = l.getNombreProducto();
-            boolean larga = prod.length() > nw;
+            String prod = l.getNombreProducto();
 
             if (tresCol) {
-                if (larga) {
-                    sb.append(String.format("%-" + nw + "s\n", cortar(prod, nw)));
-                    sb.append(String.format("%-" + nw + "s %4d %7.2f\n",
-                            cortar("  " + prod.substring(nw), nw),
+                if (prod.length() > NW) {
+                    // Línea larga: nombre en primera fila, valores en segunda
+                    sb.append(String.format("%-19s\n", cortar(prod, 19)));
+                    sb.append(String.format("  %-17s %3d %8.2f\n",
+                            cortar(prod.substring(Math.min(19, prod.length())), 17),
                             l.getCantidad(), l.getSubtotal()));
                 } else {
-                    sb.append(String.format("%-" + nw + "s %4d %7.2f\n",
+                    sb.append(String.format("%-19s %3d %8.2f\n",
                             prod, l.getCantidad(), l.getSubtotal()));
                 }
             } else {
-                if (larga) {
-                    sb.append(String.format("%-" + nw + "s\n", cortar(prod, nw)));
-                    sb.append(String.format("%-" + nw + "s %4d %8.2f %8.2f\n",
-                            cortar("  " + prod.substring(nw), nw),
+                if (prod.length() > NW) {
+                    sb.append(String.format("%-19s\n", cortar(prod, 19)));
+                    sb.append(String.format("  %-17s %3d %8.2f %9.2f\n",
+                            cortar(prod.substring(Math.min(19, prod.length())), 17),
                             l.getCantidad(), l.getPrecioUnitario(), l.getSubtotal()));
                 } else {
-                    sb.append(String.format("%-" + nw + "s %4d %8.2f %8.2f\n",
+                    sb.append(String.format("%-19s %3d %8.2f %9.2f\n",
                             prod, l.getCantidad(), l.getPrecioUnitario(), l.getSubtotal()));
                 }
             }
         }
 
-        // ── Totales ───────────────────────────────────────────────────────────
+        // ── 5. TOTALES ────────────────────────────────────────────────────────
         int totalArt = ticket.getLineas().stream()
                 .mapToInt(Ticket.LineaTicket::getCantidad).sum();
-        sb.append(SEPM).append('\n');
-        sb.append("Articulos: ").append(totalArt).append(" pza(s)\n");
-        sb.append(SEP).append('\n');
+
+        sb.append(SEP1).append('\n');
+        sb.append(par("Articulos", totalArt + " pza(s)", ancho)).append('\n');
+        sb.append(SEP2).append('\n');
 
         if (mostrarDesglose)
-            sb.append(derecha("Subtotal:", monto(ticket.getSubtotal()), ancho)).append('\n');
+            sb.append(derechaFmt("Subtotal:", ticket.getSubtotal(), ancho)).append('\n');
 
-        sb.append(derecha("TOTAL:", monto(ticket.getTotal()), ancho)).append('\n');
-        sb.append(SEP).append('\n');
-        sb.append(derecha("Efectivo:", monto(ticket.getMontoRecibido()), ancho)).append('\n');
-        sb.append(derecha("Cambio:",   monto(ticket.getCambio()),        ancho)).append('\n');
+        // Línea TOTAL destacada con espacio arriba
+        sb.append(derechaFmt("TOTAL:", ticket.getTotal(), ancho)).append('\n');
+        sb.append(SEP2).append('\n');
+        sb.append('\n');
 
-        // ── QR ────────────────────────────────────────────────────────────────
+        // Pago
+        sb.append(derechaFmt("Efectivo:", ticket.getMontoRecibido(), ancho)).append('\n');
+        sb.append(derechaFmt("Cambio:",   ticket.getCambio(),        ancho)).append('\n');
+
+        // ── 6. QR ─────────────────────────────────────────────────────────────
         if (mostrarQR) {
-            sb.append(SEPM).append('\n');
-            sb.append(centro("[ QR ]", ancho)).append('\n');
+            sb.append('\n');
+            sb.append(SEP1).append('\n');
+            sb.append(centro("[ CODIGO QR ]", ancho)).append('\n');
+            sb.append(SEP1).append('\n');
         }
 
-        // ── Pie ───────────────────────────────────────────────────────────────
+        // ── 7. AVISO FISCAL ───────────────────────────────────────────────────
+        if (!blank(aviso)) {
+            sb.append('\n');
+            sb.append(centro(aviso, ancho)).append('\n');
+        }
+
+        // ── 8. PIE ────────────────────────────────────────────────────────────
         if (!blank(pie)) {
-            sb.append(SEPM).append('\n');
+            sb.append('\n');
+            sb.append(SEP1).append('\n');
             for (String l : pie.split("\n"))
-                sb.append(centro(l.trim(), ancho)).append('\n');
+                if (!blank(l)) sb.append(centro(l.trim(), ancho)).append('\n');
         }
 
+        // Avance de papel antes del corte
         sb.append('\n').append('\n').append('\n');
         return sb.toString();
     }
 
-    // ── Helpers de formato (acceso paquete para tests) ────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Helpers de formato
+    // ─────────────────────────────────────────────────────────────────────────
 
-    static String centro(String texto, int ancho) {
-        if (texto == null || texto.isEmpty()) return "";
+    /** Centra texto en 'ancho' columnas. */
+    public static String centro(String texto, int ancho) {
+        if (blank(texto)) return "";
         if (texto.length() >= ancho) return texto.substring(0, ancho);
         int pad = (ancho - texto.length()) / 2;
         return " ".repeat(pad) + texto;
     }
 
-    static String derecha(String izq, String der, int ancho) {
+    /**
+     * Dos columnas: etiqueta a la izquierda, valor a la derecha.
+     * "Fecha" + "01/01/2025 10:00" → "Fecha    01/01/2025 10:00"
+     */
+    public static String par(String izq, String der, int ancho) {
         int espacios = ancho - izq.length() - der.length();
         if (espacios < 1) espacios = 1;
         return izq + " ".repeat(espacios) + der;
     }
 
-    static String rep(char c, int n) {
+    /**
+     * Etiqueta a la izquierda, monto formateado a la derecha.
+     * "TOTAL:" + 141.00 → "TOTAL:              $141.00"
+     */
+    public static String derechaFmt(String etiqueta, double valor, int ancho) {
+        String montoStr = String.format("$%8.2f", valor);
+        return par(etiqueta, montoStr, ancho);
+    }
+
+    /** Repite un carácter n veces. */
+    public static String rep(char c, int n) {
         return String.valueOf(c).repeat(Math.max(0, n));
     }
 
-    // ── Privados ──────────────────────────────────────────────────────────────
-
-    private static String monto(double v) {
-        return String.format("$%7.2f", v);
-    }
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Privados
+    // ─────────────────────────────────────────────────────────────────────────
 
     private static String cortar(String s, int max) {
         if (s == null) return "";
