@@ -210,10 +210,6 @@
                 <Separator orientation="VERTICAL"/>
 
                 <!-- Carrito -->
-                <VBox minWidth="340" prefWidth="380" spacing="10"
-                      style="-fx-background-color: white; -fx-padding: 16;">
-
-                <!-- Carrito -->
                 <VBox minWidth="340" prefWidth="380" spacing="10" style="-fx-background-color: white; -fx-padding: 16;">
                     <HBox alignment="CENTER_LEFT">
                         <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Carrito" />

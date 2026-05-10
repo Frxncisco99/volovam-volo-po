@@ -5,96 +5,80 @@
 <?import org.example.modelo.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-            stylesheets="@configuracion.css"
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@menuPrincipal.css"
             fx:controller="org.example.controlador.ConfiguracionController">
 
     <!-- SIDEBAR -->
     <left>
-        <VBox prefWidth="198" style="-fx-background-color: #091e4e;">
+        <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
 
-            <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
-                <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo"/>
-                <Label style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA"/>
+            <!-- Marca -->
+            <VBox prefHeight="72.0" prefWidth="219.0" spacing="3" style="-fx-padding: 24 18 16 18;">
+                <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo" />
+                <Label style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA" />
             </VBox>
 
-            <Separator style="-fx-opacity: 0.15;"/>
+            <Separator style="-fx-opacity: 0.15;" />
 
+            <!-- Usuario -->
             <HBox spacing="10" style="-fx-padding: 14 18;">
-                <Label fx:id="lblAvatarIniciales"
-                       style="-fx-background-color: rgba(255,255,255,0.22); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 36; -fx-min-height: 36; -fx-background-radius: 18; -fx-alignment: center;"
-                       text="--"/>
+                <Label fx:id="lblAvatarIniciales" style="-fx-background-color: rgba(255,255,255,0.22);                               -fx-text-fill: white;                               -fx-font-weight: bold;                               -fx-font-size: 13px;                               -fx-min-width: 36; -fx-min-height: 36;                               -fx-background-radius: 18;                               -fx-alignment: center;" text="AD" />
                 <VBox spacing="2">
-                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario"/>
-                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol"/>
+                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario" />
+                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol" />
                 </VBox>
             </HBox>
 
-            <Separator style="-fx-opacity: 0.15;"/>
+            <Separator style="-fx-opacity: 0.15;" />
 
+            <!-- Navegación -->
             <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
 
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 8 8 3 8;" text="PRINCIPAL"/>
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35);                               -fx-font-size: 9px; -fx-font-weight: bold;                               -fx-padding: 8 8 3 8;" text="PRINCIPAL" />
 
-                <Button graphicTextGap="12" onAction="#irADashboard" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Dashboard">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-tachometer-alt" iconSize="15"/></graphic>
+
+                <Button graphicTextGap="12" onAction="#irADashboard" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Dashboard">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-tachometer-alt" iconSize="16" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAVentas" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Ventas / Caja">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-shopping-cart" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAVentas" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Ventas / Caja">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-shopping-cart" iconSize="16" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Inventario">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-box" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Inventario">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-box" iconSize="16" /></graphic>
                 </Button>
 
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTION"/>
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35);                               -fx-font-size: 9px; -fx-font-weight: bold;                               -fx-padding: 12 8 3 8;" text="GESTIÓN" />
 
-                <Button graphicTextGap="12" onAction="#irAEmpleados" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Empleados">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-users" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAEmpleados" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Empleados">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-users" iconSize="16" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAClientes" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Clientes">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-user-friends" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAClientes" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Clientes">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-user-friends" iconSize="16" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAReportes" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Reportes">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-chart-bar" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAReportes" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Reportes">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-chart-bar" iconSize="16" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Corte de Caja">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Corte de Caja">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
 
-                <!-- Activo -->
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="210"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Configuracion">
-                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-cog" iconSize="15"/></graphic>
+                <Button graphicTextGap="12" prefHeight="40" prefWidth="210" style="-fx-background-color: white;                                -fx-text-fill: #1a6fa8;                                -fx-font-weight: bold;                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuracion">
+                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-cog" iconSize="16" /></graphic>
                 </Button>
 
             </VBox>
 
-            <Separator style="-fx-opacity: 0.15;"/>
+            <Separator style="-fx-opacity: 0.15;" />
 
-            <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;"
-                    text="Cerrar sesion">
-                <graphic><FontIcon iconColor="#ff0000e5" iconLiteral="fas-sign-out-alt" iconSize="15"/></graphic>
+            <!-- Cerrar sesión -->
+            <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230" style="-fx-background-color: transparent;                            -fx-text-fill: rgba(255,180,180,0.9);                            -fx-cursor: hand;" text="Cerrar sesion" textFill="RED">
+                <graphic><FontIcon iconColor="#ff0000e5" iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
             </Button>
 
         </VBox>
