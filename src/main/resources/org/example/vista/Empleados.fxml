@@ -13,152 +13,172 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.controlador.EmpleadosController"
-            stylesheets="@menuPrincipal.css">
+            fx:controller="org.example.controlador.EmpleadosController">
 
     <!--SIDEBAR-->
     <left>
-        <VBox prefWidth="230" style="-fx-background-color: #3D1F0D;">
-            <VBox spacing="2" style="-fx-padding: 28 20 16 20;">
-                <Label style="-fx-text-fill: #D4A843; -fx-font-size: 22px; -fx-font-weight: bold;" text="Volovan Volo"/>
-                <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 10px;" text="Sistema de Punto de Venta"/>
+        <VBox prefWidth="198" style="-fx-background-color: #091e4e;">
+
+            <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
+                <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo"/>
+                <Label style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA"/>
             </VBox>
-            <Separator style="-fx-opacity: 0.2;"/>
-            <HBox spacing="12" style="-fx-padding: 16 20;">
+
+            <Separator style="-fx-opacity: 0.15;"/>
+
+            <HBox spacing="10" style="-fx-padding: 14 18;">
                 <Label fx:id="lblAvatarIniciales"
-                       style="-fx-background-color: #D4A843; -fx-text-fill: #864628; -fx-font-weight: bold; -fx-font-size: 14px; -fx-min-width: 38; -fx-min-height: 38; -fx-background-radius: 19; -fx-alignment: center;"
+                       style="-fx-background-color: rgba(255,255,255,0.22); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 36; -fx-min-height: 36; -fx-background-radius: 18; -fx-alignment: center;"
                        text="AD"/>
                 <VBox spacing="2">
-                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;" text="Usuario"/>
-                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: #C8A97E; -fx-font-size: 10px;" text="Rol"/>
+                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario"/>
+                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol"/>
                 </VBox>
             </HBox>
-            <Separator style="-fx-opacity: 0.2;"/>
-            <VBox spacing="4" style="-fx-padding: 12;" VBox.vgrow="ALWAYS">
-                <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;" text="PRINCIPAL"/>
-                <Button prefHeight="40" prefWidth="206" onAction="#irADashboard"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+            <Separator style="-fx-opacity: 0.15;"/>
+
+            <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
+
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 8 8 3 8;" text="PRINCIPAL"/>
+
+                <Button prefHeight="40" prefWidth="210" onAction="#irADashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Dashboard" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" onAction="#irAVentas"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+                <Button prefHeight="40" prefWidth="210" onAction="#irAVentas"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Ventas / Caja" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Inventario">
-                    <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-box" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 4 8;" text="GESTION"/>
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="206" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Empleados">
-                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-users" iconSize="16"/></graphic>
+
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTION"/>
+
+                <!-- Activo -->
+                <Button graphicTextGap="12" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Empleados">
+                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-users" iconSize="15"/></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="206" onAction="#irAClientes" style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;" text="Clientes" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#C8A97E"/></graphic>
+
+                <Button prefHeight="40" prefWidth="210" onAction="#irAClientes"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Clientes" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+                <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Reportes">
-                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-chart-bar" iconSize="16"/></graphic>
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-chart-bar" iconSize="15"/></graphic>
                 </Button>
-                <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+                <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Corte de Caja">
-                    <graphic><FontIcon iconColor="#C8A97E" iconLiteral="fas-cash-register" iconSize="16"/></graphic>
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="15"/></graphic>
                 </Button>
-                <Button onAction="#irAConfiguracion" prefHeight="40" prefWidth="206"
-                        style="-fx-background-color: transparent; -fx-text-fill: #C8A97E; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 15; -fx-cursor: hand;"
+
+                <Button onAction="#irAConfiguracion" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Configuracion" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#C8A97E"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
+
             </VBox>
-            <Separator style="-fx-opacity: 0.2;"/>
+
+            <Separator style="-fx-opacity: 0.15;"/>
+
             <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230"
-                    style="-fx-background-color: transparent; -fx-text-fill: #C0392B; -fx-cursor: hand;"
+                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;"
                     text="Cerrar sesion" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#C0392B"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15" iconColor="#ff0000e5"/></graphic>
             </Button>
+
         </VBox>
     </left>
 
     <!--CENTRO-->
     <center>
-        <VBox style="-fx-background-color: #F5EFE6;">
+        <VBox style="-fx-background-color: #f0f7ff;">
 
-            <!-- topbar-->
-            <HBox alignment="CENTER_LEFT" styleClass="topbar">
+            <!-- TOPBAR -->
+            <HBox alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 14 24; -fx-effect: dropshadow(gaussian, #1a6fa815, 8, 0, 0, 2);">
                 <VBox spacing="2">
-                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="Empleados"/>
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text="Gestion de usuarios"/>
+                    <Label style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Empleados"/>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" text="Gestion de usuarios"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button onAction="#handleNuevoEmpleado"
-                        style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;"
+                        style="-fx-background-color: #1a6fa8; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;"
                         text="+ Nuevo empleado"/>
             </HBox>
 
-            <!--stats bar-->
+            <!-- STATS BAR -->
             <HBox spacing="14" style="-fx-padding: 16 20 0 20;">
 
-                <HBox spacing="12" alignment="CENTER_LEFT"
-                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #D4C9B0; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(61,31,13,0.07),8,0,0,2);"
-                      HBox.hgrow="ALWAYS">
-                    <Label style="-fx-background-color: #F0EAD0; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="👥"/>
+                <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #1a6fa820; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
+                    <Label style="-fx-background-color: #e8f3fb; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="👥"/>
                     <VBox spacing="2">
-                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #7A5535;" text="TOTAL"/>
-                        <Label fx:id="lblStatTotal" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6B4226;" text="0"/>
+                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="TOTAL"/>
+                        <Label fx:id="lblStatTotal" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="0"/>
                     </VBox>
                 </HBox>
 
-                <HBox spacing="12" alignment="CENTER_LEFT"
-                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #D4C9B0; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(61,31,13,0.07),8,0,0,2);"
-                      HBox.hgrow="ALWAYS">
+                <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #1a6fa820; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
                     <Label style="-fx-background-color: #E8F5E9; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="✅"/>
                     <VBox spacing="2">
-                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #7A5535;" text="ACTIVOS"/>
+                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="ACTIVOS"/>
                         <Label fx:id="lblStatActivos" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;" text="0"/>
                     </VBox>
                 </HBox>
 
-                <HBox spacing="12" alignment="CENTER_LEFT"
-                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #D4C9B0; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(61,31,13,0.07),8,0,0,2);"
-                      HBox.hgrow="ALWAYS">
+                <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #1a6fa820; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
                     <Label style="-fx-background-color: #FFF3E0; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="⏸"/>
                     <VBox spacing="2">
-                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #7A5535;" text="INACTIVOS"/>
+                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="INACTIVOS"/>
                         <Label fx:id="lblStatInactivos" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #E65100;" text="0"/>
                     </VBox>
                 </HBox>
 
-                <HBox spacing="12" alignment="CENTER_LEFT"
-                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #D4C9B0; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(61,31,13,0.07),8,0,0,2);"
-                      HBox.hgrow="ALWAYS">
-                    <Label style="-fx-background-color: #F0EAD0; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="🔑"/>
+                <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #1a6fa820; -fx-border-width: 0.5; -fx-border-radius: 12; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
+                    <Label style="-fx-background-color: #e8f3fb; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center; -fx-font-size: 16px;" text="🔑"/>
                     <VBox spacing="2">
-                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #7A5535;" text="ROLES"/>
-                        <Label fx:id="lblStatRoles" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #D4A843;" text="0"/>
+                        <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="ROLES"/>
+                        <Label fx:id="lblStatRoles" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1a6fa8;" text="0"/>
                     </VBox>
                 </HBox>
 
             </HBox>
 
-            <!--filtros-->
+            <!-- FILTROS -->
             <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 14 20 10 20;">
                 <TextField fx:id="txtBuscar" promptText="Buscar por nombre o usuario…" prefWidth="240"
-                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-padding: 8 12; -fx-font-size: 12px; -fx-background-color: white;"/>
+                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-padding: 8 12; -fx-font-size: 12px; -fx-background-color: white;"/>
                 <ComboBox fx:id="cmbFiltroRol" promptText="Todos los roles" prefWidth="150"
-                          style="-fx-background-radius: 8; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-color: white; -fx-font-size: 12px;"/>
+                          style="-fx-background-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-background-color: white; -fx-font-size: 12px;"/>
                 <ComboBox fx:id="cmbFiltroEstado" promptText="Todos los estados" prefWidth="150"
-                          style="-fx-background-radius: 8; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-background-color: white; -fx-font-size: 12px;"/>
+                          style="-fx-background-radius: 8; -fx-border-color: #1a6fa8; -fx-border-width: 0.5; -fx-background-color: white; -fx-font-size: 12px;"/>
                 <Button onAction="#limpiarFiltros"
-                        style="-fx-background-color: white; -fx-text-fill: #6B4226; -fx-border-color: #D4C9B0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 12px;"
+                        style="-fx-background-color: transparent; -fx-text-fill: #1a6fa8; -fx-border-color: #1a6fa8; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 12px;"
                         text="Limpiar"/>
-                <Label fx:id="lblConteo" style="-fx-font-size: 11px; -fx-text-fill: #7A5535;" text=""/>
+                <Label fx:id="lblConteo" style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" text=""/>
             </HBox>
 
-            <!--tarjetas-->
+            <!-- TARJETAS -->
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
                 <FlowPane fx:id="flowTarjetas" hgap="16" vgap="16"
