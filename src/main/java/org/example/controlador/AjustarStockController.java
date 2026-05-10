@@ -101,6 +101,32 @@ public class AjustarStockController {
         }
 
         dao.ajustarStock(producto.getIdProducto(), ajuste);
+
+        // Registrar movimiento de inventario
+        try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion()) {
+            org.example.servicio.InventarioMovimientoService.TipoMovimiento tipo = esAdicion
+                    ? org.example.servicio.InventarioMovimientoService.TipoMovimiento.AJUSTE_ENTRADA
+                    : org.example.servicio.InventarioMovimientoService.TipoMovimiento.AJUSTE_SALIDA;
+
+            org.example.servicio.InventarioMovimientoService.get().registrar(
+                    con, producto.getIdProducto(), tipo, cantidad,
+                    0, "AJUSTE_MANUAL",
+                    "Ajuste manual de stock por " +
+                            org.example.modelo.SesionUsuario.getInstancia().getNombre()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Auditoría
+        org.example.servicio.AuditoriaService.get().registrar(
+                "AJUSTE_STOCK", "productos", producto.getIdProducto(),
+                String.format("Producto: %s — %s %d unidades — Stock resultante: %d",
+                        producto.getNombre(),
+                        esAdicion ? "Entrada" : "Salida",
+                        cantidad, resultado)
+        );
+
         cerrar();
     }
 
