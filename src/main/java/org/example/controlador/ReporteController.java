@@ -38,6 +38,7 @@ import java.awt.Desktop;
 import javafx.stage.FileChooser;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import org.example.servicio.ReporteExcelService;
 
 public class ReporteController {
 
@@ -116,6 +117,7 @@ public class ReporteController {
     private final ReporteService    service = new ReporteService();
     private final ReportePDFService pdf     = new ReportePDFService();
     private final DecimalFormat     df      = new DecimalFormat("#,##0.00");
+    private final ReporteExcelService excel = new ReporteExcelService();
 
     // ─────────────────────────────────────────────────────────────
     // INIT
@@ -533,6 +535,66 @@ public class ReporteController {
             }
             alerta("PDF guardado ✔  →  " + archivoDestino.getName());
         } catch (Exception e) { e.printStackTrace(); alerta("Error al guardar PDF"); }
+    }
+    @FXML
+    private void exportarExcel() {
+        if (dateInicio.getValue() == null || dateFin.getValue() == null) {
+            alerta("Selecciona fechas primero."); return;
+        }
+        if (cbTipoReporte.getValue() == null) {
+            alerta("Selecciona tipo de reporte."); return;
+        }
+
+        try {
+            LocalDateTime inicio = dateInicio.getValue().atStartOfDay();
+            LocalDateTime fin    = dateFin.getValue().atTime(23, 59);
+
+            String tipoLimpio = cbTipoReporte.getValue()
+                    .replace(" ", "_")
+                    .replace("á","a").replace("é","e")
+                    .replace("í","i").replace("ó","o").replace("ú","u");
+            String fechaHoy = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Guardar reporte Excel");
+            fc.setInitialFileName("Reporte_" + tipoLimpio + "_" + fechaHoy + ".xlsx");
+            fc.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Excel (.xlsx)", "*.xlsx"));
+            File docFolder = new File(System.getProperty("user.home") + "/Documents");
+            fc.setInitialDirectory(docFolder.exists() ? docFolder
+                    : new File(System.getProperty("user.home")));
+
+            File destino = fc.showSaveDialog((Stage) cbTipoReporte.getScene().getWindow());
+            if (destino == null) return;
+
+            String ruta = destino.getAbsolutePath();
+
+            switch (cbTipoReporte.getValue()) {
+                case "Ventas" -> {
+                    List<Ticket> tickets = service.obtenerTickets(inicio, fin);
+                    double total    = service.calcularTotal(tickets);
+                    int    cantidad = service.contarTickets(tickets);
+                    double promedio = service.calcularPromedio(tickets);
+                    Map<String, Integer> top = service.topProductos(tickets);
+                    excel.generarReporteVentas(tickets, total, cantidad, promedio, top, ruta);
+                }
+                case "Productos más vendidos" -> {
+                    if (ultimoTop == null) {
+                        List<Ticket> tickets = service.obtenerTickets(inicio, fin);
+                        ultimoTop = service.topProductos(tickets);
+                    }
+                    excel.generarTopProductos(ultimoTop, ruta);
+                }
+                case "Bajo stock" ->
+                        excel.generarBajoStock(service.obtenerBajoStock(), ruta);
+            }
+
+            alerta("Excel guardado ✔  →  " + destino.getName());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alerta("Error al exportar Excel: " + e.getMessage());
+        }
     }
 
     @FXML

@@ -226,6 +226,12 @@
                                -fx-border-radius: 8; -fx-background-radius: 8;
                                -fx-padding: 9 16; -fx-cursor: hand;
                                -fx-font-size: 12px; -fx-font-weight: bold;" text="Abrir PDF" />
+                <Button onAction="#exportarExcel"
+                style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;
+                -fx-border-color: #1e7d3e; -fx-border-width: 1;
+                -fx-border-radius: 8; -fx-background-radius: 8;
+                -fx-padding: 9 16; -fx-cursor: hand;
+                -fx-font-size: 12px; -fx-font-weight: bold;" text="↓ Excel" />
             </HBox>
 
             <!-- Cards de métricas -->
