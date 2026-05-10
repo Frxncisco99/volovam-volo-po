@@ -378,12 +378,14 @@ public class PagoController {
             con.setAutoCommit(false);
 
             PreparedStatement psVenta = con.prepareStatement(
-                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, estado) VALUES (?, ?, ?, ?, 'COMPLETADA')",
+                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) " +
+    "VALUES (?, ?, ?, ?, ?, 'COMPLETADA')",
                     Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
             psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
             psVenta.setInt(4, idCliente);
+            psVenta.setString(5, metodoPago);   // ← única línea nueva
             psVenta.executeUpdate();
 
             ResultSet rs = psVenta.getGeneratedKeys();
@@ -460,19 +462,7 @@ public class PagoController {
                 try {
                     TicketService ticketService = new TicketService();
                     Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
-
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/org/example/vista/Ticket.fxml"));
-                    Parent root = loader.load();
-                    TicketController tc = loader.getController();
-                    tc.setTicket(ticket);
-
-                    Stage stageTicket = new Stage();
-                    stageTicket.setTitle("Ticket de venta #" + String.format("%06d", idVentaFinal));
-                    stageTicket.setScene(new Scene(root));
-                    stageTicket.initModality(Modality.APPLICATION_MODAL);
-                    stageTicket.setResizable(false);
-                    stageTicket.show();
+                    ticketService.imprimir(ticket);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
