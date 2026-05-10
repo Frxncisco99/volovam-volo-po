@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.AperturaCajaController">
+<StackPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.AperturaCajaController">
 
     <!--Tarjeta principal-->
     <VBox alignment="CENTER" maxWidth="420" spacing="28" style="-fx-background-color: F5EFE6; -fx-background-radius: 24; -fx-padding: 44 40 44 40; -fx-effect: dropshadow(gaussian, #00000025, 30, 0, 0, 10);" StackPane.alignment="CENTER">
