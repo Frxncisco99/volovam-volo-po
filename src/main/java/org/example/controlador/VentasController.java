@@ -608,8 +608,8 @@ public class VentasController {
     }
 
     private void actualizarEstiloCategoria(Button btn, boolean activo) {
-        if (activo) btn.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;");
-        else        btn.setStyle("-fx-background-color: white; -fx-text-fill: #6B4226; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-font-size: 12px; -fx-border-color: #6B4226; -fx-border-radius: 20; -fx-border-width: 1;");
+        if (activo) btn.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;");
+        else        btn.setStyle("-fx-background-color: white; -fx-text-fill: #091e4e; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-font-size: 12px; -fx-border-color: #091e4e; -fx-border-radius: 20; -fx-border-width: 1;");
     }
 
     private void cargarProductos(String filtro, String categoria) {
@@ -633,22 +633,22 @@ public class VentasController {
                 HBox card = new HBox(12);
                 card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                 card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #A0856A, 6, 0, 0, 1);");
-                if (primerProducto == null && stock > 0) { primerProducto = card; card.setStyle(card.getStyle() + "; -fx-border-color: #6B4226; -fx-border-width: 2;"); }
+                if (primerProducto == null && stock > 0) { primerProducto = card; card.setStyle(card.getStyle() + "; -fx-border-color: #091e4e; -fx-border-width: 2;"); }
                 String colorStock = stock == 0 ? "#C0392B" : stock <= 5 ? "#E67E22" : "#27AE60";
                 String textoStock = stock == 0 ? "Sin stock" : "Stock: " + stock;
                 javafx.scene.layout.StackPane indicador = new javafx.scene.layout.StackPane();
                 indicador.setMinWidth(4); indicador.setMaxWidth(4); indicador.setMinHeight(40);
                 indicador.setStyle("-fx-background-color: " + colorStock + "; -fx-background-radius: 2;");
                 VBox info = new VBox(3); HBox.setHgrow(info, javafx.scene.layout.Priority.ALWAYS);
-                Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;");
+                Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-font-weight: bold; -fx-text-fill: #091e4e; -fx-font-size: 13px;");
                 HBox filaBaja = new HBox(8); filaBaja.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                Label lblPrecio = new Label("$" + String.format("%.2f", precio)); lblPrecio.setStyle("-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 14px;");
+                Label lblPrecio = new Label("$" + String.format("%.2f", precio)); lblPrecio.setStyle("-fx-font-weight: bold; -fx-text-fill: #091e4e; -fx-font-size: 14px;");
                 Label lblStockLabel = new Label(textoStock); lblStockLabel.setStyle("-fx-text-fill: " + colorStock + "; -fx-font-size: 11px; -fx-background-color: " + colorStock + "22; -fx-background-radius: 6; -fx-padding: 2 8;");
                 filaBaja.getChildren().addAll(lblPrecio, lblStockLabel);
                 if (codigo != null && !codigo.isBlank()) { Label lblCodigo = new Label("↳ " + codigo); lblCodigo.setStyle("-fx-text-fill: #A0856A; -fx-font-size: 10px;"); info.getChildren().addAll(lblNombre, filaBaja, lblCodigo); }
                 else info.getChildren().addAll(lblNombre, filaBaja);
                 Button btnAgregar = new Button("+");
-                btnAgregar.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-cursor: hand; -fx-padding: 0; -fx-alignment: center;");
+                btnAgregar.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-cursor: hand; -fx-padding: 0; -fx-alignment: center;");
                 if (stock > 0) { btnAgregar.setOnAction(e -> agregarAlCarrito(id, nombre, precio, stock)); card.setOnMouseClicked(e -> agregarAlCarrito(id, nombre, precio, stock)); }
                 else { btnAgregar.setDisable(true); card.setStyle("-fx-background-color: #F0F0F0; -fx-background-radius: 12; -fx-padding: 12 16; -fx-opacity: 0.6;"); }
                 card.getChildren().addAll(indicador, info, btnAgregar);
@@ -699,16 +699,16 @@ public class VentasController {
             String nombre = (String) item[0]; double precio = (double) item[1]; int cantidad = (int) item[2];
             double subtotal = precio * cantidad; total += subtotal; totalItems += cantidad;
             HBox fila = new HBox(8); fila.getStyleClass().add("carrito-item"); fila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-text-fill: #6B4226; -fx-font-size: 12px;"); lblNombre.setMaxWidth(130);
+            Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px;"); lblNombre.setMaxWidth(130);
             Region spacer = new Region(); HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-            Button btnMenos = new Button("-"); btnMenos.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
+            Button btnMenos = new Button("-"); btnMenos.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
             btnMenos.setOnAction(e -> { if (cantidad <= 1) carrito.remove(id); else item[2] = cantidad - 1; actualizarCarrito(); });
-            TextField tfCantidad = new TextField(String.valueOf(cantidad)); tfCantidad.setStyle("-fx-text-fill: #6B4226; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #6B4226; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
+            TextField tfCantidad = new TextField(String.valueOf(cantidad)); tfCantidad.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #0052cc; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
             Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
             tfCantidad.setOnAction(e -> validarYActualizar.run()); tfCantidad.focusedProperty().addListener((obs, o, n) -> { if (!n) validarYActualizar.run(); });
-            Button btnMas = new Button("+"); btnMas.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
+            Button btnMas = new Button("+"); btnMas.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
             btnMas.setOnAction(e -> { int stockReal = obtenerStock(id); if (cantidad >= stockReal) { mostrarAlerta("Sin stock", "No hay mas unidades disponibles."); return; } item[2] = cantidad + 1; actualizarCarrito(); });
-            Label lblSub = new Label("$" + String.format("%.2f", subtotal)); lblSub.setStyle("-fx-text-fill: #6B4226; -fx-font-weight: bold; -fx-font-size: 12px; -fx-min-width: 60; -fx-alignment: CENTER_RIGHT;");
+            Label lblSub = new Label("$" + String.format("%.2f", subtotal)); lblSub.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 12px; -fx-min-width: 60; -fx-alignment: CENTER_RIGHT;");
             fila.getChildren().addAll(lblNombre, spacer, btnMenos, tfCantidad, btnMas, lblSub);
             listaCarrito.getChildren().add(fila);
         }
@@ -726,7 +726,7 @@ public class VentasController {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         VBox contenido = new VBox(10); contenido.setStyle("-fx-padding: 16; -fx-min-width: 400;");
         TextField txtBuscarCliente = new TextField(); txtBuscarCliente.setPromptText("Buscar cliente...");
-        txtBuscarCliente.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+        txtBuscarCliente.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #091e4e; -fx-padding: 8;");
         ListView<String> listaClientes = new ListView<>(); listaClientes.setPrefHeight(250);
         List<int[]> idsClientes = new ArrayList<>(); List<double[]> creditosClientes = new ArrayList<>();
         Runnable cargarLista = () -> {
@@ -796,7 +796,7 @@ public class VentasController {
             while (rs.next()) { Map<String, Object> fila = new HashMap<>(); fila.put("folio", rs.getInt("id_venta")); fila.put("hora", rs.getString("hora")); fila.put("cajero", rs.getString("cajero")); fila.put("cliente", rs.getString("cliente")); fila.put("total", rs.getDouble("total")); tabla.getItems().add(fila); }
         } catch (Exception e) { e.printStackTrace(); }
         tabla.setOnMouseClicked(e -> { if (e.getClickCount() == 2 && tabla.getSelectionModel().getSelectedItem() != null) mostrarDetalleVenta((int) tabla.getSelectionModel().getSelectedItem().get("folio")); });
-        Label hint = new Label("Doble clic para ver detalle"); hint.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px;");
+        Label hint = new Label("Doble clic para ver detalle"); hint.setStyle("-fx-text-fill: #000000; -fx-font-size: 11px;");
         VBox layout = new VBox(10, tabla, hint); layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
         stage.setScene(new Scene(layout, 800, 480)); stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); stage.show();
     }
@@ -824,10 +824,10 @@ public class VentasController {
     private void abrirMovimientoCaja(String tipo) {
         boolean esIngreso = tipo.equals("INGRESO"); Stage stage = new Stage();
         stage.setTitle(esIngreso ? "Registrar ingreso" : "Registrar salida");
-        Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #6B4226;");
-        TextField txtMonto = new TextField(); txtMonto.setPromptText("$0.00"); txtMonto.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1; -fx-padding: 8;");
-        Label lblMotivo = new Label("Motivo: *"); lblMotivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #6B4226;");
-        TextField txtMotivo = new TextField(); txtMotivo.setPromptText("Escribe el motivo..."); txtMotivo.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-border-width: 1; -fx-padding: 8;");
+        Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
+        TextField txtMonto = new TextField(); txtMonto.setPromptText("$0.00"); txtMonto.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #000000; -fx-border-width: 1; -fx-padding: 8;");
+        Label lblMotivo = new Label("Motivo: *"); lblMotivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
+        TextField txtMotivo = new TextField(); txtMotivo.setPromptText("Escribe el motivo..."); txtMotivo.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #000000; -fx-border-width: 1; -fx-padding: 8;");
         Button btnGuardar = new Button(esIngreso ? "Registrar ingreso" : "Registrar salida");
         btnGuardar.setStyle("-fx-background-color: " + (esIngreso ? "#2E7D32" : "#C0392B") + "; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 24; -fx-cursor: hand; -fx-font-weight: bold;"); btnGuardar.setPrefWidth(260);
         btnGuardar.setOnAction(e -> {

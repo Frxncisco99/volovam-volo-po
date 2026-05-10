@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="0" alignment="CENTER"
-      xmlns="http://javafx.com/javafx/23"
+      xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.example.controlador.AgregarProductoController"
       style="-fx-background-color: #F5F0E8;"
