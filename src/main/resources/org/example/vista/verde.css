@@ -1,0 +1,60 @@
+/* ============================================================
+   tema-verde.css  —  Tema 🌿 Verde
+   Verde oscuro + Crema
+   ============================================================ */
+
+.root {
+    /* Backgrounds */
+    -tm-bg-deep:        #050F08;
+    -tm-bg-dark:        #081510;
+    -tm-bg-mid:         #0D1E14;
+    -tm-sidebar:        #060F09;
+    -tm-surface:        #112518;
+    -tm-surface2:       #172E1E;
+
+    /* Acento principal */
+    -tm-accent:         #6DBE47;
+    -tm-accent-soft:    #549E36;
+    -tm-accent-dim:     #3A6E25;
+    -tm-accent-hover:   #5EAD3A;
+
+    /* Texto */
+    -tm-text:           #E8F5E3;
+    -tm-text-muted:     #7A9E7A;
+    -tm-text-dark:      #4A7A4A;
+
+    /* Bordes / misc */
+    -tm-border:         #1E3D28;
+    -tm-hover:          #1A3320;
+    -tm-cream:          #E8F5E3;
+    -tm-white-surface:  #EBF5E6;
+
+    /* Sidebar */
+    -tm-sidebar-active: rgba(109, 190, 71, 0.18);
+    -tm-sidebar-text:   #5A8A5A;
+    -tm-sidebar-logo:   #6DBE47;
+    -tm-sidebar-sub:    #3A6040;
+
+    /* Header */
+    -tm-topbar-bg:      #F5FAF4;
+    -tm-topbar-shadow:  rgba(30, 80, 40, 0.08);
+
+    /* Cards */
+    -tm-card-bg:        white;
+    -tm-card-dark-bg:   #2D6B3A;
+
+    /* Configuracion */
+    -tm-cfg-label:      #4A7A4A;
+    -tm-cfg-border:     #B5D4B5;
+    -tm-cfg-focus:      #6DBE47;
+    -tm-dia-bg:         #D4EDD4;
+    -tm-dia-text:       #4A7A4A;
+    -tm-dia-sel-bg:     #2D6B3A;
+    -tm-tab-active-bg:  #2D6B3A;
+    -tm-tab-active-text: white;
+    -tm-tab-idle-bg:    white;
+    -tm-tab-idle-text:  #2D6B3A;
+    -tm-tab-idle-border:#B5D4B5;
+    -tm-toggle-off:     #AACCAA;
+    -tm-toggle-on:      #6DBE47;
+}

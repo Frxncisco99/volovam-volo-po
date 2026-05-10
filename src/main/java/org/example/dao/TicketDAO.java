@@ -139,22 +139,11 @@ public class TicketDAO {
             ps.setTimestamp(1, Timestamp.valueOf(inicio));
             ps.setTimestamp(2, Timestamp.valueOf(fin));
 
-            // TEMPORAL - borrar después
-            System.out.println("▶ Query BETWEEN " + Timestamp.valueOf(inicio) + " AND " + Timestamp.valueOf(fin));
-
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ids.add(rs.getInt("id_venta"));
-                    System.out.println("  → ID encontrado: " + rs.getInt("id_venta"));  // ← ya cerrado, usar ids
                 }
             }
-            System.out.println("▶ Total IDs: " + ids.size());
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    ids.add(rs.getInt("id_venta"));
-                }
-            } // ← el ResultSet se cierra aquí antes de hacer más consultas
         }
 
         // Paso 2 — ahora sí obtener cada ticket con su propia conexión
