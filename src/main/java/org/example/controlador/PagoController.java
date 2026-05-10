@@ -494,13 +494,13 @@ public class PagoController {
             );
 
             // ── Imprimir con la misma configuración que usa la vista previa ──
-            new org.example.servicio.TicketImpresora().imprimirConConfig(
-                    ticket,
+            new org.example.servicio.TicketImpresora().imprimirConRenderer(ticket,
                     nombre, giro, direccion, ciudad, telefono,
                     encabezado, pie, aviso,
                     mostrarLogo, mostrarFolio, mostrarDesglose, mostrarQR,
-                    ancho
-            );
+                    true, true,   // fecha y cajero siempre visibles en venta real
+                    ancho);
+
 
         } catch (Exception ex) {
             ex.printStackTrace();

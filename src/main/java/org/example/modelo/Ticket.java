@@ -5,22 +5,42 @@ import java.util.List;
 
 /**
  * Modelo que representa un ticket de venta imprimible.
- * Se construye a partir de los datos ya guardados por PagoController.
+ *
+ * FASE 1 — campos agregados:
+ *   metodoPago    → "Efectivo" / "Tarjeta" / "Transferencia" / etc.
+ *   estado        → "Completada" / "Cancelada"
+ *   nombreCliente → nombre del cliente si aplica, null = público general
+ *   descuento     → monto descontado en la venta (0.0 si no hay)
+ *
+ * Compatibilidad: los constructores originales NO se modificaron.
+ * Los campos nuevos se inicializan con valores seguros por defecto.
  */
 public class Ticket {
 
-    private int idVenta;
+    private int           idVenta;
     private LocalDateTime fechaHora;
-    private String nombreCajero;
+    private String        nombreCajero;
     private List<LineaTicket> lineas;
-    private double subtotal;
-    private double total;
-    private double montoRecibido;
-    private double cambio;
-    private int numeroCaja;
+    private double        subtotal;
+    private double        total;
+    private double        montoRecibido;
+    private double        cambio;
+    private int           numeroCaja;
+
+    // ── Campos nuevos (FASE 1) ─────────────────────────────────────────────────
+    private String metodoPago    = "Efectivo";   // default seguro
+    private String estado        = "Completada"; // default seguro
+    private String nombreCliente = null;         // null = público general
+    private double descuento     = 0.0;
+
+    // ── Constructores ──────────────────────────────────────────────────────────
 
     public Ticket() {}
 
+    /**
+     * Constructor original — no modificado para no romper código existente.
+     * metodoPago, estado, nombreCliente y descuento quedan en sus defaults.
+     */
     public Ticket(int idVenta, LocalDateTime fechaHora, String nombreCajero,
                   List<LineaTicket> lineas, double total,
                   double montoRecibido, double cambio, int numeroCaja) {
@@ -33,12 +53,28 @@ public class Ticket {
         this.cambio        = cambio;
         this.numeroCaja    = numeroCaja;
 
-        this.subtotal = lineas.stream()
-                .mapToDouble(LineaTicket::getSubtotal)
-                .sum();
+        this.subtotal = lineas != null
+                ? lineas.stream().mapToDouble(LineaTicket::getSubtotal).sum()
+                : 0.0;
     }
 
-    // ─── Getters y Setters ───────────────────────────────────────────────────
+    /**
+     * Constructor completo con todos los campos nuevos.
+     * Úsalo desde PagoController cuando tengas los datos completos.
+     */
+    public Ticket(int idVenta, LocalDateTime fechaHora, String nombreCajero,
+                  List<LineaTicket> lineas, double total, double montoRecibido,
+                  double cambio, int numeroCaja,
+                  String metodoPago, String estado,
+                  String nombreCliente, double descuento) {
+        this(idVenta, fechaHora, nombreCajero, lineas, total, montoRecibido, cambio, numeroCaja);
+        this.metodoPago    = metodoPago    != null ? metodoPago    : "Efectivo";
+        this.estado        = estado        != null ? estado        : "Completada";
+        this.nombreCliente = nombreCliente;
+        this.descuento     = descuento;
+    }
+
+    // ── Getters y Setters originales (sin cambios) ─────────────────────────────
 
     public int getIdVenta()                             { return idVenta; }
     public void setIdVenta(int idVenta)                 { this.idVenta = idVenta; }
@@ -50,7 +86,12 @@ public class Ticket {
     public void setNombreCajero(String n)               { this.nombreCajero = n; }
 
     public List<LineaTicket> getLineas()                { return lineas; }
-    public void setLineas(List<LineaTicket> lineas)     { this.lineas = lineas; }
+    public void setLineas(List<LineaTicket> lineas)     {
+        this.lineas = lineas;
+        this.subtotal = lineas != null
+                ? lineas.stream().mapToDouble(LineaTicket::getSubtotal).sum()
+                : 0.0;
+    }
 
     public double getSubtotal()                         { return subtotal; }
     public void setSubtotal(double subtotal)            { this.subtotal = subtotal; }
@@ -67,30 +108,55 @@ public class Ticket {
     public int getNumeroCaja()                          { return numeroCaja; }
     public void setNumeroCaja(int numeroCaja)           { this.numeroCaja = numeroCaja; }
 
-    // ─── Clase interna: una línea del ticket ────────────────────────────────
+    // ── Getters y Setters nuevos (FASE 1) ─────────────────────────────────────
+
+    public String getMetodoPago()                       { return metodoPago; }
+    public void setMetodoPago(String metodoPago)        {
+        this.metodoPago = metodoPago != null ? metodoPago : "Efectivo";
+    }
+
+    public String getEstado()                           { return estado; }
+    public void setEstado(String estado)                {
+        this.estado = estado != null ? estado : "Completada";
+    }
+
+    /** Null = público general. Verificar con getNombreClienteDisplay() para UI. */
+    public String getNombreCliente()                    { return nombreCliente; }
+    public void setNombreCliente(String nombreCliente)  { this.nombreCliente = nombreCliente; }
+
+    /** Nunca devuelve null — usa "Público general" como fallback para UI. */
+    public String getNombreClienteDisplay() {
+        return nombreCliente != null && !nombreCliente.isBlank()
+                ? nombreCliente
+                : "Público general";
+    }
+
+    public double getDescuento()                        { return descuento; }
+    public void setDescuento(double descuento)          { this.descuento = Math.max(0, descuento); }
+
+    /** true si la venta fue cancelada. Útil para colorear filas en tablas. */
+    public boolean isCancelada() {
+        return "Cancelada".equalsIgnoreCase(estado);
+    }
+
+    // ── Clase interna: una línea del ticket ────────────────────────────────────
 
     public static class LineaTicket {
 
         private String nombreProducto;
         private int    cantidad;
         private double precioUnitario;
-        private double costoUnitario;   // ← NUEVO: costo de compra del producto
+        private double costoUnitario;
         private double subtotal;
 
         public LineaTicket() {}
 
-        /**
-         * Constructor original — costoUnitario queda en 0 para no romper
-         * código existente que ya usa este constructor.
-         */
+        /** Constructor original — costoUnitario queda en 0.0 para no romper código existente. */
         public LineaTicket(String nombreProducto, int cantidad, double precioUnitario) {
             this(nombreProducto, cantidad, precioUnitario, 0.0);
         }
 
-        /**
-         * Constructor completo con costo unitario.
-         * Úsalo cuando tengas acceso al costo del producto (p.ej. desde la BD).
-         */
+        /** Constructor completo con costo unitario. */
         public LineaTicket(String nombreProducto, int cantidad,
                            double precioUnitario, double costoUnitario) {
             this.nombreProducto = nombreProducto;
@@ -101,7 +167,7 @@ public class Ticket {
         }
 
         public String getNombreProducto()                    { return nombreProducto; }
-        public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
+        public void setNombreProducto(String n)              { this.nombreProducto = n; }
 
         public int getCantidad()                             { return cantidad; }
         public void setCantidad(int cantidad)                { this.cantidad = cantidad; }
@@ -112,11 +178,19 @@ public class Ticket {
             this.subtotal = precioUnitario * cantidad;
         }
 
-        /** Costo de compra (para calcular ganancia en reportes). */
         public double getCostoUnitario()                     { return costoUnitario; }
         public void setCostoUnitario(double costoUnitario)   { this.costoUnitario = costoUnitario; }
 
         public double getSubtotal()                          { return subtotal; }
         public void setSubtotal(double subtotal)             { this.subtotal = subtotal; }
+
+        /**
+         * Ganancia bruta de esta línea.
+         * Solo es precisa si costoUnitario fue cargado desde BD.
+         * Retorna 0 si costoUnitario no está disponible.
+         */
+        public double getGananciaBruta() {
+            return (precioUnitario - costoUnitario) * cantidad;
+        }
     }
 }
