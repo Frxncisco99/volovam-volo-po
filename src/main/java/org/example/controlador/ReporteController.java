@@ -15,6 +15,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.chart.*;
 import org.example.dao.ConexionDB;
+import org.example.dao.ReporteAvanzadoDAO;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.ReporteService;
@@ -117,6 +118,46 @@ public class ReporteController {
     private final ReportePDFService pdf     = new ReportePDFService();
     private final DecimalFormat     df      = new DecimalFormat("#,##0.00");
 
+    // ── Reportes avanzados ────────────────────────────────────────────────
+    private final ReporteAvanzadoDAO daoAvanzado = new ReporteAvanzadoDAO();
+
+    // Tab Cajeros
+    @FXML private TableView<Map<String, Object>>           tablaCajeros;
+    @FXML private TableColumn<Map<String, Object>, String> colCajNombre;
+    @FXML private TableColumn<Map<String, Object>, String> colCajTickets;
+    @FXML private TableColumn<Map<String, Object>, String> colCajBruto;
+    @FXML private TableColumn<Map<String, Object>, String> colCajNeto;
+    @FXML private TableColumn<Map<String, Object>, String> colCajPromedio;
+    @FXML private TableColumn<Map<String, Object>, String> colCajDev;
+
+    // Tab Hora
+    @FXML private TableView<Map<String, Object>>           tablaHoras;
+    @FXML private TableColumn<Map<String, Object>, String> colHoraHora;
+    @FXML private TableColumn<Map<String, Object>, String> colHoraTickets;
+    @FXML private TableColumn<Map<String, Object>, String> colHoraTotal;
+
+    // Tab Rentabilidad
+    @FXML private TableView<Map<String, Object>>           tablaRentabilidad;
+    @FXML private TableColumn<Map<String, Object>, String> colRentNombre;
+    @FXML private TableColumn<Map<String, Object>, String> colRentUnidades;
+    @FXML private TableColumn<Map<String, Object>, String> colRentIngresos;
+    @FXML private TableColumn<Map<String, Object>, String> colRentCostos;
+    @FXML private TableColumn<Map<String, Object>, String> colRentGanancia;
+    @FXML private TableColumn<Map<String, Object>, String> colRentMargen;
+
+    // Tab Clientes
+    @FXML private TableView<Map<String, Object>>           tablaClientesCredito;
+    @FXML private TableColumn<Map<String, Object>, String> colCliNombre;
+    @FXML private TableColumn<Map<String, Object>, String> colCliSaldo;
+    @FXML private TableColumn<Map<String, Object>, String> colCliDisponible;
+    @FXML private TableColumn<Map<String, Object>, String> colCliLimite;
+    @FXML private TableColumn<Map<String, Object>, String> colCliCompras;
+    @FXML private TableColumn<Map<String, Object>, String> colCliUltima;
+
+    // Cards resumen neto
+    @FXML private Label lblVentasBrutas;
+    @FXML private Label lblTotalDevoluciones;
+    @FXML private Label lblVentasNetas;
     // ─────────────────────────────────────────────────────────────
     // INIT
     // ─────────────────────────────────────────────────────────────
@@ -258,6 +299,7 @@ public class ReporteController {
             cargarVentasDetalladas(inicio, fin);
 
             alerta("Vista previa generada ✔");
+            cargarReportesAvanzados();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -651,6 +693,7 @@ public class ReporteController {
 
         if (cbTipoReporte.getValue() == null) cbTipoReporte.setValue("Ventas");
         generarReporte();
+        cargarReportesAvanzados();
     }
 
     @FXML
@@ -672,6 +715,7 @@ public class ReporteController {
         for (Button b : new Button[]{ btnHoy, btnAyer, btnSemana, btnMes, btnAnio }) b.setStyle(ESTILO_BTN_INACTIVO);
         if (cbTipoReporte.getValue() == null) cbTipoReporte.setValue("Ventas");
         generarReporte();
+        cargarReportesAvanzados();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -763,5 +807,122 @@ public class ReporteController {
         public double getTotal()          { return total; }
         public String getEstado()         { return estado; }
         public int    getIdVenta()        { return idVenta; }
+    }
+    // ── Cargar reportes avanzados ─────────────────────────────────────────
+
+    private void cargarReportesAvanzados() {
+        if (dateInicio.getValue() == null || dateFin.getValue() == null) return;
+
+        String ini = dateInicio.getValue().atStartOfDay()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String fin = dateFin.getValue().atTime(23, 59, 59)
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        cargarResumenNeto(ini, fin);
+        cargarTablaCajeros(ini, fin);
+        cargarTablaHoras(ini, fin);
+        cargarTablaRentabilidad(ini, fin);
+        cargarTablaClientes();
+    }
+
+    private void cargarResumenNeto(String ini, String fin) {
+        Map<String, Double> r = daoAvanzado.resumenNeto(ini, fin);
+        if (lblVentasBrutas    != null)
+            lblVentasBrutas.setText("$" + df.format(r.getOrDefault("bruto", 0.0)));
+        if (lblTotalDevoluciones != null)
+            lblTotalDevoluciones.setText("-$" + df.format(r.getOrDefault("devuelto", 0.0)));
+        if (lblVentasNetas     != null)
+            lblVentasNetas.setText("$" + df.format(r.getOrDefault("neto", 0.0)));
+    }
+
+    private void cargarTablaCajeros(String ini, String fin) {
+        if (tablaCajeros == null) return;
+        configurarColumnaStr(colCajNombre,   r -> (String) r.get("cajero"));
+        configurarColumnaStr(colCajTickets,  r -> String.valueOf((int)(double) r.get("tickets")));
+        configurarColumnaStr(colCajBruto,    r -> "$" + df.format((double) r.get("bruto")));
+        configurarColumnaStr(colCajNeto,     r -> "$" + df.format((double) r.get("neto")));
+        configurarColumnaStr(colCajPromedio, r -> "$" + df.format((double) r.get("promedio")));
+        configurarColumnaStr(colCajDev,      r -> String.valueOf((int)(double)(
+                r.get("con_devolucion") instanceof Integer
+                        ? (double)((Integer)r.get("con_devolucion")).intValue()
+                        : r.get("con_devolucion"))));
+
+        tablaCajeros.getItems().setAll(daoAvanzado.ventasPorCajero(ini, fin));
+    }
+
+    private void cargarTablaHoras(String ini, String fin) {
+        if (tablaHoras == null) return;
+        configurarColumnaStr(colHoraHora,    r -> {
+            int h = (int) r.get("hora");
+            return String.format("%02d:00 - %02d:59", h, h);
+        });
+        configurarColumnaStr(colHoraTickets, r -> String.valueOf(r.get("tickets")));
+        configurarColumnaStr(colHoraTotal,   r -> "$" + df.format((double) r.get("total")));
+
+        tablaHoras.getItems().setAll(daoAvanzado.ventasPorHora(ini, fin));
+    }
+
+    private void cargarTablaRentabilidad(String ini, String fin) {
+        if (tablaRentabilidad == null) return;
+        configurarColumnaStr(colRentNombre,   r -> (String) r.get("nombre"));
+        configurarColumnaStr(colRentUnidades, r -> String.valueOf(r.get("unidades")));
+        configurarColumnaStr(colRentIngresos, r -> "$" + df.format((double) r.get("ingresos")));
+        configurarColumnaStr(colRentCostos,   r -> "$" + df.format((double) r.get("costos")));
+        configurarColumnaStr(colRentGanancia, r -> "$" + df.format((double) r.get("ganancia")));
+        configurarColumnaStr(colRentMargen,   r -> r.get("margen") + "%");
+
+        // Color en ganancia
+        if (colRentGanancia != null) {
+            colRentGanancia.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String v, boolean empty) {
+                    super.updateItem(v, empty);
+                    if (empty || v == null) { setText(null); setStyle(""); return; }
+                    setText(v);
+                    boolean negativo = v.startsWith("-");
+                    setStyle(negativo
+                            ? "-fx-text-fill: #C0392B; -fx-font-weight: bold;"
+                            : "-fx-text-fill: #27AE60; -fx-font-weight: bold;");
+                }
+            });
+        }
+
+        tablaRentabilidad.getItems().setAll(daoAvanzado.rentabilidadProductos(ini, fin));
+    }
+
+    private void cargarTablaClientes() {
+        if (tablaClientesCredito == null) return;
+        configurarColumnaStr(colCliNombre,     r -> (String) r.get("nombre"));
+        configurarColumnaStr(colCliSaldo,      r -> "$" + df.format((double) r.get("saldo")));
+        configurarColumnaStr(colCliDisponible, r -> "$" + df.format((double) r.get("disponible")));
+        configurarColumnaStr(colCliLimite,     r -> "$" + df.format((double) r.get("limite")));
+        configurarColumnaStr(colCliCompras,    r -> String.valueOf(r.get("total_compras")));
+        configurarColumnaStr(colCliUltima,     r -> (String) r.get("ultima_compra"));
+
+        // Color saldo
+        if (colCliSaldo != null) {
+            colCliSaldo.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String v, boolean empty) {
+                    super.updateItem(v, empty);
+                    if (empty || v == null) { setText(null); setStyle(""); return; }
+                    setText(v);
+                    setStyle(v.equals("$0.00")
+                            ? "-fx-text-fill: #27AE60;"
+                            : "-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+                }
+            });
+        }
+
+        tablaClientesCredito.getItems().setAll(daoAvanzado.clientesConCredito());
+    }
+
+    // Helper para no repetir setCellValueFactory
+    private void configurarColumnaStr(
+            TableColumn<Map<String, Object>, String> col,
+            java.util.function.Function<Map<String, Object>, String> extractor) {
+        if (col == null) return;
+        col.setCellValueFactory(d -> {
+            try { return new SimpleStringProperty(extractor.apply(d.getValue())); }
+            catch (Exception e) { return new SimpleStringProperty("—"); }
+        });
     }
 }
