@@ -539,14 +539,6 @@
                                     <SwitchToggle fx:id="tglFolioTicket" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12;                                                          -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #FDF8F2; -fx-padding: 12; -fx-background-radius: 8;">
-                                    <Label style="-fx-text-fill: #3D1F0D; -fx-font-size: 12px;" text="Mostrar fecha en ticket" HBox.hgrow="ALWAYS" />
-                                    <SwitchToggle fx:id="tglMostrarFecha" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #FDF8F2; -fx-padding: 12; -fx-background-radius: 8;">
-                                    <Label style="-fx-text-fill: #3D1F0D; -fx-font-size: 12px;" text="Mostrar nombre del cajero" HBox.hgrow="ALWAYS" />
-                                    <SwitchToggle fx:id="tglMostrarCajero" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #FDF8F2; -fx-padding: 12; -fx-background-radius: 8;">
                                     <Label style="-fx-text-fill: #3D1F0D; -fx-font-size: 12px;" text="Mostrar desglose de subtotal / total" HBox.hgrow="ALWAYS" />
                                     <SwitchToggle fx:id="tglDesglose" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12;                                                          -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
                                 </HBox>
@@ -560,6 +552,14 @@
                                         <Label style="-fx-text-fill: #7A5535; -fx-font-size: 10px;" text="Segunda copia del ticket" />
                                     </VBox>
                                     <SwitchToggle fx:id="tglCopiacocina" style="-fx-background-color: #CCBBAA; -fx-background-radius: 12;                                                          -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #FDF8F2; -fx-padding: 12; -fx-background-radius: 8;">
+                                    <Label style="-fx-text-fill: #3D1F0D; -fx-font-size: 12px;" text="Mostrar fecha en ticket" HBox.hgrow="ALWAYS" />
+                                    <SwitchToggle fx:id="tglMostrarFecha" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #FDF8F2; -fx-padding: 12; -fx-background-radius: 8;">
+                                    <Label style="-fx-text-fill: #3D1F0D; -fx-font-size: 12px;" text="Mostrar nombre del cajero" HBox.hgrow="ALWAYS" />
+                                    <SwitchToggle fx:id="tglMostrarCajero" selected="true" style="-fx-background-color: #D4A843; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" />
                                 </HBox>
                             </VBox>
 
@@ -591,66 +591,14 @@
                                 <TextArea fx:id="txtMensajePie" prefRowCount="2" promptText="Ej. Gracias por su compra! Vuelva pronto." style="-fx-background-radius: 8; -fx-font-size: 11px;" wrapText="true" />
                                 <Label styleClass="cfg-label" text="AVISO FISCAL" />
                                 <TextField fx:id="txtAvisoFiscal" promptText="Este ticket no es comprobante fiscal" styleClass="cfg-field" />
-                                <!-- Botón Vista Previa (prominente, arriba) -->
-                                <Button maxWidth="Infinity" onAction="#abrirVistaPrevia"
-                                        style="-fx-background-color: #3D1F0D; -fx-text-fill: #D4A843; -fx-font-weight: bold;
-               -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-size: 11px;"
-                                        text="⬛ Vista Previa del Ticket" graphicTextGap="8">
-                                    <graphic><FontIcon iconLiteral="fas-eye" iconSize="13" iconColor="#D4A843"/></graphic>
-                                </Button>
-                                <!-- Botones secundarios -->
                                 <HBox spacing="8">
-                                    <Button HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#actualizarVistaPreviaBtn"
-                                            style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 11px;"
-                                            text="Actualizar Preview" />
-                                    <Button HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#imprimirTicketPrueba"
-                                            style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 11px;"
-                                            text="Imprimir Prueba">
+                                    <Button HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#abrirVistaPrevia" style="-fx-background-color: #3D1F0D; -fx-text-fill: #D4A843; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-size: 11px;" text="Vista Previa del Ticket" graphicTextGap="8">
+                                        <graphic><FontIcon iconLiteral="fas-eye" iconSize="13" iconColor="#D4A843"/></graphic>
+                                    </Button>
+                                    <Button HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#imprimirTicketPrueba" style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-size: 11px;" text="Imprimir Prueba" graphicTextGap="8">
                                         <graphic><FontIcon iconLiteral="fas-print" iconSize="13" iconColor="white"/></graphic>
                                     </Button>
                                 </HBox>
-                            </VBox>   <!-- cierra: Textos del Ticket -->
-
-
-
-
-                            <!--Vista previa del ticket-->
-                            <VBox spacing="10" prefWidth="260"
-                                  style="-fx-background-color: white; -fx-padding: 16 12; -fx-background-radius: 12;
-             -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.07),8,0,0,2);">
-                                <HBox spacing="8" alignment="CENTER_LEFT">
-                                    <FontIcon iconLiteral="fas-receipt" iconSize="16" iconColor="#6B4226"/>
-                                    <VBox>
-                                        <Label style="-fx-font-weight: bold; -fx-text-fill: #3D1F0D; -fx-font-size: 13px;" text="Vista Previa" />
-                                        <Label style="-fx-text-fill: #7A5535; -fx-font-size: 10px;" text="Asi lucira tu ticket" />
-                                    </VBox>
-                                </HBox>
-                                <Separator/>
-
-                                <!--Simulacion papel de ticket-->
-                                <VBox VBox.vgrow="ALWAYS"
-                                      style="-fx-background-color: white;
-                                             -fx-border-color: #D4C5B0; -fx-border-width: 1;
-                                             -fx-border-radius: 2;
-                                             -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.18),12,0,3,4);">
-                                    <Label text="v^v^v^v^v^v^v^v^v^v^v^v^v^v^v"
-                                           style="-fx-text-fill: #D4C5B0; -fx-font-size: 8px; -fx-padding: 2 6;"/>
-                                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" prefHeight="420"
-                                                style="-fx-background: white; -fx-background-color: white;
-                   -fx-border-color: transparent; -fx-padding: 0;">
-                                        <TextArea fx:id="txtVistaTicket"
-                                                  editable="false" wrapText="false" VBox.vgrow="ALWAYS"
-                                                  style="-fx-font-family: 'Courier New', monospace;
-       -fx-font-size: 11px;
-       -fx-background-color: white;
-       -fx-control-inner-background: white;
-       -fx-border-color: transparent;
-       -fx-text-fill: #1A1A1A;
-       -fx-padding: 6 2;"/>
-                                    </ScrollPane>
-                                    <Label style="-fx-text-fill: #D4C5B0; -fx-font-size: 8px; -fx-padding: 2 6;" text="v^v^v^v^v^v^v^v^v^v^v^v^v^v^v" />
-                                </VBox>
-                                <Label style="-fx-text-fill: #9E7A5A; -fx-font-size: 9px; -fx-font-style: italic;" text="* Articulos de ejemplo" />
                             </VBox>
                         </HBox>
                     </VBox>

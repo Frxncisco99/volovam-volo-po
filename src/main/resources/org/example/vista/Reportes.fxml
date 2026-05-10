@@ -248,7 +248,7 @@
                         </HBox>
                         <Label fx:id="lblTotal"
                                style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                               text="$0.00" />
+                               text="\$0.00" />
                         <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Periodo seleccionado" />
                     </VBox>
                 </HBox>
@@ -292,7 +292,7 @@
                         </HBox>
                         <Label fx:id="lblPromedio"
                                style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #e88c1a;"
-                               text="$0.00" />
+                               text="\$0.00" />
                         <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Promedio por venta" />
                     </VBox>
                 </HBox>
