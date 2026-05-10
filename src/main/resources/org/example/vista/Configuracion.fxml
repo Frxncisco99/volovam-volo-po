@@ -6,6 +6,7 @@
 <?import org.kordamp.ikonli.javafx.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@configuracion.css"
             fx:controller="org.example.controlador.ConfiguracionController">
 
     <!-- SIDEBAR -->
@@ -124,19 +125,19 @@
                         style="-fx-background-color: #1a6fa8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="Negocio"/>
                 <Button fx:id="btnTabPOS" onAction="#tabPOS"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #1a6fa8; -fx-border-radius: 20;"
+                        style="-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="POS / Caja"/>
                 <Button fx:id="btnTabUsuarios" onAction="#tabUsuarios"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #1a6fa8; -fx-border-radius: 20;"
+                        style="-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="Usuarios y Roles"/>
                 <Button fx:id="btnTabFiscal" onAction="#tabFiscal"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #1a6fa8; -fx-border-radius: 20;"
+                        style="-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="Fiscal / Tickets"/>
                 <Button fx:id="btnTabIntegraciones" onAction="#tabIntegraciones"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #1a6fa8; -fx-border-radius: 20;"
+                        style="-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="Integraciones"/>
                 <Button fx:id="btnTabBaseDatos" onAction="#tabBaseDatos"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand; -fx-border-color: #1a6fa8; -fx-border-radius: 20;"
+                        style="-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
                         text="Base de Datos"/>
             </HBox>
 
@@ -268,7 +269,7 @@
                                         <Label text="Bloquea acceso a cajeros" style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;"/>
                                     </VBox>
                                     <ToggleButton fx:id="tglMantenimiento"
-                                                  style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" text=""/>
+                                                  style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;" text=""/>
                                 </HBox>
                             </VBox>
                         </HBox>
@@ -317,7 +318,7 @@
                                         <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="No pregunta, imprime al cerrar venta"/>
                                     </VBox>
                                     <SwitchToggle fx:id="tglAutoImprimir"
-                                                  style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                                  style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                             </VBox>
 
@@ -360,7 +361,7 @@
                                         <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Permite vender aunque el inventario sea 0"/>
                                     </VBox>
                                     <SwitchToggle fx:id="tglVentaSinStock"
-                                                  style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                                  style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                             </VBox>
 
@@ -389,7 +390,7 @@
                                         <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Cobro diferido a clientes registrados"/>
                                     </VBox>
                                     <SwitchToggle fx:id="tglVentaCredito"
-                                                  style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                                  style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #f5f9ff; -fx-padding: 12; -fx-background-radius: 8;">
                                     <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -405,7 +406,7 @@
                                         <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Cobra al instante sin pantalla de pago"/>
                                     </VBox>
                                     <SwitchToggle fx:id="tglVentaRapida"
-                                                  style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                                  style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 9px; -fx-font-weight: bold;" text="NOTA INTERNA EN TICKET"/>
                                 <TextField fx:id="txtNotaInterna" promptText="Ej. Para llevar / Nombre cliente"
@@ -623,14 +624,14 @@
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #f5f9ff; -fx-padding: 12; -fx-background-radius: 8;">
                                     <Label style="-fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Mostrar codigo QR en ticket" HBox.hgrow="ALWAYS"/>
-                                    <SwitchToggle fx:id="tglQR" style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    <SwitchToggle fx:id="tglQR" style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #f5f9ff; -fx-padding: 12; -fx-background-radius: 8;">
                                     <VBox spacing="2" HBox.hgrow="ALWAYS">
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Copia para cocina / produccion"/>
                                         <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Segunda copia del ticket"/>
                                     </VBox>
-                                    <SwitchToggle fx:id="tglCopiacocina" style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    <SwitchToggle fx:id="tglCopiacocina" style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #f5f9ff; -fx-padding: 12; -fx-background-radius: 8;">
                                     <Label style="-fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Mostrar fecha en ticket" HBox.hgrow="ALWAYS"/>
@@ -747,7 +748,7 @@
                                     <VBox spacing="2" HBox.hgrow="ALWAYS">
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 11px;" text="Reporte diario de ventas"/>
                                     </VBox>
-                                    <SwitchToggle fx:id="tglReporteDiario" style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    <SwitchToggle fx:id="tglReporteDiario" style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: #f5f9ff; -fx-padding: 10; -fx-background-radius: 8;">
                                     <VBox spacing="2" HBox.hgrow="ALWAYS">
@@ -786,7 +787,7 @@
                                     <VBox spacing="2" HBox.hgrow="ALWAYS">
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 11px;" text="Enviar ticket digital por WhatsApp"/>
                                     </VBox>
-                                    <SwitchToggle fx:id="tglTicketWhatsapp" style="-fx-background-color: #CCBBAA; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    <SwitchToggle fx:id="tglTicketWhatsapp" style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                 </HBox>
                                 <Button maxWidth="Infinity" onAction="#probarWhatsapp"
                                         style="-fx-background-color: #25D366; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 11px;"
