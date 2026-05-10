@@ -11,6 +11,9 @@ import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
+import org.example.servicio.AuditoriaService;
+import org.example.servicio.FolioService;
+import org.example.servicio.InventarioMovimientoService;
 import org.example.servicio.TicketService;
 
 import java.sql.Connection;
@@ -375,7 +378,7 @@ public class PagoController {
             con.setAutoCommit(false);
 
             PreparedStatement psVenta = con.prepareStatement(
-                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, estado) VALUES (?, ?, ?, ?, 'COMPLETADA')",
                     Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
@@ -425,6 +428,27 @@ public class PagoController {
             }
 
             con.commit();
+
+// ── Auditoría ──────────────────────────────────────────────────────────
+            AuditoriaService.get().registrar(
+                    "VENTA", "ventas", idVenta,
+                    String.format("Venta %s — Total: $%.2f — Método: %s — Cliente ID: %d",
+                            FolioService.venta(idVenta), total, metodoPago, idCliente)
+            );
+
+// ── Movimientos de inventario ──────────────────────────────────────────
+// Necesitamos una conexión nueva porque ya cerramos la anterior
+            try (Connection conMov = ConexionDB.getConexion()) {
+                InventarioMovimientoService invService = InventarioMovimientoService.get();
+                for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
+                    int    idProducto = entry.getKey();
+                    int    cantidad   = (int) entry.getValue()[2];
+                    invService.registrar(conMov, idProducto,
+                            InventarioMovimientoService.TipoMovimiento.VENTA,
+                            cantidad, idVenta, "VENTA",
+                            "Venta " + FolioService.venta(idVenta));
+                }
+            }
 
             int idVentaFinal = idVenta;
             Stage stagePago = (Stage) btnConfirmar.getScene().getWindow();
