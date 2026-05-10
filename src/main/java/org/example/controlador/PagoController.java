@@ -436,19 +436,7 @@ public class PagoController {
                 try {
                     TicketService ticketService = new TicketService();
                     Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
-
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/org/example/vista/Ticket.fxml"));
-                    Parent root = loader.load();
-                    TicketController tc = loader.getController();
-                    tc.setTicket(ticket);
-
-                    Stage stageTicket = new Stage();
-                    stageTicket.setTitle("Ticket de venta #" + String.format("%06d", idVentaFinal));
-                    stageTicket.setScene(new Scene(root));
-                    stageTicket.initModality(Modality.APPLICATION_MODAL);
-                    stageTicket.setResizable(false);
-                    stageTicket.show();
+                    ticketService.imprimir(ticket);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
