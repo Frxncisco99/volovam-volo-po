@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -101,6 +102,7 @@
     <VBox fx:id="panelFiado" spacing="6" visible="false" managed="false" style="-fx-background-color: #FFF8E7; -fx-background-radius: 10; -fx-padding: 12;">
         <Label fx:id="lblInfoFiado" text="Cargando info..." style="-fx-font-size: 12px; -fx-text-fill: #E67E22; -fx-font-weight: bold;"/>
     </VBox>
+
     <!-- Panel dólares -->
     <VBox fx:id="panelDolares" spacing="8" visible="false" managed="false"
           style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;">
@@ -122,6 +124,7 @@
                    style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3B6D11;"/>
         </HBox>
     </VBox>
+
     <!-- Panel mixto pesos y dólares -->
     <VBox fx:id="panelMixtoUSD" spacing="8" visible="false" managed="false"
           style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;">
@@ -144,6 +147,16 @@
     </VBox>
 
     <Separator/>
+
+    <!-- ── NUEVO: Opción de ticket ──────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="10"
+          style="-fx-background-color: #EDE7F6; -fx-background-radius: 8; -fx-padding: 10 14;">
+        <CheckBox fx:id="chkImprimirTicket" selected="true"
+                  style="-fx-cursor: hand; -fx-font-size: 13px; -fx-text-fill: #4527A0;
+                         -fx-font-weight: bold;"
+                  text="Imprimir ticket al confirmar"/>
+    </HBox>
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
 
     <Button fx:id="btnConfirmar" onAction="#handleConfirmar" prefHeight="45" prefWidth="360"
             text="Confirmar venta"

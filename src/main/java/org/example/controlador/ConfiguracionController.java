@@ -12,7 +12,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
-import org.example.controlador.Temamanager;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,12 +46,6 @@ public class ConfiguracionController {
     @FXML
     private VBox panelBaseDatos;
 
-    // Panel Apariencia
-    @FXML
-    private VBox panelApariencia;
-    @FXML
-    private ComboBox<String> cmbTema;
-
     // Botones de pestaña
     @FXML
     private Button btnTabNegocio;
@@ -66,8 +59,6 @@ public class ConfiguracionController {
     private Button btnTabIntegraciones;
     @FXML
     private Button btnTabBaseDatos;
-    @FXML
-    private Button btnTabApariencia;
 
     // Panel negocio
     @FXML
@@ -298,28 +289,6 @@ public class ConfiguracionController {
 
         mostrarTab("negocio");
         cargarPreferencias();
-
-        // ---- Apariencia: ComboBox de temas ----
-        Temamanager tm = Temamanager.get();
-        cmbTema.getItems().addAll(tm.getNombresTemas());
-        cmbTema.setValue(tm.getNombreTemaActual());
-        cmbTema.setOnAction(e -> {
-            String seleccion = cmbTema.getValue();
-            String temaId = switch (seleccion) {
-                case "☕ Café"   -> "cafe";
-                case "🌙 Oscuro" -> "oscuro";
-                case "🌿 Verde"  -> "verde";
-                case "❄️ Azul"   -> "azul";
-                default          -> "cafe";
-            };
-            tm.cambiarTema(temaId);
-        });
-        // Registrar esta scene para cambios de tema automáticos
-        javafx.application.Platform.runLater(() -> {
-            if (cmbTema.getScene() != null) {
-                tm.registrarScene(cmbTema.getScene());
-            }
-        });
     }
 
     // Navegacion de pestañas
@@ -354,11 +323,6 @@ public class ConfiguracionController {
         mostrarTab("basedatos");
     }
 
-    @FXML
-    private void tabApariencia() {
-        mostrarTab("apariencia");
-    }
-
     private void mostrarTab(String tab) {
         panelNegocio.setVisible(false);
         panelNegocio.setManaged(false);
@@ -372,8 +336,6 @@ public class ConfiguracionController {
         panelIntegraciones.setManaged(false);
         panelBaseDatos.setVisible(false);
         panelBaseDatos.setManaged(false);
-        panelApariencia.setVisible(false);
-        panelApariencia.setManaged(false);
 
         btnTabNegocio.setStyle(STYLE_TAB_INACTIVE);
         btnTabPOS.setStyle(STYLE_TAB_INACTIVE);
@@ -381,7 +343,6 @@ public class ConfiguracionController {
         btnTabFiscal.setStyle(STYLE_TAB_INACTIVE);
         btnTabIntegraciones.setStyle(STYLE_TAB_INACTIVE);
         btnTabBaseDatos.setStyle(STYLE_TAB_INACTIVE);
-        btnTabApariencia.setStyle(STYLE_TAB_INACTIVE);
 
         switch (tab) {
             case "negocio" -> {
@@ -413,11 +374,6 @@ public class ConfiguracionController {
                 panelBaseDatos.setVisible(true);
                 panelBaseDatos.setManaged(true);
                 btnTabBaseDatos.setStyle(STYLE_TAB_ACTIVE);
-            }
-            case "apariencia" -> {
-                panelApariencia.setVisible(true);
-                panelApariencia.setManaged(true);
-                btnTabApariencia.setStyle(STYLE_TAB_ACTIVE);
             }
         }
     }

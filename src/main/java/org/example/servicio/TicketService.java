@@ -2,51 +2,32 @@ package org.example.servicio;
 
 import org.example.dao.TicketDAO;
 import org.example.modelo.Ticket;
-import org.example.modelo.Ticket.LineaTicket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 /**
  * Orquesta la generación e impresión del ticket.
  *
- * Flujo:
- *   1. PagoController llama a procesarTicket(idVenta, ...) justo después del commit.
- *   2. TicketService reconstruye el Ticket desde la BD (TicketDAO).
- *   3. Abre la vista previa (TicketController / Ticket.fxml).
- *   4. Desde la vista previa el cajero puede imprimir con TicketImpresora.
+ * CAMBIO: textoPlano() ya no delega a TicketImpresora (layout hardcodeado).
+ * Ahora carga la configuración desde Preferences y usa TicketRenderer,
+ * la misma fuente de verdad que ConfiguracionController y TicketPreviewController.
+ *
+ * Métodos intactos: generarDesdeDB(), generarDesdeMemoria(), imprimir().
  */
 public class TicketService {
 
-    private final TicketDAO ticketDAO       = new TicketDAO();
+    private final TicketDAO       ticketDAO = new TicketDAO();
     private final TicketImpresora impresora = new TicketImpresora();
 
-    // ── Modo 1: Reconstruir desde BD (usado normalmente después del commit) ─
+    // ── Construcción del ticket ───────────────────────────────────────────────
 
-    /**
-     * Reconstruye el ticket leyendo la BD y lo devuelve listo para mostrar/imprimir.
-     *
-     * @param idVenta El id generado por PagoController tras el INSERT de ventas.
-     */
     public Ticket generarDesdeDB(int idVenta) throws Exception {
         return ticketDAO.obtenerTicketPorVenta(idVenta);
     }
 
-    // ── Modo 2: Construir en memoria (por si se necesita sin ir a BD) ────────
-
-    /**
-     * Construye el ticket directamente desde los objetos en memoria.
-     * Útil si queremos mostrar la vista previa ANTES de que la BD devuelva datos.
-     *
-     * @param idVenta        Id de la venta recién insertada.
-     * @param carrito        Map<idProducto, Object[]{nombre, precio, cantidad}>
-     * @param total          Total de la venta.
-     * @param montoRecibido  Dinero entregado por el cliente.
-     * @param cambio         Cambio devuelto.
-     * @param nombreCajero   Nombre del cajero en sesión.
-     * @param numeroCaja     Id de caja en sesión.
-     */
     public Ticket generarDesdeMemoria(int idVenta,
                                       Map<Integer, Object[]> carrito,
                                       double total,
@@ -54,41 +35,83 @@ public class TicketService {
                                       double cambio,
                                       String nombreCajero,
                                       int numeroCaja) {
-        List<LineaTicket> lineas = new ArrayList<>();
+        List<Ticket.LineaTicket> lineas = new ArrayList<>();
         for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
             Object[] item   = entry.getValue();
-            String nombre   = (String) item[0];
-            double precio   = (double) item[1];
-            int    cantidad = (int)    item[2];
-            lineas.add(new LineaTicket(nombre, cantidad, precio));
+            String   nombre = (String) item[0];
+            double   precio = (double) item[1];
+            int      cant   = (int)    item[2];
+            lineas.add(new Ticket.LineaTicket(nombre, cant, precio));
         }
-
-        return new Ticket(
-                idVenta,
+        return new Ticket(idVenta,
                 java.time.LocalDateTime.now(),
-                nombreCajero,
-                lineas,
-                total,
-                montoRecibido,
-                cambio,
-                numeroCaja
-        );
+                nombreCajero, lineas,
+                total, montoRecibido, cambio, numeroCaja);
     }
 
-    // ── Impresión ────────────────────────────────────────────────────────────
+    // ── Impresión ─────────────────────────────────────────────────────────────
 
     /**
-     * Imprime el ticket directamente en la impresora térmica.
-     * Lanza excepción si no hay impresora o falla el envío.
+     * Imprime usando la configuración guardada en Preferences.
+     * Usa TicketRenderer internamente → mismo layout que la vista previa.
      */
     public void imprimir(Ticket ticket) throws Exception {
-        impresora.imprimir(ticket);
+        Prefs p = cargarPrefs();
+        impresora.imprimirConRenderer(ticket,
+                p.nombre, p.giro, p.direccion, p.ciudad, p.telefono,
+                p.encabezado, p.pie, p.aviso,
+                p.logo, p.folio, p.desglose, p.qr,
+                true, true,   // fecha y cajero siempre en impresión real
+                p.ancho);
     }
 
     /**
-     * Devuelve el texto plano del ticket para mostrarlo en pantalla.
+     * Devuelve el texto del ticket para mostrarlo en TicketController.
+     * Usa TicketRenderer con la configuración guardada → idéntico a la vista previa.
      */
     public String textoPlano(Ticket ticket) {
-        return impresora.generarTextoPlano(ticket);
+        Prefs p = cargarPrefs();
+        return TicketRenderer.generar(ticket,
+                p.nombre, p.giro, p.direccion, p.ciudad, p.telefono,
+                p.encabezado, p.pie, p.aviso,
+                p.logo, p.folio, p.desglose, p.qr,
+                true, true,
+                p.ancho);
+    }
+
+    // ── Carga de Preferences ──────────────────────────────────────────────────
+
+    private Prefs cargarPrefs() {
+        Preferences prefs = Preferences.userNodeForPackage(
+                org.example.controlador.ConfiguracionController.class);
+        return new Prefs(prefs);
+    }
+
+    /** DTO interno para no repetir la lógica de Preferences en cada método. */
+    private static class Prefs {
+        final String  nombre, giro, direccion, ciudad, telefono;
+        final String  encabezado, pie, aviso;
+        final boolean logo, folio, desglose, qr;
+        final int     ancho;
+
+        Prefs(Preferences p) {
+            nombre    = p.get("ticket_nombre",    "");
+            giro      = p.get("ticket_giro",      "");
+            direccion = p.get("ticket_direccion", "");
+            ciudad    = p.get("ticket_ciudad",    "");
+            telefono  = p.get("ticket_telefono",  "");
+            encabezado = p.get("ticket_encabezado", "");
+            pie       = p.get("ticket_pie",       "");
+            aviso     = p.get("ticket_aviso",
+                    "Este ticket no es comprobante fiscal");
+            logo      = p.getBoolean("ticket_logo",     true);
+            folio     = p.getBoolean("ticket_folio",    true);
+            desglose  = p.getBoolean("ticket_desglose", true);
+            qr        = p.getBoolean("ticket_qr",       false);
+            String anchoPapel = p.get("ticket_ancho", "58 mm");
+            ancho     = "58 mm".equals(anchoPapel)
+                    ? TicketRenderer.ANCHO_58MM
+                    : TicketRenderer.ANCHO_80MM;
+        }
     }
 }

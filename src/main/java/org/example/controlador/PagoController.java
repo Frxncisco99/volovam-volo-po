@@ -6,12 +6,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.modelo.Ticket;
+import org.example.servicio.TicketService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 public class PagoController {
 
@@ -53,25 +56,29 @@ public class PagoController {
     @FXML private Label lblEquivalenteMixtoUSD;
     @FXML private Label lblCambioMixtoUSD;
 
+    // ── NUEVO: checkbox de impresión ──────────────────────────────────────────
+    @FXML private CheckBox chkImprimirTicket;
+
     private double total;
-    private double tipoCambioDolar ;
+    private double tipoCambioDolar;
     private Map<Integer, Object[]> carrito;
     private VentasController ventasController;
     private int idCliente = 1;
     private String nombreCliente = "Publico General";
     private double limiteCredito = 0;
-    private double saldoCliente = 0;
-    private String metodoPago = "EFECTIVO";
+    private double saldoCliente  = 0;
+    private String metodoPago    = "EFECTIVO";
 
+    // ── NUEVO: servicio de ticket ─────────────────────────────────────────────
+    private final TicketService ticketService = new TicketService();
 
-
-    // Datos
+    // ── Datos ─────────────────────────────────────────────────────────────────
     public void setDatos(double total, Map<Integer, Object[]> carrito,
                          VentasController ventasController,
                          int idCliente, String nombreCliente,
                          double limiteCredito, double saldoCliente) {
-        this.tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar(); // ← aquí
-        this.total = total;
+        this.tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar();
+        this.total            = total;
         this.carrito          = carrito;
         this.ventasController = ventasController;
         this.idCliente        = idCliente;
@@ -96,7 +103,7 @@ public class PagoController {
         txtDineroRecibido.textProperty().addListener((obs, old, nuevo) -> {
             try {
                 double recibido = Double.parseDouble(nuevo);
-                double cambio = recibido - total;
+                double cambio   = recibido - total;
                 lblCambio.setText("$" + String.format("%.2f", Math.max(cambio, 0)));
                 lblCambio.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: " +
                         (cambio >= 0 ? "#3B6D11" : "#C0392B") + ";");
@@ -105,7 +112,7 @@ public class PagoController {
             }
         });
 
-        // Listener mixto pesos y tarjeta
+        // Listener mixto pesos + tarjeta
         Runnable calcularMixto = () -> {
             try {
                 double ef  = Double.parseDouble(txtEfectivoMixto.getText().isEmpty() ? "0" : txtEfectivoMixto.getText());
@@ -138,7 +145,7 @@ public class PagoController {
             }
         });
 
-        // Listener mixto pesos y dólares
+        // Listener mixto pesos + dólares
         Runnable calcularMixtoUSD = () -> {
             try {
                 double pesos   = Double.parseDouble(txtPesosMixtoUSD.getText().isEmpty()   ? "0" : txtPesosMixtoUSD.getText());
@@ -166,8 +173,6 @@ public class PagoController {
             if (e.getCode() == javafx.scene.input.KeyCode.ENTER) handleConfirmar();
         });
 
-
-
         lblTipoCambio.setText("$" + String.format("%.2f", tipoCambioDolar) + " MXN/USD");
 
         // Efectivo por defecto
@@ -175,7 +180,8 @@ public class PagoController {
         javafx.application.Platform.runLater(() -> txtDineroRecibido.requestFocus());
     }
 
-    // Mostrar solo el panel indicado
+    // ── Visibilidad de paneles ────────────────────────────────────────────────
+
     private void mostrarPanel(VBox panel) {
         panelEfectivo.setVisible(false);      panelEfectivo.setManaged(false);
         panelTarjeta.setVisible(false);       panelTarjeta.setManaged(false);
@@ -188,7 +194,6 @@ public class PagoController {
         panel.setManaged(true);
     }
 
-    // Resalta botón activo
     private void resaltarBoton(Button activo) {
         String estiloActivo   = "-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;";
         String estiloInactivo = "-fx-background-color: white; -fx-text-fill: #6B4226; -fx-background-radius: 8; -fx-border-color: #6B4226; -fx-border-radius: 8; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 12px;";
@@ -202,7 +207,7 @@ public class PagoController {
         activo.setStyle(estiloActivo);
     }
 
-    // Selectores de metodo
+    // ── Selectores de método ──────────────────────────────────────────────────
 
     @FXML public void seleccionarEfectivo() {
         metodoPago = "EFECTIVO";
@@ -250,7 +255,8 @@ public class PagoController {
         txtPesosMixtoUSD.requestFocus();
     }
 
-    // Confirmar cobro
+    // ── Confirmar cobro ───────────────────────────────────────────────────────
+
     @FXML
     public void handleConfirmar() {
         double montoEfectivo = 0;
@@ -285,7 +291,7 @@ public class PagoController {
                 try {
                     montoEfectivo = Double.parseDouble(txtEfectivoMixto.getText().isEmpty() ? "0" : txtEfectivoMixto.getText());
                     montoTarjeta  = Double.parseDouble(txtTarjetaMixto.getText().isEmpty()  ? "0" : txtTarjetaMixto.getText());
-                    double suma = montoEfectivo + montoTarjeta;
+                    double suma   = montoEfectivo + montoTarjeta;
                     cambio = suma - total;
                     if (suma < total) {
                         mostrarAlerta("Pago insuficiente", "La suma de los pagos es menor al total.");
@@ -350,12 +356,15 @@ public class PagoController {
         guardarVenta(montoEfectivo, montoTarjeta, cambio);
     }
 
-    // Guardar venta
+    // ── Guardar venta ─────────────────────────────────────────────────────────
+
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
+        int idVenta = -1;
+
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
 
-            // Venta
+            // Venta principal
             PreparedStatement psVenta = con.prepareStatement(
                     "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente) VALUES (?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
@@ -367,14 +376,14 @@ public class PagoController {
 
             ResultSet rs = psVenta.getGeneratedKeys();
             rs.next();
-            int idVenta = rs.getInt(1);
+            idVenta = rs.getInt(1);
 
             // Detalle y stock
             for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
-                int idProducto  = entry.getKey();
-                double precio   = (double) entry.getValue()[1];
-                int cantidad    = (int)    entry.getValue()[2];
-                double subtotal = precio * cantidad;
+                int    idProducto = entry.getKey();
+                double precio     = (double) entry.getValue()[1];
+                int    cantidad   = (int)    entry.getValue()[2];
+                double subtotal   = precio * cantidad;
 
                 PreparedStatement psDetalle = con.prepareStatement(
                         "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
@@ -392,7 +401,7 @@ public class PagoController {
                 psStock.executeUpdate();
             }
 
-            // Pago
+            // Pago — fiado o normal
             if (metodoPago.equals("FIADO")) {
                 PreparedStatement psSaldo = con.prepareStatement(
                         "UPDATE clientes SET saldo_actual = saldo_actual + ? WHERE id_cliente = ?");
@@ -429,21 +438,87 @@ public class PagoController {
 
             con.commit();
 
-            Stage stage = (Stage) btnConfirmar.getScene().getWindow();
-            stage.close();
-            ventasController.ventaCompletada();
-
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo guardar la venta.");
+            return;
+        }
+
+        // ── Ticket (opcional, después del commit) ─────────────────────────────
+        if (chkImprimirTicket != null && chkImprimirTicket.isSelected()) {
+            imprimirTicket(idVenta, montoEfectivo + montoTarjeta, cambio);
+        }
+
+        // Cerrar modal y notificar al controlador de ventas
+        Stage stage = (Stage) btnConfirmar.getScene().getWindow();
+        stage.close();
+        ventasController.ventaCompletada();
+    }
+
+    /**
+     * Construye e imprime el ticket usando la configuración guardada en Preferences
+     * (misma fuente que usa ConfiguracionController → vista previa).
+     * La venta ya está confirmada: un error aquí NO revierte nada.
+     */
+    private void imprimirTicket(int idVenta, double montoRecibido, double cambio) {
+        try {
+            // ── Leer configuración guardada (igual que ConfiguracionController) ──
+            Preferences prefs = Preferences.userNodeForPackage(
+                    ConfiguracionController.class);
+
+            String nombre    = prefs.get("ticket_nombre",    "Volovan Volo");
+            String giro      = prefs.get("ticket_giro",      "Panaderia y Reposteria");
+            String direccion = prefs.get("ticket_direccion", "");
+            String ciudad    = prefs.get("ticket_ciudad",    "");
+            String telefono  = prefs.get("ticket_telefono",  "");
+            String encabezado = prefs.get("ticket_encabezado", "");
+            String pie       = prefs.get("ticket_pie",       "");
+            String aviso     = prefs.get("ticket_aviso",
+                    "Este ticket no es comprobante fiscal");
+
+            boolean mostrarLogo     = prefs.getBoolean("ticket_logo",     true);
+            boolean mostrarFolio    = prefs.getBoolean("ticket_folio",    true);
+            boolean mostrarDesglose = prefs.getBoolean("ticket_desglose", true);
+            boolean mostrarQR       = prefs.getBoolean("ticket_qr",       false);
+
+            // ancho: 58mm → 32 chars, 80mm → 48 chars (igual que ConfiguracionController)
+            String anchoPapel = prefs.get("ticket_ancho", "80 mm");
+            int ancho = "58 mm".equals(anchoPapel) ? 32 : 48;
+
+            // ── Construir ticket desde memoria ───────────────────────────────
+            SesionUsuario sesion = SesionUsuario.getInstancia();
+            Ticket ticket = ticketService.generarDesdeMemoria(
+                    idVenta, carrito, total,
+                    montoRecibido, cambio,
+                    sesion.getNombre(), sesion.getIdCaja()
+            );
+
+            // ── Imprimir con la misma configuración que usa la vista previa ──
+            new org.example.servicio.TicketImpresora().imprimirConRenderer(ticket,
+                    nombre, giro, direccion, ciudad, telefono,
+                    encabezado, pie, aviso,
+                    mostrarLogo, mostrarFolio, mostrarDesglose, mostrarQR,
+                    true, true,   // fecha y cajero siempre visibles en venta real
+                    ancho);
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            mostrarAlerta("Impresora",
+                    "La venta fue guardada correctamente.\n" +
+                            "No se pudo imprimir el ticket: " + ex.getMessage());
         }
     }
+
+    // ── Cancelar ─────────────────────────────────────────────────────────────
 
     @FXML
     public void handleCancelar() {
         Stage stage = (Stage) btnConfirmar.getScene().getWindow();
         stage.close();
     }
+
+    // ── Utilidades ────────────────────────────────────────────────────────────
 
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.WARNING);
