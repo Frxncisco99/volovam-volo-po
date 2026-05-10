@@ -101,7 +101,7 @@ public class InventarioController {
                 if (empty || id == null) { setText(null); setStyle(""); }
                 else {
                     setText("#" + String.format("%03d", id));
-                    setStyle("-fx-text-fill: #8B4A5A; -fx-font-size: 12px; -fx-alignment: CENTER;");
+                    setStyle("-fx-text-fill: #6a96b8; -fx-font-size: 12px; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -114,7 +114,7 @@ public class InventarioController {
                 if (empty || nombre == null) { setText(null); setStyle(""); }
                 else {
                     setText(nombre);
-                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
+                    setStyle("-fx-text-fill: #0d3d5e; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -122,7 +122,7 @@ public class InventarioController {
         colCategoria.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
             {
-                badge.setStyle("-fx-background-color: #F0EAD0; -fx-text-fill: #7A5E1A; " +
+                badge.setStyle("-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; " +
                         "-fx-background-radius: 20; -fx-padding: 3 10; -fx-font-size: 11px;");
             }
             @Override
@@ -132,8 +132,6 @@ public class InventarioController {
                 if (empty || cat == null) setGraphic(null);
                 else { badge.setText(cat); setGraphic(badge); }
             }
-
-
         });
 
         colPrecio.setCellFactory(col -> new TableCell<>() {
@@ -144,7 +142,7 @@ public class InventarioController {
                 if (empty || precio == null) { setText(null); setStyle(""); }
                 else {
                     setText(String.format("$%.2f", precio));
-                    setStyle("-fx-text-fill: #3D1A0A; -fx-font-weight: bold; -fx-alignment: CENTER;");
+                    setStyle("-fx-text-fill: #0d3d5e; -fx-font-weight: bold; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -160,7 +158,7 @@ public class InventarioController {
                     setText(String.valueOf(stock));
                     setStyle(p.isBajoStock()
                             ? "-fx-text-fill: #A32D2D; -fx-font-weight: bold; -fx-alignment: CENTER;"
-                            : "-fx-text-fill: #6B4226; -fx-alignment: CENTER;");
+                            : "-fx-text-fill: #0d3d5e; -fx-alignment: CENTER;");
                 }
             }
         });
@@ -198,13 +196,13 @@ public class InventarioController {
             private final Button btnEliminar = new Button("Eliminar");
             private final HBox   caja        = new HBox(6, btnEditar, btnStock, btnEliminar);
             {
-                btnEditar.setStyle("-fx-background-color: #C9A84C; -fx-text-fill: #3D1A0A; " +
+                btnEditar.setStyle("-fx-background-color: #1a6fa8; -fx-text-fill: white; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
                 btnStock.setStyle("-fx-background-color: #2E7D50; -fx-text-fill: white; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
-                btnEliminar.setStyle("-fx-background-color: #6B1228; -fx-text-fill: #F5EFE0; " +
+                btnEliminar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; " +
                         "-fx-background-radius: 6; -fx-padding: 5 10; " +
                         "-fx-font-size: 11px; -fx-font-weight: bold; -fx-cursor: hand;");
                 caja.setAlignment(Pos.CENTER);
@@ -241,7 +239,6 @@ public class InventarioController {
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : caja);
             }
-
         });
 
         tablaProductos.setRowFactory(tv -> new TableRow<>() {
@@ -249,8 +246,8 @@ public class InventarioController {
             protected void updateItem(Producto item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) setStyle("-fx-background-color: transparent;");
-                else if (getIndex() % 2 == 0) setStyle("-fx-background-color: #F5EFE6;");
-                else setStyle("-fx-background-color: #EDE8DC;");
+                else if (getIndex() % 2 == 0) setStyle("-fx-background-color: #f5f9ff;");
+                else setStyle("-fx-background-color: #eaf2fa;");
             }
         });
 
