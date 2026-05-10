@@ -469,24 +469,6 @@ public class TicketImpresora {
      * Mismo texto que la vista previa → fidelidad 1:1 garantizada.
      * Llamado por: TicketPreviewController, PagoController, TicketService.
      */
-    public void imprimirConRenderer(Ticket ticket,
-                                    String nombre,     String giro,
-                                    String direccion,  String ciudad,    String telefono,
-                                    String encabezado, String pie,       String aviso,
-                                    boolean mostrarLogo,    boolean mostrarFolio,
-                                    boolean mostrarDesglose, boolean mostrarQR,
-                                    boolean mostrarFecha,   boolean mostrarCajero,
-                                    int ancho) throws Exception {
-
-        String texto = TicketRenderer.generar(ticket,
-                nombre, giro, direccion, ciudad, telefono,
-                encabezado, pie, aviso,
-                mostrarLogo, mostrarFolio, mostrarDesglose, mostrarQR,
-                mostrarFecha, mostrarCajero, ancho);
-
-        PrintService servicio = buscarImpresoraTermica();
-        enviarAImpresora(servicio, rendererAEscPos(texto));
-    }
 
     /** Convierte el String de TicketRenderer a bytes ESC/POS. */
     private byte[] rendererAEscPos(String texto) throws Exception {
@@ -496,5 +478,32 @@ public class TicketImpresora {
         escribeTxt(out, texto);
         escribe(out, CUT);
         return out.toByteArray();
+    }
+    /**
+     * Imprime usando TicketRenderer como fuente de layout.
+     * Mismo String que la vista previa → fidelidad 1:1 garantizada.
+     */
+    public void imprimirConRenderer(Ticket ticket,
+                                    String nombre,     String giro,
+                                    String direccion,  String ciudad,    String telefono,
+                                    String encabezado, String pie,       String aviso,
+                                    boolean mostrarLogo,     boolean mostrarFolio,
+                                    boolean mostrarDesglose, boolean mostrarQR,
+                                    boolean mostrarFecha,    boolean mostrarCajero,
+                                    int ancho) throws Exception {
+
+        String texto = org.example.servicio.TicketRenderer.generar(ticket,
+                nombre, giro, direccion, ciudad, telefono,
+                encabezado, pie, aviso,
+                mostrarLogo, mostrarFolio, mostrarDesglose, mostrarQR,
+                mostrarFecha, mostrarCajero, ancho);
+
+        PrintService servicio = buscarImpresoraTermica();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        escribe(out, INIT);
+        escribe(out, ALIGN_LEFT);
+        escribeTxt(out, texto);
+        escribe(out, CUT);
+        enviarAImpresora(servicio, out.toByteArray());
     }
 }
