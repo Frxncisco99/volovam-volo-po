@@ -153,7 +153,7 @@ public class TicketImpresora {
         // Pie
         escribe(out, ALIGN_CENTER);
         escribeTxt(out, linea() + "\n");
-        escribeTxt(out, "Este ticket no es comprobante fiscal\n");
+        escribeTxt(out, "Este ticket no es \n comprobante fiscal\n");
         escribeTxt(out, linea() + "\n");
         escribe(out, BOLD_ON);
         escribeTxt(out, "* Gracias por su compra *\n");
@@ -340,7 +340,7 @@ public class TicketImpresora {
         escribe(out, ALIGN_CENTER);
 
         // Encabezado
-        if (mostrarLogo) { escribe(out, BOLD_ON); escribeTxt(out, "[LOGO]\n"); escribe(out, BOLD_OFF); }
+        if (mostrarLogo) { escribe(out, BOLD_ON); escribeTxt(out, ""); escribe(out, BOLD_OFF); }
         escribe(out, FONT_DOUBLE); escribe(out, BOLD_ON);
         escribeTxt(out, centrar(nombre.isEmpty() ? "NEGOCIO" : nombre, ancho) + "\n");
         escribe(out, FONT_NORMAL); escribe(out, BOLD_OFF);
