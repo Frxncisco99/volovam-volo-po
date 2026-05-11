@@ -67,6 +67,11 @@
                 <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Corte de Caja">
                     <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
+                <Button prefHeight="40" prefWidth="210" onAction="#irAAuditoria"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Auditoría" graphicTextGap="12">
+                    <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
 
                 <Button graphicTextGap="12" prefHeight="40" prefWidth="210" style="-fx-background-color: white;                                -fx-text-fill: #1a6fa8;                                -fx-font-weight: bold;                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuracion">
                     <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-cog" iconSize="16" /></graphic>

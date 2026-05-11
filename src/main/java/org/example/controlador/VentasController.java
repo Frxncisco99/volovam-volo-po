@@ -914,6 +914,21 @@ public class VentasController {
         lblClienteSeleccionado.setText("Publico General"); lblCreditoDisponible.setText("");
         mostrarAlerta("Venta completada", "La venta se registro correctamente.");
     }
+    private void registrarLogout() {
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
+                "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
+        try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            int idUsuario = org.example.modelo.SesionUsuario.getInstancia().getIdUsuario();
+            String nombre = org.example.modelo.SesionUsuario.getInstancia().getNombre();
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, "Cierre de sesión: " + nombre);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML public void irADashboard()  { cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAInventario(ActionEvent event) { try { FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml")); Parent root = loader.load(); ((Stage)((Button)event.getSource()).getScene().getWindow()).getScene().setRoot(root); } catch (Exception e) { e.printStackTrace(); } }
@@ -921,12 +936,22 @@ public class VentasController {
     @FXML public void irAEmpleados()  { if (!SesionUsuario.getInstancia().getRol().equals("admin")) { mostrarAlerta("Acceso Denegado","Solo el Administrador"); return; } cambiarEscena("/org/example/vista/Empleados.fxml"); }
     @FXML private void irAConfiguracion() { cambiarEscena("/org/example/vista/Configuracion.fxml"); }
     @FXML private void irACorteCaja()     { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAAuditoria() {
+        cambiarEscena("/org/example/vista/Auditoria.fxml");
+    }
     @FXML private void irAClientes()      { cambiarEscena("/org/example/vista/Clientes.fxml"); }
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION); a.setTitle("Salir"); a.setHeaderText(null); a.setContentText("¿Seguro que deseas salir?");
-        a.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) Platform.exit(); });
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("Salir"); a.setHeaderText(null);
+        a.setContentText("¿Seguro que deseas salir?");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                registrarLogout(); // ← agrega esto
+                Platform.exit();
+            }
+        });
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

@@ -197,6 +197,49 @@ public class ReporteAvanzadoDAO {
         return lista;
     }
 
+    public List<Map<String, Object>> obtenerAuditoria(
+            String fechaInicio, String fechaFin, String usuario, String accion) {
+        List<Map<String, Object>> lista = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT 
+            DATE_FORMAT(a.fecha, '%d/%m/%Y %H:%i:%s') AS fecha,
+            u.nombre    AS usuario,
+            a.accion,
+            a.tabla_afectada AS tabla,
+            a.detalle
+        FROM auditoria a
+        JOIN usuarios u ON a.id_usuario = u.id_usuario
+        WHERE a.fecha BETWEEN ? AND ?
+    """);
+
+        if (!usuario.isEmpty()) sql.append(" AND u.nombre LIKE ?");
+        if (!accion.isEmpty())  sql.append(" AND a.accion = ?");
+        sql.append(" ORDER BY a.fecha DESC LIMIT 500");
+
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            ps.setString(1, fechaInicio);
+            ps.setString(2, fechaFin);
+            int idx = 3;
+            if (!usuario.isEmpty()) ps.setString(idx++, "%" + usuario + "%");
+            if (!accion.isEmpty())  ps.setString(idx,   accion);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> fila = new LinkedHashMap<>();
+                fila.put("fecha",   rs.getString("fecha"));
+                fila.put("usuario", rs.getString("usuario"));
+                fila.put("accion",  rs.getString("accion"));
+                fila.put("tabla",   rs.getString("tabla"));
+                fila.put("detalle", rs.getString("detalle"));
+                lista.add(fila);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
+    }
+
     // ── Movimientos de inventario ─────────────────────────────────────────
     public List<Map<String, Object>> movimientosInventario(
             String fechaInicio, String fechaFin, int idProducto) {
@@ -246,5 +289,6 @@ public class ReporteAvanzadoDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return lista;
+
     }
 }

@@ -103,13 +103,16 @@ public class LoginController {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                // Guardar datos en sesión
                 SesionUsuario sesion = SesionUsuario.getInstancia();
                 sesion.setIdUsuario(rs.getInt("id_usuario"));
                 sesion.setNombre(rs.getString("nombre"));
                 sesion.setUsuario(rs.getString("usuario"));
                 sesion.setIdRol(rs.getInt("id_rol"));
                 sesion.setRol(rs.getString("rol"));
+
+                // ── Registrar login en auditoría ──────────────────────────
+                registrarLogin(rs.getInt("id_usuario"), rs.getString("nombre"));
+
                 return true;
             }
             return false;
@@ -126,5 +129,27 @@ public class LoginController {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+    private void registrarLogin(int idUsuario, String nombre) {
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
+                "VALUES (?, 'LOGIN', 'usuarios', ?, ?)";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, "Inicio de sesión: " + nombre +
+                    " desde " + obtenerIP());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String obtenerIP() {
+        try {
+            return java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            return "desconocida";
+        }
     }
 }
