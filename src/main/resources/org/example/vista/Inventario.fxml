@@ -15,11 +15,12 @@
 
 <BorderPane prefHeight="700" prefWidth="1100"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@menuPrincipal.css"
             fx:controller="org.example.controlador.InventarioController">
 
     <!-- SIDEBAR -->
     <left>
-        <VBox prefWidth="198" style="-fx-background-color: #091e4e;">
+        <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
 
             <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
                 <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo"/>
@@ -47,19 +48,19 @@
                 <Button graphicTextGap="12" onAction="#irADashboard" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Dashboard">
-                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
                 <Button graphicTextGap="12" onAction="#irAVentas" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Ventas / Caja">
-                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
                 <Button graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Inventario">
-                    <graphic><FontIcon iconLiteral="fas-box" iconSize="15" iconColor="#1a6fa8"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#1a6fa8"/></graphic>
                 </Button>
 
                 <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTION"/>
@@ -67,31 +68,31 @@
                 <Button onAction="#irAEmpleados" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Empleados">
-                    <graphic><FontIcon iconLiteral="fas-users" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
                 <Button prefHeight="40" prefWidth="210" onAction="#irAClientes"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Clientes" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
                 <Button onAction="#irAReportes" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Reportes">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-chart-bar" iconSize="15"/></graphic>
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-chart-bar" iconSize="16"/></graphic>
                 </Button>
 
                 <Button onAction="#irACorteCaja" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Corte de Caja">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="15"/></graphic>
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16"/></graphic>
                 </Button>
 
                 <Button onAction="#irAConfiguracion" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Configuracion">
-                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="15" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
             </VBox>
@@ -101,7 +102,7 @@
             <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230"
                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;"
                     text="Cerrar sesion">
-                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15" iconColor="#ff0000e5"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#ff0000e5"/></graphic>
             </Button>
 
         </VBox>

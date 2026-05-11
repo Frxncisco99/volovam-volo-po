@@ -3,6 +3,13 @@ package org.example.controlador;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import org.example.dao.DevolucionDAO;
+import org.example.modelo.DevolucionLinea;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.geometry.Pos;
+import java.util.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -277,299 +284,274 @@ public class VentasController {
 
     @FXML
     public void abrirDevoluciones() {
-        Stage stage = new Stage();
-        stage.setTitle("Devoluciones");
-        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-        stage.initOwner(lblTotal.getScene().getWindow());
+        try {
+            Stage stage = new Stage();
+            stage.setTitle("Devoluciones");
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.initOwner(lblTotal.getScene().getWindow());
 
-        // ── Buscar venta por folio ──
-        VBox layout = new VBox(14);
-        layout.setStyle("-fx-padding: 20; -fx-background-color: #F5EFE6;");
-
-        Label titulo = new Label("Devolucion de productos");
-        titulo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3D1F0D;");
-
-        Label lblSub = new Label("Ingresa el numero de folio de la venta original:");
-        lblSub.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px;");
-
-        HBox busqueda = new HBox(8);
-        busqueda.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        TextField txtFolio = new TextField();
-        txtFolio.setPromptText("Ej. 42");
-        txtFolio.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226;" +
-                "-fx-border-width: 1; -fx-padding: 8; -fx-pref-width: 120;");
-        Button btnBuscar = new Button("Buscar");
-        btnBuscar.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 8;" +
-                "-fx-padding: 8 18; -fx-cursor: hand; -fx-font-weight: bold;");
-        busqueda.getChildren().addAll(txtFolio, btnBuscar);
-
-        // Contenedor resultado
-        VBox panelResultado = new VBox(10);
-
-        btnBuscar.setOnAction(e -> {
-            panelResultado.getChildren().clear();
-            String folioStr = txtFolio.getText().trim();
-            if (folioStr.isEmpty()) return;
-            int idVenta;
-            try { idVenta = Integer.parseInt(folioStr); }
-            catch (NumberFormatException ex) {
-                mostrarAlerta("Folio inválido", "Ingresa un número de folio válido."); return;
-            }
-            cargarPanelDevolucion(idVenta, panelResultado, stage);
-        });
-
-        txtFolio.setOnAction(e -> btnBuscar.fire());
-
-        layout.getChildren().addAll(titulo, lblSub, busqueda, panelResultado);
-
-        ScrollPane scroll = new ScrollPane(layout);
-        scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #F5EFE6; -fx-border-color: transparent;");
-
-        stage.setScene(new Scene(scroll, 560, 520));
-        stage.setResizable(false);
-        stage.show();
-        txtFolio.requestFocus();
+            VBox root = construirPantallaDevoluciones(stage);
+            stage.setScene(new Scene(root, 860, 640));
+            stage.setResizable(true);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void cargarPanelDevolucion(int idVenta, VBox panel, Stage stage) {
-        panel.getChildren().clear();
+    private VBox construirPantallaDevoluciones(Stage stage) {
+        DevolucionDAO dao = new DevolucionDAO();
 
-        // Verificar que la venta existe y no está cancelada
-        String sqlVenta = """
-            SELECT v.id_venta, DATE_FORMAT(v.fecha,'%d/%m/%Y %H:%i') AS fecha,
-                   COALESCE(c.nombre,'Publico General') AS cliente, v.total
-            FROM ventas v
-            LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
-            WHERE v.id_venta = ? AND (v.estado IS NULL OR v.estado != 'cancelada')
-        """;
+        // ── Layout principal
+        VBox root = new VBox(0);
+        root.setStyle("-fx-background-color: #dddddd;");
 
-        String fechaVenta = "", clienteVenta = "";
-        double totalVenta = 0;
-        boolean encontrado = false;
+        // ── Header
+        HBox header = new HBox();
+        header.setStyle("-fx-background-color: #091e4e; -fx-padding: 16 20;");
+        Label titulo = new Label("Devoluciones");
+        titulo.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 18px; -fx-font-weight: bold;");
+        header.getChildren().add(titulo);
+        root.getChildren().add(header);
 
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sqlVenta)) {
-            ps.setInt(1, idVenta);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                encontrado    = true;
-                fechaVenta    = rs.getString("fecha");
-                clienteVenta  = rs.getString("cliente");
-                totalVenta    = rs.getDouble("total");
+        // ── Contenido en dos columnas
+        HBox contenido = new HBox(12);
+        contenido.setStyle("-fx-padding: 16;");
+        VBox.setVgrow(contenido, Priority.ALWAYS);
+
+        // ── COLUMNA IZQUIERDA: lista de ventas
+        VBox colIzq = new VBox(10);
+        colIzq.setPrefWidth(400);
+        colIzq.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; " +
+                "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.08),8,0,0,2);");
+
+        Label lblVentas = new Label("Seleccionar venta");
+        lblVentas.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000; -fx-font-size: 13px;");
+
+        TextField txtFiltro = new TextField();
+        txtFiltro.setPromptText("Buscar por folio o cliente...");
+        txtFiltro.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; " +
+                "-fx-border-color: #D4C9B0; -fx-padding: 8; -fx-font-size: 12px;");
+
+        TableView<Map<String, Object>> tablaVentas = new TableView<>();
+        tablaVentas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(tablaVentas, Priority.ALWAYS);
+
+        TableColumn<Map<String, Object>, String> cFolio = new TableColumn<>("Folio");
+        cFolio.setCellValueFactory(d ->
+                new SimpleStringProperty("#" + String.format("%04d", (int) d.getValue().get("id_venta"))));
+        cFolio.setPrefWidth(65);
+
+        TableColumn<Map<String, Object>, String> cFecha = new TableColumn<>("Fecha");
+        cFecha.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("fecha")));
+
+        TableColumn<Map<String, Object>, String> cTotal = new TableColumn<>("Total");
+        cTotal.setCellValueFactory(d ->
+                new SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("total"))));
+        cTotal.setPrefWidth(80);
+
+        TableColumn<Map<String, Object>, String> cEstado = new TableColumn<>("Estado");
+        cEstado.setCellValueFactory(d ->
+                new SimpleStringProperty(traducirEstado((String) d.getValue().get("estado"))));
+        cEstado.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String estado, boolean empty) {
+                super.updateItem(estado, empty);
+                if (empty || estado == null) { setText(null); setStyle(""); return; }
+                setText(estado);
+                String color = estado.contains("Parcial") ? "#E67E22" : "#27AE60";
+                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-font-size: 10px;");
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        });
 
-        if (!encontrado) {
-            Label err = new Label("No se encontró la venta #" + idVenta + " o ya fue cancelada.");
-            err.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 12px;");
-            panel.getChildren().add(err);
-            return;
-        }
+        tablaVentas.getColumns().addAll(cFolio, cFecha, cTotal, cEstado);
 
-        // Info de la venta
-        VBox infoVenta = new VBox(4);
-        infoVenta.setStyle("-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10;" +
-                "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.06),6,0,0,1);");
-        infoVenta.getChildren().addAll(
-                etiqueta("Folio #" + String.format("%04d", idVenta) + "  ·  " + fechaVenta, "#3D1F0D", true),
-                etiqueta("Cliente: " + clienteVenta, "#7A5535", false),
-                etiqueta("Total original: $" + String.format("%.2f", totalVenta), "#7A5535", false)
-        );
-        panel.getChildren().add(infoVenta);
+        // Cargar ventas iniciales
+        Runnable cargarVentas = () -> {
+            tablaVentas.getItems().setAll(dao.obtenerVentasRecientes(txtFiltro.getText().trim(), 50));
+        };
+        cargarVentas.run();
+        txtFiltro.textProperty().addListener((obs, o, n) -> cargarVentas.run());
 
-        // Productos de la venta con checkboxes
-        Label lblSelecciona = new Label("Selecciona los productos a devolver:");
-        lblSelecciona.setStyle("-fx-font-weight: bold; -fx-text-fill: #3D1F0D; -fx-font-size: 12px;");
-        panel.getChildren().add(lblSelecciona);
+        colIzq.getChildren().addAll(lblVentas, txtFiltro, tablaVentas);
 
-        VBox listaItems = new VBox(8);
-        List<CheckBox>   checkboxes  = new ArrayList<>();
-        List<Spinner<Integer>> spinners = new ArrayList<>();
-        List<int[]>      idsYCants   = new ArrayList<>();   // [id_producto, id_detalle, cantidad_original]
-        List<double[]>   precios     = new ArrayList<>();
+        // ── COLUMNA DERECHA: detalle de la venta seleccionada
+        VBox colDer = new VBox(10);
+        HBox.setHgrow(colDer, Priority.ALWAYS);
+        colDer.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; " +
+                "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.08),8,0,0,2);");
 
-        String sqlDetalle = """
-            SELECT dv.id_detalle, dv.id_producto, p.nombre,
-                   dv.cantidad, dv.precio_unitario
-            FROM detalle_venta dv
-            JOIN productos p ON dv.id_producto = p.id_producto
-            WHERE dv.id_venta = ?
-        """;
+        Label lblDetalle = new Label("Selecciona una venta para ver el detalle");
+        lblDetalle.setStyle("-fx-font-weight: bold; -fx-text-fill: #ffffff; -fx-font-size: 13px;");
 
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sqlDetalle)) {
-            ps.setInt(1, idVenta);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int idDetalle   = rs.getInt("id_detalle");
-                int idProducto  = rs.getInt("id_producto");
-                String nombre   = rs.getString("nombre");
-                int cantOrig    = rs.getInt("cantidad");
-                double precio   = rs.getDouble("precio_unitario");
+        Label lblInfoVenta = new Label("");
+        lblInfoVenta.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 11px;");
 
-                HBox fila = new HBox(10);
-                fila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                fila.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10 12;" +
-                        "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.05),4,0,0,1);");
+        TableView<DevolucionLinea> tablaLineas = new TableView<>();
+        tablaLineas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(tablaLineas, Priority.ALWAYS);
 
-                CheckBox cb = new CheckBox();
-                cb.setStyle("-fx-cursor: hand;");
+        TableColumn<DevolucionLinea, String>  cProd  = new TableColumn<>("Producto");
+        cProd.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getNombre()));
 
-                VBox info = new VBox(2);
-                HBox.setHgrow(info, javafx.scene.layout.Priority.ALWAYS);
-                Label lNombre = new Label(nombre);
-                lNombre.setStyle("-fx-font-weight: bold; -fx-text-fill: #3D1F0D; -fx-font-size: 12px;");
-                Label lPrecio = new Label("$" + String.format("%.2f", precio) + " c/u · Vendidos: " + cantOrig);
-                lPrecio.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 10px;");
-                info.getChildren().addAll(lNombre, lPrecio);
+        TableColumn<DevolucionLinea, String>  cVend  = new TableColumn<>("Vendido");
+        cVend.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getVendido())));
+        cVend.setPrefWidth(65);
 
-                Spinner<Integer> spinner = new Spinner<>(1, cantOrig, 1);
-                spinner.setEditable(true);
-                spinner.setPrefWidth(70);
-                spinner.setDisable(true);
-                spinner.setStyle("-fx-font-size: 11px;");
-                cb.selectedProperty().addListener((obs, o, n) -> spinner.setDisable(!n));
-
-                fila.getChildren().addAll(cb, info, spinner);
-                listaItems.getChildren().add(fila);
-
-                checkboxes.add(cb);
-                spinners.add(spinner);
-                idsYCants.add(new int[]{idProducto, idDetalle, cantOrig});
-                precios.add(new double[]{precio});
+        TableColumn<DevolucionLinea, String>  cDevuelto = new TableColumn<>("Devuelto");
+        cDevuelto.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getYaDevuelto())));
+        cDevuelto.setPrefWidth(65);
+        cDevuelto.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String v, boolean empty) {
+                super.updateItem(v, empty);
+                if (empty || v == null) { setText(null); setStyle(""); return; }
+                setText(v);
+                setStyle(Integer.parseInt(v) > 0 ? "-fx-text-fill: #C0392B; -fx-font-weight: bold;" : "");
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        });
 
-        if (listaItems.getChildren().isEmpty()) {
-            panel.getChildren().add(etiqueta("Esta venta no tiene productos registrados.", "#C0392B", false));
-            return;
-        }
+        // Columna editable: cantidad a devolver
+        TableColumn<DevolucionLinea, String> cCant = new TableColumn<>("A devolver");
+        cCant.setPrefWidth(90);
+        Map<Integer, Spinner<Integer>> spinners = new LinkedHashMap<>();
 
-        panel.getChildren().add(listaItems);
-
-        // Tipo de devolución
-        Label lblTipo = new Label("Tipo de reembolso:");
-        lblTipo.setStyle("-fx-font-weight: bold; -fx-text-fill: #3D1F0D; -fx-font-size: 12px;");
-        ComboBox<String> cmbTipo = new ComboBox<>();
-        cmbTipo.getItems().addAll("Efectivo", "Nota de credito");
-        cmbTipo.setValue("Efectivo");
-        cmbTipo.setMaxWidth(Double.MAX_VALUE);
-        cmbTipo.setStyle("-fx-background-radius: 8;");
-        panel.getChildren().addAll(lblTipo, cmbTipo);
-
-        // Botón confirmar
-        Button btnConfirmar = new Button("Confirmar devolucion");
-        btnConfirmar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold;" +
-                "-fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-size: 12px;");
-        btnConfirmar.setMaxWidth(Double.MAX_VALUE);
-
-        final String fechaFinal   = fechaVenta;
-        final String clienteFinal = clienteVenta;
-
-        btnConfirmar.setOnAction(e -> {
-            // Validar que al menos uno esté seleccionado
-            boolean alguno = checkboxes.stream().anyMatch(CheckBox::isSelected);
-            if (!alguno) { mostrarAlerta("Sin selección", "Selecciona al menos un producto a devolver."); return; }
-
-            double montoDevolver = 0;
-            for (int i = 0; i < checkboxes.size(); i++) {
-                if (checkboxes.get(i).isSelected()) {
-                    int cant = spinners.get(i).getValue();
-                    montoDevolver += cant * precios.get(i)[0];
+        cCant.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String v, boolean empty) {
+                super.updateItem(v, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null); return;
                 }
+                DevolucionLinea linea = (DevolucionLinea) getTableRow().getItem();
+                if (linea.getDisponible() <= 0) {
+                    Label agotado = new Label("Agotado");
+                    agotado.setStyle("-fx-text-fill: #C0392B; -fx-font-size: 10px;");
+                    setGraphic(agotado);
+                    return;
+                }
+                Spinner<Integer> sp = spinners.computeIfAbsent(linea.getIdDetalle(),
+                        k -> new Spinner<>(0, linea.getDisponible(), 0));
+                sp.setPrefWidth(70);
+                setGraphic(sp);
             }
-            final double montoFinal = montoDevolver;
+        });
+
+        tablaLineas.getColumns().addAll(cProd, cVend, cDevuelto, cCant);
+
+        // Tipo de reembolso y botón confirmar
+        HBox filaTipo = new HBox(10);
+        filaTipo.setAlignment(Pos.CENTER_LEFT);
+        Label lblTipo = new Label("Reembolso:");
+        lblTipo.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px;");
+        ComboBox<String> cmbTipo = new ComboBox<>();
+        cmbTipo.getItems().addAll("EFECTIVO", "NOTA_CREDITO");
+        cmbTipo.setValue("EFECTIVO");
+        filaTipo.getChildren().addAll(lblTipo, cmbTipo);
+
+        Button btnConfirmar = new Button("Confirmar devolución");
+        btnConfirmar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; " +
+                "-fx-font-weight: bold; -fx-background-radius: 8; " +
+                "-fx-padding: 10 20; -fx-cursor: hand;");
+        btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+        btnConfirmar.setDisable(true);
+
+        colDer.getChildren().addAll(lblDetalle, lblInfoVenta, tablaLineas, filaTipo, btnConfirmar);
+
+        // ── Listener: al seleccionar venta
+        final int[] idVentaSeleccionada = {-1};
+
+        tablaVentas.getSelectionModel().selectedItemProperty().addListener((obs, old, nuevo) -> {
+            if (nuevo == null) return;
+            idVentaSeleccionada[0] = (int) nuevo.get("id_venta");
+            spinners.clear();
+
+            List<DevolucionLinea> lineas = dao.obtenerLineasDisponibles(idVentaSeleccionada[0]);
+            tablaLineas.getItems().setAll(lineas);
+            tablaLineas.refresh();
+
+            String estado = (String) nuevo.get("estado");
+            lblInfoVenta.setText(
+                    "Folio #" + String.format("%04d", idVentaSeleccionada[0]) +
+                            "  ·  " + nuevo.get("fecha") +
+                            "  ·  " + nuevo.get("cliente") +
+                            "  ·  Total: $" + String.format("%.2f", (double) nuevo.get("total")) +
+                            "  ·  " + traducirEstado(estado)
+            );
+            btnConfirmar.setDisable(lineas.isEmpty());
+        });
+
+        // ── Confirmar devolución
+        btnConfirmar.setOnAction(e -> {
+            if (idVentaSeleccionada[0] < 0) return;
+
+            Map<Integer, Integer> seleccion = new LinkedHashMap<>();
+            for (Map.Entry<Integer, Spinner<Integer>> entry : spinners.entrySet()) {
+                int cant = entry.getValue().getValue();
+                if (cant > 0) seleccion.put(entry.getKey(), cant);
+            }
+
+            if (seleccion.isEmpty()) {
+                mostrarAlerta("Sin selección", "Elige al menos un producto a devolver.");
+                return;
+            }
+
+            // Calcular monto visual para confirmación
+            double montoVisual = tablaLineas.getItems().stream()
+                    .filter(l -> seleccion.containsKey(l.getIdDetalle()))
+                    .mapToDouble(l -> l.getPrecioUnitario() * seleccion.get(l.getIdDetalle()))
+                    .sum();
 
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-            confirm.setTitle("Confirmar devolucion");
+            confirm.setTitle("Confirmar devolución");
             confirm.setHeaderText(null);
-            confirm.setContentText("¿Confirmas la devolución de $" + String.format("%.2f", montoFinal) +
-                    " via " + cmbTipo.getValue() + "?");
+            confirm.setContentText(String.format(
+                    "¿Confirmas la devolución de $%.2f via %s?", montoVisual, cmbTipo.getValue()));
             if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
-            procesarDevolucion(idVenta, checkboxes, spinners, idsYCants, precios,
-                    montoFinal, cmbTipo.getValue(), stage);
+            try {
+                dao.registrarDevolucion(
+                        idVentaSeleccionada[0],
+                        SesionUsuario.getInstancia().getIdUsuario(),
+                        seleccion,
+                        cmbTipo.getValue(),
+                        ""
+                );
+
+                mostrarAlerta("Devolución registrada",
+                        String.format("Se procesó correctamente la devolución de $%.2f", montoVisual));
+
+                // Recargar lista
+                cargarVentas.run();
+                tablaLineas.getItems().clear();
+                spinners.clear();
+                btnConfirmar.setDisable(true);
+                lblInfoVenta.setText("");
+                idVentaSeleccionada[0] = -1;
+
+                // Recargar productos en caja
+                cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
+
+            } catch (IllegalStateException ex) {
+                mostrarAlerta("Devolución no permitida", ex.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                mostrarAlerta("Error", "No se pudo registrar la devolución: " + ex.getMessage());
+            }
         });
 
-        panel.getChildren().add(btnConfirmar);
+        contenido.getChildren().addAll(colIzq, colDer);
+        root.getChildren().add(contenido);
+        VBox.setVgrow(contenido, Priority.ALWAYS);
+        return root;
     }
 
-    private void procesarDevolucion(int idVenta,
-                                    List<CheckBox> checkboxes,
-                                    List<Spinner<Integer>> spinners,
-                                    List<int[]> idsYCants,
-                                    List<double[]> precios,
-                                    double monto,
-                                    String tipoReembolso,
-                                    Stage stage) {
-        Connection con = ConexionDB.getConexion();
-        if (con == null) {
-            mostrarAlerta("Error de conexión", "No se pudo conectar a la base de datos.");
-            return;
-        }
-        try {
-            con.setAutoCommit(false);
-
-            // 1. Insertar en tabla devoluciones
-            int idDevolucion;
-            try (PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO devoluciones (id_venta, id_usuario, monto_devuelto, tipo_reembolso) VALUES (?,?,?,?)",
-                    java.sql.Statement.RETURN_GENERATED_KEYS)) {
-                ps.setInt(1, idVenta);
-                ps.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
-                ps.setDouble(3, monto);
-                ps.setString(4, tipoReembolso);
-                ps.executeUpdate();
-                ResultSet rk = ps.getGeneratedKeys();
-                idDevolucion = rk.next() ? rk.getInt(1) : 0;
-            }
-
-            // 2. Por cada producto: devolver stock y registrar detalle
-            for (int i = 0; i < checkboxes.size(); i++) {
-                if (checkboxes.get(i).isSelected()) {
-                    int cant       = spinners.get(i).getValue();
-                    int idProducto = idsYCants.get(i)[0];
-
-                    try (PreparedStatement ps = con.prepareStatement(
-                            "INSERT INTO detalle_devolucion (id_devolucion, id_producto, cantidad) VALUES (?,?,?)")) {
-                        ps.setInt(1, idDevolucion);
-                        ps.setInt(2, idProducto);
-                        ps.setInt(3, cant);
-                        ps.executeUpdate();
-                    }
-                    try (PreparedStatement ps = con.prepareStatement(
-                            "UPDATE productos SET stock = stock + ? WHERE id_producto = ?")) {
-                        ps.setInt(1, cant);
-                        ps.setInt(2, idProducto);
-                        ps.executeUpdate();
-                    }
-                }
-            }
-
-            con.commit();
-            stage.close();
-            mostrarAlerta("Devolucion completada",
-                    "Se devolvió $" + String.format("%.2f", monto) +
-                            " via " + tipoReembolso + ".\nEl inventario fue actualizado.");
-            cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
-
-        } catch (Exception ex) {
-            try { con.rollback(); } catch (Exception ignored) {}
-            ex.printStackTrace();
-            mostrarAlerta("Error", "No se pudo procesar la devolución: " + ex.getMessage());
-        } finally {
-            try { con.setAutoCommit(true); } catch (Exception ignored) {}
-        }
+    private String traducirEstado(String estado) {
+        if (estado == null) return "Completada";
+        return switch (estado) {
+            case "COMPLETADA"            -> "Completada";
+            case "PARCIALMENTE_DEVUELTA" -> "Parcial";
+            case "DEVUELTA"              -> "Devuelta";
+            default -> estado;
+        };
     }
-
-    /** Helper: crea un Label simple */
-    private Label etiqueta(String texto, String color, boolean bold) {
-        Label l = new Label(texto);
-        l.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;" + (bold ? " -fx-font-weight: bold;" : ""));
-        return l;
-    }
-
 
     // RESTO DEL CÓDIGO ORIGINAL (sin cambios)
 
@@ -802,20 +784,102 @@ public class VentasController {
     }
 
     private void mostrarDetalleVenta(int idVenta) {
-        Stage stage = new Stage(); stage.setTitle("Detalle venta #" + String.format("%04d", idVenta));
-        TableView<Map<String, Object>> tabla = new TableView<>(); tabla.setPrefWidth(480);
-        TableColumn<Map<String, Object>, String> colProd   = new TableColumn<>("Producto"); colProd.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("producto"))); colProd.setPrefWidth(200);
-        TableColumn<Map<String, Object>, String> colCant   = new TableColumn<>("Cant.");    colCant.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.valueOf((int) d.getValue().get("cantidad")))); colCant.setPrefWidth(70);
-        TableColumn<Map<String, Object>, String> colPrecio = new TableColumn<>("Precio");   colPrecio.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("precio")))); colPrecio.setPrefWidth(100);
-        TableColumn<Map<String, Object>, String> colSub    = new TableColumn<>("Subtotal"); colSub.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("subtotal")))); colSub.setPrefWidth(100);
+        Stage stage = new Stage();
+        stage.setTitle("Detalle venta #" + String.format("%04d", idVenta));
+
+        TableView<Map<String, Object>> tabla = new TableView<>();
+        tabla.setPrefWidth(480);
+
+        TableColumn<Map<String, Object>, String> colProd   = new TableColumn<>("Producto");
+        colProd.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("producto")));
+        colProd.setPrefWidth(200);
+
+        TableColumn<Map<String, Object>, String> colCant   = new TableColumn<>("Cant.");
+        colCant.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.valueOf((int) d.getValue().get("cantidad"))));
+        colCant.setPrefWidth(70);
+
+        TableColumn<Map<String, Object>, String> colPrecio = new TableColumn<>("Precio");
+        colPrecio.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("precio"))));
+        colPrecio.setPrefWidth(100);
+
+        TableColumn<Map<String, Object>, String> colSub    = new TableColumn<>("Subtotal");
+        colSub.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("subtotal"))));
+        colSub.setPrefWidth(100);
+
         tabla.getColumns().addAll(colProd, colCant, colPrecio, colSub);
-        String sql = "SELECT p.nombre AS producto, dv.cantidad, dv.precio_unitario AS precio, (dv.cantidad * dv.precio_unitario) AS subtotal FROM detalle_venta dv JOIN productos p ON dv.id_producto = p.id_producto WHERE dv.id_venta = ?";
-        try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idVenta); ResultSet rs = ps.executeQuery();
-            while (rs.next()) { Map<String, Object> fila = new HashMap<>(); fila.put("producto", rs.getString("producto")); fila.put("cantidad", rs.getInt("cantidad")); fila.put("precio", rs.getDouble("precio")); fila.put("subtotal", rs.getDouble("subtotal")); tabla.getItems().add(fila); }
+
+        String sql = "SELECT p.nombre AS producto, dv.cantidad, dv.precio_unitario AS precio, " +
+                "(dv.cantidad * dv.precio_unitario) AS subtotal " +
+                "FROM detalle_venta dv " +
+                "JOIN productos p ON dv.id_producto = p.id_producto " +
+                "WHERE dv.id_venta = ?";
+
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVenta);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> fila = new HashMap<>();
+                fila.put("producto", rs.getString("producto"));
+                fila.put("cantidad", rs.getInt("cantidad"));
+                fila.put("precio",   rs.getDouble("precio"));
+                fila.put("subtotal", rs.getDouble("subtotal"));
+                tabla.getItems().add(fila);
+            }
         } catch (Exception e) { e.printStackTrace(); }
-        VBox layout = new VBox(10, tabla); layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
-        stage.setScene(new Scene(layout, 520, 360)); stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); stage.show();
+
+        // ── Botón cancelar venta (solo visible si tiene permiso) ──────────────
+        Button btnCancelar = new Button("Cancelar esta venta");
+        btnCancelar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; " +
+                "-fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; " +
+                "-fx-font-weight: bold;");
+        btnCancelar.setMaxWidth(Double.MAX_VALUE);
+        btnCancelar.setVisible(org.example.servicio.PermisoService.puede(
+                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA));
+        btnCancelar.setManaged(btnCancelar.isVisible());
+        btnCancelar.setOnAction(e -> manejarCancelacion(idVenta, stage::close));
+
+        VBox layout = new VBox(10, tabla, btnCancelar);
+        layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
+        stage.setScene(new Scene(layout, 520, 400));
+        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        stage.show();
+    }
+    private void manejarCancelacion(int idVenta, Runnable onExito) {
+        if (!org.example.servicio.PermisoService.puede(
+                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA)) {
+            mostrarAlerta("Acceso denegado",
+                    "No tienes permiso para cancelar ventas.\n" +
+                            "Requiere rol: Admin o Supervisor.");
+            return;
+        }
+
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("Cancelar venta");
+        dialog.setHeaderText("Cancelar " + org.example.servicio.FolioService.venta(idVenta));
+        dialog.setContentText("Motivo de cancelación (obligatorio):");
+
+        dialog.showAndWait().ifPresent(motivo -> {
+            if (motivo.trim().isEmpty()) {
+                mostrarAlerta("Motivo requerido", "Debes ingresar un motivo para cancelar.");
+                return;
+            }
+            try {
+                new org.example.servicio.CancelacionService().cancelarVenta(idVenta, motivo.trim());
+                mostrarAlerta("Venta cancelada",
+                        org.example.servicio.FolioService.venta(idVenta) +
+                                " cancelada correctamente.\nEl stock fue restaurado.");
+                if (onExito != null) onExito.run();
+                cargarProductos(txtBuscar.getText(), categoriaSeleccionada);
+            } catch (IllegalStateException e) {
+                mostrarAlerta("No permitido", e.getMessage());
+            } catch (SecurityException e) {
+                mostrarAlerta("Acceso denegado", e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                mostrarAlerta("Error", "No se pudo cancelar: " + e.getMessage());
+            }
+        });
     }
 
     @FXML public void abrirIngreso() { abrirMovimientoCaja("INGRESO"); }
