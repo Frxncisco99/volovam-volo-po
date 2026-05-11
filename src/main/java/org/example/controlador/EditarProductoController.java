@@ -147,6 +147,13 @@ public class EditarProductoController {
         producto.setIdCategoria(cbCategoria.getValue().getIdCategoria());
         producto.setCodigoBarras(codigo);
         dao.actualizarProducto(producto);
+        org.example.servicio.AuditoriaService.get().registrar(
+                "EDICION_PRODUCTO", "productos", producto.getIdProducto(),
+                "Producto editado: " + producto.getNombre() +
+                        " | Precio: $" + String.format("%.2f", precio) +
+                        " | Stock: " + stock +
+                        " | Categoría: " + cbCategoria.getValue().getNombre()
+        );
         cerrarVentana();
     }
 

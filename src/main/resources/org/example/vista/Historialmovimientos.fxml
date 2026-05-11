@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox prefWidth="780" prefHeight="560"
+      spacing="0"
+      style="-fx-background-color: #f0f7ff;"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.HistorialMovimientosController">
+
+    <!-- ── HEADER ── -->
+    <HBox alignment="CENTER_LEFT" spacing="12"
+          style="-fx-background-color: #091e4e; -fx-padding: 18 24;">
+        <FontIcon iconLiteral="fas-history" iconSize="18" iconColor="white"/>
+        <VBox spacing="3">
+            <Label fx:id="lblNombreProducto"
+                   text="Producto"
+                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblStockActual"
+                   text="Stock actual: —"
+                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11px;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button onAction="#handleCerrar" text="✕"
+                style="-fx-background-color: rgba(255,255,255,0.12);
+                       -fx-text-fill: white; -fx-background-radius: 20;
+                       -fx-min-width: 30; -fx-min-height: 30;
+                       -fx-font-size: 13px; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- ── RESUMEN RÁPIDO ── -->
+    <HBox spacing="10" style="-fx-padding: 14 18 10 18;">
+
+        <!-- Entradas -->
+        <VBox spacing="4" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: #d4edda; -fx-background-radius: 12;
+                     -fx-padding: 12 16; -fx-alignment: CENTER;">
+            <HBox alignment="CENTER" spacing="6">
+                <FontIcon iconLiteral="fas-arrow-down" iconSize="12" iconColor="#1a5c2e"/>
+                <Label text="ENTRADAS" style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #1a5c2e;"/>
+            </HBox>
+            <Label fx:id="lblTotalEntradas" text="+0"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1a5c2e;"/>
+            <Label text="unidades añadidas"
+                   style="-fx-font-size: 10px; -fx-text-fill: #2e7d50;"/>
+        </VBox>
+
+        <!-- Ajustes/Salidas -->
+        <VBox spacing="4" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: #fff3cd; -fx-background-radius: 12;
+                     -fx-padding: 12 16; -fx-alignment: CENTER;">
+            <HBox alignment="CENTER" spacing="6">
+                <FontIcon iconLiteral="fas-sliders-h" iconSize="12" iconColor="#8a6020"/>
+                <Label text="AJUSTES" style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #8a6020;"/>
+            </HBox>
+            <Label fx:id="lblTotalSalidas" text="-0"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #8a6020;"/>
+            <Label text="unidades ajustadas"
+                   style="-fx-font-size: 10px; -fx-text-fill: #a07030;"/>
+        </VBox>
+
+        <!-- Ventas -->
+        <VBox spacing="4" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: #fde8e8; -fx-background-radius: 12;
+                     -fx-padding: 12 16; -fx-alignment: CENTER;">
+            <HBox alignment="CENTER" spacing="6">
+                <FontIcon iconLiteral="fas-shopping-cart" iconSize="12" iconColor="#a83232"/>
+                <Label text="VENTAS" style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #a83232;"/>
+            </HBox>
+            <Label fx:id="lblTotalVentas" text="-0"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a83232;"/>
+            <Label text="unidades vendidas"
+                   style="-fx-font-size: 10px; -fx-text-fill: #c06060;"/>
+        </VBox>
+
+    </HBox>
+
+    <Separator style="-fx-opacity: 0.2; -fx-padding: 0 18;"/>
+
+    <!-- ── TABLA ── -->
+    <VBox VBox.vgrow="ALWAYS" style="-fx-padding: 10 18 18 18;" spacing="0">
+
+        <!-- Encabezado tabla -->
+        <HBox alignment="CENTER_LEFT" spacing="6" style="-fx-padding: 0 0 8 0;">
+            <FontIcon iconLiteral="fas-list-alt" iconSize="13" iconColor="#1a6fa8"/>
+            <Label text="Movimientos registrados"
+                   style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 13px;"/>
+        </HBox>
+
+        <TableView fx:id="tablaHistorial" VBox.vgrow="ALWAYS"
+                   style="-fx-background-color: white;
+                          -fx-border-color: #dde8f2; -fx-border-width: 1;
+                          -fx-background-radius: 12; -fx-border-radius: 12;">
+            <columns>
+                <TableColumn fx:id="colFecha"    text="FECHA / HORA" prefWidth="145"/>
+                <TableColumn fx:id="colTipo"     text="TIPO"         prefWidth="115"/>
+                <TableColumn fx:id="colCantidad" text="CANTIDAD"     prefWidth="90"/>
+                <TableColumn fx:id="colMotivo"   text="MOTIVO"       prefWidth="210"/>
+                <TableColumn fx:id="colUsuario"  text="USUARIO"      prefWidth="140"/>
+            </columns>
+            <placeholder>
+                <VBox alignment="CENTER" spacing="8" style="-fx-padding: 40;">
+                    <FontIcon iconLiteral="fas-inbox" iconSize="36" iconColor="#c8dff0"/>
+                    <Label text="Sin movimientos registrados"
+                           style="-fx-font-size: 14px; -fx-text-fill: #9ab8d4; -fx-font-weight: bold;"/>
+                    <Label text="Los ajustes de stock y ventas aparecerán aquí"
+                           style="-fx-font-size: 11px; -fx-text-fill: #b0cce0;"/>
+                </VBox>
+            </placeholder>
+        </TableView>
+
+    </VBox>
+
+    <!-- ── FOOTER ── -->
+    <HBox alignment="CENTER_RIGHT"
+          style="-fx-background-color: white;
+                 -fx-padding: 12 20;
+                 -fx-border-color: #dde8f2 transparent transparent transparent;
+                 -fx-border-width: 1;">
+        <Button onAction="#handleCerrar" text="Cerrar"
+                style="-fx-background-color: #1a6fa8; -fx-text-fill: white;
+                       -fx-background-radius: 8; -fx-padding: 9 24;
+                       -fx-font-weight: bold; -fx-font-size: 12px; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>

@@ -133,6 +133,12 @@ public class AgregarProductoController {
         p.setCodigoBarras(codigo);
 
         productoDAO.insertarProducto(p);
+        org.example.servicio.AuditoriaService.get().registrar(
+                "ALTA_PRODUCTO", "productos", 0,
+                "Producto creado: " + p.getNombre() +
+                        " | Precio: $" + String.format("%.2f", p.getPrecio()) +
+                        " | Stock inicial: " + p.getStock()
+        );
         info("Producto guardado correctamente.");
         cerrar();
     }
