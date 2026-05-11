@@ -5,23 +5,29 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ReporteController">
+<BorderPane prefHeight="700" prefWidth="1100"
+            stylesheets="@menuPrincipal.css"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controlador.ReporteController">
 
     <!-- ===================== SIDEBAR — paleta #091e4e (igual que Menu Principal) ===================== -->
     <left>
         <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
 
-            <!-- Marca -->
-            <VBox prefHeight="72.0" prefWidth="219.0" spacing="3" style="-fx-padding: 24 18 16 18;">
+            <VBox spacing="3" style="-fx-padding: 28 18 16 18;">
                 <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo" />
                 <Label style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA" />
             </VBox>
 
             <Separator style="-fx-opacity: 0.15;" />
 
-            <!-- Usuario -->
             <HBox spacing="10" style="-fx-padding: 14 18;">
-                <Label fx:id="lblAvatarIniciales" style="-fx-background-color: rgba(255,255,255,0.22);                               -fx-text-fill: white;                               -fx-font-weight: bold;                               -fx-font-size: 13px;                               -fx-min-width: 36; -fx-min-height: 36;                               -fx-background-radius: 18;                               -fx-alignment: center;" text="AD" />
+                <Label fx:id="lblAvatarIniciales"
+                       style="-fx-background-color: rgba(255,255,255,0.22);
+                              -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;
+                              -fx-min-width: 36; -fx-min-height: 36;
+                              -fx-background-radius: 18; -fx-alignment: center;" text="AD" />
                 <VBox spacing="2">
                     <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario" />
                     <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol" />
@@ -30,55 +36,81 @@
 
             <Separator style="-fx-opacity: 0.15;" />
 
-            <!-- Navegación -->
-            <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
+            <VBox spacing="3" style="-fx-padding: 10;" VBox.vgrow="ALWAYS">
 
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35);                               -fx-font-size: 9px; -fx-font-weight: bold;                               -fx-padding: 8 8 3 8;" text="PRINCIPAL" />
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px;
+                              -fx-font-weight: bold; -fx-padding: 8 8 3 8;" text="PRINCIPAL" />
 
-
-                <Button graphicTextGap="12" onAction="#irADashboard" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Dashboard">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-tachometer-alt" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irADashboard" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Dashboard">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-tachometer-alt" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAVentas" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Ventas / Caja">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-shopping-cart" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irAVentas" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Ventas / Caja">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-shopping-cart" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Inventario">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-box" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irAInventario" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Inventario">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-box" iconSize="15" /></graphic>
                 </Button>
 
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35);                               -fx-font-size: 9px; -fx-font-weight: bold;                               -fx-padding: 12 8 3 8;" text="GESTIÓN" />
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px;
+                              -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTIÓN" />
 
-                <Button graphicTextGap="12" onAction="#irAEmpleados" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Empleados">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-users" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irAEmpleados" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Empleados">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-users" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAClientes" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Clientes">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-user-friends" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irAClientes" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Clientes">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-user-friends" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" prefHeight="40" prefWidth="210" style="-fx-background-color: white;                                -fx-text-fill: #1a6fa8;                                -fx-font-weight: bold;                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Reportes">
-                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-chart-bar" iconSize="16" /></graphic>
+                <!-- ACTIVO -->
+                <Button graphicTextGap="12" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8;
+                               -fx-font-weight: bold; -fx-background-radius: 8;
+                               -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Reportes">
+                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-chart-bar" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Corte de Caja">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Corte de Caja">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="15" /></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuracion">
-                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cog" iconSize="16" /></graphic>
+                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8);
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
+                        text="Configuracion">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cog" iconSize="15" /></graphic>
                 </Button>
 
             </VBox>
 
             <Separator style="-fx-opacity: 0.15;" />
 
-            <!-- Cerrar sesión -->
-            <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230" style="-fx-background-color: transparent;                            -fx-text-fill: rgba(255,180,180,0.9);                            -fx-cursor: hand;" text="Cerrar sesion" textFill="RED">
-                <graphic><FontIcon iconColor="#ff0000e5" iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
+            <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230"
+                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;"
+                    text="Cerrar sesion">
+                <graphic><FontIcon iconColor="#ff0000e5" iconLiteral="fas-sign-out-alt" iconSize="15" /></graphic>
             </Button>
-
         </VBox>
     </left>
 
@@ -90,123 +122,262 @@
             <!-- Topbar — mismo estilo que Menu Principal -->
             <HBox alignment="CENTER_LEFT" styleClass="topbar">
                 <VBox spacing="2">
-                    <Label style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Reportes de Ventas" />
-                    <Label fx:id="lblFecha" style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" text="Análisis y estadísticas de ventas" />
+                    <Label style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
+                           text="Reportes de Ventas" />
+                    <Label fx:id="lblFecha"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;"
+                           text="Análisis y estadísticas de ventas" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
                 <VBox alignment="CENTER_RIGHT" spacing="2">
-                    <Label fx:id="lblHora" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" />
-                    <Label style="-fx-background-color: #e0f5e9; -fx-text-fill: #1e7d3e;                                   -fx-background-radius: 10; -fx-padding: 2 10; -fx-font-size: 10px;" text="Caja abierta" />
+                    <Label fx:id="lblHora"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" />
+                    <Label style="-fx-background-color: #e0f5e9; -fx-text-fill: #1e7d3e;
+                                  -fx-background-radius: 10; -fx-padding: 2 10; -fx-font-size: 10px;"
+                           text="Caja abierta" />
                 </VBox>
             </HBox>
 
             <!-- Barra de acceso rápido -->
-            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 6 28 4 28; -fx-background-color: #f0f7ff;                          -fx-border-color: transparent transparent #d0e4f4 transparent; -fx-border-width: 1;">
-                <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;                               -fx-padding: 0 6 0 0;" text="Acceso rápido:" />
-                <Button fx:id="btnHoy" onAction="#filtroRapido" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Hoy" />
-                <Button fx:id="btnAyer" onAction="#filtroRapido" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Ayer" />
-                <Button fx:id="btnSemana" onAction="#filtroRapido" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Esta semana" />
-                <Button fx:id="btnMes" onAction="#filtroRapido" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Este mes" />
-                <Button fx:id="btnAnio" onAction="#filtroRapido" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Este año" />
+            <HBox alignment="CENTER_LEFT" spacing="8"
+                  style="-fx-padding: 6 28 4 28; -fx-background-color: #f0f7ff;
+                         -fx-border-color: transparent transparent #d0e4f4 transparent; -fx-border-width: 1;">
+                <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;
+                              -fx-padding: 0 6 0 0;" text="Acceso rápido:" />
+                <Button fx:id="btnHoy" onAction="#filtroRapido"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Hoy" />
+                <Button fx:id="btnAyer" onAction="#filtroRapido"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Ayer" />
+                <Button fx:id="btnSemana" onAction="#filtroRapido"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Esta semana" />
+                <Button fx:id="btnMes" onAction="#filtroRapido"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Este mes" />
+                <Button fx:id="btnAnio" onAction="#filtroRapido"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Este año" />
             </HBox>
 
             <!-- Selector de mes específico -->
-            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 6 28 10 28; -fx-background-color: #f0f7ff;                          -fx-border-color: transparent transparent #d0e4f4 transparent; -fx-border-width: 1;">
-                <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;                               -fx-padding: 0 6 0 0;" text="Mes específico:" />
-                <ComboBox fx:id="cbMesSel" prefWidth="130" style="-fx-background-color: white; -fx-border-color: #b8d4ea; -fx-border-width: 1;                                  -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;" />
-                <ComboBox fx:id="cbAnioSel" prefWidth="90" style="-fx-background-color: white; -fx-border-color: #b8d4ea; -fx-border-width: 1;                                  -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;" />
-                <Button onAction="#filtroMesEspecifico" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                -fx-border-color: #1a6fa8; -fx-border-width: 1;                                -fx-border-radius: 20; -fx-background-radius: 20;                                -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;" text="Ver mes" />
+            <HBox alignment="CENTER_LEFT" spacing="8"
+                  style="-fx-padding: 6 28 10 28; -fx-background-color: #f0f7ff;
+                         -fx-border-color: transparent transparent #d0e4f4 transparent; -fx-border-width: 1;">
+                <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;
+                              -fx-padding: 0 6 0 0;" text="Mes específico:" />
+                <ComboBox fx:id="cbMesSel" prefWidth="130"
+                          style="-fx-background-color: white; -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                                 -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;" />
+                <ComboBox fx:id="cbAnioSel" prefWidth="90"
+                          style="-fx-background-color: white; -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                                 -fx-background-radius: 20; -fx-border-radius: 20; -fx-font-size: 11px;" />
+                <Button onAction="#filtroMesEspecifico"
+                        style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #1a6fa8; -fx-border-width: 1;
+                               -fx-border-radius: 20; -fx-background-radius: 20;
+                               -fx-padding: 5 18; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;"
+                        text="Ver mes" />
             </HBox>
 
             <!-- FILTROS -->
             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 0 28 16 28;">
-                <DatePicker fx:id="dateInicio" style="-fx-background-color: white; -fx-background-radius: 8;                                    -fx-border-radius: 8; -fx-border-color: #b8d4ea;                                    -fx-border-width: 1; -fx-font-size: 12px;" />
-                <DatePicker fx:id="dateFin" style="-fx-background-color: white; -fx-background-radius: 8;                                    -fx-border-radius: 8; -fx-border-color: #b8d4ea;                                    -fx-border-width: 1; -fx-font-size: 12px;" />
-                <ComboBox fx:id="cbTipoReporte" prefWidth="170" style="-fx-background-color: white; -fx-background-radius: 8;                                  -fx-border-color: #b8d4ea; -fx-border-width: 1; -fx-font-size: 12px;" />
-                <Button onAction="#generarReporte" style="-fx-background-color: #1a6fa8; -fx-text-fill: white;                                -fx-background-radius: 8; -fx-border-radius: 8;                                -fx-padding: 9 20; -fx-cursor: hand;                                -fx-font-weight: bold; -fx-font-size: 12px;" text="Generar" />
-                <Button onAction="#guardarPDF" style="-fx-background-color: white; -fx-text-fill: #1a6fa8;                                -fx-border-color: #b8d4ea; -fx-border-width: 1;                                -fx-border-radius: 8; -fx-background-radius: 8;                                -fx-padding: 9 16; -fx-cursor: hand;                                -fx-font-size: 12px; -fx-font-weight: bold;" text="Exportar PDF" />
-                <Button onAction="#abrirPDF" style="-fx-background-color: white; -fx-text-fill: #1a6fa8;                                -fx-border-color: #b8d4ea; -fx-border-width: 1;                                -fx-border-radius: 8; -fx-background-radius: 8;                                -fx-padding: 9 16; -fx-cursor: hand;                                -fx-font-size: 12px; -fx-font-weight: bold;" text="Abrir PDF" />
+                <DatePicker fx:id="dateInicio"
+                            style="-fx-background-color: white; -fx-background-radius: 8;
+                                   -fx-border-radius: 8; -fx-border-color: #b8d4ea;
+                                   -fx-border-width: 1; -fx-font-size: 12px;" />
+                <DatePicker fx:id="dateFin"
+                            style="-fx-background-color: white; -fx-background-radius: 8;
+                                   -fx-border-radius: 8; -fx-border-color: #b8d4ea;
+                                   -fx-border-width: 1; -fx-font-size: 12px;" />
+                <ComboBox fx:id="cbTipoReporte" prefWidth="170"
+                          style="-fx-background-color: white; -fx-background-radius: 8;
+                                 -fx-border-color: #b8d4ea; -fx-border-width: 1; -fx-font-size: 12px;" />
+                <Button onAction="#generarReporte"
+                        style="-fx-background-color: #1a6fa8; -fx-text-fill: white;
+                               -fx-background-radius: 8; -fx-border-radius: 8;
+                               -fx-padding: 9 20; -fx-cursor: hand;
+                               -fx-font-weight: bold; -fx-font-size: 12px;" text="Generar" />
+                <Button onAction="#guardarPDF"
+                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                               -fx-border-radius: 8; -fx-background-radius: 8;
+                               -fx-padding: 9 16; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="Exportar PDF" />
+                <Button onAction="#abrirPDF"
+                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8;
+                               -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                               -fx-border-radius: 8; -fx-background-radius: 8;
+                               -fx-padding: 9 16; -fx-cursor: hand;
+                               -fx-font-size: 12px; -fx-font-weight: bold;" text="Abrir PDF" />
             </HBox>
 
             <!-- Cards de métricas -->
             <HBox spacing="10" style="-fx-padding: 0 28 16 28;">
 
                 <!-- Total ventas — azul -->
-                <HBox style="-fx-background-color: white; -fx-border-color: #d0e4f4;                              -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;                              -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.08), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                    <Region maxWidth="5" minWidth="5" prefWidth="5" style="-fx-background-color: #1a6fa8; -fx-background-radius: 12 0 0 12;" />
+                <HBox HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #d0e4f4;
+                             -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.08), 8, 0, 0, 2);">
+                    <Region prefWidth="5" minWidth="5" maxWidth="5"
+                            style="-fx-background-color: #1a6fa8; -fx-background-radius: 12 0 0 12;" />
                     <VBox spacing="6" style="-fx-padding: 16 16 16 14;" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT">
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #1a6fa8;" text="TOTAL VENTAS" HBox.hgrow="ALWAYS" />
-                            <Label style="-fx-background-color: #e8f2fb; -fx-text-fill: #1a6fa8;                                           -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;" text="💰" />
+                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #1a6fa8;"
+                                   text="TOTAL VENTAS" HBox.hgrow="ALWAYS" />
+                            <Label style="-fx-background-color: #e8f2fb; -fx-text-fill: #1a6fa8;
+                                          -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;"
+                                   text="💰" />
                         </HBox>
-                        <Label fx:id="lblTotal" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="\$0.00" />
+                        <Label fx:id="lblTotal"
+                               style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
+                               text="\$0.00" />
                         <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Periodo seleccionado" />
                     </VBox>
                 </HBox>
 
                 <!-- Tickets — verde azulado -->
-                <HBox style="-fx-background-color: white; -fx-border-color: #d0e4f4;                              -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;                              -fx-effect: dropshadow(gaussian, rgba(13,138,94,0.08), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                    <Region maxWidth="5" minWidth="5" prefWidth="5" style="-fx-background-color: #0d8a5e; -fx-background-radius: 12 0 0 12;" />
+                <HBox HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #d0e4f4;
+                             -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-effect: dropshadow(gaussian, rgba(13,138,94,0.08), 8, 0, 0, 2);">
+                    <Region prefWidth="5" minWidth="5" maxWidth="5"
+                            style="-fx-background-color: #0d8a5e; -fx-background-radius: 12 0 0 12;" />
                     <VBox spacing="6" style="-fx-padding: 16 16 16 14;" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT">
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #0d8a5e;" text="TICKETS EMITIDOS" HBox.hgrow="ALWAYS" />
-                            <Label style="-fx-background-color: #e6f7f2; -fx-text-fill: #0d8a5e;                                           -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;" text="🧾" />
+                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #0d8a5e;"
+                                   text="TICKETS EMITIDOS" HBox.hgrow="ALWAYS" />
+                            <Label style="-fx-background-color: #e6f7f2; -fx-text-fill: #0d8a5e;
+                                          -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;"
+                                   text="🧾" />
                         </HBox>
-                        <Label fx:id="lblTickets" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="0" />
+                        <Label fx:id="lblTickets"
+                               style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
+                               text="0" />
                         <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Ventas registradas" />
                     </VBox>
                 </HBox>
 
                 <!-- Promedio — naranja -->
-                <HBox style="-fx-background-color: white; -fx-border-color: #d0e4f4;                              -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;                              -fx-effect: dropshadow(gaussian, rgba(232,140,26,0.08), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                    <Region maxWidth="5" minWidth="5" prefWidth="5" style="-fx-background-color: #e88c1a; -fx-background-radius: 12 0 0 12;" />
+                <HBox HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #d0e4f4;
+                             -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-effect: dropshadow(gaussian, rgba(232,140,26,0.08), 8, 0, 0, 2);">
+                    <Region prefWidth="5" minWidth="5" maxWidth="5"
+                            style="-fx-background-color: #e88c1a; -fx-background-radius: 12 0 0 12;" />
                     <VBox spacing="6" style="-fx-padding: 16 16 16 14;" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT">
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #e88c1a;" text="TICKET PROMEDIO" HBox.hgrow="ALWAYS" />
-                            <Label style="-fx-background-color: #fef3e2; -fx-text-fill: #e88c1a;                                           -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;" text="📊" />
+                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #e88c1a;"
+                                   text="TICKET PROMEDIO" HBox.hgrow="ALWAYS" />
+                            <Label style="-fx-background-color: #fef3e2; -fx-text-fill: #e88c1a;
+                                          -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;"
+                                   text="📊" />
                         </HBox>
-                        <Label fx:id="lblPromedio" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #e88c1a;" text="\$0.00" />
+                        <Label fx:id="lblPromedio"
+                               style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #e88c1a;"
+                               text="\$0.00" />
                         <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Promedio por venta" />
                     </VBox>
                 </HBox>
 
                 <!-- Producto top — verde -->
-                <HBox style="-fx-background-color: white; -fx-border-color: #d0e4f4;                              -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;                              -fx-effect: dropshadow(gaussian, rgba(30,125,62,0.08), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                    <Region maxWidth="5" minWidth="5" prefWidth="5" style="-fx-background-color: #1e7d3e; -fx-background-radius: 12 0 0 12;" />
+                <HBox HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #d0e4f4;
+                             -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-effect: dropshadow(gaussian, rgba(30,125,62,0.08), 8, 0, 0, 2);">
+                    <Region prefWidth="5" minWidth="5" maxWidth="5"
+                            style="-fx-background-color: #1e7d3e; -fx-background-radius: 12 0 0 12;" />
                     <VBox spacing="6" style="-fx-padding: 16 16 16 14;" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT">
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #1e7d3e;" text="PRODUCTO TOP" HBox.hgrow="ALWAYS" />
-                            <Label style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;                                           -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;" text="🏆" />
+                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #1e7d3e;"
+                                   text="PRODUCTO TOP" HBox.hgrow="ALWAYS" />
+                            <Label style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;
+                                          -fx-background-radius: 20; -fx-padding: 3 8; -fx-font-size: 14px;"
+                                   text="🏆" />
                         </HBox>
-                        <Label fx:id="lblProductoTop" style="-fx-font-size: 14px; -fx-font-weight: bold;                                       -fx-text-fill: #0d3d5e; -fx-wrap-text: true;" text="—" />
-                        <Label fx:id="lblProductoTopCantidad" style="-fx-font-size: 10px; -fx-text-fill: #1e7d3e; -fx-font-weight: bold;" text="Genera un reporte" />
+                        <Label fx:id="lblProductoTop"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold;
+                                      -fx-text-fill: #0d3d5e; -fx-wrap-text: true;" text="—" />
+                        <Label fx:id="lblProductoTopCantidad"
+                               style="-fx-font-size: 10px; -fx-text-fill: #1e7d3e; -fx-font-weight: bold;"
+                               text="Genera un reporte" />
                     </VBox>
                 </HBox>
 
             </HBox>
 
             <!-- TabPane principal -->
-            <VBox style="-fx-padding: 0 28 28 28;" VBox.vgrow="ALWAYS">
-                <TabPane fx:id="tabPaneReportes" style="-fx-background-color: white;                                 -fx-border-color: #d0e4f4; -fx-border-width: 1;                                 -fx-background-radius: 12; -fx-border-radius: 12;                                 -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.07), 10, 0, 0, 2);                                 -fx-tab-min-height: 38px; -fx-tab-max-height: 38px;" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <VBox VBox.vgrow="ALWAYS" style="-fx-padding: 0 28 28 28;">
+                <TabPane fx:id="tabPaneReportes" VBox.vgrow="ALWAYS"
+                         tabClosingPolicy="UNAVAILABLE"
+                         style="-fx-background-color: white;
+                                -fx-border-color: #d0e4f4; -fx-border-width: 1;
+                                -fx-background-radius: 12; -fx-border-radius: 12;
+                                -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.07), 10, 0, 0, 2);
+                                -fx-tab-min-height: 38px; -fx-tab-max-height: 38px;">
 
                     <!-- ── TAB 1: Gráficas ── -->
                     <Tab text="📊  Gráficas de Productos">
                         <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT" style="-fx-padding: 14 18 12 18;                                          -fx-border-color: transparent transparent #e8f0f8 transparent;                                          -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Productos mas vendidos" HBox.hgrow="ALWAYS" />
+                            <HBox alignment="CENTER_LEFT"
+                                  style="-fx-padding: 14 18 12 18;
+                                         -fx-border-color: transparent transparent #e8f0f8 transparent;
+                                         -fx-border-width: 1;">
+                                <Label text="Productos mas vendidos"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
+                                       HBox.hgrow="ALWAYS" />
                                 <HBox spacing="6">
-                                    <Button fx:id="btnCantidad" onAction="#verGraficaCantidad" style="-fx-background-color: #1a6fa8; -fx-text-fill: white;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold; -fx-border-width: 0;" text="Cantidad" />
-                                    <Button fx:id="btnIngresos" onAction="#verGraficaIngresos" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                                    -fx-border-color: #b8d4ea; -fx-border-width: 1;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold;" text="Ingresos" />
-                                    <Button fx:id="btnTabla" onAction="#verTabla" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                                    -fx-border-color: #b8d4ea; -fx-border-width: 1;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold;" text="Tabla" />
+                                    <Button fx:id="btnCantidad" onAction="#verGraficaCantidad"
+                                            style="-fx-background-color: #1a6fa8; -fx-text-fill: white;
+                                                   -fx-background-radius: 6; -fx-border-radius: 6;
+                                                   -fx-font-size: 10px; -fx-padding: 5 14;
+                                                   -fx-cursor: hand; -fx-font-weight: bold; -fx-border-width: 0;"
+                                            text="Cantidad" />
+                                    <Button fx:id="btnIngresos" onAction="#verGraficaIngresos"
+                                            style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                                                   -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                                                   -fx-background-radius: 6; -fx-border-radius: 6;
+                                                   -fx-font-size: 10px; -fx-padding: 5 14;
+                                                   -fx-cursor: hand; -fx-font-weight: bold;"
+                                            text="Ingresos" />
+                                    <Button fx:id="btnTabla" onAction="#verTabla"
+                                            style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;
+                                                   -fx-border-color: #b8d4ea; -fx-border-width: 1;
+                                                   -fx-background-radius: 6; -fx-border-radius: 6;
+                                                   -fx-font-size: 10px; -fx-padding: 5 14;
+                                                   -fx-cursor: hand; -fx-font-weight: bold;"
+                                            text="Tabla" />
                                 </HBox>
                             </HBox>
 
-                            <BarChart fx:id="chartVentas" style="-fx-background-color: transparent; -fx-padding: 0 12 0 12;" VBox.vgrow="ALWAYS">
+                            <BarChart fx:id="chartVentas"
+                                      style="-fx-background-color: transparent; -fx-padding: 0 12 0 12;"
+                                      VBox.vgrow="ALWAYS">
                                 <xAxis><CategoryAxis label="Productos" /></xAxis>
                                 <yAxis><NumberAxis label="Cantidad" /></yAxis>
                             </BarChart>
 
-                            <TableView fx:id="tablaReporte" managed="false" style="-fx-background-color: transparent; -fx-border-color: transparent;                                               -fx-padding: 0 12 12 12;" visible="false" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaReporte" managed="false"
+                                       style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                              -fx-padding: 0 12 12 12;"
+                                       visible="false" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colTablaProducto" prefWidth="300" text="PRODUCTO" />
                                     <TableColumn fx:id="colTablaCantidad" prefWidth="120" text="CANTIDAD" />
@@ -220,163 +391,47 @@
                     <Tab text="🧾  Ventas Detalladas">
                         <VBox VBox.vgrow="ALWAYS">
 
-                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 12 18;                                          -fx-border-color: transparent transparent #e8f0f8 transparent;                                          -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Ventas del periodo seleccionado" HBox.hgrow="ALWAYS" />
-                                <Label fx:id="lblResumenVentas" style="-fx-font-size: 11px; -fx-text-fill: #1a6fa8;                                               -fx-background-color: #e8f2fb;                                               -fx-background-radius: 20; -fx-padding: 4 12;" text="" />
-                                <Button onAction="#exportarVentasCSV" style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;                                                -fx-border-color: #1e7d3e; -fx-border-width: 1;                                                -fx-background-radius: 6; -fx-border-radius: 6;                                                -fx-font-size: 10px; -fx-padding: 5 14;                                                -fx-cursor: hand; -fx-font-weight: bold;" text="↓ Exportar CSV" />
-                            </HBox>
-
-                            <TableView fx:id="tablaVentas" style="-fx-background-color: transparent; -fx-border-color: transparent;                                               -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colVentaFolio" prefWidth="72" text="Folio" />
-                                    <TableColumn fx:id="colVentaFecha" prefWidth="88" text="Fecha" />
-                                    <TableColumn fx:id="colVentaHora" prefWidth="68" text="Hora" />
-                                    <TableColumn fx:id="colVentaCliente" prefWidth="138" text="Cliente" />
-                                    <TableColumn fx:id="colVentaCajero" prefWidth="118" text="Cajero" />
-                                    <TableColumn fx:id="colVentaMetodo" prefWidth="98" text="Método Pago" />
-                                    <TableColumn fx:id="colVentaArticulos" prefWidth="60" text="Arts." />
-                                    <TableColumn fx:id="colVentaTotal" prefWidth="88" text="Total" />
-                                    <TableColumn fx:id="colVentaEstado" prefWidth="82" text="Estado" />
-                                    <TableColumn fx:id="colVentaAccion" prefWidth="78" text="Detalle" />
-                                </columns>
-                                <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 12px;" text="Genera un reporte para ver las ventas del periodo" />
-                                </placeholder>
-                            </TableView>
-
-                        </VBox>
-                    </Tab>
-                    <!-- ── TAB CAJEROS ── -->
-                    <Tab text="👤  Por Cajero">
-                        <VBox VBox.vgrow="ALWAYS">
                             <HBox alignment="CENTER_LEFT" spacing="10"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Ventas por cajero" HBox.hgrow="ALWAYS"/>
+                                  style="-fx-padding: 12 18;
+                                         -fx-border-color: transparent transparent #e8f0f8 transparent;
+                                         -fx-border-width: 1;">
+                                <Label text="Ventas del periodo seleccionado"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
+                                       HBox.hgrow="ALWAYS" />
+                                <Label fx:id="lblResumenVentas"
+                                       style="-fx-font-size: 11px; -fx-text-fill: #1a6fa8;
+                                              -fx-background-color: #e8f2fb;
+                                              -fx-background-radius: 20; -fx-padding: 4 12;" text="" />
+                                <Button onAction="#exportarVentasCSV"
+                                        style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;
+                                               -fx-border-color: #1e7d3e; -fx-border-width: 1;
+                                               -fx-background-radius: 6; -fx-border-radius: 6;
+                                               -fx-font-size: 10px; -fx-padding: 5 14;
+                                               -fx-cursor: hand; -fx-font-weight: bold;"
+                                        text="↓ Exportar CSV" />
                             </HBox>
 
-                            <!-- Cards resumen neto -->
-                            <HBox spacing="10" style="-fx-padding: 0 18 12 18;">
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: white; -fx-background-radius: 10;
-                         -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;
-                         -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;"
-                                           text="VENTAS BRUTAS"/>
-                                    <Label fx:id="lblVentasBrutas"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                           text="\$0.00"/>
-                                </VBox>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: white; -fx-background-radius: 10;
-                         -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;
-                         -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;"
-                                           text="TOTAL DEVOLUCIONES"/>
-                                    <Label fx:id="lblTotalDevoluciones"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C0392B;"
-                                           text="-\$0.00"/>
-                                </VBox>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 10; -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7);"
-                                           text="VENTAS NETAS"/>
-                                    <Label fx:id="lblVentasNetas"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"
-                                           text="\$0.00"/>
-                                </VBox>
-                            </HBox>
-
-                            <TableView fx:id="tablaCajeros"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaVentas" VBox.vgrow="ALWAYS"
+                                       style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                              -fx-padding: 0 12 12 12;">
                                 <columns>
-                                    <TableColumn fx:id="colCajNombre"   text="Cajero"          prefWidth="180"/>
-                                    <TableColumn fx:id="colCajTickets"  text="Tickets"         prefWidth="80"/>
-                                    <TableColumn fx:id="colCajBruto"    text="Venta bruta"     prefWidth="130"/>
-                                    <TableColumn fx:id="colCajNeto"     text="Venta neta"      prefWidth="130"/>
-                                    <TableColumn fx:id="colCajPromedio" text="Ticket promedio" prefWidth="130"/>
-                                    <TableColumn fx:id="colCajDev"      text="Con devolución"  prefWidth="120"/>
+                                    <TableColumn fx:id="colVentaFolio"     prefWidth="72"  text="Folio" />
+                                    <TableColumn fx:id="colVentaFecha"     prefWidth="88"  text="Fecha" />
+                                    <TableColumn fx:id="colVentaHora"      prefWidth="68"  text="Hora" />
+                                    <TableColumn fx:id="colVentaCliente"   prefWidth="138" text="Cliente" />
+                                    <TableColumn fx:id="colVentaCajero"    prefWidth="118" text="Cajero" />
+                                    <TableColumn fx:id="colVentaMetodo"    prefWidth="98"  text="Método Pago" />
+                                    <TableColumn fx:id="colVentaArticulos" prefWidth="60"  text="Arts." />
+                                    <TableColumn fx:id="colVentaTotal"     prefWidth="88"  text="Total" />
+                                    <TableColumn fx:id="colVentaEstado"    prefWidth="82"  text="Estado" />
+                                    <TableColumn fx:id="colVentaAccion"    prefWidth="78"  text="Detalle" />
                                 </columns>
                                 <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver datos por cajero"/>
+                                    <Label text="Genera un reporte para ver las ventas del periodo"
+                                           style="-fx-text-fill: #6a96b8; -fx-font-size: 12px;" />
                                 </placeholder>
                             </TableView>
-                        </VBox>
-                    </Tab>
 
-                    <!-- ── TAB HORA ── -->
-                    <Tab text="🕐  Por Hora">
-                        <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Ventas por hora del dia" HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="tablaHoras"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colHoraHora"    text="Hora"    prefWidth="180"/>
-                                    <TableColumn fx:id="colHoraTickets" text="Tickets" prefWidth="120"/>
-                                    <TableColumn fx:id="colHoraTotal"   text="Total"   prefWidth="150"/>
-                                </columns>
-                                <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver ventas por hora"/>
-                                </placeholder>
-                            </TableView>
-                        </VBox>
-                    </Tab>
-
-                    <!-- ── TAB RENTABILIDAD ── -->
-                    <Tab text="📈  Rentabilidad">
-                        <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Rentabilidad por producto" HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="tablaRentabilidad"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colRentNombre"   text="Producto"  prefWidth="200"/>
-                                    <TableColumn fx:id="colRentUnidades" text="Unidades"  prefWidth="80"/>
-                                    <TableColumn fx:id="colRentIngresos" text="Ingresos"  prefWidth="120"/>
-                                    <TableColumn fx:id="colRentCostos"   text="Costos"    prefWidth="120"/>
-                                    <TableColumn fx:id="colRentGanancia" text="Ganancia"  prefWidth="120"/>
-                                    <TableColumn fx:id="colRentMargen"   text="Margen %"  prefWidth="90"/>
-                                </columns>
-                                <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver rentabilidad"/>
-                                </placeholder>
-                            </TableView>
-                        </VBox>
-                    </Tab>
-
-                    <!-- ── TAB CLIENTES CRÉDITO ── -->
-                    <Tab text="💳  Créditos">
-                        <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Clientes con credito" HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="tablaClientesCredito"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colCliNombre"     text="Cliente"      prefWidth="180"/>
-                                    <TableColumn fx:id="colCliSaldo"      text="Saldo actual" prefWidth="110"/>
-                                    <TableColumn fx:id="colCliDisponible" text="Disponible"   prefWidth="110"/>
-                                    <TableColumn fx:id="colCliLimite"     text="Límite"       prefWidth="110"/>
-                                    <TableColumn fx:id="colCliCompras"    text="Compras"      prefWidth="80"/>
-                                    <TableColumn fx:id="colCliUltima"     text="Última compra" prefWidth="120"/>
-                                </columns>
-                                <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="No hay clientes con credito registrados"/>
-                                </placeholder>
-                            </TableView>
                         </VBox>
                     </Tab>
 
