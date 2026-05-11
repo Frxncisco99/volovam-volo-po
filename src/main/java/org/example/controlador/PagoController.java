@@ -377,20 +377,24 @@ public class PagoController {
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
 
+            // 1. Insertar venta
             PreparedStatement psVenta = con.prepareStatement(
                     "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) " +
-    "VALUES (?, ?, ?, ?, ?, 'COMPLETADA')",
+                            "VALUES (?, ?, ?, ?, ?, 'COMPLETADA')",
                     Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
             psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
             psVenta.setInt(4, idCliente);
-            psVenta.setString(5, metodoPago);   // ← única línea nueva
+            psVenta.setString(5, metodoPago);
             psVenta.executeUpdate();
 
             ResultSet rs = psVenta.getGeneratedKeys();
             rs.next();
             int idVenta = rs.getInt(1);
+
+            // 2. Detalle + movimientos + stock (en ese orden)
+            InventarioMovimientoService invService = InventarioMovimientoService.get();
 
             for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
                 int    idProducto = entry.getKey();
@@ -398,26 +402,48 @@ public class PagoController {
                 int    cantidad   = (int)    entry.getValue()[2];
                 double subtotal   = precio * cantidad;
 
+                // Detalle de venta
                 PreparedStatement psDetalle = con.prepareStatement(
                         "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
-                psDetalle.setInt(1, idVenta); psDetalle.setInt(2, idProducto);
-                psDetalle.setInt(3, cantidad); psDetalle.setDouble(4, precio); psDetalle.setDouble(5, subtotal);
+                psDetalle.setInt(1, idVenta);
+                psDetalle.setInt(2, idProducto);
+                psDetalle.setInt(3, cantidad);
+                psDetalle.setDouble(4, precio);
+                psDetalle.setDouble(5, subtotal);
                 psDetalle.executeUpdate();
 
+                // Registrar movimiento ANTES de descontar stock
+                // (así obtenerStock() lee el stock correcto todavía)
+                try {
+                    invService.registrar(con, idProducto,
+                            InventarioMovimientoService.TipoMovimiento.VENTA,
+                            cantidad, idVenta, "VENTA",
+                            "Venta " + FolioService.venta(idVenta));
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // no rompe la venta si falla el log
+                }
+
+                // Descontar stock
                 PreparedStatement psStock = con.prepareStatement(
                         "UPDATE productos SET stock = stock - ? WHERE id_producto = ?");
-                psStock.setInt(1, cantidad); psStock.setInt(2, idProducto);
+                psStock.setInt(1, cantidad);
+                psStock.setInt(2, idProducto);
                 psStock.executeUpdate();
             }
 
+            // 3. Fiado o pago normal
             if (metodoPago.equals("FIADO")) {
                 PreparedStatement psSaldo = con.prepareStatement(
                         "UPDATE clientes SET saldo_actual = saldo_actual + ? WHERE id_cliente = ?");
-                psSaldo.setDouble(1, total); psSaldo.setInt(2, idCliente); psSaldo.executeUpdate();
+                psSaldo.setDouble(1, total);
+                psSaldo.setInt(2, idCliente);
+                psSaldo.executeUpdate();
 
                 PreparedStatement psCargo = con.prepareStatement(
                         "INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas) VALUES (?, ?, 'CARGO', ?, 'Venta a credito')");
-                psCargo.setInt(1, idCliente); psCargo.setDouble(2, total); psCargo.setInt(3, idVenta);
+                psCargo.setInt(1, idCliente);
+                psCargo.setDouble(2, total);
+                psCargo.setInt(3, idVenta);
                 psCargo.executeUpdate();
             } else {
                 PreparedStatement psPago = con.prepareStatement(
@@ -431,33 +457,18 @@ public class PagoController {
 
             con.commit();
 
-// ── Auditoría ──────────────────────────────────────────────────────────
+            // Auditoría (fuera de transacción)
             AuditoriaService.get().registrar(
                     "VENTA", "ventas", idVenta,
                     String.format("Venta %s — Total: $%.2f — Método: %s — Cliente ID: %d",
                             FolioService.venta(idVenta), total, metodoPago, idCliente)
             );
 
-// ── Movimientos de inventario ──────────────────────────────────────────
-// Necesitamos una conexión nueva porque ya cerramos la anterior
-            try (Connection conMov = ConexionDB.getConexion()) {
-                InventarioMovimientoService invService = InventarioMovimientoService.get();
-                for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
-                    int    idProducto = entry.getKey();
-                    int    cantidad   = (int) entry.getValue()[2];
-                    invService.registrar(conMov, idProducto,
-                            InventarioMovimientoService.TipoMovimiento.VENTA,
-                            cantidad, idVenta, "VENTA",
-                            "Venta " + FolioService.venta(idVenta));
-                }
-            }
-
             int idVentaFinal = idVenta;
             Stage stagePago = (Stage) btnConfirmar.getScene().getWindow();
             stagePago.close();
             ventasController.ventaCompletada();
 
-            // Mostrar ticket si el checkbox está marcado
             if (chkImprimirTicket != null && chkImprimirTicket.isSelected()) {
                 try {
                     TicketService ticketService = new TicketService();
@@ -473,7 +484,6 @@ public class PagoController {
             mostrarAlerta("Error", "No se pudo guardar la venta.");
         }
     }
-
     @FXML
     public void handleCancelar() {
         ((Stage) btnConfirmar.getScene().getWindow()).close();
