@@ -615,6 +615,21 @@ public class ConfiguracionController {
                         "Log de auditoria limpiado.");
         });
     }
+    private void registrarLogout() {
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
+                "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
+        try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            int idUsuario = org.example.modelo.SesionUsuario.getInstancia().getIdUsuario();
+            String nombre = org.example.modelo.SesionUsuario.getInstancia().getNombre();
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, "Cierre de sesión: " + nombre);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // ── Navegación entre vistas ───────────────────────────────────────────────
 
@@ -624,14 +639,22 @@ public class ConfiguracionController {
     @FXML private void irAEmpleados()   { navegar("/org/example/vista/Empleados.fxml"); }
     @FXML private void irAClientes()    { navegar("/org/example/vista/Clientes.fxml"); }
     @FXML private void irAReportes()    { navegar("/org/example/vista/Reportes.fxml"); }
+    @FXML private void irAAuditoria() {
+        navegar("/org/example/vista/Auditoria.fxml");
+    }
     @FXML private void irACorteCaja()   { navegar("/org/example/vista/CorteCaja.fxml"); }
 
     @FXML
-    private void btnCerrar() {
+    public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cerrar Sesion"); a.setHeaderText(null);
-        a.setContentText("Estas seguro de que deseas salir?");
-        a.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) Platform.exit(); });
+        a.setTitle("Salir"); a.setHeaderText(null);
+        a.setContentText("¿Seguro que deseas salir?");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                registrarLogout(); // ← agrega esto
+                Platform.exit();
+            }
+        });
     }
 
     private void navegar(String ruta) {

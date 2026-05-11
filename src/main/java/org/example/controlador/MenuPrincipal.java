@@ -185,6 +185,21 @@ public class MenuPrincipal implements Initializable {
             e.printStackTrace();
         }
     }
+    private void registrarLogout() {
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
+                "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
+        try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            int idUsuario = org.example.modelo.SesionUsuario.getInstancia().getIdUsuario();
+            String nombre = org.example.modelo.SesionUsuario.getInstancia().getNombre();
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, "Cierre de sesión: " + nombre);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // Navegación
     @FXML private void irAVentas() {cambiarEscena("/org/example/vista/Ventas.fxml");}
@@ -198,6 +213,9 @@ public class MenuPrincipal implements Initializable {
     }
     @FXML private void irACorteCaja() {
         cambiarEscena("/org/example/vista/CorteCaja.fxml");
+    }
+    @FXML private void irAAuditoria() {
+        cambiarEscena("/org/example/vista/Auditoria.fxml");
     }
     @FXML private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
 
@@ -213,13 +231,15 @@ public class MenuPrincipal implements Initializable {
     }
 
     @FXML
-    private void btnCerrar(ActionEvent event) {
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
-        alerta.setTitle("Salir");
-        alerta.setHeaderText(null);
-        alerta.setContentText("¿Seguro que deseas salir?");
-        alerta.showAndWait().ifPresent(respuesta -> {
-            if (respuesta == ButtonType.OK) Platform.exit();
+    public void btnCerrar() {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("Salir"); a.setHeaderText(null);
+        a.setContentText("¿Seguro que deseas salir?");
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.OK) {
+                registrarLogout(); // ← agrega esto
+                Platform.exit();
+            }
         });
     }
 
