@@ -69,7 +69,8 @@ public class AuditoriaController {
         // Filtro acciones
         cmbFiltroAccion.getItems().addAll(
                 "Todas", "LOGIN", "LOGOUT", "VENTA", "CANCELACION",
-                "DEVOLUCION", "AJUSTE_STOCK");
+                "DEVOLUCION", "AJUSTE_STOCK", "ALTA_PRODUCTO",
+                "BAJA_PRODUCTO", "EDICION_PRODUCTO");
         cmbFiltroAccion.setValue("Todas");
 
         // Fechas por defecto — hoy
@@ -198,6 +199,22 @@ public class AuditoriaController {
                 Platform.exit();
             }
         });
+    }
+
+    private void registrarLogout() {
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
+                "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
+        try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            int idUsuario = org.example.modelo.SesionUsuario.getInstancia().getIdUsuario();
+            String nombre = org.example.modelo.SesionUsuario.getInstancia().getNombre();
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idUsuario);
+            ps.setString(3, "Cierre de sesión: " + nombre);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void navegar(String ruta) {
