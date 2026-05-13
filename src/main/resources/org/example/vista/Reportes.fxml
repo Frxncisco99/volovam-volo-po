@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.*?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ReporteController">
+<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ReporteController">
 
     <!-- ===================== SIDEBAR — paleta #091e4e (igual que Menu Principal) ===================== -->
     <left>
@@ -65,10 +78,8 @@
                 <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Corte de Caja">
                     <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
-                <Button prefHeight="40" prefWidth="210" onAction="#irAAuditoria"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Auditoría" graphicTextGap="12">
-                    <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                <Button graphicTextGap="12" onAction="#irAAuditoria" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;" text="Auditoría">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-shield-alt" iconSize="16" /></graphic>
                 </Button>
 
                 <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuracion">
@@ -198,7 +209,7 @@
                     <Tab text="📊  Gráficas de Productos">
                         <VBox VBox.vgrow="ALWAYS">
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 14 18 12 18;                                          -fx-border-color: transparent transparent #e8f0f8 transparent;                                          -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Productos mas vendidos" HBox.hgrow="ALWAYS" />
+                                <Label prefHeight="19.0" prefWidth="166.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Productos mas vendidos" HBox.hgrow="ALWAYS" />
                                 <HBox spacing="6">
                                     <Button fx:id="btnCantidad" onAction="#verGraficaCantidad" style="-fx-background-color: #1a6fa8; -fx-text-fill: white;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold; -fx-border-width: 0;" text="Cantidad" />
                                     <Button fx:id="btnIngresos" onAction="#verGraficaIngresos" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                                    -fx-border-color: #b8d4ea; -fx-border-width: 1;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold;" text="Ingresos" />
@@ -254,57 +265,37 @@
                     <!-- ── TAB CAJEROS ── -->
                     <Tab text="👤  Por Cajero">
                         <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT" spacing="10"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Ventas por cajero" HBox.hgrow="ALWAYS"/>
+                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Ventas por cajero" HBox.hgrow="ALWAYS" />
                             </HBox>
 
                             <!-- Cards resumen neto -->
                             <HBox spacing="10" style="-fx-padding: 0 18 12 18;">
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: white; -fx-background-radius: 10;
-                         -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;
-                         -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;"
-                                           text="VENTAS BRUTAS"/>
-                                    <Label fx:id="lblVentasBrutas"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                           text="\$0.00"/>
+                                <VBox spacing="4" style="-fx-background-color: white; -fx-background-radius: 10;                          -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;                          -fx-padding: 12 16;" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="VENTAS BRUTAS" />
+                                    <Label fx:id="lblVentasBrutas" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="\$0.00" />
                                 </VBox>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: white; -fx-background-radius: 10;
-                         -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;
-                         -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;"
-                                           text="TOTAL DEVOLUCIONES"/>
-                                    <Label fx:id="lblTotalDevoluciones"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C0392B;"
-                                           text="-\$0.00"/>
+                                <VBox spacing="4" style="-fx-background-color: white; -fx-background-radius: 10;                          -fx-border-color: #d0e4f4; -fx-border-width: 1; -fx-border-radius: 10;                          -fx-padding: 12 16;" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="TOTAL DEVOLUCIONES" />
+                                    <Label fx:id="lblTotalDevoluciones" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #C0392B;" text="-\$0.00" />
                                 </VBox>
-                                <VBox spacing="4" HBox.hgrow="ALWAYS"
-                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 10; -fx-padding: 12 16;">
-                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7);"
-                                           text="VENTAS NETAS"/>
-                                    <Label fx:id="lblVentasNetas"
-                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"
-                                           text="\$0.00"/>
+                                <VBox spacing="4" style="-fx-background-color: #1a6fa8; -fx-background-radius: 10; -fx-padding: 12 16;" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7);" text="VENTAS NETAS" />
+                                    <Label fx:id="lblVentasNetas" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="\$0.00" />
                                 </VBox>
                             </HBox>
 
-                            <TableView fx:id="tablaCajeros"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaCajeros" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
                                 <columns>
-                                    <TableColumn fx:id="colCajNombre"   text="Cajero"          prefWidth="180"/>
-                                    <TableColumn fx:id="colCajTickets"  text="Tickets"         prefWidth="80"/>
-                                    <TableColumn fx:id="colCajBruto"    text="Venta bruta"     prefWidth="130"/>
-                                    <TableColumn fx:id="colCajNeto"     text="Venta neta"      prefWidth="130"/>
-                                    <TableColumn fx:id="colCajPromedio" text="Ticket promedio" prefWidth="130"/>
-                                    <TableColumn fx:id="colCajDev"      text="Con devolución"  prefWidth="120"/>
+                                    <TableColumn fx:id="colCajNombre" prefWidth="180" text="Cajero" />
+                                    <TableColumn fx:id="colCajTickets" prefWidth="80" text="Tickets" />
+                                    <TableColumn fx:id="colCajBruto" prefWidth="130" text="Venta bruta" />
+                                    <TableColumn fx:id="colCajNeto" prefWidth="130" text="Venta neta" />
+                                    <TableColumn fx:id="colCajPromedio" prefWidth="130" text="Ticket promedio" />
+                                    <TableColumn fx:id="colCajDev" prefWidth="120" text="Con devolución" />
                                 </columns>
                                 <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver datos por cajero"/>
+                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver datos por cajero" />
                                 </placeholder>
                             </TableView>
                         </VBox>
@@ -313,21 +304,17 @@
                     <!-- ── TAB HORA ── -->
                     <Tab text="🕐  Por Hora">
                         <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Ventas por hora del dia" HBox.hgrow="ALWAYS"/>
+                            <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Ventas por hora del dia" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaHoras"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaHoras" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
                                 <columns>
-                                    <TableColumn fx:id="colHoraHora"    text="Hora"    prefWidth="180"/>
-                                    <TableColumn fx:id="colHoraTickets" text="Tickets" prefWidth="120"/>
-                                    <TableColumn fx:id="colHoraTotal"   text="Total"   prefWidth="150"/>
+                                    <TableColumn fx:id="colHoraHora" prefWidth="180" text="Hora" />
+                                    <TableColumn fx:id="colHoraTickets" prefWidth="120" text="Tickets" />
+                                    <TableColumn fx:id="colHoraTotal" prefWidth="150" text="Total" />
                                 </columns>
                                 <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver ventas por hora"/>
+                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver ventas por hora" />
                                 </placeholder>
                             </TableView>
                         </VBox>
@@ -336,24 +323,20 @@
                     <!-- ── TAB RENTABILIDAD ── -->
                     <Tab text="📈  Rentabilidad">
                         <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Rentabilidad por producto" HBox.hgrow="ALWAYS"/>
+                            <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Rentabilidad por producto" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaRentabilidad"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaRentabilidad" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
                                 <columns>
-                                    <TableColumn fx:id="colRentNombre"   text="Producto"  prefWidth="200"/>
-                                    <TableColumn fx:id="colRentUnidades" text="Unidades"  prefWidth="80"/>
-                                    <TableColumn fx:id="colRentIngresos" text="Ingresos"  prefWidth="120"/>
-                                    <TableColumn fx:id="colRentCostos"   text="Costos"    prefWidth="120"/>
-                                    <TableColumn fx:id="colRentGanancia" text="Ganancia"  prefWidth="120"/>
-                                    <TableColumn fx:id="colRentMargen"   text="Margen %"  prefWidth="90"/>
+                                    <TableColumn fx:id="colRentNombre" prefWidth="200" text="Producto" />
+                                    <TableColumn fx:id="colRentUnidades" prefWidth="80" text="Unidades" />
+                                    <TableColumn fx:id="colRentIngresos" prefWidth="120" text="Ingresos" />
+                                    <TableColumn fx:id="colRentCostos" prefWidth="120" text="Costos" />
+                                    <TableColumn fx:id="colRentGanancia" prefWidth="120" text="Ganancia" />
+                                    <TableColumn fx:id="colRentMargen" prefWidth="90" text="Margen %" />
                                 </columns>
                                 <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver rentabilidad"/>
+                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver rentabilidad" />
                                 </placeholder>
                             </TableView>
                         </VBox>
@@ -362,24 +345,20 @@
                     <!-- ── TAB CLIENTES CRÉDITO ── -->
                     <Tab text="💳  Créditos">
                         <VBox VBox.vgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT"
-                                  style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
-                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"
-                                       text="Clientes con credito" HBox.hgrow="ALWAYS"/>
+                            <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Clientes con credito" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaClientesCredito"
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;"
-                                       VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaClientesCredito" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
                                 <columns>
-                                    <TableColumn fx:id="colCliNombre"     text="Cliente"      prefWidth="180"/>
-                                    <TableColumn fx:id="colCliSaldo"      text="Saldo actual" prefWidth="110"/>
-                                    <TableColumn fx:id="colCliDisponible" text="Disponible"   prefWidth="110"/>
-                                    <TableColumn fx:id="colCliLimite"     text="Límite"       prefWidth="110"/>
-                                    <TableColumn fx:id="colCliCompras"    text="Compras"      prefWidth="80"/>
-                                    <TableColumn fx:id="colCliUltima"     text="Última compra" prefWidth="120"/>
+                                    <TableColumn fx:id="colCliNombre" prefWidth="180" text="Cliente" />
+                                    <TableColumn fx:id="colCliSaldo" prefWidth="110" text="Saldo actual" />
+                                    <TableColumn fx:id="colCliDisponible" prefWidth="110" text="Disponible" />
+                                    <TableColumn fx:id="colCliLimite" prefWidth="110" text="Límite" />
+                                    <TableColumn fx:id="colCliCompras" prefWidth="80" text="Compras" />
+                                    <TableColumn fx:id="colCliUltima" prefWidth="120" text="Última compra" />
                                 </columns>
                                 <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="No hay clientes con credito registrados"/>
+                                    <Label style="-fx-text-fill: #6a96b8;" text="No hay clientes con credito registrados" />
                                 </placeholder>
                             </TableView>
                         </VBox>
