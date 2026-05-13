@@ -58,6 +58,7 @@ public class DevolucionDAO {
                                     String tipoReembolso, String notas) throws Exception {
 
         // Primero validar TODOS los límites antes de tocar nada
+        validarVentaDevolvible(idVenta);
         validarLimites(devolucionesPorDetalle);
 
         Connection con = ConexionDB.getConexion();
@@ -173,6 +174,23 @@ public class DevolucionDAO {
         }
     }
 
+    private void validarVentaDevolvible(int idVenta) throws Exception {
+        String sql = "SELECT COALESCE(estado, 'COMPLETADA') AS estado FROM ventas WHERE id_venta = ?";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVenta);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) throw new IllegalStateException("La venta no existe.");
+            String estado = rs.getString("estado");
+            if ("CANCELADA".equalsIgnoreCase(estado)) {
+                throw new IllegalStateException("Una venta cancelada no puede tener devoluciones.");
+            }
+            if ("DEVUELTA".equalsIgnoreCase(estado)) {
+                throw new IllegalStateException("Esta venta ya fue devuelta por completo.");
+            }
+        }
+    }
+
     private double calcularMonto(Connection con, Map<Integer, Integer> devs) throws SQLException {
         double total = 0;
         String sql = "SELECT precio_unitario FROM detalle_venta WHERE id_detalle = ?";
@@ -252,7 +270,7 @@ public class DevolucionDAO {
             FROM ventas v
             LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
             LEFT JOIN devoluciones dev ON dev.id_venta = v.id_venta
-            WHERE (v.estado IS NULL OR v.estado != 'DEVUELTA')
+            WHERE COALESCE(v.estado, 'COMPLETADA') NOT IN ('DEVUELTA', 'CANCELADA')
               AND (? = '' OR CAST(v.id_venta AS CHAR) LIKE ? 
                           OR c.nombre LIKE ?)
             GROUP BY v.id_venta, v.fecha, c.nombre, v.total, v.estado

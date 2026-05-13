@@ -31,10 +31,12 @@ public class CancelacionService {
                 estadoActual = rs.getString("estado");
             }
 
-            if ("CANCELADA".equals(estadoActual))
+            if ("CANCELADA".equalsIgnoreCase(estadoActual))
                 throw new IllegalStateException("Esta venta ya está cancelada.");
-            if ("DEVUELTA".equals(estadoActual))
+            if ("DEVUELTA".equalsIgnoreCase(estadoActual))
                 throw new IllegalStateException("No se puede cancelar una venta ya devuelta.");
+            if ("PARCIALMENTE_DEVUELTA".equalsIgnoreCase(estadoActual))
+                throw new IllegalStateException("No se puede cancelar una venta con devoluciones parciales.");
 
             // 2. Obtener productos de la venta
             String sqlDetalle = """

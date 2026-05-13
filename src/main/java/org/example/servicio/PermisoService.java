@@ -12,7 +12,14 @@ public class PermisoService {
         MODIFICAR_PRECIOS,
         GESTIONAR_EMPLEADOS,
         VER_CORTE_CAJA,
-        CERRAR_CAJA
+        CERRAR_CAJA,
+        ACCEDER_VENTAS,
+        ACCEDER_CLIENTES,
+        ACCEDER_INVENTARIO,
+        ACCEDER_CONFIGURACION,
+        ACCEDER_AUDITORIA,
+        QUITAR_PRODUCTO_CARRITO,
+        CANCELAR_CARRITO
     }
 
     public static boolean puede(Accion accion) {
@@ -26,9 +33,20 @@ public class PermisoService {
             case VER_REPORTES         -> esAdmin(rol) || esSupervisor(rol);
             case MODIFICAR_PRECIOS    -> esAdmin(rol);
             case GESTIONAR_EMPLEADOS  -> esAdmin(rol);
-            case VER_CORTE_CAJA       -> esAdmin(rol) || esSupervisor(rol) || esCajero(rol);
-            case CERRAR_CAJA          -> esAdmin(rol) || esSupervisor(rol) || esCajero(rol);
+            case VER_CORTE_CAJA       -> esAdmin(rol) || esSupervisor(rol);
+            case CERRAR_CAJA          -> esAdmin(rol) || esSupervisor(rol);
+            case ACCEDER_VENTAS       -> esAdmin(rol) || esSupervisor(rol) || esCajero(rol);
+            case ACCEDER_CLIENTES,
+                 ACCEDER_INVENTARIO,
+                 ACCEDER_CONFIGURACION,
+                 ACCEDER_AUDITORIA    -> esAdmin(rol) || esSupervisor(rol);
+            case QUITAR_PRODUCTO_CARRITO,
+                 CANCELAR_CARRITO     -> esAdmin(rol) || esSupervisor(rol);
         };
+    }
+
+    public static boolean esCajeroActual() {
+        return esCajero(SesionUsuario.getInstancia().getRol());
     }
 
     public static void verificar(Accion accion) throws SecurityException {
