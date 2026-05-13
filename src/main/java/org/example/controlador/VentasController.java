@@ -684,9 +684,13 @@ public class VentasController {
             Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px;"); lblNombre.setMaxWidth(130);
             Region spacer = new Region(); HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
             Button btnMenos = new Button("-"); btnMenos.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
-            btnMenos.setOnAction(e -> { if (cantidad <= 1) carrito.remove(id); else item[2] = cantidad - 1; actualizarCarrito(); });
+            btnMenos.setOnAction(e -> {
+                if (!autorizarAccionRestringida("Quitar producto del carrito")) return;
+                if (cantidad <= 1) carrito.remove(id); else item[2] = cantidad - 1;
+                actualizarCarrito();
+            });
             TextField tfCantidad = new TextField(String.valueOf(cantidad)); tfCantidad.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #0052cc; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
-            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
+            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva < cantidad && !autorizarAccionRestringida("Reducir cantidad en carrito")) { tfCantidad.setText(String.valueOf(cantidad)); return; } if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
             tfCantidad.setOnAction(e -> validarYActualizar.run()); tfCantidad.focusedProperty().addListener((obs, o, n) -> { if (!n) validarYActualizar.run(); });
             Button btnMas = new Button("+"); btnMas.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
             btnMas.setOnAction(e -> { int stockReal = obtenerStock(id); if (cantidad >= stockReal) { mostrarAlerta("Sin stock", "No hay mas unidades disponibles."); return; } item[2] = cantidad + 1; actualizarCarrito(); });
@@ -758,6 +762,7 @@ public class VentasController {
     @FXML
     public void handleCancelar() {
         if (carrito.isEmpty()) return;
+        if (!autorizarAccionRestringida("Cancelar venta en curso")) return;
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION); alerta.setTitle("Cancelar venta"); alerta.setHeaderText(null); alerta.setContentText("¿Seguro que deseas cancelar la venta?");
         alerta.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) { carrito.clear(); actualizarCarrito(); } });
     }
@@ -834,9 +839,6 @@ public class VentasController {
                 "-fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; " +
                 "-fx-font-weight: bold;");
         btnCancelar.setMaxWidth(Double.MAX_VALUE);
-        btnCancelar.setVisible(org.example.servicio.PermisoService.puede(
-                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA));
-        btnCancelar.setManaged(btnCancelar.isVisible());
         btnCancelar.setOnAction(e -> manejarCancelacion(idVenta, stage::close));
 
         VBox layout = new VBox(10, tabla, btnCancelar);
@@ -846,11 +848,9 @@ public class VentasController {
         stage.show();
     }
     private void manejarCancelacion(int idVenta, Runnable onExito) {
-        if (!org.example.servicio.PermisoService.puede(
-                org.example.servicio.PermisoService.Accion.CANCELAR_VENTA)) {
-            mostrarAlerta("Acceso denegado",
-                    "No tienes permiso para cancelar ventas.\n" +
-                            "Requiere rol: Admin o Supervisor.");
+        if (!org.example.servicio.PermisoService.puede(org.example.servicio.PermisoService.Accion.CANCELAR_VENTA)
+                && !org.example.servicio.AutorizacionAdminService.solicitar("Cancelar venta " + org.example.servicio.FolioService.venta(idVenta))) {
+            mostrarAlerta("Acceso denegado", "No se autorizo la cancelacion.");
             return;
         }
 
@@ -930,16 +930,16 @@ public class VentasController {
         }
     }
 
-    @FXML public void irADashboard()  { cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML public void irAInventario(ActionEvent event) { try { FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Inventario.fxml")); Parent root = loader.load(); ((Stage)((Button)event.getSource()).getScene().getWindow()).getScene().setRoot(root); } catch (Exception e) { e.printStackTrace(); } }
-    @FXML public void irAReportes(ActionEvent event)   { try { FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Reportes.fxml")); Parent root = loader.load(); ((Stage)((Button)event.getSource()).getScene().getWindow()).getScene().setRoot(root); } catch (Exception e) { e.printStackTrace(); } }
+    @FXML public void irADashboard()  { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML public void irAInventario(ActionEvent event) { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML public void irAReportes(ActionEvent event)   { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
     @FXML public void irAEmpleados()  { if (!SesionUsuario.getInstancia().getRol().equals("admin")) { mostrarAlerta("Acceso Denegado","Solo el Administrador"); return; } cambiarEscena("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAConfiguracion() { cambiarEscena("/org/example/vista/Configuracion.fxml"); }
+    @FXML private void irAConfiguracion() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
     @FXML private void irACorteCaja()     { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
     @FXML private void irAAuditoria() {
-        cambiarEscena("/org/example/vista/Auditoria.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
-    @FXML private void irAClientes()      { cambiarEscena("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAClientes()      { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
 
     @FXML
     public void btnCerrar() {
@@ -949,13 +949,28 @@ public class VentasController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout(); // ← agrega esto
-                Platform.exit();
+                cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
+    }
+
+    private boolean autorizarAccionRestringida(String accion) {
+        if (org.example.servicio.PermisoService.puede(org.example.servicio.PermisoService.Accion.QUITAR_PRODUCTO_CARRITO)) return true;
+        boolean autorizado = org.example.servicio.AutorizacionAdminService.solicitar(accion);
+        if (!autorizado) mostrarAlerta("Acceso denegado", "Se requiere contrasena de administrador.");
+        return autorizado;
+    }
+
+    private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
+        if (!org.example.servicio.PermisoService.puede(accion)) {
+            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            return;
+        }
+        cambiarEscena(ruta);
     }
 
     private void cambiarEscena(String fxmlPath) {

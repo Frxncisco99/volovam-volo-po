@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.PermisoService;
 
 
 import java.io.IOException;
@@ -86,6 +87,9 @@ public class MenuPrincipal implements Initializable {
                 ? sesion.getNombre().substring(0, 2).toUpperCase()
                 : sesion.getNombre().toUpperCase();
         lblAvatarIniciales.setText(iniciales);
+        if (PermisoService.esCajeroActual()) {
+            Platform.runLater(() -> cambiarEscena("/org/example/vista/Ventas.fxml"));
+        }
     }
 
     private void cargarDashboard() {
@@ -203,21 +207,21 @@ public class MenuPrincipal implements Initializable {
 
     // Navegación
     @FXML private void irAVentas() {cambiarEscena("/org/example/vista/Ventas.fxml");}
-    @FXML private void abrirInventario() {cambiarEscena("/org/example/vista/Inventario.fxml");}
-    @FXML private void irAEmpleados()  { cambiarEscena("/org/example/vista/Empleados.fxml"); }
+    @FXML private void abrirInventario() { navegarConPermiso(PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml");}
+    @FXML private void irAEmpleados()  { navegarConPermiso(PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
     @FXML private void irAClientes() {
-        cambiarEscena("/org/example/vista/Clientes.fxml");
+        navegarConPermiso(PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml");
     }
     @FXML public void irAReportes() {
-        cambiarEscena("/org/example/vista/Reportes.fxml");
+        navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml");
     }
     @FXML private void irACorteCaja() {
-        cambiarEscena("/org/example/vista/CorteCaja.fxml");
+        navegarConPermiso(PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml");
     }
     @FXML private void irAAuditoria() {
-        cambiarEscena("/org/example/vista/Auditoria.fxml");
+        navegarConPermiso(PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
-    @FXML private void irAConfiguracion() {cambiarEscena("/org/example/vista/Configuracion.fxml");}
+    @FXML private void irAConfiguracion() { navegarConPermiso(PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml");}
 
     private void cambiarEscena(String fxmlPath) {
         try {
@@ -238,13 +242,20 @@ public class MenuPrincipal implements Initializable {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout(); // ← agrega esto
-                Platform.exit();
+                cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
     }
 
     public void abrirInventarioDesdeAfuera() {
-        cambiarEscena("/org/example/vista/Inventario.fxml");
+        navegarConPermiso(PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml");
+    }
+    private void navegarConPermiso(PermisoService.Accion accion, String ruta) {
+        if (!PermisoService.puede(accion)) {
+            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            return;
+        }
+        cambiarEscena(ruta);
     }
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);

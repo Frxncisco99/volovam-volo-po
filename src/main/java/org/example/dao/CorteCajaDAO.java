@@ -214,7 +214,7 @@ public class CorteCajaDAO {
                 reporte.setPromedioTicket(tickets > 0 ? total / tickets : 0);
                 reporte.setCostos(rs.getDouble("costo_total"));
                 reporte.setIngresos(total);
-                reporte.setEfectivoEsperado(reporte.getFondoInicial() + rs.getDouble("efectivo_real"));
+                reporte.setEfectivoEsperado(reporte.getFondoInicial() + rs.getDouble("efectivo_real") - totalDevolucionesEfectivo(con, idCaja));
             }
         }
     }
@@ -224,7 +224,6 @@ public class CorteCajaDAO {
         base.put("Efectivo", new CorteCajaReporte.MetodoPago("Efectivo", 0, 0));
         base.put("Tarjeta", new CorteCajaReporte.MetodoPago("Tarjeta", 0, 0));
         base.put("Transferencia", new CorteCajaReporte.MetodoPago("Transferencia", 0, 0));
-        base.put("QR", new CorteCajaReporte.MetodoPago("QR", 0, 0));
         base.put("Credito", new CorteCajaReporte.MetodoPago("Credito", 0, 0));
 
         try (PreparedStatement ps = con.prepareStatement("""
@@ -232,7 +231,6 @@ public class CorteCajaDAO {
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('EFECTIVO', 'DOLARES', 'MIXTO', 'MIXTO_USD') THEN 'Efectivo'
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'TARJETA' THEN 'Tarjeta'
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'TRANSFERENCIA' THEN 'Transferencia'
-                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'QR' THEN 'QR'
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('FIADO', 'CREDITO') THEN 'Credito'
                            ELSE COALESCE(pg.tipo_pago, v.metodo_pago, 'Otro')
                        END AS metodo,
@@ -371,6 +369,20 @@ public class CorteCajaDAO {
         reporte.setIva(reporte.getTotalVendido() - subtotal);
         reporte.setTotalConImpuestos(reporte.getTotalVendido());
         reporte.setUtilidad(reporte.getIngresos() - reporte.getCostos());
+    }
+
+    private double totalDevolucionesEfectivo(Connection con, int idCaja) throws Exception {
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT COALESCE(SUM(d.monto_devuelto), 0) AS total
+                FROM devoluciones d
+                JOIN ventas v ON v.id_venta = d.id_venta
+                WHERE v.id_caja = ?
+                  AND COALESCE(d.tipo_reembolso, 'EFECTIVO') = 'EFECTIVO'
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getDouble("total") : 0;
+        }
     }
 
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {

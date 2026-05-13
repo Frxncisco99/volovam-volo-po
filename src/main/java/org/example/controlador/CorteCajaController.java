@@ -261,7 +261,6 @@ public class CorteCajaController {
             case "Efectivo" -> "\uf3d1";
             case "Tarjeta" -> "\uf09d";
             case "Transferencia" -> "\uf1d8";
-            case "QR" -> "\uf029";
             case "Credito" -> "\uf555";
             default -> "\uf155";
         };
