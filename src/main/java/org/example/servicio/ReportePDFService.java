@@ -18,6 +18,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import org.example.modelo.Producto;
+import org.example.modelo.CorteCajaReporte;
 import org.example.modelo.Ticket;
 
 import java.io.FileOutputStream;
@@ -461,6 +462,163 @@ public class ReportePDFService {
         doc.close();
     }
 
+    public void generarCorteCaja(CorteCajaReporte reporte, String observaciones, String ruta) throws Exception {
+        Document doc = new Document(PageSize.A4, 32, 32, 36, 50);
+        PdfWriter writer = PdfWriter.getInstance(doc, new FileOutputStream(ruta));
+        writer.setPageEvent(new FooterEvent("Corte de Caja"));
+        doc.open();
+
+        agregarHeader(doc, writer, "CORTE DE CAJA");
+        agregarFecha(doc);
+        doc.add(separador());
+
+        PdfPTable info = new PdfPTable(new float[]{25, 25, 25, 25});
+        info.setWidthPercentage(100);
+        info.setSpacingBefore(8);
+        info.setSpacingAfter(12);
+        info.addCell(crearCard("FOLIO", reporte.getFolio()));
+        info.addCell(crearCard("CAJA", "Caja #" + reporte.getIdCaja()));
+        info.addCell(crearCard("CAJERO", reporte.getCajero()));
+        info.addCell(crearCard("ESTADO", reporte.getEstado()));
+        doc.add(info);
+
+        PdfPTable tiempos = new PdfPTable(new float[]{50, 50});
+        tiempos.setWidthPercentage(100);
+        tiempos.setSpacingAfter(12);
+        tiempos.addCell(crearCard("APERTURA", fmtFecha(reporte.getFechaApertura())));
+        tiempos.addCell(crearCard("CIERRE", fmtFecha(reporte.getFechaCierre())));
+        doc.add(tiempos);
+
+        doc.add(etiquetaSeccion("Resumen de ventas"));
+        PdfPTable resumen = new PdfPTable(new float[]{25, 25, 25, 25});
+        resumen.setWidthPercentage(100);
+        resumen.setSpacingBefore(6);
+        resumen.setSpacingAfter(12);
+        resumen.addCell(crearCard("TOTAL VENDIDO", String.format("$%,.2f", reporte.getTotalVendido())));
+        resumen.addCell(crearCard("TICKETS", String.valueOf(reporte.getCantidadTickets())));
+        resumen.addCell(crearCard("TICKET PROMEDIO", String.format("$%,.2f", reporte.getPromedioTicket())));
+        resumen.addCell(crearCard("FONDO INICIAL", String.format("$%,.2f", reporte.getFondoInicial())));
+        doc.add(resumen);
+
+        doc.add(etiquetaSeccion("Ventas por metodo de pago"));
+        PdfPTable metodos = new PdfPTable(new float[]{45, 20, 35});
+        metodos.setWidthPercentage(100);
+        metodos.setSpacingBefore(6);
+        metodos.setSpacingAfter(12);
+        agregarHeaderTabla(metodos, "Metodo", "Tickets", "Total");
+        int fila = 0;
+        for (CorteCajaReporte.MetodoPago metodo : reporte.getMetodosPago()) {
+            BaseColor bg = (fila++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+            metodos.addCell(celdaTD(metodo.getMetodo(), bg, Element.ALIGN_LEFT));
+            metodos.addCell(celdaTD(String.valueOf(metodo.getCantidad()), bg, Element.ALIGN_CENTER));
+            metodos.addCell(celdaTD(String.format("$%,.2f", metodo.getTotal()), bg, Element.ALIGN_RIGHT));
+        }
+        doc.add(metodos);
+
+        doc.add(etiquetaSeccion("Conteo fisico de caja"));
+        PdfPTable conteo = new PdfPTable(new float[]{25, 25, 25, 25});
+        conteo.setWidthPercentage(100);
+        conteo.setSpacingBefore(6);
+        conteo.setSpacingAfter(12);
+        conteo.addCell(crearCard("ENTRADAS", String.format("$%,.2f", reporte.getTotalEntradas())));
+        conteo.addCell(crearCard("SALIDAS", String.format("$%,.2f", reporte.getTotalSalidas())));
+        conteo.addCell(crearCard("ESPERADO", String.format("$%,.2f", reporte.getEfectivoEsperado())));
+        conteo.addCell(crearCard("CONTADO", String.format("$%,.2f", reporte.getEfectivoContado())));
+        doc.add(conteo);
+
+        PdfPTable diferencia = new PdfPTable(new float[]{70, 30});
+        diferencia.setWidthPercentage(100);
+        BaseColor colorDif = reporte.getDiferencia() == 0 ? COLOR_VERDE : reporte.getDiferencia() < 0 ? COLOR_ROJO : new BaseColor(37, 99, 235);
+        Font fontDif = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, colorDif);
+        diferencia.addCell(celdaTD("Diferencia / sobrante / faltante", COLOR_FILA_PAR, Element.ALIGN_LEFT));
+        PdfPCell cDif = new PdfPCell(new Phrase(String.format("$%,.2f", reporte.getDiferencia()), fontDif));
+        cDif.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cDif.setPadding(8);
+        cDif.setBorderColor(new BaseColor(220, 210, 195));
+        cDif.setBackgroundColor(COLOR_FILA_PAR);
+        diferencia.addCell(cDif);
+        doc.add(diferencia);
+
+        doc.add(etiquetaSeccion("Impuestos y ganancia estimada"));
+        PdfPTable impuestos = new PdfPTable(new float[]{30, 20, 30, 20});
+        impuestos.setWidthPercentage(100);
+        impuestos.setSpacingBefore(6);
+        impuestos.setSpacingAfter(12);
+        agregarHeaderTabla(impuestos, "Concepto", "Monto", "Concepto", "Monto");
+        agregarPar(impuestos, "Subtotal", reporte.getSubtotal(), "Ingresos", reporte.getIngresos(), 0);
+        agregarPar(impuestos, "IVA", reporte.getIva(), "Costos", reporte.getCostos(), 1);
+        agregarPar(impuestos, "Total", reporte.getTotalConImpuestos(), "Utilidad", reporte.getUtilidad(), 2);
+        doc.add(impuestos);
+
+        if (!reporte.getMovimientos().isEmpty()) {
+            doc.add(etiquetaSeccion("Entradas y salidas de efectivo"));
+            PdfPTable movs = new PdfPTable(new float[]{16, 34, 18, 18, 14});
+            movs.setWidthPercentage(100);
+            movs.setSpacingBefore(6);
+            movs.setSpacingAfter(12);
+            agregarHeaderTabla(movs, "Tipo", "Concepto", "Monto", "Fecha", "Usuario");
+            fila = 0;
+            for (CorteCajaReporte.MovimientoCaja mov : reporte.getMovimientos()) {
+                BaseColor bg = (fila++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+                movs.addCell(celdaTD(mov.getTipo(), bg, Element.ALIGN_LEFT));
+                movs.addCell(celdaTD(mov.getConcepto(), bg, Element.ALIGN_LEFT));
+                movs.addCell(celdaTD(String.format("$%,.2f", mov.getMonto()), bg, Element.ALIGN_RIGHT));
+                movs.addCell(celdaTD(fmtFecha(mov.getFecha()), bg, Element.ALIGN_LEFT));
+                movs.addCell(celdaTD(mov.getUsuario(), bg, Element.ALIGN_LEFT));
+            }
+            doc.add(movs);
+        }
+
+        if (!reporte.getCancelacionesDevoluciones().isEmpty()) {
+            doc.add(etiquetaSeccion("Cancelaciones y devoluciones"));
+            PdfPTable cans = new PdfPTable(new float[]{16, 18, 18, 32, 16});
+            cans.setWidthPercentage(100);
+            cans.setSpacingBefore(6);
+            cans.setSpacingAfter(12);
+            agregarHeaderTabla(cans, "Tipo", "Folio", "Total", "Motivo", "Autorizo");
+            fila = 0;
+            for (CorteCajaReporte.CancelacionDevolucion item : reporte.getCancelacionesDevoluciones()) {
+                BaseColor bg = (fila++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+                cans.addCell(celdaTD(item.getTipo(), bg, Element.ALIGN_LEFT));
+                cans.addCell(celdaTD(item.getFolio(), bg, Element.ALIGN_LEFT));
+                cans.addCell(celdaTD(String.format("$%,.2f", item.getTotal()), bg, Element.ALIGN_RIGHT));
+                cans.addCell(celdaTD(item.getMotivo(), bg, Element.ALIGN_LEFT));
+                cans.addCell(celdaTD(item.getUsuarioAutorizo(), bg, Element.ALIGN_LEFT));
+            }
+            doc.add(cans);
+        }
+
+        doc.add(etiquetaSeccion("Productos mas vendidos"));
+        PdfPTable top = new PdfPTable(new float[]{42, 14, 22, 22});
+        top.setWidthPercentage(100);
+        top.setSpacingBefore(6);
+        top.setSpacingAfter(12);
+        agregarHeaderTabla(top, "Producto", "Cantidad", "Ingresos", "Utilidad");
+        fila = 0;
+        for (CorteCajaReporte.ProductoVendido prod : reporte.getProductosMasVendidos()) {
+            BaseColor bg = (fila++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+            top.addCell(celdaTD(prod.getProducto(), bg, Element.ALIGN_LEFT));
+            top.addCell(celdaTD(String.valueOf(prod.getCantidad()), bg, Element.ALIGN_CENTER));
+            top.addCell(celdaTD(String.format("$%,.2f", prod.getIngresos()), bg, Element.ALIGN_RIGHT));
+            top.addCell(celdaGanancia(prod.getUtilidad(), bg));
+        }
+        doc.add(top);
+
+        if (observaciones != null && !observaciones.trim().isEmpty()) {
+            doc.add(etiquetaSeccion("Observaciones"));
+            PdfPTable obs = new PdfPTable(1);
+            obs.setWidthPercentage(100);
+            PdfPCell cObs = new PdfPCell(new Phrase(observaciones, FONT_TD));
+            cObs.setBackgroundColor(COLOR_FILA_PAR);
+            cObs.setPadding(10);
+            cObs.setBorderColor(new BaseColor(220, 210, 195));
+            obs.addCell(cObs);
+            doc.add(obs);
+        }
+
+        doc.close();
+    }
+
     // ════════════════════════════════════════════════════════
     //  HELPERS PRIVADOS
     // ════════════════════════════════════════════════════════
@@ -586,6 +744,18 @@ public class ReportePDFService {
         cell.setBorderColor(new BaseColor(220, 210, 195));
         cell.setBorderWidth(0.5f);
         return cell;
+    }
+
+    private void agregarPar(PdfPTable tabla, String etiqueta1, double valor1, String etiqueta2, double valor2, int fila) {
+        BaseColor bg = (fila % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;
+        tabla.addCell(celdaTD(etiqueta1, bg, Element.ALIGN_LEFT));
+        tabla.addCell(celdaTD(String.format("$%,.2f", valor1), bg, Element.ALIGN_RIGHT));
+        tabla.addCell(celdaTD(etiqueta2, bg, Element.ALIGN_LEFT));
+        tabla.addCell(celdaGanancia(valor2, bg));
+    }
+
+    private String fmtFecha(LocalDateTime fecha) {
+        return fecha == null ? "-" : fecha.format(FMT);
     }
 
     // ════════════════════════════════════════════════════════
