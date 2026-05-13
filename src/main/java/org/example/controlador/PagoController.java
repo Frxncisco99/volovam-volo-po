@@ -456,7 +456,7 @@ public class PagoController {
                 PreparedStatement psPago = con.prepareStatement(
                         "INSERT INTO pagos (id_venta, tipo_pago, monto_recibido, cambio) VALUES (?, ?, ?, ?)");
                 psPago.setInt(1, idVenta);
-                psPago.setString(2, metodoPago);
+                psPago.setString(2, tipoPagoParaBD());
                 psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
                 psPago.setDouble(4, cambio);
                 psPago.executeUpdate();
@@ -505,6 +505,10 @@ public class PagoController {
             return montoEfectivo;
         }
         return montoEfectivo + montoTarjeta;
+    }
+
+    private String tipoPagoParaBD() {
+        return "OTROS".equals(metodoPago) ? "TRANSFERENCIA" : metodoPago;
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

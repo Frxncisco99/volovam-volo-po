@@ -109,17 +109,17 @@ public class CorteCajaDAO {
                 String sqlInsert = tieneEstado ? """
                         INSERT INTO corte_caja (
                             id_caja, id_usuario, fecha_apertura, fecha_cierre, fondo_inicial,
-                            total_ventas, total_entradas, total_salidas, dinero_esperado,
+                            total_ventas, num_tickets, total_entradas, total_salidas, dinero_esperado,
                             dinero_real, diferencia, observaciones, estado
                         )
-                        VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 'CERRADO')
+                        VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CERRADO')
                         """ : """
                         INSERT INTO corte_caja (
                             id_caja, id_usuario, fecha_apertura, fecha_cierre, fondo_inicial,
-                            total_ventas, total_entradas, total_salidas, dinero_esperado,
+                            total_ventas, num_tickets, total_entradas, total_salidas, dinero_esperado,
                             dinero_real, diferencia, observaciones
                         )
-                        VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """;
                 try (PreparedStatement psCorte = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
                     psCorte.setInt(1, idCaja);
@@ -127,12 +127,13 @@ public class CorteCajaDAO {
                     psCorte.setTimestamp(3, Timestamp.valueOf(reporte.getFechaApertura()));
                     psCorte.setDouble(4, reporte.getFondoInicial());
                     psCorte.setDouble(5, reporte.getTotalVendido());
-                    psCorte.setDouble(6, reporte.getTotalEntradas());
-                    psCorte.setDouble(7, reporte.getTotalSalidas());
-                    psCorte.setDouble(8, reporte.getEfectivoEsperado());
-                    psCorte.setDouble(9, reporte.getEfectivoContado());
-                    psCorte.setDouble(10, reporte.getDiferencia());
-                    psCorte.setString(11, observaciones);
+                    psCorte.setInt(6, reporte.getCantidadTickets());
+                    psCorte.setDouble(7, reporte.getTotalEntradas());
+                    psCorte.setDouble(8, reporte.getTotalSalidas());
+                    psCorte.setDouble(9, reporte.getEfectivoEsperado());
+                    psCorte.setDouble(10, reporte.getEfectivoContado());
+                    psCorte.setDouble(11, reporte.getDiferencia());
+                    psCorte.setString(12, observaciones);
                     psCorte.executeUpdate();
                     ResultSet rs = psCorte.getGeneratedKeys();
                     rs.next();
