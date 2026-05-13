@@ -140,19 +140,19 @@ public class MenuPrincipal implements Initializable {
                 double total = rsUltimas.getDouble("total");
 
                 HBox fila = new HBox();
-                fila.setStyle("-fx-background-color: #FDF5E8; -fx-background-radius: 6; -fx-padding: 8 12;");
+                fila.setStyle("-fx-background-color: #e8e8e8; -fx-background-radius: 6; -fx-padding: 8 12;");
 
                 Label lblHoraV = new Label(hora);
-                lblHoraV.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-min-width: 80;");
+                lblHoraV.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px; -fx-min-width: 80;");
 
                 Label lblFolio = new Label(String.format("#%04d", idVenta));
-                lblFolio.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 12px; -fx-min-width: 60;");
+                lblFolio.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px; -fx-min-width: 60;");
 
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
                 Label lblTotal = new Label("$" + String.format("%.2f", total));
-                lblTotal.setStyle("-fx-text-fill: #6B4226; -fx-font-weight: bold; -fx-font-size: 13px;");
+                lblTotal.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px;");
 
                 fila.getChildren().addAll(lblHoraV, lblFolio, spacer, lblTotal);
                 listaUltimasVentas.getChildren().add(fila);
