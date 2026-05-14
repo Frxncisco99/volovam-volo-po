@@ -117,33 +117,28 @@
     -fx-opacity: 0;
 }
 
-.workspace {
-    -fx-background-color: #f5f7fb;
-}
-
 .config-tabs {
     -fx-background-color: white;
-    -fx-padding: 18 14;
-    -fx-border-color: transparent #e5eaf3 transparent transparent;
-    -fx-border-width: 0 1 0 0;
+    -fx-padding: 12 18;
+    -fx-border-color: transparent transparent #e5eaf3 transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
 .nav-heading {
     -fx-text-fill: #94a3b8;
     -fx-font-size: 9px;
     -fx-font-weight: bold;
-    -fx-padding: 2 8 8 8;
+    -fx-padding: 0 6 0 0;
 }
 
 .cfg-tab-button {
     -fx-background-color: transparent;
     -fx-text-fill: #334155;
     -fx-background-radius: 8;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10 12;
+    -fx-alignment: CENTER;
+    -fx-padding: 8 14;
     -fx-font-size: 12px;
     -fx-cursor: hand;
-    -fx-max-width: infinity;
 }
 
 .cfg-tab-button:hover {
@@ -156,21 +151,7 @@
     -fx-text-fill: #0b3b75;
     -fx-font-weight: bold;
     -fx-border-color: #2563eb;
-    -fx-border-width: 0 0 0 3;
-}
-
-.nav-note {
-    -fx-background-color: #f8fafc;
-    -fx-background-radius: 8;
-    -fx-border-color: #e5eaf3;
-    -fx-border-radius: 8;
-    -fx-padding: 12;
-}
-
-.nav-note-title {
-    -fx-text-fill: #081a33;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
+    -fx-border-width: 0 0 2 0;
 }
 
 .nav-note-text {

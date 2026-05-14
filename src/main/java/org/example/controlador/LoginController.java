@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -51,6 +52,7 @@ public class LoginController {
                 // Ir directo al menú
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
                 Parent root = loader.load();
+                MarcaService.aplicar(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.getScene().setRoot(root);
                 stage.setMaximized(true);
@@ -59,6 +61,7 @@ public class LoginController {
                 // Ir a apertura de caja
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
                 Parent root = loader.load();
+                MarcaService.aplicar(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.getScene().setRoot(root);
                 stage.setMaximized(false);

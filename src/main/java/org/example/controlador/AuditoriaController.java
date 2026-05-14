@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.dao.ReporteAvanzadoDAO;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -191,12 +192,12 @@ public class AuditoriaController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
-                Platform.exit();
+                registrarLogout();
+                navegar("/org/example/vista/Login.fxml");
             }
         });
     }
@@ -221,6 +222,7 @@ public class AuditoriaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) tablaAuditoria.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) { e.printStackTrace(); }

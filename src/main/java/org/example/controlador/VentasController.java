@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -22,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -96,6 +98,11 @@ public class VentasController {
             Scene scene = lblTotal.getScene();
             if (scene != null) {
                 txtBuscar.requestFocus();
+                scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                    if (e.getCode() == KeyCode.ENTER && scene.getFocusOwner() != txtBuscar) {
+                        e.consume();
+                    }
+                });
                 scene.setOnKeyPressed(e -> {
                     if (e.getCode() == KeyCode.ENTER) {
                         if (scene.getFocusOwner() == txtBuscar) {
@@ -943,11 +950,11 @@ public class VentasController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
+                registrarLogout();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
@@ -973,6 +980,11 @@ public class VentasController {
     }
 
     private void cambiarEscena(String fxmlPath) {
-        try { FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath)); Parent root = loader.load(); ((Stage) lblTotal.getScene().getWindow()).getScene().setRoot(root); } catch (IOException e) { e.printStackTrace(); }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            MarcaService.aplicar(root);
+            ((Stage) lblTotal.getScene().getWindow()).getScene().setRoot(root);
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }
