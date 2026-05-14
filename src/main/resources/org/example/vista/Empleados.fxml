@@ -103,10 +103,9 @@
 
             <Separator style="-fx-opacity: 0.15;"/>
 
-            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;"
-                    text="Cerrar sesion" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#ff0000e5"/></graphic>
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
+                    style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
             </Button>
 
         </VBox>
