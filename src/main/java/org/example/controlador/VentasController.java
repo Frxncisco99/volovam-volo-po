@@ -105,10 +105,9 @@ public class VentasController {
                                         0,0,0,0, javafx.scene.input.MouseButton.PRIMARY, 1,
                                         true,true,true,true,true,true,true,true,true,true,null));
                             }
-                            return;
+                            e.consume();
                         }
-                        if (!(scene.getFocusOwner() instanceof Button) || scene.getFocusOwner() == btnCobrar)
-                            handleCobrar();
+                        return;
                     }
                     if (e.getCode() == KeyCode.F2) handleCobrar();
                     if (e.getCode() == KeyCode.F3) txtBuscar.requestFocus();
