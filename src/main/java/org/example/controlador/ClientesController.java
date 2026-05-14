@@ -103,11 +103,15 @@ public class ClientesController {
                 btnEditar.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
                 btnEditar.setOnAction(e -> handleEditar(id, nombre, telefono, limite));
 
+                Button btnEliminar = new Button("Eliminar");
+                btnEliminar.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-background-radius: 6; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;");
+                btnEliminar.setOnAction(e -> handleEliminar(id, nombre, saldo));
+
                 Button btnHistorial = new Button("Historial");
                 btnHistorial.setStyle("-fx-background-color: transparent; -fx-border-color: #6B4226; -fx-border-radius: 6; -fx-border-width: 1; -fx-text-fill: #6B4226; -fx-background-radius: 6; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
                 btnHistorial.setOnAction(e -> handleHistorial(id, nombre));
 
-                filaCred.getChildren().addAll(lblLimite, lblDisponible, spacer, btnHistorial, btnAbonar, btnEditar);
+                filaCred.getChildren().addAll(lblLimite, lblDisponible, spacer, btnHistorial, btnAbonar, btnEditar, btnEliminar);
                 card.getChildren().addAll(filaSup, filaCred);
                 listaClientes.getChildren().add(card);
             }
@@ -245,6 +249,14 @@ public class ClientesController {
                     psPago.setDouble(2, monto);
                     psPago.executeUpdate();
 
+                    PreparedStatement psMovimiento = con.prepareStatement(
+                            "INSERT INTO movimientos_caja (id_caja, tipo, monto, motivo, id_usuario) VALUES (?, 'INGRESO', ?, ?, ?)");
+                    psMovimiento.setInt(1, SesionUsuario.getInstancia().getIdCaja());
+                    psMovimiento.setDouble(2, monto);
+                    psMovimiento.setString(3, "Pago de cliente: " + nombre);
+                    psMovimiento.setInt(4, SesionUsuario.getInstancia().getIdUsuario());
+                    psMovimiento.executeUpdate();
+
                     con.commit();
                     cargarClientes("");
                     mostrarInfo("Exito", "Abono de $" + String.format("%.2f", monto) + " registrado.");
@@ -255,6 +267,30 @@ public class ClientesController {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void handleEliminar(int id, String nombre, double saldo) {
+        if (saldo > 0) {
+            mostrarAlerta("No permitido", "No se puede eliminar un cliente con adeudo pendiente.");
+            return;
+        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Eliminar cliente");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Seguro que deseas eliminar a " + nombre + "?");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        String sql = "UPDATE clientes SET activo = 0 WHERE id_cliente = ? AND nombre != 'Publico General'";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            cargarClientes(txtBuscar.getText().trim());
+            mostrarInfo("Cliente eliminado", nombre + " fue eliminado correctamente.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo eliminar el cliente.");
+        }
     }
 
     private void handleHistorial(int id, String nombre) {
@@ -331,16 +367,16 @@ public class ClientesController {
     }
 
     //Navegación
-    @FXML public void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML public void irADashboard() { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
-    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
-    @FXML public void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
-    @FXML public void irAReportes() { navegar("/org/example/vista/Reportes.fxml"); }
-    @FXML public void irACorteCaja() { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAInventario() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML public void irAEmpleados() { navegarConPermiso(org.example.servicio.PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
+    @FXML public void irAReportes() { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
+    @FXML public void irACorteCaja() { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
     @FXML private void irAAuditoria() {
-        navegar("/org/example/vista/Auditoria.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
-    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml"); }
+    @FXML private void irAConfiguracion() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
 
     @FXML
@@ -351,7 +387,7 @@ public class ClientesController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout(); // ← agrega esto
-                Platform.exit();
+                navegar("/org/example/vista/Login.fxml");
             }
         });
     }
@@ -365,6 +401,14 @@ public class ClientesController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
+        if (!org.example.servicio.PermisoService.puede(accion)) {
+            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            return;
+        }
+        navegar(ruta);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

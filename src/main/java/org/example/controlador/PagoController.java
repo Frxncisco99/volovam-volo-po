@@ -107,6 +107,7 @@ public class PagoController {
         lblTotalPagar.setText("$" + String.format("%.2f", total));
         lblClientePago.setText(nombreCliente);
         lblTipoCambio.setText("$" + String.format("%.2f", tipoCambioDolar) + " MXN/USD");
+        txtDineroRecibido.setText(String.format("%.2f", total));
 
         // Deshabilitar Fiado si no hay crédito suficiente
         if (limiteCredito > 0) {
@@ -239,7 +240,13 @@ public class PagoController {
         metodoPago = "EFECTIVO";
         mostrarPanel(panelEfectivo);
         resaltarBoton(btnEfectivo);
-        javafx.application.Platform.runLater(() -> txtDineroRecibido.requestFocus());
+        if (txtDineroRecibido.getText().trim().isEmpty()) {
+            txtDineroRecibido.setText(String.format("%.2f", total));
+        }
+        javafx.application.Platform.runLater(() -> {
+            txtDineroRecibido.requestFocus();
+            txtDineroRecibido.selectAll();
+        });
     }
     @FXML public void seleccionarTarjeta() {
         metodoPago = "TARJETA";
@@ -449,8 +456,8 @@ public class PagoController {
                 PreparedStatement psPago = con.prepareStatement(
                         "INSERT INTO pagos (id_venta, tipo_pago, monto_recibido, cambio) VALUES (?, ?, ?, ?)");
                 psPago.setInt(1, idVenta);
-                psPago.setString(2, metodoPago);
-                psPago.setDouble(3, montoEfectivo + montoTarjeta);
+                psPago.setString(2, tipoPagoParaBD());
+                psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
                 psPago.setDouble(4, cambio);
                 psPago.executeUpdate();
             }
@@ -491,6 +498,17 @@ public class PagoController {
 
     private double parse(String s) {
         return (s == null || s.isEmpty()) ? 0.0 : Double.parseDouble(s);
+    }
+
+    private double montoRegistradoEnPago(double montoEfectivo, double montoTarjeta) {
+        if ("MIXTO".equals(metodoPago) || "MIXTO_USD".equals(metodoPago)) {
+            return montoEfectivo;
+        }
+        return montoEfectivo + montoTarjeta;
+    }
+
+    private String tipoPagoParaBD() {
+        return "OTROS".equals(metodoPago) ? "TRANSFERENCIA" : metodoPago;
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
