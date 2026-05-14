@@ -481,6 +481,7 @@ public class PagoController {
                     TicketService ticketService = new TicketService();
                     Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
                     ticketService.imprimir(ticket);
+                    try { new org.example.servicio.TicketImpresora().abrirCajon(); } catch (Exception ignored) {}
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

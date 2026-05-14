@@ -1,5 +1,6 @@
 package org.example.servicio;
 
+import com.fazecast.jSerialComm.SerialPort;
 import org.example.modelo.Ticket;
 import org.example.modelo.Ticket.LineaTicket;
 
@@ -9,6 +10,7 @@ import javax.print.attribute.PrintRequestAttributeSet;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 
 public class TicketImpresora {
 
@@ -37,6 +39,28 @@ public class TicketImpresora {
         byte[] datos = construirDatos(ticket);
         PrintService servicio = buscarImpresoraTermica();
         enviarAImpresora(servicio, datos);
+    }
+
+    public void abrirCajon() throws Exception {
+        Preferences prefs = Preferences.userNodeForPackage(
+                org.example.controlador.ConfiguracionController.class);
+        if (!prefs.getBoolean("cajon_activo", false)) {
+            return;
+        }
+
+        String puerto = prefs.get("cajon_puerto", "Via impresora termica (ESC/POS)");
+        String pulso = prefs.get("cajon_pulso", "Pulso 1 (pin 2)");
+        byte[] openDrawerP1 = { 0x1B, 0x70, 0x00, 0x19, (byte) 0xFA };
+        byte[] openDrawerP2 = { 0x1B, 0x70, 0x01, 0x19, (byte) 0xFA };
+        byte[] comando = pulso != null && pulso.startsWith("Pulso 2") ? openDrawerP2 : openDrawerP1;
+
+        if (puerto != null && puerto.matches("COM[1-4]")) {
+            enviarAPuertoSerial(puerto, comando);
+            return;
+        }
+
+        PrintService servicio = buscarImpresoraTermica();
+        enviarAImpresora(servicio, comando);
     }
 
     public String generarTextoPlano(Ticket ticket) {
@@ -190,6 +214,23 @@ public class TicketImpresora {
     }
 
     // ── Utilidades ───────────────────────────────────────────────────────────
+
+    private void enviarAPuertoSerial(String nombrePuerto, byte[] datos) throws Exception {
+        SerialPort serialPort = SerialPort.getCommPort(nombrePuerto);
+        serialPort.setComPortParameters(9600, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+        serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
+        if (!serialPort.openPort()) {
+            throw new Exception("No se pudo abrir el puerto " + nombrePuerto);
+        }
+        try {
+            int escritos = serialPort.writeBytes(datos, datos.length);
+            if (escritos != datos.length) {
+                throw new Exception("No se pudo enviar el comando completo al puerto " + nombrePuerto);
+            }
+        } finally {
+            serialPort.closePort();
+        }
+    }
 
     private void escribe(ByteArrayOutputStream out, byte[] bytes) throws Exception {
         out.write(bytes);
