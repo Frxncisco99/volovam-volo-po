@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ReporteController">
+<BorderPane prefHeight="700" prefWidth="1100" stylesheets="@menuPrincipal.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.ReporteController">
 
     <!-- ===================== SIDEBAR — paleta #091e4e (igual que Menu Principal) ===================== -->
     <left>
@@ -91,8 +91,9 @@
             <Separator style="-fx-opacity: 0.15;" />
 
             <!-- Cerrar sesión -->
-            <Button graphicTextGap="10" onAction="#btnCerrar" prefHeight="44" prefWidth="230" style="-fx-background-color: transparent;                            -fx-text-fill: rgba(255,180,180,0.9);                            -fx-cursor: hand;" text="Cerrar sesion" textFill="RED">
-                <graphic><FontIcon iconColor="#ff0000e5" iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
+                    style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
             </Button>
 
         </VBox>
