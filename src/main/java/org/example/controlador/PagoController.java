@@ -12,6 +12,7 @@ import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.AuditoriaService;
+import org.example.servicio.EmailTicketService;
 import org.example.servicio.FolioService;
 import org.example.servicio.InventarioMovimientoService;
 import org.example.servicio.TicketService;
@@ -21,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Optional;
 
 public class PagoController {
 
@@ -476,14 +478,23 @@ public class PagoController {
             stagePago.close();
             ventasController.ventaCompletada();
 
-            if (chkImprimirTicket != null && chkImprimirTicket.isSelected()) {
-                try {
-                    TicketService ticketService = new TicketService();
-                    Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
-                    ticketService.imprimir(ticket);
-                    try { new org.example.servicio.TicketImpresora().abrirCajon(); } catch (Exception ignored) {}
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+            EmailTicketService emailTicketService = new EmailTicketService();
+            boolean imprimirTicket = chkImprimirTicket != null && chkImprimirTicket.isSelected();
+            if (imprimirTicket || emailTicketService.estaActivo()) {
+                TicketService ticketService = new TicketService();
+                Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
+
+                if (imprimirTicket) {
+                    try {
+                        ticketService.imprimir(ticket);
+                        try { new org.example.servicio.TicketImpresora().abrirCajon(); } catch (Exception ignored) {}
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                if (emailTicketService.estaActivo()) {
+                    enviarTicketPorCorreo(emailTicketService, ticket);
                 }
             }
 
@@ -510,6 +521,39 @@ public class PagoController {
 
     private String tipoPagoParaBD() {
         return "OTROS".equals(metodoPago) ? "TRANSFERENCIA" : metodoPago;
+    }
+
+    private void enviarTicketPorCorreo(EmailTicketService emailTicketService, Ticket ticket) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Enviar ticket por correo");
+        dialog.setHeaderText("Ticket de venta #" + String.format("%06d", ticket.getIdVenta()));
+        dialog.setContentText("Correo destino:");
+
+        Optional<String> respuesta = dialog.showAndWait();
+        if (respuesta.isEmpty()) {
+            return;
+        }
+
+        String destino = respuesta.get().trim();
+        if (destino.isEmpty()) {
+            return;
+        }
+
+        try {
+            emailTicketService.enviarTicket(ticket, destino);
+            Alert ok = new Alert(Alert.AlertType.INFORMATION);
+            ok.setTitle("Ticket enviado");
+            ok.setHeaderText(null);
+            ok.setContentText("Ticket enviado a " + destino + ".");
+            ok.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setTitle("Correo");
+            error.setHeaderText(null);
+            error.setContentText("No se pudo enviar el ticket por correo.\n" + e.getMessage());
+            error.showAndWait();
+        }
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

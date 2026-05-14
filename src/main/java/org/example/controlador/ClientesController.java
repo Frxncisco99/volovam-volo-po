@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.sql.Connection;
@@ -498,9 +499,9 @@ public class ClientesController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir");
+        a.setTitle("Cambiar sesion");
         a.setHeaderText(null);
-        a.setContentText("Seguro que deseas salir?");
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
@@ -513,6 +514,7 @@ public class ClientesController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) flowClientes.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {

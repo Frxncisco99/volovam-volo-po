@@ -26,6 +26,7 @@ import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.ExportarInventarioservice;
+import org.example.servicio.MarcaService;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
@@ -570,6 +571,7 @@ public class InventarioController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/AgregarProducto.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -590,6 +592,7 @@ public class InventarioController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/EditarProducto.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             EditarProductoController ctrl = loader.getController();
             ctrl.setProducto(p);
             Stage stage = new Stage();
@@ -611,6 +614,7 @@ public class InventarioController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/AjustarStock.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             AjustarStockController ctrl = loader.getController();
             ctrl.setProducto(p);
             Stage stage = new Stage();
@@ -636,6 +640,7 @@ public class InventarioController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/HistorialMovimientos.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             // Pasar producto al controller si existe
             Object ctrl = loader.getController();
             if (ctrl instanceof HistorialMovimientosController hCtrl) {
@@ -730,6 +735,7 @@ public class InventarioController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) tablaProductos.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
@@ -743,12 +749,12 @@ public class InventarioController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
-                Platform.exit();
+                cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
     }

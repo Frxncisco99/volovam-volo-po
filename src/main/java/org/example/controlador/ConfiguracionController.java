@@ -38,7 +38,7 @@ import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.SwitchToggle;
 import org.example.modelo.Ticket;
-import org.example.servicio.TicketImpresora;
+import org.example.servicio.MarcaService;
 import org.example.servicio.TicketRenderer;
 
 import javax.print.PrintService;
@@ -49,7 +49,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -61,6 +60,7 @@ public class ConfiguracionController {
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
+    @FXML private Label lblMarcaNegocio;
     @FXML private Label lblFeedbackGuardado;
 
     @FXML private VBox panelNegocio;
@@ -149,6 +149,7 @@ public class ConfiguracionController {
         lblNombreUsuario.setText(nombre);
         lblRolUsuario.setText(sesion.getRol());
         lblAvatarIniciales.setText(iniciales(nombre));
+        lblMarcaNegocio.setText(MarcaService.nombreNegocio());
     }
 
     private void prepararCombos() {
@@ -264,6 +265,7 @@ public class ConfiguracionController {
         guardarValor("negocio_correo", txtCorreo.getText());
         guardarValor("negocio_web", txtSitioWeb.getText());
         guardarValor("negocio_rfc", txtRFC.getText());
+        lblMarcaNegocio.setText(MarcaService.nombreNegocio());
 
         guardarValor("ticket_nombre", txtTicketNombre.getText());
         guardarValor("ticket_giro", txtTicketGiro.getText());
@@ -383,6 +385,7 @@ public class ConfiguracionController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/TicketPreview.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             TicketPreviewController ctrl = loader.getController();
             int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? TicketRenderer.ANCHO_58MM : TicketRenderer.ANCHO_80MM;
             ctrl.configurar(ticketMuestra(),
@@ -746,13 +749,13 @@ public class ConfiguracionController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir");
+        a.setTitle("Cambiar sesion");
         a.setHeaderText(null);
-        a.setContentText("Seguro que deseas salir?");
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
-                Platform.exit();
+                navegar("/org/example/vista/Login.fxml");
             }
         });
     }
@@ -760,6 +763,7 @@ public class ConfiguracionController {
     private void navegar(String ruta) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(ruta));
+            MarcaService.aplicar(root);
             Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (IOException e) {

@@ -18,6 +18,7 @@ import org.example.dao.ConexionDB;
 import org.example.dao.ReporteAvanzadoDAO;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
+import org.example.servicio.MarcaService;
 import org.example.servicio.ReporteService;
 import org.example.servicio.ReportePDFService;
 import java.io.*;
@@ -750,6 +751,7 @@ public class ReporteController {
     private void cambiarEscena(String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            MarcaService.aplicar(root);
             Stage stage = (Stage) lblTotal.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (IOException e) { e.printStackTrace(); }
@@ -758,12 +760,12 @@ public class ReporteController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
-                Platform.exit();
+                registrarLogout();
+                cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
     }

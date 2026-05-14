@@ -11,7 +11,7 @@
     <left>
         <VBox prefWidth="232" styleClass="app-sidebar">
             <VBox spacing="4" styleClass="brand-block">
-                <Label text="Volovan Volo" styleClass="sidebar-brand"/>
+                <Label fx:id="lblMarcaNegocio" text="Volovan Volo" styleClass="sidebar-brand"/>
                 <Label text="SISTEMA DE PUNTO DE VENTA" styleClass="sidebar-subtitle"/>
             </VBox>
             <Separator styleClass="sidebar-separator"/>
@@ -55,7 +55,7 @@
                 </Button>
             </VBox>
             <Separator styleClass="sidebar-separator"/>
-            <Button text="Cerrar sesion" onAction="#btnCerrar" graphicTextGap="10" styleClass="sidebar-logout">
+            <Button text="Cambiar sesion" onAction="#btnCerrar" graphicTextGap="10" styleClass="sidebar-logout">
                 <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15" iconColor="#fecaca"/></graphic>
             </Button>
         </VBox>
@@ -72,8 +72,8 @@
                 <Button fx:id="btnGuardarCambios" text="Guardar cambios" onAction="#guardarConfiguracion" styleClass="primary-button"/>
             </HBox>
 
-            <HBox VBox.vgrow="ALWAYS" styleClass="workspace">
-                <VBox prefWidth="238" spacing="8" styleClass="config-tabs">
+            <VBox VBox.vgrow="ALWAYS" styleClass="workspace">
+                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="config-tabs">
                     <Label text="SECCIONES" styleClass="nav-heading"/>
                     <Button fx:id="btnTabNegocio" text="Negocio" onAction="#tabNegocio" styleClass="cfg-tab-button"/>
                     <Button fx:id="btnTabTicket" text="Ticket" onAction="#tabTicket" styleClass="cfg-tab-button"/>
@@ -81,14 +81,11 @@
                     <Button fx:id="btnTabEmail" text="Correo / Email" onAction="#tabEmail" styleClass="cfg-tab-button"/>
                     <Button fx:id="btnTabUsuarios" text="Usuarios" onAction="#tabUsuarios" styleClass="cfg-tab-button"/>
                     <Button fx:id="btnTabBaseDatos" text="Base de datos" onAction="#tabBaseDatos" styleClass="cfg-tab-button"/>
-                    <Region VBox.vgrow="ALWAYS"/>
-                    <VBox spacing="5" styleClass="nav-note">
-                        <Label text="Cambios locales" styleClass="nav-note-title"/>
-                        <Label text="Se guardan en BD y Preferences." wrapText="true" styleClass="nav-note-text"/>
-                    </VBox>
-                </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Se guardan en BD y Preferences." styleClass="nav-note-text"/>
+                </HBox>
 
-                <ScrollPane fitToWidth="true" styleClass="config-scroll" HBox.hgrow="ALWAYS">
+                <ScrollPane fitToWidth="true" styleClass="config-scroll" VBox.vgrow="ALWAYS">
                     <VBox spacing="16" styleClass="content-shell">
 
                         <VBox fx:id="panelNegocio" spacing="16">
@@ -318,7 +315,7 @@
                         </VBox>
                     </VBox>
                 </ScrollPane>
-            </HBox>
+            </VBox>
         </VBox>
     </center>
 </BorderPane>

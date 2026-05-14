@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -90,6 +91,7 @@ public class AperturaCajaController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setMaximized(true);
