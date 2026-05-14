@@ -1,149 +1,751 @@
-/* Labels de campo */
-.cfg-label {
-    -fx-text-fill: #6a96b8;
-    -fx-font-size: 10px;
-    -fx-font-weight: bold;
+/* ============================================================
+   configuracion.css  —  Volovan Volo POS
+   Versión: senior rework v2 — layout estable + enterprise UI
+   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════
+   1. RESET GLOBAL DE FOCUS — CORRECCIÓN CRÍTICA DE LAYOUT
+   El problema: JavaFX Modena en :focused cambia background-insets
+   Y agrega padding/border extra que empuja otros nodos.
+   Solución: fijar insets=0, border-width=1 SIEMPRE (no cambia),
+   y solo cambiar border-color + box-shadow sin tocar geometría.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── TextField ─────────────────────────────────────────────── */
+.text-field {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+
+    /* Geometría FIJA — nunca cambia en ningún pseudo-state */
+    -fx-background-insets:  0, 0, 0;
+    -fx-background-radius:  8, 8, 7;
+    -fx-border-radius:      8;
+    -fx-border-width:       1;          /* ← no cambia en :focused */
+    -fx-border-color:       #C8D8EA;
+    -fx-background-color:   white;
+
+    -fx-font-size:          12px;
+    -fx-padding:            0 12;
+    -fx-text-fill:          #1a2f45;
+    -fx-prompt-text-fill:   #9ab4ca;
 }
 
-/* TextField */
-.cfg-field {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-border-color: #1a6fa8;
-    -fx-border-width: 0.5;
-    -fx-padding: 6 10;
-    -fx-font-size: 12px;
-    -fx-background-color: white;
+.text-field:focused {
+    -fx-background-insets:  0, 0, 0;   /* igual que arriba */
+    -fx-border-width:       1;          /* igual — sin cambio */
+    -fx-border-color:       #1a6fa8;
+    -fx-background-color:   #fafeff;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.22), 5, 0.2, 0, 0);
 }
 
-.cfg-field:focused {
-    -fx-border-color: #0d3d5e;
-    -fx-border-width: 1.5;
+.text-field:hover:unfocused {
+    -fx-border-color:       #8ab4d4;
 }
 
-/* ComboBox */
-.cfg-combo {
-    -fx-background-radius: 8;
-    -fx-border-color: #1a6fa8;
-    -fx-border-width: 0.5;
-    -fx-background-color: white;
+.text-field:disabled {
+    -fx-background-color:   #f4f7fb;
+    -fx-text-fill:          #9ab4ca;
+    -fx-border-color:       #dde8f0;
+    -fx-opacity:            0.75;
 }
 
-/* Botones dia de la semana */
-.dia-btn {
-    -fx-min-width: 30;
-    -fx-min-height: 30;
-    -fx-max-width: 30;
-    -fx-background-radius: 15;
-    -fx-font-weight: bold;
-    -fx-font-size: 11px;
-    -fx-cursor: hand;
-    -fx-background-color: #e8f3fb;
-    -fx-text-fill: #6a96b8;
+/* ── PasswordField ──────────────────────────────────────────── */
+.password-field {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0, 0, 0;
+    -fx-background-radius:  8, 8, 7;
+    -fx-border-radius:      8;
+    -fx-border-width:       1;
+    -fx-border-color:       #C8D8EA;
+    -fx-background-color:   white;
+    -fx-font-size:          12px;
+    -fx-padding:            0 12;
+    -fx-text-fill:          #1a2f45;
 }
 
-.dia-btn:selected {
-    -fx-background-color: #1a6fa8;
-    -fx-text-fill: white;
+.password-field:focused {
+    -fx-background-insets:  0, 0, 0;
+    -fx-border-width:       1;
+    -fx-border-color:       #1a6fa8;
+    -fx-background-color:   #fafeff;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.22), 5, 0.2, 0, 0);
 }
 
-.dia-btn:hover {
-    -fx-background-color: #4d9ec7;
-    -fx-text-fill: white;
+/* ── TextArea ───────────────────────────────────────────────── */
+.text-area {
+    -fx-background-insets:  0, 0, 0;
+    -fx-background-radius:  8, 8, 7;
+    -fx-border-radius:      8;
+    -fx-border-width:       1;
+    -fx-border-color:       #C8D8EA;
+    -fx-background-color:   white;
+    -fx-font-size:          11.5px;
+    -fx-text-fill:          #1a2f45;
 }
 
-/* Botones tabla de usuarios */
-.btn-editar {
-    -fx-background-color: #EBF3FB;
-    -fx-text-fill: #1a6fa8;
-    -fx-background-radius: 6;
-    -fx-padding: 4 10;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
+.text-area:focused {
+    -fx-background-insets:  0, 0, 0;
+    -fx-border-width:       1;
+    -fx-border-color:       #1a6fa8;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.22), 5, 0.2, 0, 0);
 }
 
-.btn-editar:hover {
-    -fx-background-color: #1a6fa8;
-    -fx-text-fill: white;
-}
-
-.btn-clave {
-    -fx-background-color: #e8f3fb;
-    -fx-text-fill: #1a6fa8;
-    -fx-background-radius: 6;
-    -fx-padding: 4 10;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-
-.btn-clave:hover {
-    -fx-background-color: #1a6fa8;
-    -fx-text-fill: white;
-}
-
-.btn-borrar {
-    -fx-background-color: #FDE8E8;
-    -fx-text-fill: #C0392B;
-    -fx-background-radius: 6;
-    -fx-padding: 4 10;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-
-.btn-borrar:hover {
-    -fx-background-color: #C0392B;
-    -fx-text-fill: white;
-}
-
-/* Hover para switch */
-.toggle-button:hover {
-    -fx-opacity: 0.85;
-}
-
-/* ScrollPane limpio */
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
-
-/* TextArea */
 .text-area .content {
-    -fx-background-color: white;
+    -fx-background-color:   white;
+    -fx-background-radius:  8;
+    -fx-padding:            8 12;
 }
 
 .text-area:focused .content {
-    -fx-background-color: white;
+    -fx-background-color:   #fafeff;
 }
 
-/* ===== SWITCH TOGGLE ===== */
-.toggle-btn-switch {
-    -fx-background-color: #b0c4d8;
-    -fx-background-radius: 12;
-    -fx-min-width: 44;
-    -fx-min-height: 24;
-    -fx-cursor: hand;
-    -fx-padding: 0;
-    -fx-border-width: 0;
+/* ═══════════════════════════════════════════════════════════
+   2. COMBOBOX — sin salto en focus ni en :showing
+   ═══════════════════════════════════════════════════════════ */
+
+.combo-box {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0, 0, 0;
+    -fx-background-radius:  8, 8, 7;
+    -fx-border-radius:      8;
+    -fx-border-width:       1;
+    -fx-border-color:       #C8D8EA;
+    -fx-background-color:   white;
+    -fx-font-size:          12px;
+    -fx-padding:            0;
 }
 
-.toggle-btn-switch:selected {
-    -fx-background-color: #1a6fa8;
+.combo-box:focused,
+.combo-box:showing {
+    -fx-background-insets:  0, 0, 0;
+    -fx-border-width:       1;
+    -fx-border-color:       #1a6fa8;
+    -fx-background-color:   #fafeff;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.22), 5, 0.2, 0, 0);
 }
 
-.toggle-btn-switch:hover {
-    -fx-opacity: 0.85;
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+.combo-box:hover:unfocused {
+    -fx-border-color:       #8ab4d4;
 }
 
-.toggle-btn-switch:pressed {
-    -fx-scale-x: 0.92;
-    -fx-scale-y: 0.92;
-    -fx-opacity: 0.75;
+.combo-box .list-cell {
+    -fx-padding:            0 10;
+    -fx-text-fill:          #1a2f45;
+    -fx-font-size:          12px;
+    -fx-background-color:   transparent;
+    -fx-background-insets:  0;
 }
 
-.toggle-btn-switch:selected:hover {
-    -fx-background-color: #155e96;
+.combo-box-popup .list-view {
+    -fx-background-color:   white;
+    -fx-border-color:       #C8D8EA;
+    -fx-border-width:       1;
+    -fx-background-radius:  10;
+    -fx-border-radius:      10;
+    -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.14), 14, 0, 0, 4);
+    -fx-padding:            4 0;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-padding:            8 14;
+    -fx-font-size:          12px;
+    -fx-text-fill:          #1a2f45;
+    -fx-background-color:   white;
+    -fx-background-insets:  0;
+    -fx-border-color:       transparent;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color:   #e8f3fb;
+    -fx-text-fill:          #1a6fa8;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color:   #1a6fa8;
+    -fx-text-fill:          white;
+    -fx-font-weight:        bold;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. CARDS — consistentes, sin variación de sombra entre sí
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-card {
+    -fx-background-color:   white;
+    -fx-background-radius:  14;
+    -fx-border-radius:      14;
+    -fx-border-color:       transparent;
+    -fx-padding:            20;
+    -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);
+}
+
+.cfg-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.12), 16, 0, 0, 3);
+}
+
+/* ── Card typography ─────────────────────────────────────── */
+.cfg-card-title {
+    -fx-font-size:          13px;
+    -fx-font-weight:        bold;
+    -fx-text-fill:          #0d3d5e;
+}
+
+.cfg-card-subtitle {
+    -fx-font-size:          10px;
+    -fx-text-fill:          #6a96b8;
+    -fx-padding:            0;
+}
+
+.cfg-label-key {
+    -fx-font-size:          9px;
+    -fx-font-weight:        bold;
+    -fx-text-fill:          #6a96b8;
+    -fx-padding:            6 0 2 0;
+    -fx-letter-spacing:     0.5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. TOPBAR
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-topbar {
+    -fx-background-color:   white;
+    -fx-padding:            16 28;
+    -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.06), 8, 0, 0, 2);
+    -fx-border-color:       transparent transparent #e8eef5 transparent;
+    -fx-border-width:       0 0 1 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. TABS — altura estática, sin salto visual al activar
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-tab-bar {
+    -fx-background-color:   #f0f7ff;
+    -fx-padding:            10 28 10 28;
+    -fx-border-color:       transparent transparent #deeaf5 transparent;
+    -fx-border-width:       0 0 1 0;
+    -fx-spacing:            5;
+}
+
+/* Base — inactivo */
+.cfg-tab {
+    -fx-pref-height:        32px;
+    -fx-min-height:         32px;
+    -fx-max-height:         32px;
+    -fx-background-color:   white;
+    -fx-text-fill:          #4a7fa8;
+    -fx-background-radius:  20;
+    -fx-border-radius:      20;
+    -fx-border-color:       #c8dcea;
+    -fx-border-width:       1;
+    -fx-padding:            0 18;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+    -fx-background-insets:  0;
+}
+
+.cfg-tab:hover {
+    -fx-background-color:   #e8f3fb;
+    -fx-border-color:       #1a6fa8;
+    -fx-text-fill:          #1a6fa8;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.12), 5, 0, 0, 1);
+    -fx-background-insets:  0;
+}
+
+/* Activo — mismo tamaño, solo cambia color */
+.cfg-tab-active {
+    -fx-pref-height:        32px;
+    -fx-min-height:         32px;
+    -fx-max-height:         32px;
+    -fx-background-color:   #1a6fa8;
+    -fx-text-fill:          white;
+    -fx-font-weight:        bold;
+    -fx-background-radius:  20;
+    -fx-border-radius:      20;
+    -fx-border-color:       transparent;
+    -fx-border-width:       1;          /* mismo borde para mantener tamaño */
+    -fx-padding:            0 18;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+    -fx-background-insets:  0;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.28), 7, 0, 0, 2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. BOTONES PRIMARIOS / SECUNDARIOS / DANGER
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-btn-primary {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0;
+    -fx-background-color:   #1a6fa8;
+    -fx-text-fill:          white;
+    -fx-font-weight:        bold;
+    -fx-background-radius:  8;
+    -fx-border-radius:      8;
+    -fx-border-color:       transparent;
+    -fx-border-width:       1;
+    -fx-padding:            0 20;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+}
+
+.cfg-btn-primary:hover {
+    -fx-background-color:   #155d90;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.28), 7, 0, 0, 2);
+    -fx-background-insets:  0;
+}
+
+.cfg-btn-primary:pressed {
+    -fx-background-color:   #0f4a72;
+    -fx-background-insets:  0;
+}
+
+.cfg-btn-secondary {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0;
+    -fx-background-color:   white;
+    -fx-text-fill:          #1a6fa8;
+    -fx-background-radius:  8;
+    -fx-border-radius:      8;
+    -fx-border-color:       #1a6fa8;
+    -fx-border-width:       1;
+    -fx-padding:            0 20;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+}
+
+.cfg-btn-secondary:hover {
+    -fx-background-color:   #e8f3fb;
+    -fx-background-insets:  0;
+}
+
+.cfg-btn-secondary:pressed {
+    -fx-background-color:   #d0e8f5;
+    -fx-background-insets:  0;
+}
+
+.cfg-btn-danger {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0;
+    -fx-background-color:   #C0392B;
+    -fx-text-fill:          white;
+    -fx-font-weight:        bold;
+    -fx-background-radius:  8;
+    -fx-border-radius:      8;
+    -fx-border-color:       transparent;
+    -fx-border-width:       1;
+    -fx-padding:            0 20;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+}
+
+.cfg-btn-danger:hover {
+    -fx-background-color:   #a93226;
+    -fx-effect: dropshadow(gaussian, rgba(192,57,43,0.25), 6, 0, 0, 2);
+    -fx-background-insets:  0;
+}
+
+/* Botón ghost / outline */
+.cfg-btn-ghost {
+    -fx-pref-height:        36px;
+    -fx-min-height:         36px;
+    -fx-max-height:         36px;
+    -fx-background-insets:  0;
+    -fx-background-color:   transparent;
+    -fx-text-fill:          #1a6fa8;
+    -fx-background-radius:  8;
+    -fx-border-radius:      8;
+    -fx-border-color:       #c8dcea;
+    -fx-border-width:       1;
+    -fx-padding:            0 16;
+    -fx-font-size:          12px;
+    -fx-cursor:             hand;
+}
+
+.cfg-btn-ghost:hover {
+    -fx-background-color:   #f0f7ff;
+    -fx-border-color:       #1a6fa8;
+    -fx-background-insets:  0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. TOGGLE ROW — filas de configuración con switch
+   Altura FIJA para evitar saltos
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-toggle-row {
+    -fx-background-color:   #f5f9ff;
+    -fx-background-radius:  10;
+    -fx-padding:            10 14;
+    -fx-pref-height:        52px;
+    -fx-min-height:         52px;
+    -fx-max-height:         52px;
+}
+
+.cfg-toggle-row:hover {
+    -fx-background-color:   #eaf3fc;
+}
+
+.cfg-toggle-title {
+    -fx-font-weight:        bold;
+    -fx-text-fill:          #0d3d5e;
+    -fx-font-size:          12px;
+}
+
+.cfg-toggle-desc {
+    -fx-text-fill:          #6a96b8;
+    -fx-font-size:          10px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. SIDEBAR — hereda del global menuPrincipal.css
+   Solo ajustes de dimensión para estabilidad
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-sidebar-btn {
+    -fx-pref-height:        40px;
+    -fx-min-height:         40px;
+    -fx-max-height:         40px;
+    -fx-pref-width:         210px;
+    -fx-background-color:   transparent;
+    -fx-text-fill:          rgba(255,255,255,0.8);
+    -fx-background-radius:  8;
+    -fx-alignment:          CENTER_LEFT;
+    -fx-padding:            0 14;
+    -fx-cursor:             hand;
+    -fx-background-insets:  0;
+}
+
+.cfg-sidebar-btn:hover {
+    -fx-background-color:   rgba(255,255,255,0.1);
+    -fx-text-fill:          white;
+    -fx-background-insets:  0;
+}
+
+.cfg-sidebar-btn-active {
+    -fx-pref-height:        40px;
+    -fx-min-height:         40px;
+    -fx-max-height:         40px;
+    -fx-pref-width:         210px;
+    -fx-background-color:   white;
+    -fx-text-fill:          #1a6fa8;
+    -fx-font-weight:        bold;
+    -fx-background-radius:  8;
+    -fx-alignment:          CENTER_LEFT;
+    -fx-padding:            0 14;
+    -fx-cursor:             hand;
+    -fx-background-insets:  0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9. SEPARATOR — consistente en todo el módulo
+   ═══════════════════════════════════════════════════════════ */
+
+.separator {
+    -fx-padding:            4 0;
+}
+
+.separator *.line {
+    -fx-border-color:       #e8eef5;
+    -fx-border-width:       1 0 0 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   10. BADGES DE ESTADO
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-badge-ok {
+    -fx-background-color:   #e8f8ee;
+    -fx-text-fill:          #1e7a3e;
+    -fx-background-radius:  8;
+    -fx-padding:            8 14;
+    -fx-font-size:          11px;
+    -fx-font-weight:        bold;
+}
+
+.cfg-badge-warning {
+    -fx-background-color:   #fff8e1;
+    -fx-text-fill:          #b07a00;
+    -fx-background-radius:  8;
+    -fx-padding:            8 14;
+    -fx-font-size:          11px;
+    -fx-font-weight:        bold;
+}
+
+.cfg-badge-error {
+    -fx-background-color:   #fee8e8;
+    -fx-text-fill:          #C0392B;
+    -fx-background-radius:  8;
+    -fx-padding:            8 14;
+    -fx-font-size:          11px;
+    -fx-font-weight:        bold;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. INTEGRATION CARDS
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-integration-box {
+    -fx-background-radius:  10;
+    -fx-border-radius:      10;
+    -fx-border-width:       1;
+    -fx-padding:            16;
+}
+
+.cfg-integration-box-blue {
+    -fx-background-color:   #F0F7FF;
+    -fx-border-color:       #BFD9F2;
+}
+
+.cfg-integration-box-purple {
+    -fx-background-color:   #F5F0FF;
+    -fx-border-color:       #CCC0F0;
+}
+
+.cfg-integration-box-green {
+    -fx-background-color:   #E8F8EE;
+    -fx-border-color:       #B2DFCC;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   12. SCROLLPANE — sin bordes, track limpio
+   ═══════════════════════════════════════════════════════════ */
+
+.scroll-pane {
+    -fx-background-color:   transparent;
+    -fx-border-color:       transparent;
+    -fx-padding:            0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color:   transparent;
+}
+
+.scroll-bar {
+    -fx-background-color:   transparent;
+    -fx-pref-width:         8px;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color:   transparent;
+    -fx-border-color:       transparent;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color:   #c8dcea;
+    -fx-background-radius:  4;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color:   #1a6fa8;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-pref-height:        0;
+    -fx-pref-width:         8;
+    -fx-background-color:   transparent;
+    -fx-border-color:       transparent;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape:              "";
+    -fx-pref-height:        0;
+    -fx-pref-width:         0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   13. TOGGLE BUTTONS (días de la semana)
+   Tamaño FIJO en ambos estados para evitar micro-saltos
+   ═══════════════════════════════════════════════════════════ */
+
+.toggle-button {
+    -fx-pref-height:        30px;
+    -fx-min-height:         30px;
+    -fx-max-height:         30px;
+    -fx-background-insets:  0;
+    -fx-background-color:   #e8f3fb;
+    -fx-text-fill:          #1a6fa8;
+    -fx-background-radius:  20;
+    -fx-border-radius:      20;
+    -fx-border-color:       #c8dcea;
+    -fx-border-width:       1;
+    -fx-padding:            0 10;
+    -fx-font-size:          11px;
+    -fx-cursor:             hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color:   #1a6fa8;
+    -fx-text-fill:          white;
+    -fx-border-color:       transparent;
+    -fx-border-width:       1;           /* mismo — no cambia tamaño */
+    -fx-background-insets:  0;
+    -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.22), 4, 0, 0, 1);
+}
+
+.toggle-button:hover:unselected {
+    -fx-background-color:   #daeaf5;
+    -fx-background-insets:  0;
+}
+
+/* ToggleButton genérico (modo mantenimiento, etc.) */
+.toggle-button:focused {
+    -fx-background-insets:  0;
+    -fx-border-width:       1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   14. LABEL — clases utilitarias
+   ═══════════════════════════════════════════════════════════ */
+
+.lbl-section-header {
+    -fx-font-size:          9px;
+    -fx-font-weight:        bold;
+    -fx-text-fill:          #6a96b8;
+    -fx-padding:            2 0 2 0;
+}
+
+.lbl-value-large {
+    -fx-font-size:          26px;
+    -fx-font-weight:        bold;
+    -fx-text-fill:          #0d3d5e;
+}
+
+.lbl-caption {
+    -fx-font-size:          10px;
+    -fx-text-fill:          #6a96b8;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   15. TABLE VIEW — para la lista de usuarios
+   ═══════════════════════════════════════════════════════════ */
+
+.table-view {
+    -fx-background-color:   transparent;
+    -fx-border-color:       transparent;
+    -fx-background-radius:  10;
+}
+
+.table-view .column-header {
+    -fx-background-color:   #091e4e;
+    -fx-border-color:       transparent;
+    -fx-padding:            8 12;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill:          white;
+    -fx-font-size:          10px;
+    -fx-font-weight:        bold;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color:   white;
+    -fx-border-color:       transparent transparent #f0f5fa transparent;
+    -fx-border-width:       0 0 1 0;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color:   #e8f3fb;
+    -fx-border-color:       transparent;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color:   #f5f9ff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   16. ROLES PANEL CARDS
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-role-admin {
+    -fx-background-color:   #e8f3fb;
+    -fx-background-radius:  10;
+    -fx-border-color:       #1a6fa8;
+    -fx-border-radius:      10;
+    -fx-border-width:       0.5;
+    -fx-padding:            12;
+}
+
+.cfg-role-gerente {
+    -fx-background-color:   #EDF5E8;
+    -fx-background-radius:  10;
+    -fx-border-color:       #A8D8B0;
+    -fx-border-radius:      10;
+    -fx-border-width:       1;
+    -fx-padding:            12;
+}
+
+.cfg-role-cajero {
+    -fx-background-color:   #EBF3FB;
+    -fx-background-radius:  10;
+    -fx-border-color:       #A0C4E0;
+    -fx-border-radius:      10;
+    -fx-border-width:       1;
+    -fx-padding:            12;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   17. DB INFO ROW
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-db-info {
+    -fx-background-color:   #f5f9ff;
+    -fx-background-radius:  8;
+    -fx-padding:            10 14;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   18. FOCUS RING GLOBAL — cualquier Button que reciba focus
+   no debe agregar relleno extra
+   ═══════════════════════════════════════════════════════════ */
+
+.button:focused {
+    -fx-background-insets:  0;
+}
+
+.button {
+    -fx-background-insets:  0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   19. HEADER ROW INLINE (tabla de usuarios manual)
+   ═══════════════════════════════════════════════════════════ */
+
+.cfg-table-header {
+    -fx-background-color:   #091e4e;
+    -fx-background-radius:  6;
+    -fx-padding:            8 14;
+}
+
+.cfg-table-row-even {
+    -fx-background-color:   #f5f9ff;
+    -fx-background-radius:  8;
+    -fx-padding:            10 14;
+}
+
+.cfg-table-row-odd {
+    -fx-background-color:   white;
+    -fx-background-radius:  8;
+    -fx-padding:            10 14;
+}
+
+.cfg-table-row-even:hover,
+.cfg-table-row-odd:hover {
+    -fx-background-color:   #eaf3fc;
 }
