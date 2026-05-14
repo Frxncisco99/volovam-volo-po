@@ -22,19 +22,17 @@
             fx:controller="org.example.controlador.CorteCajaController">
 
     <left>
-        <VBox prefWidth="230" style="-fx-background-color: #0f172a;">
+        <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
             <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
                 <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo"/>
                 <Label style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA"/>
             </VBox>
             <Separator style="-fx-opacity: 0.15;"/>
             <HBox spacing="10" style="-fx-padding: 14 18;">
-                <Label fx:id="lblAvatarIniciales"
-                       style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 36; -fx-min-height: 36; -fx-background-radius: 18; -fx-alignment: center;"
-                       text="US"/>
+                <Label fx:id="lblAvatarIniciales" style="-fx-background-color: rgba(255,255,255,0.22);                               -fx-text-fill: white;                               -fx-font-weight: bold;                               -fx-font-size: 13px;                               -fx-min-width: 36; -fx-min-height: 36;                               -fx-background-radius: 18;                               -fx-alignment: center;" text="AD" />
                 <VBox spacing="2">
-                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario"/>
-                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 10px;" text="Rol"/>
+                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario" />
+                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol" />
                 </VBox>
             </HBox>
             <Separator style="-fx-opacity: 0.15;"/>
@@ -79,9 +77,9 @@
                 </Button>
             </VBox>
             <Separator style="-fx-opacity: 0.15;"/>
-            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cerrar sesion" graphicTextGap="10"
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
                     style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
-                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#f87171"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
             </Button>
         </VBox>
     </left>
@@ -118,7 +116,7 @@
                         </VBox>
                         <VBox prefWidth="210" spacing="5" style="-fx-background-color: #0f172a; -fx-background-radius: 8; -fx-padding: 15; -fx-effect: dropshadow(gaussian, #0f172a20, 10, 0, 0, 2);">
                             <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" text="FONDO INICIAL"/>
-                            <Label fx:id="lblFondoInicial" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="\\$0.00"/>
+                            <Label fx:id="lblFondoInicial" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="\$0.00"/>
                         </VBox>
                     </FlowPane>
 
@@ -128,7 +126,7 @@
                                 <FlowPane hgap="12" vgap="12">
                                     <VBox prefWidth="190" spacing="5" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="TOTAL VENDIDO"/>
-                                        <Label fx:id="lblTotalVendido" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="\\$0.00"/>
+                                        <Label fx:id="lblTotalVendido" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="\$0.00"/>
                                     </VBox>
                                     <VBox prefWidth="160" spacing="5" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="TICKETS"/>
@@ -136,11 +134,11 @@
                                     </VBox>
                                     <VBox prefWidth="190" spacing="5" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="PROMEDIO TICKET"/>
-                                        <Label fx:id="lblPromedioTicket" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="\\$0.00"/>
+                                        <Label fx:id="lblPromedioTicket" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="\$0.00"/>
                                     </VBox>
                                     <VBox prefWidth="190" spacing="5" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="UTILIDAD ESTIMADA"/>
-                                        <Label fx:id="lblUtilidad" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #15803d;" text="\\$0.00"/>
+                                        <Label fx:id="lblUtilidad" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #15803d;" text="\$0.00"/>
                                     </VBox>
                                 </FlowPane>
 
@@ -151,15 +149,15 @@
                                     </VBox>
                                     <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Impuestos y ganancia"/>
-                                        <HBox><Label text="Subtotal" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblSubtotal" style="-fx-font-weight: bold;" text="\\$0.00"/></HBox>
-                                        <HBox><Label text="IVA" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIva" style="-fx-font-weight: bold;" text="\\$0.00"/></HBox>
-                                        <HBox><Label text="Total" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalImpuestos" style="-fx-font-weight: bold;" text="\\$0.00"/></HBox>
+                                        <HBox><Label text="Subtotal" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblSubtotal" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="IVA" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIva" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="Total" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalImpuestos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
                                         <Separator/>
-                                        <HBox><Label text="Ingresos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIngresos" style="-fx-font-weight: bold;" text="\\$0.00"/></HBox>
-                                        <HBox><Label text="Costos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblCostos" style="-fx-font-weight: bold;" text="\\$0.00"/></HBox>
+                                        <HBox><Label text="Ingresos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIngresos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="Costos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblCostos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
                                         <Separator/>
-                                        <HBox><Label text="Entradas efectivo" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalEntradas" style="-fx-font-weight: bold; -fx-text-fill: #15803d;" text="\\$0.00"/></HBox>
-                                        <HBox><Label text="Salidas efectivo" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalSalidas" style="-fx-font-weight: bold; -fx-text-fill: #dc2626;" text="\\$0.00"/></HBox>
+                                        <HBox><Label text="Entradas efectivo" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalEntradas" style="-fx-font-weight: bold; -fx-text-fill: #15803d;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="Salidas efectivo" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalSalidas" style="-fx-font-weight: bold; -fx-text-fill: #dc2626;" text="\$0.00"/></HBox>
                                     </VBox>
                                 </HBox>
                             </VBox>
