@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.modelo.CorteCajaReporte;
+import org.example.servicio.FiscalSchemaService;
 import org.example.servicio.FolioService;
 
 import java.sql.Connection;
@@ -16,8 +17,6 @@ import java.util.Map;
 
 public class CorteCajaDAO {
 
-    private static final double IVA = 0.16;
-
     public CorteCajaReporte obtenerCorteActual(int idCaja, String cajeroActual) throws Exception {
         CorteCajaReporte reporte = new CorteCajaReporte();
         reporte.setIdCaja(idCaja);
@@ -27,6 +26,7 @@ public class CorteCajaDAO {
 
         try (Connection con = ConexionDB.getConexion()) {
             if (con == null) throw new IllegalStateException("Sin conexion a la base de datos.");
+            FiscalSchemaService.asegurarEstructura(con);
 
             cargarCaja(con, idCaja, reporte);
             cargarResumenVentas(con, idCaja, reporte);
@@ -180,11 +180,27 @@ public class CorteCajaDAO {
         try (PreparedStatement ps = con.prepareStatement("""
                 SELECT ventas_resumen.tickets,
                        ventas_resumen.total_ventas,
+                       ventas_resumen.subtotal,
+                       ventas_resumen.iva,
+                       ventas_resumen.ieps,
+                       ventas_resumen.impuestos,
+                       ventas_resumen.total_exento,
+                       ventas_resumen.total_tasa0,
+                       ventas_resumen.facturadas,
+                       ventas_resumen.no_facturadas,
                        ventas_resumen.efectivo_real,
                        COALESCE(costos.costo_total, 0) AS costo_total
                 FROM (
                     SELECT COUNT(v.id_venta) AS tickets,
                            COALESCE(SUM(v.total), 0) AS total_ventas,
+                           COALESCE(SUM(v.subtotal), 0) AS subtotal,
+                           COALESCE(SUM(v.iva), 0) AS iva,
+                           COALESCE(SUM(v.ieps), 0) AS ieps,
+                           COALESCE(SUM(v.impuestos), 0) AS impuestos,
+                           COALESCE(SUM(v.total_exento), 0) AS total_exento,
+                           COALESCE(SUM(v.total_tasa0), 0) AS total_tasa0,
+                           COUNT(CASE WHEN v.estado_facturacion IN ('PENDIENTE','GENERADA') THEN 1 END) AS facturadas,
+                           COUNT(CASE WHEN v.estado_facturacion IS NULL OR v.estado_facturacion = 'NO_FACTURADA' THEN 1 END) AS no_facturadas,
                            COALESCE(SUM(CASE
                                WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('EFECTIVO', 'DOLARES') THEN v.total
                                WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('MIXTO', 'MIXTO_USD') THEN GREATEST(pg.monto_recibido - pg.cambio, 0)
@@ -212,6 +228,14 @@ public class CorteCajaDAO {
                 double total = rs.getDouble("total_ventas");
                 reporte.setCantidadTickets(tickets);
                 reporte.setTotalVendido(total);
+                reporte.setSubtotal(rs.getDouble("subtotal"));
+                reporte.setIva(rs.getDouble("iva"));
+                reporte.setIeps(rs.getDouble("ieps"));
+                reporte.setTotalImpuestos(rs.getDouble("impuestos"));
+                reporte.setTotalExento(rs.getDouble("total_exento"));
+                reporte.setTotalTasa0(rs.getDouble("total_tasa0"));
+                reporte.setVentasFacturadas(rs.getInt("facturadas"));
+                reporte.setVentasNoFacturadas(rs.getInt("no_facturadas"));
                 reporte.setPromedioTicket(tickets > 0 ? total / tickets : 0);
                 reporte.setCostos(rs.getDouble("costo_total"));
                 reporte.setIngresos(total);
@@ -365,9 +389,9 @@ public class CorteCajaDAO {
     }
 
     private void calcularTotalesDerivados(CorteCajaReporte reporte) {
-        double subtotal = reporte.getTotalVendido() / (1 + IVA);
-        reporte.setSubtotal(subtotal);
-        reporte.setIva(reporte.getTotalVendido() - subtotal);
+        if (reporte.getSubtotal() <= 0 && reporte.getTotalVendido() > 0) {
+            reporte.setSubtotal(Math.max(0, reporte.getTotalVendido() - reporte.getTotalImpuestos()));
+        }
         reporte.setTotalConImpuestos(reporte.getTotalVendido());
         reporte.setUtilidad(reporte.getIngresos() - reporte.getCostos());
     }

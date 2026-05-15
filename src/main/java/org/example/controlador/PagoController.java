@@ -9,10 +9,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
+import org.example.modelo.CalculoFiscal;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.AuditoriaService;
 import org.example.servicio.EmailTicketService;
+import org.example.servicio.FacturacionService;
+import org.example.servicio.FiscalService;
 import org.example.servicio.FolioService;
 import org.example.servicio.InventarioMovimientoService;
 import org.example.servicio.TicketService;
@@ -80,6 +83,8 @@ public class PagoController {
     private double limiteCredito = 0;
     private double saldoCliente = 0;
     private String metodoPago = "EFECTIVO";
+    private final FiscalService fiscalService = new FiscalService();
+    private CalculoFiscal calculoFiscal = new CalculoFiscal();
 
     // Estilos de botones
     private static final String ESTILO_ACTIVO =
@@ -98,7 +103,8 @@ public class PagoController {
                          double limiteCredito, double saldoCliente) {
 
         this.tipoCambioDolar = SesionUsuario.getInstancia().getTipoCambioDolar();
-        this.total            = total;
+        this.calculoFiscal    = fiscalService.calcularVenta(carrito);
+        this.total            = calculoFiscal.getTotal() > 0 ? calculoFiscal.getTotal() : total;
         this.carrito          = carrito;
         this.ventasController = ventasController;
         this.idCliente        = idCliente;
@@ -106,16 +112,16 @@ public class PagoController {
         this.limiteCredito    = limiteCredito;
         this.saldoCliente     = saldoCliente;
 
-        lblTotalPagar.setText("$" + String.format("%.2f", total));
+        lblTotalPagar.setText("$" + String.format("%.2f", this.total));
         lblClientePago.setText(nombreCliente);
         lblTipoCambio.setText("$" + String.format("%.2f", tipoCambioDolar) + " MXN/USD");
-        txtDineroRecibido.setText(String.format("%.2f", total));
+        txtDineroRecibido.setText(String.format("%.2f", this.total));
 
         // Deshabilitar Fiado si no hay crédito suficiente
         if (limiteCredito > 0) {
             double disponible = limiteCredito - saldoCliente;
             lblInfoFiado.setText("Credito disponible: $" + String.format("%.2f", disponible));
-            btnFiado.setDisable(disponible < total);
+            btnFiado.setDisable(disponible < this.total);
         } else {
             btnFiado.setDisable(true);
             btnFiado.setStyle(ESTILO_INACTIVO + "; -fx-opacity: 0.45;");
@@ -125,7 +131,7 @@ public class PagoController {
         txtDineroRecibido.textProperty().addListener((obs, old, nuevo) -> {
             try {
                 double recibido = Double.parseDouble(nuevo);
-                double cambio   = recibido - total;
+                double cambio   = recibido - this.total;
                 lblCambio.setText("$" + String.format("%.2f", Math.max(cambio, 0)));
                 // Color fondo verde si alcanza, rojo si no
                 cajasCambio.setStyle(cajasCambio.getStyle()
@@ -148,7 +154,7 @@ public class PagoController {
             try {
                 double ef  = parse(txtEfectivoMixto.getText());
                 double tar = parse(txtTarjetaMixto.getText());
-                double cambio = (ef + tar) - total;
+                double cambio = (ef + tar) - this.total;
                 lblCambioMixto.setText("$" + String.format("%.2f", Math.max(cambio, 0)));
                 lblCambioMixto.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " +
                         (cambio >= 0 ? "#22c55e" : "#ef4444") + ";");
@@ -164,7 +170,7 @@ public class PagoController {
             try {
                 double dolares = Double.parseDouble(nuevo);
                 double enPesos = dolares * tipoCambioDolar;
-                double cambio  = enPesos - total;
+                double cambio  = enPesos - this.total;
                 lblCambioDolares.setText("$" + String.format("%.2f", Math.max(cambio, 0)) +
                         " MXN  (" + String.format("%.2f", Math.max(cambio / tipoCambioDolar, 0)) + " USD)");
                 lblCambioDolares.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " +
@@ -183,7 +189,7 @@ public class PagoController {
                 double dolares = parse(txtDolaresMixtoUSD.getText());
                 double enPesos = dolares * tipoCambioDolar;
                 double suma    = pesos + enPesos;
-                double cambio  = suma - total;
+                double cambio  = suma - this.total;
                 lblEquivalenteMixtoUSD.setText("Dólares equivalen a: $" + String.format("%.2f", enPesos) + " MXN");
                 lblCambioMixtoUSD.setText("$" + String.format("%.2f", Math.max(cambio, 0)) + " MXN");
                 lblCambioMixtoUSD.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " +
@@ -385,17 +391,28 @@ public class PagoController {
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
+            calculoFiscal = fiscalService.calcularVenta(con, carrito);
+            total = calculoFiscal.getTotal() > 0 ? calculoFiscal.getTotal() : total;
 
             // 1. Insertar venta
             PreparedStatement psVenta = con.prepareStatement(
-                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) " +
-                            "VALUES (?, ?, ?, ?, ?, 'COMPLETADA')",
+                    "INSERT INTO ventas (total, subtotal, descuento, iva, ieps, impuestos, " +
+                            "total_gravado, total_exento, total_tasa0, id_usuario, id_caja, id_cliente, metodo_pago, estado, estado_facturacion) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'COMPLETADA', 'NO_FACTURADA')",
                     Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
-            psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
-            psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
-            psVenta.setInt(4, idCliente);
-            psVenta.setString(5, metodoPago);
+            psVenta.setDouble(2, calculoFiscal.getSubtotal());
+            psVenta.setDouble(3, calculoFiscal.getDescuento());
+            psVenta.setDouble(4, calculoFiscal.getIva());
+            psVenta.setDouble(5, calculoFiscal.getIeps());
+            psVenta.setDouble(6, calculoFiscal.getTotalImpuestos());
+            psVenta.setDouble(7, calculoFiscal.getTotalGravado());
+            psVenta.setDouble(8, calculoFiscal.getTotalExento());
+            psVenta.setDouble(9, calculoFiscal.getTotalTasa0());
+            psVenta.setInt(10, SesionUsuario.getInstancia().getIdUsuario());
+            psVenta.setInt(11, SesionUsuario.getInstancia().getIdCaja());
+            psVenta.setInt(12, idCliente);
+            psVenta.setString(13, metodoPago);
             psVenta.executeUpdate();
 
             ResultSet rs = psVenta.getGeneratedKeys();
@@ -410,15 +427,28 @@ public class PagoController {
                 double precio     = (double) entry.getValue()[1];
                 int    cantidad   = (int)    entry.getValue()[2];
                 double subtotal   = precio * cantidad;
+                CalculoFiscal.Linea lineaFiscal = calculoFiscal.lineaPorProducto(idProducto).orElse(null);
 
                 // Detalle de venta
                 PreparedStatement psDetalle = con.prepareStatement(
-                        "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
+                        "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal, " +
+                                "impuesto_id, impuesto_clave, impuesto_nombre, impuesto_tipo, impuesto_tasa, " +
+                                "subtotal_sin_impuesto, descuento, impuesto_importe, total_linea) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 psDetalle.setInt(1, idVenta);
                 psDetalle.setInt(2, idProducto);
                 psDetalle.setInt(3, cantidad);
                 psDetalle.setDouble(4, precio);
-                psDetalle.setDouble(5, subtotal);
+                psDetalle.setDouble(5, lineaFiscal != null ? lineaFiscal.getTotalLinea() : subtotal);
+                psDetalle.setObject(6, lineaFiscal != null && lineaFiscal.getImpuestoId() > 0 ? lineaFiscal.getImpuestoId() : null);
+                psDetalle.setString(7, lineaFiscal != null ? lineaFiscal.getImpuestoClave() : "SIN_IMPUESTO");
+                psDetalle.setString(8, lineaFiscal != null ? lineaFiscal.getImpuestoNombre() : "Sin impuesto");
+                psDetalle.setString(9, lineaFiscal != null ? lineaFiscal.getImpuestoTipo() : "SIN_IMPUESTO");
+                psDetalle.setDouble(10, lineaFiscal != null ? lineaFiscal.getImpuestoTasa() : 0);
+                psDetalle.setDouble(11, lineaFiscal != null ? lineaFiscal.getSubtotalBase() : subtotal);
+                psDetalle.setDouble(12, lineaFiscal != null ? lineaFiscal.getDescuento() : 0);
+                psDetalle.setDouble(13, lineaFiscal != null ? lineaFiscal.getImpuestoImporte() : 0);
+                psDetalle.setDouble(14, lineaFiscal != null ? lineaFiscal.getTotalLinea() : subtotal);
                 psDetalle.executeUpdate();
 
                 // Registrar movimiento ANTES de descontar stock
@@ -472,6 +502,8 @@ public class PagoController {
                     String.format("Venta %s — Total: $%.2f — Método: %s — Cliente ID: %d",
                             FolioService.venta(idVenta), total, metodoPago, idCliente)
             );
+
+            new FacturacionService().generarPrefacturaDesdeVenta(idVenta);
 
             int idVentaFinal = idVenta;
             Stage stagePago = (Stage) btnConfirmar.getScene().getWindow();

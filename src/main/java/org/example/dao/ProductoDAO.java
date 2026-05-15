@@ -1,6 +1,8 @@
 package org.example.dao;
 
 import org.example.modelo.Producto;
+import org.example.servicio.FiscalSchemaService;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ public class ProductoDAO {
 
         try (Connection conn = ConexionDB.getConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            FiscalSchemaService.asegurarEstructura(conn);
 
             ps.setString(1, p.getNombre());
             ps.setDouble(2, p.getPrecio());
@@ -29,6 +32,9 @@ public class ProductoDAO {
             ps.setInt(8, p.getIdProducto());
 
             ps.executeUpdate();
+            if (p.getIdImpuesto() > 0) {
+                new ImpuestoDAO().asignarAProducto(conn, p.getIdProducto(), p.getIdImpuesto());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,7 +60,8 @@ public class ProductoDAO {
                 "stock, stock_minimo, activo, id_categoria) VALUES (?, ?, ?, ?, ?, ?, 1, ?)";
 
         try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            FiscalSchemaService.asegurarEstructura(conn);
 
             ps.setString(1, p.getNombre());
             // null si no lleva código
@@ -70,6 +77,14 @@ public class ProductoDAO {
             ps.setInt(7, p.getIdCategoria());
 
             ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    p.setIdProducto(rs.getInt(1));
+                }
+            }
+            if (p.getIdProducto() > 0 && p.getIdImpuesto() > 0) {
+                new ImpuestoDAO().asignarAProducto(conn, p.getIdProducto(), p.getIdImpuesto());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,30 +97,37 @@ public class ProductoDAO {
         String sql = """
             SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.costo,
                    p.stock, p.stock_minimo, p.id_categoria,
-                   c.nombre AS categoria, p.activo
+                   c.nombre AS categoria, p.activo,
+                   i.id_impuesto, i.clave AS impuesto_clave, i.nombre AS impuesto_nombre
             FROM productos p
             INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+            LEFT JOIN producto_impuesto pi ON pi.id_producto = p.id_producto
+            LEFT JOIN impuestos i ON i.id_impuesto = pi.id_impuesto
             WHERE p.activo = 1
         """;
 
         try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Producto p = new Producto(
-                        rs.getInt("id_producto"),
-                        rs.getString("nombre"),
-                        rs.getDouble("precio"),
-                        rs.getDouble("costo"),
-                        rs.getInt("stock"),
-                        rs.getInt("stock_minimo"),
-                        rs.getInt("id_categoria"),
-                        rs.getBoolean("activo")
-                );
-                p.setCodigoBarras(rs.getString("codigo_barras")); // puede ser null
-                p.setCategoria(rs.getString("categoria"));
-                lista.add(p);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            FiscalSchemaService.asegurarEstructura(conn);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Producto p = new Producto(
+                            rs.getInt("id_producto"),
+                            rs.getString("nombre"),
+                            rs.getDouble("precio"),
+                            rs.getDouble("costo"),
+                            rs.getInt("stock"),
+                            rs.getInt("stock_minimo"),
+                            rs.getInt("id_categoria"),
+                            rs.getBoolean("activo")
+                    );
+                    p.setCodigoBarras(rs.getString("codigo_barras")); // puede ser null
+                    p.setCategoria(rs.getString("categoria"));
+                    p.setIdImpuesto(rs.getInt("id_impuesto"));
+                    p.setImpuestoClave(rs.getString("impuesto_clave"));
+                    p.setImpuestoNombre(rs.getString("impuesto_nombre"));
+                    lista.add(p);
+                }
             }
 
         } catch (Exception e) {
