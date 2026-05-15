@@ -26,6 +26,7 @@ import org.example.dao.CorteCajaDAO;
 import org.example.modelo.CorteCajaReporte;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.FolioService;
+import org.example.servicio.MarcaService;
 import org.example.servicio.ReportePDFService;
 
 import java.io.File;
@@ -212,7 +213,7 @@ public class CorteCajaController {
         lblTotalCancelado.setText(moneda(r.getTotalCancelado()));
         lblCantidadCancelaciones.setText(String.valueOf(r.getCantidadCancelaciones()));
         lblSubtotal.setText(moneda(r.getSubtotal()));
-        lblIva.setText(moneda(r.getIva()));
+        lblIva.setText(moneda(r.getTotalImpuestos()));
         lblTotalImpuestos.setText(moneda(r.getTotalConImpuestos()));
         lblIngresos.setText(moneda(r.getIngresos()));
         lblCostos.setText(moneda(r.getCostos()));
@@ -410,17 +411,18 @@ public class CorteCajaController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir");
+        a.setTitle("Cambiar sesion");
         a.setHeaderText(null);
-        a.setContentText("Seguro que deseas salir?");
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) Platform.exit();
+            if (r == ButtonType.OK) navegar("/org/example/vista/Login.fxml");
         });
     }
 
     private void navegar(String ruta) {
         try {
             Parent root = new FXMLLoader(getClass().getResource(ruta)).load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) lblFechaHoy.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {

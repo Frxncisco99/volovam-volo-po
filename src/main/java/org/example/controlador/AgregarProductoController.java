@@ -7,8 +7,10 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import org.example.dao.CategoriaDAO;
+import org.example.dao.ImpuestoDAO;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Categoria;
+import org.example.modelo.Impuesto;
 import org.example.modelo.Producto;
 
 public class AgregarProductoController {
@@ -19,6 +21,7 @@ public class AgregarProductoController {
     @FXML private TextField           txtStock;
     @FXML private TextField           txtStockMinimo;
     @FXML private ComboBox<Categoria> cbCategoria;
+    @FXML private ComboBox<Impuesto>  cbImpuesto;
 
     // Código de barras
     @FXML private Button  btnToggleCodigo;
@@ -29,6 +32,7 @@ public class AgregarProductoController {
 
     private final ProductoDAO  productoDAO  = new ProductoDAO();
     private final CategoriaDAO categoriaDAO = new CategoriaDAO();
+    private final ImpuestoDAO  impuestoDAO  = new ImpuestoDAO();
 
     @FXML
     public void initialize() {
@@ -47,10 +51,37 @@ public class AgregarProductoController {
             }
         });
 
+        cargarImpuestos();
+
         permitirSoloNumeros(txtPrecio,      true);
         permitirSoloNumeros(txtCosto,       true);
         permitirSoloNumeros(txtStock,       false);
         permitirSoloNumeros(txtStockMinimo, false);
+    }
+
+    private void cargarImpuestos() {
+        if (cbImpuesto == null) {
+            return;
+        }
+        cbImpuesto.getItems().setAll(impuestoDAO.obtenerActivos());
+        cbImpuesto.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(Impuesto impuesto, boolean empty) {
+                super.updateItem(impuesto, empty);
+                setText(empty || impuesto == null ? null : impuesto.toString());
+            }
+        });
+        cbImpuesto.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Impuesto impuesto, boolean empty) {
+                super.updateItem(impuesto, empty);
+                setText(empty || impuesto == null ? null : impuesto.toString());
+            }
+        });
+        cbImpuesto.getItems().stream()
+                .filter(Impuesto::isPredeterminado)
+                .findFirst()
+                .or(() -> cbImpuesto.getItems().stream().filter(i -> "IVA_16".equals(i.getClave())).findFirst())
+                .or(() -> cbImpuesto.getItems().stream().findFirst())
+                .ifPresent(cbImpuesto::setValue);
     }
 
     // Alterna entre lleva código/no lleva código
@@ -114,9 +145,12 @@ public class AgregarProductoController {
         if (stockMinimo < 0){ error("El stock mínimo no puede ser negativo."); return; }
 
         Categoria cat = cbCategoria.getValue();
+        Impuesto impuesto = cbImpuesto == null ? null : cbImpuesto.getValue();
         if (cat == null)   { error("Selecciona una categoría."); return; }
 
         // Código de barras (si el toggle está activo)
+        if (impuesto == null) { error("Selecciona un impuesto para el producto."); return; }
+
         String codigo = null;
         if (llevaCodigo) {
             codigo = txtCodigoBarras.getText().trim();
@@ -131,6 +165,7 @@ public class AgregarProductoController {
         p.setStockMinimo(stockMinimo);
         p.setIdCategoria(cat.getIdCategoria());
         p.setCodigoBarras(codigo);
+        p.setIdImpuesto(impuesto.getIdImpuesto());
 
         productoDAO.insertarProducto(p);
         org.example.servicio.AuditoriaService.get().registrar(

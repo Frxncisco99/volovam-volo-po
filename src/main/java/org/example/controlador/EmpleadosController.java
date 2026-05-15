@@ -14,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.MarcaService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -484,6 +485,7 @@ public class  EmpleadosController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             Stage stage = (Stage) flowTarjetas.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
@@ -494,12 +496,12 @@ public class  EmpleadosController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
-                Platform.exit();
+                registrarLogout();
+                navegar("/org/example/vista/Login.fxml");
             }
         });
     }

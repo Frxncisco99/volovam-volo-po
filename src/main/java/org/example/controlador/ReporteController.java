@@ -18,6 +18,7 @@ import org.example.dao.ConexionDB;
 import org.example.dao.ReporteAvanzadoDAO;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
+import org.example.servicio.MarcaService;
 import org.example.servicio.ReporteService;
 import org.example.servicio.ReportePDFService;
 import java.io.*;
@@ -158,6 +159,9 @@ public class ReporteController {
     @FXML private Label lblVentasBrutas;
     @FXML private Label lblTotalDevoluciones;
     @FXML private Label lblVentasNetas;
+    @FXML private TableView<Map<String, Object>> tablaFiscal;
+    @FXML private TableColumn<Map<String, Object>, String> colFiscalConcepto;
+    @FXML private TableColumn<Map<String, Object>, String> colFiscalMonto;
     // ─────────────────────────────────────────────────────────────
     // INIT
     // ─────────────────────────────────────────────────────────────
@@ -462,12 +466,13 @@ public class ReporteController {
         footer.setStyle("-fx-padding: 10 20 16 20; -fx-background-color: #f0f7ff;" +
                 "-fx-border-color: #d0e4f4 transparent transparent transparent; -fx-border-width: 1;");
 
-        double iva       = fila.getTotal() * 0.16;
-        double subtotalN = fila.getTotal() - iva;
+        double[] fiscal = obtenerTotalesFiscalesVenta(fila.getIdVenta(), fila.getTotal());
 
         footer.getChildren().addAll(
-                filaTotal("Subtotal (sin IVA):", "$" + df.format(subtotalN), false),
-                filaTotal("IVA (16%):",           "$" + df.format(iva),       false),
+                filaTotal("Subtotal:",            "$" + df.format(fiscal[0]), false),
+                filaTotal("IVA:",                 "$" + df.format(fiscal[1]), false),
+                filaTotal("IEPS:",                "$" + df.format(fiscal[2]), false),
+                filaTotal("Impuestos:",           "$" + df.format(fiscal[3]), false),
                 filaTotal("TOTAL:",                "$" + df.format(fila.getTotal()), true)
         );
 
@@ -477,6 +482,27 @@ public class ReporteController {
     }
 
     // helpers para el modal de detalle
+    private double[] obtenerTotalesFiscalesVenta(int idVenta, double totalFallback) {
+        String sql = "SELECT subtotal, iva, ieps, impuestos FROM ventas WHERE id_venta = ?";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            org.example.servicio.FiscalSchemaService.asegurarEstructura(con);
+            ps.setInt(1, idVenta);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new double[]{
+                        rs.getDouble("subtotal"),
+                        rs.getDouble("iva"),
+                        rs.getDouble("ieps"),
+                        rs.getDouble("impuestos")
+                };
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new double[]{totalFallback, 0, 0, 0};
+    }
+
     private VBox infoChip(String etiq, String valor) {
         VBox v = new VBox(2);
         v.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 8 12;" +
@@ -750,6 +776,7 @@ public class ReporteController {
     private void cambiarEscena(String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            MarcaService.aplicar(root);
             Stage stage = (Stage) lblTotal.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (IOException e) { e.printStackTrace(); }
@@ -758,12 +785,12 @@ public class ReporteController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
-                Platform.exit();
+                registrarLogout();
+                cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
     }
@@ -847,6 +874,7 @@ public class ReporteController {
         cargarTablaHoras(ini, fin);
         cargarTablaRentabilidad(ini, fin);
         cargarTablaClientes();
+        cargarTablaFiscal(ini, fin);
     }
 
     private void cargarResumenNeto(String ini, String fin) {
@@ -937,6 +965,13 @@ public class ReporteController {
         }
 
         tablaClientesCredito.getItems().setAll(daoAvanzado.clientesConCredito());
+    }
+
+    private void cargarTablaFiscal(String ini, String fin) {
+        if (tablaFiscal == null) return;
+        configurarColumnaStr(colFiscalConcepto, r -> (String) r.get("concepto"));
+        configurarColumnaStr(colFiscalMonto, r -> "$" + df.format((double) r.get("monto")));
+        tablaFiscal.getItems().setAll(daoAvanzado.reporteFiscal(ini, fin));
     }
 
     // Helper para no repetir setCellValueFactory

@@ -17,7 +17,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
+import org.example.dao.ImpuestoDAO;
+import org.example.modelo.ConfiguracionFiscal;
+import org.example.modelo.Impuesto;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.AuditoriaService;
+import org.example.servicio.FiscalConfigService;
+import org.example.servicio.FiscalSchemaService;
 import org.example.servicio.TicketImpresora;
 import org.example.servicio.TicketRenderer;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -127,6 +133,32 @@ public class ConfiguracionController {
     @FXML private TextArea  txtMensajeEncabezado;
     @FXML private TextArea  txtMensajePie;
     @FXML private TextArea  txtAvisoFiscal;
+    @FXML private TextField txtRfcFiscal;
+    @FXML private TextField txtRazonSocialFiscal;
+    @FXML private TextField txtRegimenFiscal;
+    @FXML private TextField txtCPFiscal;
+    @FXML private ComboBox<String> cmbIVADefault;
+    @FXML private ComboBox<String> cmbRegionFiscal;
+    @FXML private org.example.modelo.SwitchToggle tglPrecioIncluyeImpuesto;
+    @FXML private org.example.modelo.SwitchToggle tglImpuestoPorProducto;
+    @FXML private ComboBox<String> cmbModoFacturacion;
+    @FXML private TextField txtSerieFactura;
+    @FXML private TextField txtFolioInicial;
+    @FXML private TextField txtUsoCfdiDefault;
+    @FXML private ComboBox<String> cmbMetodoPagoSat;
+    @FXML private ComboBox<String> cmbFormaPagoSat;
+    @FXML private TableView<Impuesto> tablaImpuestos;
+    @FXML private TableColumn<Impuesto, String> colImpClave;
+    @FXML private TableColumn<Impuesto, String> colImpNombre;
+    @FXML private TableColumn<Impuesto, String> colImpTipo;
+    @FXML private TableColumn<Impuesto, String> colImpTasa;
+    @FXML private TableColumn<Impuesto, String> colImpActivo;
+    @FXML private TextField txtImpClave;
+    @FXML private TextField txtImpNombre;
+    @FXML private TextField txtImpTasa;
+    @FXML private ComboBox<String> cmbImpTipo;
+
+    private final ObservableList<Impuesto> listaImpuestos = FXCollections.observableArrayList();
 
     // ── Panel Integraciones ───────────────────────────────────────────────────
     @FXML private TextField txtClipToken;
@@ -160,6 +192,8 @@ public class ConfiguracionController {
 
     // ── Servicios ─────────────────────────────────────────────────────────────
     private final TicketImpresora impresora = new TicketImpresora();
+    private final FiscalConfigService fiscalConfigService = new FiscalConfigService();
+    private final ImpuestoDAO impuestoDAO = new ImpuestoDAO();
     private javafx.animation.Timeline relojTimeline;
 
     private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -183,6 +217,7 @@ public class ConfiguracionController {
         iniciarReloj();
         poblarCombos();
         configurarTablaUsuarios();
+        configurarTablaImpuestos();
         configurarListeners();
         mostrarTab("negocio");
         cargarConfiguracion();          // BD → campos (con fallback a Preferences)
@@ -239,6 +274,12 @@ public class ConfiguracionController {
         setComboItems(cmbOrdenProductos, "Por categoria", "Alfabetico", "Mas vendido primero", "Por categoria", "Precio ascendente");
         setComboItems(cmbImpresora, "EPSON TM-T20III", "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica");
         setComboItems(cmbAnchoPapel, "58 mm", "58 mm", "80 mm");
+        setComboItems(cmbIVADefault, "IVA_16", "IVA_16", "IVA_8", "TASA_0", "EXENTO", "SIN_IMPUESTO");
+        setComboItems(cmbRegionFiscal, "GENERAL", "GENERAL", "FRONTERA");
+        setComboItems(cmbModoFacturacion, "PREFACTURA", "PREFACTURA", "PAC_FUTURO");
+        setComboItems(cmbMetodoPagoSat, "PUE", "PUE", "PPD");
+        setComboItems(cmbFormaPagoSat, "01", "01", "03", "04", "28", "99");
+        setComboItems(cmbImpTipo, "PERSONALIZADO", "PERSONALIZADO", "IVA", "IEPS", "TASA_0", "EXENTO", "SIN_IMPUESTO");
         setComboItems(cmbInactividad, "15 minutos", "5 minutos", "10 minutos", "15 minutos", "30 minutos", "1 hora");
         setComboItems(cmbSmtp, "Gmail", "Gmail", "Outlook / Hotmail", "Yahoo Mail", "SMTP personalizado");
         setComboItems(cmbMotorDB, "MySQL 8.x", "MySQL 8.x", "MySQL 5.7", "MariaDB");
@@ -317,6 +358,7 @@ public class ConfiguracionController {
 
         // Fallback: tambien en Preferences (portabilidad y compatibilidad con TicketService)
         guardarEnPreferences(valores);
+        guardadoEnBD = guardarConfiguracionFiscal() || guardadoEnBD;
 
         // ── Feedback visual inline — sin Alert ──────────────────────────────
         mostrarFeedbackGuardado(guardadoEnBD);
@@ -397,8 +439,155 @@ public class ConfiguracionController {
         return valores;
     }
 
+    private void cargarConfiguracionFiscal() {
+        try {
+            ConfiguracionFiscal cfg = fiscalConfigService.cargar();
+            setText(txtRfcFiscal, cfg.getRfcNegocio().isBlank() ? text(txtRFC) : cfg.getRfcNegocio());
+            setText(txtRazonSocialFiscal, cfg.getRazonSocial());
+            setText(txtRegimenFiscal, cfg.getRegimenFiscal());
+            setText(txtCPFiscal, cfg.getCodigoPostalFiscal());
+            setComboValue(cmbIVADefault, cfg.getImpuestoPredeterminadoClave(), "IVA_16");
+            setComboValue(cmbRegionFiscal, cfg.getRegionFiscal(), "GENERAL");
+            setSwitch(tglPrecioIncluyeImpuesto, String.valueOf(cfg.isPrecioIncluyeImpuesto()));
+            setSwitch(tglImpuestoPorProducto, String.valueOf(cfg.isImpuestoPorProducto()));
+            setComboValue(cmbModoFacturacion, cfg.getModoFacturacion(), "PREFACTURA");
+            setText(txtSerieFactura, cfg.getSerieFactura());
+            setText(txtFolioInicial, String.valueOf(cfg.getFolioInicial()));
+            setText(txtUsoCfdiDefault, cfg.getUsoCfdiDefault());
+            setComboValue(cmbMetodoPagoSat, cfg.getMetodoPagoSat(), "PUE");
+            setComboValue(cmbFormaPagoSat, cfg.getFormaPagoSat(), "01");
+            if (tglDesglose != null) {
+                tglDesglose.setSelected(cfg.isMostrarDesgloseTicket());
+            }
+            cargarImpuestosFiscales();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean guardarConfiguracionFiscal() {
+        try {
+            ConfiguracionFiscal anterior = fiscalConfigService.cargar();
+            ConfiguracionFiscal cfg = fiscalDesdeCampos();
+            fiscalConfigService.guardar(cfg);
+            if (txtRFC != null && !cfg.getRfcNegocio().isBlank()) {
+                txtRFC.setText(cfg.getRfcNegocio());
+            }
+            registrarCambiosFiscales(anterior, cfg);
+            cargarImpuestosFiscales();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private ConfiguracionFiscal fiscalDesdeCampos() {
+        ConfiguracionFiscal cfg = new ConfiguracionFiscal();
+        cfg.setRfcNegocio(text(txtRfcFiscal).isBlank() ? text(txtRFC) : text(txtRfcFiscal));
+        cfg.setRazonSocial(text(txtRazonSocialFiscal));
+        cfg.setRegimenFiscal(text(txtRegimenFiscal));
+        cfg.setCodigoPostalFiscal(text(txtCPFiscal).isBlank() ? text(txtCP) : text(txtCPFiscal));
+        cfg.setRegionFiscal(combo(cmbRegionFiscal, "GENERAL"));
+        cfg.setImpuestoPredeterminadoClave(combo(cmbIVADefault, "IVA_16"));
+        cfg.setPrecioIncluyeImpuesto(tglPrecioIncluyeImpuesto != null && tglPrecioIncluyeImpuesto.isSelected());
+        cfg.setImpuestoPorProducto(tglImpuestoPorProducto == null || tglImpuestoPorProducto.isSelected());
+        cfg.setMostrarDesgloseTicket(tglDesglose == null || tglDesglose.isSelected());
+        cfg.setSerieFactura(text(txtSerieFactura).isBlank() ? "A" : text(txtSerieFactura));
+        cfg.setFolioInicial(parseEntero(text(txtFolioInicial), 1));
+        cfg.setModoFacturacion(combo(cmbModoFacturacion, "PREFACTURA"));
+        cfg.setUsoCfdiDefault(text(txtUsoCfdiDefault).isBlank() ? "G03" : text(txtUsoCfdiDefault));
+        cfg.setMetodoPagoSat(combo(cmbMetodoPagoSat, "PUE"));
+        cfg.setFormaPagoSat(combo(cmbFormaPagoSat, "01"));
+        return cfg;
+    }
+
+    private void registrarCambiosFiscales(ConfiguracionFiscal anterior, ConfiguracionFiscal actual) {
+        if (anterior == null || actual == null) return;
+        auditarSiCambio("CAMBIO_RFC_FISCAL", "RFC", anterior.getRfcNegocio(), actual.getRfcNegocio());
+        auditarSiCambio("CAMBIO_REGIMEN_FISCAL", "Regimen fiscal", anterior.getRegimenFiscal(), actual.getRegimenFiscal());
+        auditarSiCambio("CAMBIO_IVA_DEFAULT", "Impuesto predeterminado", anterior.getImpuestoPredeterminadoClave(), actual.getImpuestoPredeterminadoClave());
+        auditarSiCambio("CAMBIO_FOLIO_FACTURA", "Serie/Folio",
+                anterior.getSerieFactura() + "-" + anterior.getFolioInicial(),
+                actual.getSerieFactura() + "-" + actual.getFolioInicial());
+    }
+
+    private void auditarSiCambio(String accion, String campo, String anterior, String actual) {
+        String a = anterior == null ? "" : anterior;
+        String b = actual == null ? "" : actual;
+        if (!a.equals(b)) {
+            AuditoriaService.get().registrar(accion, "configuracion_fiscal", 1, campo + ": " + a + " -> " + b);
+        }
+    }
+
+    @FXML
+    private void agregarImpuestoPersonalizado() {
+        String clave = text(txtImpClave);
+        String nombre = text(txtImpNombre);
+        String tipo = combo(cmbImpTipo, "PERSONALIZADO");
+        double tasa = parseDouble(text(txtImpTasa), -1);
+        if (clave.isBlank() || nombre.isBlank() || tasa < 0) {
+            mostrarDialogo("Impuestos", "Captura clave, nombre y tasa valida.");
+            return;
+        }
+        impuestoDAO.insertarPersonalizado(clave, nombre, tipo, new org.example.servicio.FiscalService().tasaPorcentajeAUnitario(tasa));
+        AuditoriaService.get().registrar("ALTA_IMPUESTO", "impuestos", 0, clave + " - " + nombre + " " + tasa + "% (" + tipo + ")");
+        setText(txtImpClave, "");
+        setText(txtImpNombre, "");
+        setText(txtImpTasa, "");
+        cargarImpuestosFiscales();
+    }
+
+    @FXML
+    private void activarImpuestoSeleccionado() {
+        cambiarEstadoImpuestoSeleccionado(true);
+    }
+
+    @FXML
+    private void desactivarImpuestoSeleccionado() {
+        cambiarEstadoImpuestoSeleccionado(false);
+    }
+
+    private void cambiarEstadoImpuestoSeleccionado(boolean activo) {
+        if (tablaImpuestos == null || tablaImpuestos.getSelectionModel().getSelectedItem() == null) {
+            mostrarDialogo("Impuestos", "Selecciona un impuesto.");
+            return;
+        }
+        Impuesto impuesto = tablaImpuestos.getSelectionModel().getSelectedItem();
+        impuestoDAO.actualizarActivo(impuesto.getIdImpuesto(), activo);
+        AuditoriaService.get().registrar(activo ? "ACTIVAR_IMPUESTO" : "DESACTIVAR_IMPUESTO",
+                "impuestos", impuesto.getIdImpuesto(), impuesto.getClave());
+        cargarImpuestosFiscales();
+    }
+
     private String text(TextInputControl control) {
         return control != null && control.getText() != null ? control.getText().trim() : "";
+    }
+
+    private void setText(TextInputControl control, String value) {
+        if (control != null) {
+            control.setText(value == null ? "" : value);
+        }
+    }
+
+    private int parseEntero(String value, int defaultValue) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private double parseDouble(String value, double defaultValue) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private void mostrarDialogo(String titulo, String mensaje) {
+        mostrarAlerta(Alert.AlertType.WARNING, titulo, mensaje);
     }
 
     private String combo(ComboBox<String> combo, String defaultValue) {
@@ -529,6 +718,7 @@ public class ConfiguracionController {
                 txtRutaRespaldo.setText(dbGet(con, "respaldo_ruta", ""));
                 setComboValue(cmbFrecuenciaRespaldo, dbGet(con, "respaldo_frecuencia", "Diario"), "Diario");
                 setSwitch(tglRespaldoAuto, dbGet(con, "respaldo_auto", "true"));
+                cargarConfiguracionFiscal();
                 return; // cargado desde BD, no necesita Preferences
             } catch (Exception e) {
                 e.printStackTrace();
@@ -536,6 +726,7 @@ public class ConfiguracionController {
         }
         // Fallback a Preferences
         cargarDesdePreferences();
+        cargarConfiguracionFiscal();
     }
 
     private void cargarDesdePreferences() {
@@ -741,6 +932,26 @@ public class ConfiguracionController {
         });
 
         tablaUsuarios.setItems(listaUsuarios);
+    }
+
+    private void configurarTablaImpuestos() {
+        if (tablaImpuestos == null) return;
+        tablaImpuestos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        colImpClave.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getClave()));
+        colImpNombre.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombre()));
+        colImpTipo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTipo()));
+        colImpTasa.setCellValueFactory(c -> new SimpleStringProperty(String.format("%.2f%%", c.getValue().getTasa() * 100)));
+        colImpActivo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().isActivo() ? "Activo" : "Inactivo"));
+        tablaImpuestos.setItems(listaImpuestos);
+    }
+
+    private void cargarImpuestosFiscales() {
+        try {
+            FiscalSchemaService.asegurarEstructura();
+            listaImpuestos.setAll(impuestoDAO.obtenerTodos());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String claseRol(String rol) {

@@ -15,13 +15,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
+import org.example.modelo.CalculoFiscal;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.FiscalService;
+import org.example.servicio.MarcaService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -61,6 +65,8 @@ public class VentasController {
     private String categoriaSeleccionada = "Todas";
     private Map<Integer, Object[]> carrito = new HashMap<>();
     private double total = 0;
+    private final FiscalService fiscalService = new FiscalService();
+    private CalculoFiscal calculoFiscal = new CalculoFiscal();
 
     // ── Ventas en espera: lista de snapshots ──
     // Cada snapshot: [carrito, idCliente, nombreCliente, limiteCredito, saldoCliente, etiqueta]
@@ -96,6 +102,11 @@ public class VentasController {
             Scene scene = lblTotal.getScene();
             if (scene != null) {
                 txtBuscar.requestFocus();
+                scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                    if (e.getCode() == KeyCode.ENTER && scene.getFocusOwner() != txtBuscar) {
+                        e.consume();
+                    }
+                });
                 scene.setOnKeyPressed(e -> {
                     if (e.getCode() == KeyCode.ENTER) {
                         if (scene.getFocusOwner() == txtBuscar) {
@@ -105,10 +116,9 @@ public class VentasController {
                                         0,0,0,0, javafx.scene.input.MouseButton.PRIMARY, 1,
                                         true,true,true,true,true,true,true,true,true,true,null));
                             }
-                            return;
+                            e.consume();
                         }
-                        if (!(scene.getFocusOwner() instanceof Button) || scene.getFocusOwner() == btnCobrar)
-                            handleCobrar();
+                        return;
                     }
                     if (e.getCode() == KeyCode.F2) handleCobrar();
                     if (e.getCode() == KeyCode.F3) txtBuscar.requestFocus();
@@ -698,9 +708,16 @@ public class VentasController {
             fila.getChildren().addAll(lblNombre, spacer, btnMenos, tfCantidad, btnMas, lblSub);
             listaCarrito.getChildren().add(fila);
         }
-        double iva = total * 0.16; double subtotalSinIva = total - iva;
-        lblSubtotal.setText("$" + String.format("%.2f", subtotalSinIva));
-        lblIva.setText("$" + String.format("%.2f", iva));
+        try {
+            calculoFiscal = fiscalService.calcularVenta(carrito);
+            total = calculoFiscal.getTotal();
+            lblSubtotal.setText("$" + String.format("%.2f", calculoFiscal.getSubtotal()));
+            lblIva.setText("$" + String.format("%.2f", calculoFiscal.getTotalImpuestos()));
+        } catch (Exception ex) {
+            calculoFiscal = new CalculoFiscal();
+            lblSubtotal.setText("$" + String.format("%.2f", total));
+            lblIva.setText("$0.00");
+        }
         lblTotal.setText("$" + String.format("%.2f", total));
         lblCantidadItems.setText(totalItems + " items");
     }
@@ -944,11 +961,11 @@ public class VentasController {
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
-                registrarLogout(); // ← agrega esto
+                registrarLogout();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
@@ -974,6 +991,11 @@ public class VentasController {
     }
 
     private void cambiarEscena(String fxmlPath) {
-        try { FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath)); Parent root = loader.load(); ((Stage) lblTotal.getScene().getWindow()).getScene().setRoot(root); } catch (IOException e) { e.printStackTrace(); }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            MarcaService.aplicar(root);
+            ((Stage) lblTotal.getScene().getWindow()).getScene().setRoot(root);
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }

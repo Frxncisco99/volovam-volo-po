@@ -9,7 +9,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.AgregarProductoController"
       style="-fx-background-color: #f0f7ff;"
-      prefHeight="540" prefWidth="380">
+      prefHeight="590" prefWidth="380">
 
     <!-- ── HEADER ── -->
     <HBox alignment="CENTER_LEFT" spacing="12"
@@ -80,6 +80,12 @@
                            -fx-background-radius: 7; -fx-min-width: 36; -fx-min-height: 34;
                            -fx-cursor: hand;"/>
         </HBox>
+
+        <ComboBox fx:id="cbImpuesto" promptText="Impuesto del producto"
+                  maxWidth="Infinity"
+                  style="-fx-background-color: white; -fx-border-color: #c8dff0;
+                         -fx-border-radius: 7; -fx-background-radius: 7;
+                         -fx-font-size: 13px; -fx-padding: 2 4;"/>
 
         <!-- Sección: Código de barras -->
         <Label text="CÓDIGO DE BARRAS"

@@ -285,8 +285,6 @@
                                 </VBox>
                             </VBox>
                         </HBox>
-                    </VBox>
-
                     <!-- ╔══════════════════════════════════════╗
                          ║  PANEL POS / CAJA                    ║
                          ╚══════════════════════════════════════╝ -->
@@ -820,6 +818,130 @@
                     <!-- ╔══════════════════════════════════════╗
                          ║  PANEL INTEGRACIONES                 ║
                          ╚══════════════════════════════════════╝ -->
+                        <HBox spacing="16">
+                            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 14;
+                                         -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);">
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0;">
+                                    <FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="15" iconColor="#1a6fa8"/>
+                                    <VBox spacing="2">
+                                        <Label styleClass="cfg-card-title" text="Facturacion"/>
+                                        <Label styleClass="cfg-card-subtitle" text="Datos fiscales y folios para prefactura"/>
+                                    </VBox>
+                                </HBox>
+                                <Separator/>
+                                <VBox spacing="8" style="-fx-padding: 14 0 0 0;">
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="RFC NEGOCIO"/>
+                                            <TextField fx:id="txtRfcFiscal" promptText="RFC del emisor"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="CODIGO POSTAL FISCAL"/>
+                                            <TextField fx:id="txtCPFiscal" promptText="CP fiscal"/>
+                                        </VBox>
+                                    </HBox>
+                                    <Label styleClass="cfg-label-key" text="RAZON SOCIAL"/>
+                                    <TextField fx:id="txtRazonSocialFiscal" promptText="Razon social del negocio"/>
+                                    <Label styleClass="cfg-label-key" text="REGIMEN FISCAL"/>
+                                    <TextField fx:id="txtRegimenFiscal" promptText="Ej. 601, 612, 626"/>
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="SERIE FACTURA"/>
+                                            <TextField fx:id="txtSerieFactura" promptText="A"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="FOLIO INICIAL"/>
+                                            <TextField fx:id="txtFolioInicial" promptText="1"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="MODO FACTURACION"/>
+                                            <ComboBox fx:id="cmbModoFacturacion" maxWidth="Infinity"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="USO CFDI DEFAULT"/>
+                                            <TextField fx:id="txtUsoCfdiDefault" promptText="G03"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="METODO PAGO SAT"/>
+                                            <ComboBox fx:id="cmbMetodoPagoSat" maxWidth="Infinity"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="FORMA PAGO SAT"/>
+                                            <ComboBox fx:id="cmbFormaPagoSat" maxWidth="Infinity"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 14;
+                                         -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);">
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0;">
+                                    <FontIcon iconLiteral="fas-percent" iconSize="15" iconColor="#1a6fa8"/>
+                                    <VBox spacing="2">
+                                        <Label styleClass="cfg-card-title" text="Impuestos"/>
+                                        <Label styleClass="cfg-card-subtitle" text="Tasas activas y reglas de calculo"/>
+                                    </VBox>
+                                </HBox>
+                                <Separator/>
+                                <VBox spacing="8" style="-fx-padding: 14 0 0 0;">
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="IVA / IMPUESTO PREDETERMINADO"/>
+                                            <ComboBox fx:id="cmbIVADefault" maxWidth="Infinity"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="REGION FISCAL"/>
+                                            <ComboBox fx:id="cmbRegionFiscal" maxWidth="Infinity"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12"
+                                          style="-fx-background-color: #f5f9ff; -fx-padding: 10 14; -fx-background-radius: 10; -fx-min-height: 44;">
+                                        <Label HBox.hgrow="ALWAYS" style="-fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="El precio incluye impuesto"/>
+                                        <SwitchToggle fx:id="tglPrecioIncluyeImpuesto" selected="true"
+                                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12"
+                                          style="-fx-background-color: #f5f9ff; -fx-padding: 10 14; -fx-background-radius: 10; -fx-min-height: 44;">
+                                        <Label HBox.hgrow="ALWAYS" style="-fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Aplicar impuesto por producto"/>
+                                        <SwitchToggle fx:id="tglImpuestoPorProducto" selected="true"
+                                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
+                                    </HBox>
+                                    <TableView fx:id="tablaImpuestos" prefHeight="160">
+                                        <columns>
+                                            <TableColumn fx:id="colImpClave" text="Clave" prefWidth="90"/>
+                                            <TableColumn fx:id="colImpNombre" text="Nombre" prefWidth="150"/>
+                                            <TableColumn fx:id="colImpTipo" text="Tipo" prefWidth="90"/>
+                                            <TableColumn fx:id="colImpTasa" text="Tasa" prefWidth="70"/>
+                                            <TableColumn fx:id="colImpActivo" text="Estado" prefWidth="80"/>
+                                        </columns>
+                                    </TableView>
+                                    <HBox spacing="8">
+                                        <TextField fx:id="txtImpClave" promptText="Clave" HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="txtImpNombre" promptText="Nombre" HBox.hgrow="ALWAYS"/>
+                                        <ComboBox fx:id="cmbImpTipo" promptText="Tipo" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                        <TextField fx:id="txtImpTasa" promptText="Tasa %" prefWidth="70"/>
+                                    </HBox>
+                                    <HBox spacing="8">
+                                        <Button maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#agregarImpuestoPersonalizado" text="Agregar"
+                                                style="-fx-background-color: #1a6fa8; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Button maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#activarImpuestoSeleccionado" text="Activar"
+                                                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Button maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#desactivarImpuestoSeleccionado" text="Desactivar"
+                                                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-background-radius: 8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
                     <VBox fx:id="panelIntegraciones" spacing="16" visible="false" managed="false">
                         <HBox spacing="16">
 
