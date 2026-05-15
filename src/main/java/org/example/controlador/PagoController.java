@@ -387,10 +387,11 @@ public class PagoController {
             con.setAutoCommit(false);
 
             // 1. Insertar venta
-            PreparedStatement psVenta = con.prepareStatement(
-                    "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) " +
-                            "VALUES (?, ?, ?, ?, ?, 'COMPLETADA')",
-                    Statement.RETURN_GENERATED_KEYS);
+            boolean tieneFechaHora = columnaExiste(con, "ventas", "fecha_hora");
+            String sqlVenta = tieneFechaHora
+                    ? "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado, fecha_hora) VALUES (?, ?, ?, ?, ?, 'COMPLETADA', NOW())"
+                    : "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) VALUES (?, ?, ?, ?, ?, 'COMPLETADA')";
+            PreparedStatement psVenta = con.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
             psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
@@ -462,6 +463,7 @@ public class PagoController {
                 psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
                 psPago.setDouble(4, cambio);
                 psPago.executeUpdate();
+                registrarDetallePago(con, idVenta, montoEfectivo, montoTarjeta);
             }
 
             con.commit();
@@ -510,6 +512,49 @@ public class PagoController {
 
     private double parse(String s) {
         return (s == null || s.isEmpty()) ? 0.0 : Double.parseDouble(s);
+    }
+
+    private void registrarDetallePago(Connection con, int idVenta, double montoEfectivo, double montoTarjeta) {
+        String sql = "INSERT INTO detalle_pago (id_venta, metodo_pago, monto, referencia) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            switch (metodoPago) {
+                case "EFECTIVO" -> agregarDetallePago(ps, idVenta, "EFECTIVO", total, null);
+                case "TARJETA" -> agregarDetallePago(ps, idVenta, "TARJETA", total, null);
+                case "TRANSFERENCIA" -> agregarDetallePago(ps, idVenta, "TRANSFERENCIA", total, null);
+                case "MIXTO" -> {
+                    double efectivoAplicado = Math.min(montoEfectivo, total);
+                    if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, null);
+                    double restante = Math.max(total - efectivoAplicado, 0);
+                    if (restante > 0) agregarDetallePago(ps, idVenta, "TARJETA", restante, null);
+                }
+                case "DOLARES" -> agregarDetallePago(ps, idVenta, "DOLARES", total, "Equivalente MXN");
+                case "MIXTO_USD" -> {
+                    double efectivoAplicado = Math.min(montoEfectivo, total);
+                    if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, "MXN/USD");
+                }
+                case "OTROS" -> agregarDetallePago(ps, idVenta, "OTROS", total, null);
+                default -> {
+                }
+            }
+            ps.executeBatch();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void agregarDetallePago(PreparedStatement ps, int idVenta, String metodo, double monto, String referencia) throws Exception {
+        ps.setInt(1, idVenta);
+        ps.setString(2, metodo);
+        ps.setDouble(3, monto);
+        ps.setString(4, referencia);
+        ps.addBatch();
+    }
+
+    private boolean columnaExiste(Connection con, String tabla, String columna) {
+        try (ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, tabla, columna)) {
+            return rs.next();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private double montoRegistradoEnPago(double montoEfectivo, double montoTarjeta) {

@@ -13,7 +13,11 @@ public class CancelacionService {
      */
     public void cancelarVenta(int idVenta, String motivo) throws Exception {
 
-        PermisoService.verificar(PermisoService.Accion.CANCELAR_VENTA);
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.VENTAS_CANCELAR,
+                "Cancelar venta " + FolioService.venta(idVenta))) {
+            throw new SecurityException("No se autorizo la cancelacion.");
+        }
 
         Connection con = ConexionDB.getConexion();
         if (con == null) throw new Exception("Sin conexión a la base de datos.");

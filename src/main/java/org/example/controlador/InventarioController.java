@@ -754,6 +754,7 @@ public class InventarioController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
+                org.example.modelo.SesionUsuario.cerrarSesion();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });

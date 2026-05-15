@@ -854,12 +854,6 @@ public class VentasController {
         stage.show();
     }
     private void manejarCancelacion(int idVenta, Runnable onExito) {
-        if (!org.example.servicio.PermisoService.puede(org.example.servicio.PermisoService.Accion.CANCELAR_VENTA)
-                && !org.example.servicio.AutorizacionAdminService.solicitar("Cancelar venta " + org.example.servicio.FolioService.venta(idVenta))) {
-            mostrarAlerta("Acceso denegado", "No se autorizo la cancelacion.");
-            return;
-        }
-
         javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
         dialog.setTitle("Cancelar venta");
         dialog.setHeaderText("Cancelar " + org.example.servicio.FolioService.venta(idVenta));
@@ -955,6 +949,7 @@ public class VentasController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
+                org.example.modelo.SesionUsuario.cerrarSesion();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
@@ -965,10 +960,10 @@ public class VentasController {
     }
 
     private boolean autorizarAccionRestringida(String accion) {
-        if (org.example.servicio.PermisoService.puede(org.example.servicio.PermisoService.Accion.QUITAR_PRODUCTO_CARRITO)) return true;
-        boolean autorizado = org.example.servicio.AutorizacionAdminService.solicitar(accion);
-        if (!autorizado) mostrarAlerta("Acceso denegado", "Se requiere contrasena de administrador.");
-        return autorizado;
+        return org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
+                org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO,
+                accion
+        );
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {

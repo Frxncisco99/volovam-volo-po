@@ -17,11 +17,13 @@ import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,8 +42,12 @@ import org.example.modelo.Impuesto;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.SwitchToggle;
 import org.example.modelo.Ticket;
+import org.example.servicio.AuditoriaService;
 import org.example.servicio.MarcaService;
+import org.example.servicio.PasswordService;
+import org.example.servicio.PermisoService;
 import org.example.servicio.TicketRenderer;
+import org.example.servicio.UsuarioSeguridadService;
 
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
@@ -53,7 +59,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
@@ -151,6 +159,8 @@ public class ConfiguracionController {
 
     private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
     private final FiscalDAO fiscalDAO = new FiscalDAO();
+    private final PasswordService passwordService = new PasswordService();
+    private final UsuarioSeguridadService usuarioSeguridadService = new UsuarioSeguridadService();
     private final ObservableList<UsuarioRow> usuarios = FXCollections.observableArrayList();
     private List<VBox> panelesConfiguracion;
     private List<Button> botonesConfiguracion;
@@ -250,8 +260,9 @@ public class ConfiguracionController {
         colUsuarioAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEditar = botonAccion("Editar");
             private final Button btnClave = botonAccion("Clave");
+            private final Button btnPermisos = botonAccion("Permisos");
             private final Button btnEstado = botonAccion("Desactivar");
-            private final HBox box = new HBox(6, btnEditar, btnClave, btnEstado);
+            private final HBox box = new HBox(6, btnEditar, btnClave, btnPermisos, btnEstado);
 
             {
                 btnEditar.setOnAction(e -> {
@@ -261,6 +272,10 @@ public class ConfiguracionController {
                 btnClave.setOnAction(e -> {
                     UsuarioRow row = getTableView().getItems().get(getIndex());
                     cambiarPasswordUsuario(row);
+                });
+                btnPermisos.setOnAction(e -> {
+                    UsuarioRow row = getTableView().getItems().get(getIndex());
+                    mostrarDialogoPermisos(row);
                 });
                 btnEstado.setOnAction(e -> {
                     UsuarioRow row = getTableView().getItems().get(getIndex());
@@ -702,6 +717,10 @@ public class ConfiguracionController {
                 mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "Nombre, usuario y contrasena son obligatorios.");
                 return;
             }
+            if (!nuevo && !usuarioSeguridadService.puedeCambiarRol(usuario.id(), rol)) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "No puedes dejar el sistema sin un usuario administrador activo.");
+                return;
+            }
             if (nuevo) insertarUsuario(nombre, user, pass, rol);
             else actualizarUsuario(usuario.id(), nombre, user, pass, rol);
         });
@@ -740,14 +759,14 @@ public class ConfiguracionController {
 
     private void insertarUsuario(String nombre, String usuario, String password, String rol) {
         String sqlRol = "SELECT id_rol FROM roles WHERE nombre = ?";
-        String sql = "INSERT INTO usuarios (nombre, usuario, contrasena, id_rol) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO usuarios (nombre, usuario, contrasena, password_hash, fecha_actualizacion_password, id_rol) VALUES (?, ?, '', ?, NOW(), ?)";
         try (Connection con = ConexionDB.getConexion()) {
             int idRol = obtenerRol(con, sqlRol, rol);
             if (idRol == 0) return;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, nombre);
                 ps.setString(2, usuario);
-                ps.setString(3, password);
+                ps.setString(3, passwordService.hash(password));
                 ps.setInt(4, idRol);
                 ps.executeUpdate();
             }
@@ -763,7 +782,7 @@ public class ConfiguracionController {
             if (idRol == 0) return;
             String sql = password.isEmpty()
                     ? "UPDATE usuarios SET nombre = ?, usuario = ?, id_rol = ? WHERE id_usuario = ?"
-                    : "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = ?, id_rol = ? WHERE id_usuario = ?";
+                    : "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW(), id_rol = ? WHERE id_usuario = ?";
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, nombre);
                 ps.setString(2, usuario);
@@ -771,7 +790,7 @@ public class ConfiguracionController {
                     ps.setInt(3, idRol);
                     ps.setInt(4, id);
                 } else {
-                    ps.setString(3, password);
+                    ps.setString(3, passwordService.hash(password));
                     ps.setInt(4, idRol);
                     ps.setInt(5, id);
                 }
@@ -803,8 +822,8 @@ public class ConfiguracionController {
         dialog.showAndWait().ifPresent(res -> {
             if (res != ButtonType.OK || field.getText().trim().isEmpty()) return;
             try (Connection con = ConexionDB.getConexion();
-                 PreparedStatement ps = con.prepareStatement("UPDATE usuarios SET contrasena = ? WHERE id_usuario = ?")) {
-                ps.setString(1, field.getText().trim());
+                 PreparedStatement ps = con.prepareStatement("UPDATE usuarios SET contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW() WHERE id_usuario = ?")) {
+                ps.setString(1, passwordService.hash(field.getText()));
                 ps.setInt(2, usuario.id());
                 ps.executeUpdate();
             } catch (Exception e) {
@@ -814,6 +833,10 @@ public class ConfiguracionController {
     }
 
     private void cambiarEstadoUsuario(UsuarioRow usuario) {
+        if (usuario.activo() && !usuarioSeguridadService.puedeDesactivarUsuario(usuario.id())) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", usuarioSeguridadService.mensajeProteccionAdmin(usuario.id()));
+            return;
+        }
         int nuevo = usuario.activo() ? 0 : 1;
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement("UPDATE usuarios SET activo = ? WHERE id_usuario = ?")) {
@@ -824,6 +847,66 @@ public class ConfiguracionController {
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo actualizar el estado.\n" + e.getMessage());
         }
+    }
+
+    private void mostrarDialogoPermisos(UsuarioRow usuario) {
+        if (!PermisoService.tienePermiso(PermisoService.PERMISOS_GESTIONAR)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Permisos", "No tienes permiso para gestionar permisos.");
+            return;
+        }
+        List<PermisoService.PermisoInfo> catalogo = PermisoService.listarPermisos();
+        if (catalogo.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Permisos", "Ejecuta primero db/migracion_seguridad_permisos.sql.");
+            return;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Gestion de permisos");
+        dialog.setHeaderText("Permisos para " + usuario.nombre());
+
+        Map<String, Boolean> actuales = PermisoService.permisosUsuario(usuario.id());
+        VBox lista = new VBox(8);
+        lista.setStyle("-fx-padding: 12;");
+        List<CheckBox> checks = new ArrayList<>();
+        String moduloActual = "";
+        for (PermisoService.PermisoInfo permiso : catalogo) {
+            if (!permiso.modulo().equals(moduloActual)) {
+                Label modulo = new Label(permiso.modulo());
+                modulo.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0b3b75; -fx-padding: 10 0 2 0;");
+                lista.getChildren().add(modulo);
+                moduloActual = permiso.modulo();
+            }
+            CheckBox check = new CheckBox(permiso.codigo() + " - " + permiso.nombre());
+            check.setUserData(permiso.codigo());
+            check.setSelected(Boolean.TRUE.equals(actuales.get(permiso.codigo())));
+            check.setStyle("-fx-font-size: 12px;");
+            checks.add(check);
+            lista.getChildren().add(check);
+        }
+
+        ScrollPane scroll = new ScrollPane(lista);
+        scroll.setFitToWidth(true);
+        scroll.setPrefViewportHeight(460);
+        scroll.setPrefViewportWidth(560);
+        dialog.getDialogPane().setContent(scroll);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.showAndWait().ifPresent(res -> {
+            if (res != ButtonType.OK) return;
+            List<String> seleccionados = checks.stream()
+                    .filter(CheckBox::isSelected)
+                    .map(c -> String.valueOf(c.getUserData()))
+                    .toList();
+            try {
+                PermisoService.guardarPermisosUsuario(usuario.id(), seleccionados);
+                AuditoriaService.get().registrar(
+                        "CAMBIO_PERMISOS", "usuario_permisos", usuario.id(),
+                        "Permisos actualizados para " + usuario.usuario()
+                );
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Permisos", "Permisos guardados correctamente.");
+            } catch (Exception e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Permisos", e.getMessage());
+            }
+        });
     }
 
     @FXML
@@ -977,6 +1060,7 @@ public class ConfiguracionController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
+                org.example.modelo.SesionUsuario.cerrarSesion();
                 navegar("/org/example/vista/Login.fxml");
             }
         });

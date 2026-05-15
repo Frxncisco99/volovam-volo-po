@@ -55,6 +55,10 @@
 
         <Button fx:id="btnLogin" maxWidth="330" onAction="#handleIniciarSesion" prefHeight="33.0" prefWidth="330.0" style="-fx-background-color: #6B4226;                     -fx-background-radius: 12;                     -fx-font-size: 17px;                     -fx-font-weight: bold;                     -fx-text-fill: #FFFFFF;                     -fx-cursor: hand;                     -fx-effect: dropshadow(gaussian, #00000055, 14, 0, 0, 3);" text="Iniciar Sesión" />
 
+        <Button maxWidth="330" onAction="#salirAplicacion" prefHeight="33.0" prefWidth="330.0"
+                style="-fx-background-color: white; -fx-border-color: #091e4e; -fx-border-radius: 12; -fx-background-radius: 12; -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #091e4e; -fx-cursor: hand;"
+                text="Salir" />
+
     </children>
 
     </VBox>
