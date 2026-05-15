@@ -34,6 +34,9 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
+import org.example.dao.FiscalDAO;
+import org.example.modelo.ConfiguracionFiscal;
+import org.example.modelo.Impuesto;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.SwitchToggle;
 import org.example.modelo.Ticket;
@@ -63,6 +66,7 @@ public class ConfiguracionController {
     @FXML private Label lblFeedbackGuardado;
 
     @FXML private VBox panelNegocio;
+    @FXML private VBox panelFiscal;
     @FXML private VBox panelTicket;
     @FXML private VBox panelCajon;
     @FXML private VBox panelEmail;
@@ -70,6 +74,7 @@ public class ConfiguracionController {
     @FXML private VBox panelBaseDatos;
 
     @FXML private Button btnTabNegocio;
+    @FXML private Button btnTabFiscal;
     @FXML private Button btnTabTicket;
     @FXML private Button btnTabCajon;
     @FXML private Button btnTabEmail;
@@ -86,6 +91,22 @@ public class ConfiguracionController {
     @FXML private TextField txtCorreo;
     @FXML private TextField txtSitioWeb;
     @FXML private TextField txtRFC;
+
+    @FXML private TextField txtFiscalRfc;
+    @FXML private TextField txtFiscalCP;
+    @FXML private TextField txtFiscalRazonSocial;
+    @FXML private ComboBox<String> cmbFiscalRegimen;
+    @FXML private ComboBox<String> cmbFiscalImpuestoDefault;
+    @FXML private ComboBox<String> cmbRegionFiscal;
+    @FXML private SwitchToggle tglPrecioIncluyeImpuesto;
+    @FXML private SwitchToggle tglImpuestoPorProducto;
+    @FXML private SwitchToggle tglMostrarDesgloseFiscal;
+    @FXML private TextField txtSerieFactura;
+    @FXML private TextField txtFolioInicial;
+    @FXML private ComboBox<String> cmbModoFacturacion;
+    @FXML private ComboBox<String> cmbUsoCfdiDefault;
+    @FXML private ComboBox<String> cmbMetodoPagoSat;
+    @FXML private ComboBox<String> cmbFormaPagoSat;
 
     @FXML private TextField txtTicketNombre;
     @FXML private TextField txtTicketGiro;
@@ -129,6 +150,7 @@ public class ConfiguracionController {
     @FXML private TextField txtRutaRespaldo;
 
     private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
+    private final FiscalDAO fiscalDAO = new FiscalDAO();
     private final ObservableList<UsuarioRow> usuarios = FXCollections.observableArrayList();
     private List<VBox> panelesConfiguracion;
     private List<Button> botonesConfiguracion;
@@ -161,6 +183,7 @@ public class ConfiguracionController {
         cmbCajonPuerto.getItems().setAll("Via impresora termica (ESC/POS)", "COM1", "COM2", "COM3", "COM4");
         cmbCajonPulso.getItems().setAll("Pulso 1 (pin 2)", "Pulso 2 (pin 5)");
         cmbEmailSmtp.getItems().setAll("Gmail", "Outlook / Hotmail", "SMTP personalizado");
+        prepararCombosFiscal();
 
         cmbImpresora.getItems().clear();
         PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
@@ -169,6 +192,54 @@ public class ConfiguracionController {
         }
         if (cmbImpresora.getItems().isEmpty()) {
             cmbImpresora.getItems().add("Impresora predeterminada");
+        }
+    }
+
+    private void prepararCombosFiscal() {
+        cmbFiscalRegimen.getItems().setAll(
+                "601 - General de Ley Personas Morales",
+                "603 - Personas Morales con Fines no Lucrativos",
+                "605 - Sueldos y Salarios",
+                "612 - Personas Fisicas con Actividades Empresariales",
+                "626 - Regimen Simplificado de Confianza"
+        );
+        cmbRegionFiscal.getItems().setAll("GENERAL", "FRONTERA");
+        cmbModoFacturacion.getItems().setAll("PREFACTURA", "PAC_FUTURO");
+        cmbUsoCfdiDefault.getItems().setAll(
+                "G03 - Gastos en general",
+                "S01 - Sin efectos fiscales",
+                "CP01 - Pagos",
+                "P01 - Por definir"
+        );
+        cmbMetodoPagoSat.getItems().setAll(
+                "PUE - Pago en una sola exhibicion",
+                "PPD - Pago en parcialidades o diferido"
+        );
+        cmbFormaPagoSat.getItems().setAll(
+                "01 - Efectivo",
+                "03 - Transferencia electronica",
+                "04 - Tarjeta de credito",
+                "28 - Tarjeta de debito",
+                "99 - Por definir"
+        );
+
+        cmbFiscalImpuestoDefault.getItems().clear();
+        List<Impuesto> impuestos = fiscalDAO.obtenerImpuestosActivos();
+        if (impuestos.isEmpty()) {
+            cmbFiscalImpuestoDefault.getItems().setAll(
+                    "IVA_16 - IVA general (16.00%)",
+                    "IVA_8 - IVA frontera (8.00%)",
+                    "TASA_0 - Tasa 0 (0.00%)",
+                    "EXENTO - Exento (0.00%)",
+                    "SIN_IMPUESTO - Sin impuesto (0.00%)"
+            );
+            return;
+        }
+        for (Impuesto impuesto : impuestos) {
+            double porcentaje = impuesto.getTasa().multiply(new java.math.BigDecimal("100")).doubleValue();
+            cmbFiscalImpuestoDefault.getItems().add(
+                    impuesto.getClave() + " - " + impuesto.getNombre() + " (" + String.format("%.2f", porcentaje) + "%)"
+            );
         }
     }
 
@@ -241,6 +312,7 @@ public class ConfiguracionController {
     }
 
     @FXML private void tabNegocio() { mostrarTab("negocio"); }
+    @FXML private void tabFiscal() { mostrarTab("fiscal"); }
     @FXML private void tabTicket() { mostrarTab("ticket"); }
     @FXML private void tabCajon() { mostrarTab("cajon"); }
     @FXML private void tabEmail() { mostrarTab("email"); }
@@ -248,8 +320,8 @@ public class ConfiguracionController {
     @FXML private void tabBaseDatos() { mostrarTab("basedatos"); }
 
     private void prepararColeccionesUI() {
-        panelesConfiguracion = List.of(panelNegocio, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos);
-        botonesConfiguracion = List.of(btnTabNegocio, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
+        panelesConfiguracion = List.of(panelNegocio, panelFiscal, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos);
+        botonesConfiguracion = List.of(btnTabNegocio, btnTabFiscal, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
     }
 
     private void prepararInteracciones() {
@@ -257,6 +329,7 @@ public class ConfiguracionController {
 
         instalarTooltip(btnGuardarCambios, "Guarda todos los cambios visibles en base de datos y Preferences.");
         instalarTooltip(btnTabNegocio, "Datos generales del negocio.");
+        instalarTooltip(btnTabFiscal, "Datos fiscales, impuestos y prefactura.");
         instalarTooltip(btnTabTicket, "Campos usados por el flujo de impresion de tickets.");
         instalarTooltip(btnTabCajon, "Apertura automatica del cajon de dinero.");
         instalarTooltip(btnTabEmail, "Configuracion SMTP para tickets por correo.");
@@ -267,6 +340,8 @@ public class ConfiguracionController {
         validarCampo(txtEmailRemitente, texto -> !texto.isBlank() && !texto.contains("@"));
         validarCampo(txtEmailPuerto, texto -> !texto.isBlank() && !texto.matches("\\d{2,5}"));
         validarCampo(txtCP, texto -> !texto.isBlank() && !texto.matches("\\d{4,6}"));
+        validarCampo(txtFiscalCP, texto -> !texto.isBlank() && !texto.matches("\\d{5}"));
+        validarCampo(txtFolioInicial, texto -> !texto.isBlank() && !texto.matches("\\d+"));
     }
 
     private void mostrarTab(String tab) {
@@ -277,6 +352,7 @@ public class ConfiguracionController {
         botonesConfiguracion.forEach(boton -> boton.getStyleClass().remove("cfg-tab-active"));
 
         switch (tab) {
+            case "fiscal" -> activar(panelFiscal, btnTabFiscal);
             case "ticket" -> activar(panelTicket, btnTabTicket);
             case "cajon" -> activar(panelCajon, btnTabCajon);
             case "email" -> activar(panelEmail, btnTabEmail);
@@ -297,6 +373,7 @@ public class ConfiguracionController {
     @FXML
     public void guardarConfiguracion() {
         guardarNegocio();
+        guardarFiscal();
         guardarTicket();
         guardarCajon();
         guardarEmail();
@@ -314,6 +391,35 @@ public class ConfiguracionController {
         guardarValor("negocio_web", txtSitioWeb.getText());
         guardarValor("negocio_rfc", txtRFC.getText());
         lblMarcaNegocio.setText(MarcaService.nombreNegocio());
+    }
+
+    private void guardarFiscal() {
+        ConfiguracionFiscal config = new ConfiguracionFiscal();
+        config.setRfcNegocio(txtFiscalRfc.getText());
+        config.setRazonSocial(txtFiscalRazonSocial.getText());
+        config.setRegimenFiscal(valor(cmbFiscalRegimen, "601 - General de Ley Personas Morales"));
+        config.setCodigoPostalFiscal(txtFiscalCP.getText());
+        config.setRegionFiscal(valor(cmbRegionFiscal, "GENERAL"));
+        config.setPrecioIncluyeImpuesto(tglPrecioIncluyeImpuesto.isSelected());
+        config.setImpuestoPorProducto(tglImpuestoPorProducto.isSelected());
+        config.setMostrarDesgloseTicket(tglMostrarDesgloseFiscal.isSelected());
+        config.setImpuestoPredeterminadoClave(claveImpuestoSeleccionada());
+        config.setSerieFactura(txtSerieFactura.getText().isBlank() ? "A" : txtSerieFactura.getText());
+        config.setFolioInicial(parseEntero(txtFolioInicial.getText(), 1));
+        config.setModoFacturacion(valor(cmbModoFacturacion, "PREFACTURA"));
+        config.setUsoCfdiDefault(valor(cmbUsoCfdiDefault, "G03 - Gastos en general"));
+        config.setMetodoPagoSat(valor(cmbMetodoPagoSat, "PUE - Pago en una sola exhibicion"));
+        config.setFormaPagoSat(valor(cmbFormaPagoSat, "01 - Efectivo"));
+        fiscalDAO.guardarConfiguracionFiscal(config);
+        fiscalDAO.registrarAuditoriaFiscal(
+                "CONFIG_FISCAL",
+                "configuracion_fiscal",
+                1,
+                "Configuracion fiscal actualizada. RFC: " + config.getRfcNegocio()
+                        + " | Regimen: " + config.getRegimenFiscal()
+                        + " | Impuesto: " + config.getImpuestoPredeterminadoClave(),
+                SesionUsuario.getInstancia().getIdUsuario()
+        );
     }
 
     private void guardarTicket() {
@@ -352,6 +458,7 @@ public class ConfiguracionController {
 
     private void cargarConfiguracion() {
         cargarNegocio();
+        cargarFiscal();
         cargarTicket();
         cargarCajon();
         cargarEmail();
@@ -368,6 +475,25 @@ public class ConfiguracionController {
         txtCorreo.setText(leerValor("negocio_correo", ""));
         txtSitioWeb.setText(leerValor("negocio_web", ""));
         txtRFC.setText(leerValor("negocio_rfc", ""));
+    }
+
+    private void cargarFiscal() {
+        ConfiguracionFiscal config = fiscalDAO.obtenerConfiguracionFiscal();
+        txtFiscalRfc.setText(config.getRfcNegocio().isBlank() ? txtRFC.getText() : config.getRfcNegocio());
+        txtFiscalRazonSocial.setText(config.getRazonSocial());
+        txtFiscalCP.setText(config.getCodigoPostalFiscal());
+        seleccionar(cmbFiscalRegimen, config.getRegimenFiscal(), "601 - General de Ley Personas Morales");
+        seleccionar(cmbRegionFiscal, config.getRegionFiscal(), "GENERAL");
+        seleccionarImpuesto(config.getImpuestoPredeterminadoClave());
+        tglPrecioIncluyeImpuesto.setSelected(config.isPrecioIncluyeImpuesto());
+        tglImpuestoPorProducto.setSelected(config.isImpuestoPorProducto());
+        tglMostrarDesgloseFiscal.setSelected(config.isMostrarDesgloseTicket());
+        txtSerieFactura.setText(config.getSerieFactura().isBlank() ? "A" : config.getSerieFactura());
+        txtFolioInicial.setText(String.valueOf(config.getFolioInicial()));
+        seleccionar(cmbModoFacturacion, config.getModoFacturacion(), "PREFACTURA");
+        seleccionar(cmbUsoCfdiDefault, config.getUsoCfdiDefault(), "G03 - Gastos en general");
+        seleccionar(cmbMetodoPagoSat, config.getMetodoPagoSat(), "PUE - Pago en una sola exhibicion");
+        seleccionar(cmbFormaPagoSat, config.getFormaPagoSat(), "01 - Efectivo");
     }
 
     private void cargarTicket() {
@@ -778,6 +904,33 @@ public class ConfiguracionController {
 
     private String valor(ComboBox<String> combo, String fallback) {
         return combo.getValue() == null ? fallback : combo.getValue();
+    }
+
+    private String claveImpuestoSeleccionada() {
+        String valor = valor(cmbFiscalImpuestoDefault, "IVA_16");
+        int idx = valor.indexOf(" - ");
+        return idx > 0 ? valor.substring(0, idx).trim() : valor.trim();
+    }
+
+    private void seleccionarImpuesto(String clave) {
+        String buscada = clave == null || clave.isBlank() ? "IVA_16" : clave;
+        for (String item : cmbFiscalImpuestoDefault.getItems()) {
+            if (item.equals(buscada) || item.startsWith(buscada + " - ")) {
+                cmbFiscalImpuestoDefault.setValue(item);
+                return;
+            }
+        }
+        if (!cmbFiscalImpuestoDefault.getItems().isEmpty()) {
+            cmbFiscalImpuestoDefault.setValue(cmbFiscalImpuestoDefault.getItems().get(0));
+        }
+    }
+
+    private int parseEntero(String texto, int fallback) {
+        try {
+            return Integer.parseInt(texto == null ? "" : texto.trim());
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 
     private void seleccionar(ComboBox<String> combo, String valor, String fallback) {

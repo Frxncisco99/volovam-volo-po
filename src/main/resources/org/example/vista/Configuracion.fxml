@@ -79,6 +79,9 @@
                     <Button fx:id="btnTabNegocio" text="General" onAction="#tabNegocio" graphicTextGap="8" styleClass="cfg-tab-button">
                         <graphic><FontIcon iconLiteral="fas-store" iconSize="13"/></graphic>
                     </Button>
+                    <Button fx:id="btnTabFiscal" text="Fiscal" onAction="#tabFiscal" graphicTextGap="8" styleClass="cfg-tab-button">
+                        <graphic><FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="13"/></graphic>
+                    </Button>
                     <Button fx:id="btnTabTicket" text="Tickets" onAction="#tabTicket" graphicTextGap="8" styleClass="cfg-tab-button">
                         <graphic><FontIcon iconLiteral="fas-receipt" iconSize="13"/></graphic>
                     </Button>
@@ -161,6 +164,116 @@
                                         <Label text="Guardado seguro" styleClass="option-title"/>
                                         <Label text="Estos datos se guardan en la tabla configuracion y tambien en Preferences como respaldo local." wrapText="true" styleClass="card-subtitle"/>
                                     </VBox>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <VBox fx:id="panelFiscal" spacing="18" visible="false" managed="false">
+                            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
+                                <FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20" iconColor="#0b3b75"/>
+                                <VBox>
+                                    <Label text="Facturacion e impuestos" styleClass="section-title"/>
+                                    <Label text="Base fiscal configurable para prefacturas, impuestos por producto y tickets." styleClass="section-subtitle"/>
+                                </VBox>
+                            </HBox>
+                            <GridPane hgap="18" vgap="18" styleClass="card-grid">
+                                <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+
+                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-id-card" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Datos fiscales del negocio" styleClass="card-title"/>
+                                            <Label text="Informacion del emisor para facturacion mexicana." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                                        <Label text="RFC negocio" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtFiscalRfc" promptText="XAXX010101000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label text="Codigo postal fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <TextField fx:id="txtFiscalCP" promptText="26000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        <Label text="Razon social" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtFiscalRazonSocial" promptText="Razon social del negocio" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                                        <Label text="Regimen fiscal" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                        <ComboBox fx:id="cmbFiscalRegimen" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                                    </GridPane>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-percentage" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Politica de impuestos" styleClass="card-title"/>
+                                            <Label text="Las tasas se leen de la tabla impuestos, no desde calculos fijos." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                                        <Label text="IVA predeterminado" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <ComboBox fx:id="cmbFiscalImpuestoDefault" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label text="Region fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <ComboBox fx:id="cmbRegionFiscal" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Precio incluye impuesto" styleClass="option-title"/>
+                                            <Label text="Si esta activo, el impuesto se desglosa desde el precio final." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglPrecioIncluyeImpuesto"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Impuesto por producto" styleClass="option-title"/>
+                                            <Label text="Permite que cada producto use una tasa fiscal distinta." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglImpuestoPorProducto"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Mostrar desglose fiscal en ticket" styleClass="option-title"/>
+                                            <Label text="Preferencia lista para TicketRenderer en la siguiente fase." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglMostrarDesgloseFiscal"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-file-signature" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Prefactura" styleClass="card-title"/>
+                                            <Label text="Folios internos listos para integracion PAC futura." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="32"/><ColumnConstraints percentWidth="34"/><ColumnConstraints percentWidth="34"/></columnConstraints>
+                                        <Label text="Serie" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtSerieFactura" promptText="A" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label text="Folio inicial" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <TextField fx:id="txtFolioInicial" promptText="1" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        <Label text="Modo" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                        <ComboBox fx:id="cmbModoFacturacion" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                                    </GridPane>
+                                </VBox>
+
+                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-university" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Datos SAT predeterminados" styleClass="card-title"/>
+                                            <Label text="Valores iniciales para ventas al publico o clientes sin datos completos." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <Label text="Uso CFDI default" styleClass="field-label"/>
+                                    <ComboBox fx:id="cmbUsoCfdiDefault" maxWidth="Infinity" styleClass="cfg-combo"/>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                                        <Label text="Metodo de pago SAT" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <ComboBox fx:id="cmbMetodoPagoSat" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label text="Forma de pago SAT" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <ComboBox fx:id="cmbFormaPagoSat" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    </GridPane>
                                 </VBox>
                             </GridPane>
                         </VBox>
