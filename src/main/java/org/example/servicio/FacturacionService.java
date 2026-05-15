@@ -22,6 +22,8 @@ public class FacturacionService {
     private final ImpuestoService impuestoService = new ImpuestoService();
 
     public int generarPrefactura(int idVenta) throws Exception {
+        Integer existente = facturacionDAO.obtenerFacturaPorVenta(idVenta);
+        if (existente != null) return existente;
         ConfiguracionFiscal config = fiscalDAO.obtenerConfiguracionFiscal();
         Factura factura = construirPrefactura(idVenta, config);
         int idFactura = facturacionDAO.crearPrefactura(factura);

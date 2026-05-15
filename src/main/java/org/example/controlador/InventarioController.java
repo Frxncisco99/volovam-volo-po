@@ -27,6 +27,7 @@ import org.example.modelo.Producto;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.ExportarInventarioservice;
 import org.example.servicio.MarcaService;
+import org.example.servicio.PermisoService;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
@@ -567,6 +568,10 @@ public class InventarioController {
     // ────────────────────────────────────────────────────────────────────────────
     @FXML
     private void abrirFormularioNuevo() {
+        if (!PermisoService.tienePermiso(PermisoService.PRODUCTOS_CREAR)) {
+            toast("No tienes permiso para crear productos", "error");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/AgregarProducto.fxml"));
@@ -588,6 +593,10 @@ public class InventarioController {
     }
 
     private void abrirFormularioEditar(Producto p) {
+        if (!PermisoService.tienePermiso(PermisoService.PRODUCTOS_EDITAR)) {
+            toast("No tienes permiso para editar productos", "error");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/EditarProducto.fxml"));
@@ -610,6 +619,11 @@ public class InventarioController {
     }
 
     private void abrirAjusteStock(Producto p) {
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.INVENTARIO_AJUSTAR,
+                "Ajustar inventario de " + p.getNombre())) {
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/vista/AjustarStock.fxml"));
@@ -658,6 +672,11 @@ public class InventarioController {
     }
 
     private void confirmarEliminar(Producto p) {
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.PRODUCTOS_ELIMINAR,
+                "Eliminar producto " + p.getNombre())) {
+            return;
+        }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar eliminación");
         confirm.setHeaderText("¿Eliminar \"" + p.getNombre() + "\"?");

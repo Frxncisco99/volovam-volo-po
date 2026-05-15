@@ -11,6 +11,20 @@ import java.sql.Statement;
 
 public class FacturacionDAO {
 
+    public Integer obtenerFacturaPorVenta(int idVenta) {
+        String sql = "SELECT id_factura FROM facturas WHERE id_venta = ? LIMIT 1";
+        try (Connection con = ConexionDB.getConexion()) {
+            if (con == null) return null;
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, idVenta);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) return rs.getInt("id_factura");
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
     public int obtenerSiguienteFolio(Connection con, String serie, int folioInicial) throws Exception {
         String sql = "SELECT COALESCE(MAX(folio), ?) + 1 FROM facturas WHERE serie = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

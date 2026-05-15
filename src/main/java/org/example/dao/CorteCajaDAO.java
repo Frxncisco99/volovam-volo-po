@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class CorteCajaDAO {
 
-    private static final double IVA = 0.16;
-
     public CorteCajaReporte obtenerCorteActual(int idCaja, String cajeroActual) throws Exception {
         CorteCajaReporte reporte = new CorteCajaReporte();
         reporte.setIdCaja(idCaja);
@@ -484,11 +482,20 @@ public class CorteCajaDAO {
     }
 
     private void calcularTotalesDerivados(CorteCajaReporte reporte) {
-        double subtotal = reporte.getTotalVendido() / (1 + IVA);
+        double tasa = tasaFiscalPredeterminada();
+        double subtotal = tasa > 0 ? reporte.getTotalVendido() / (1 + tasa) : reporte.getTotalVendido();
         reporte.setSubtotal(subtotal);
         reporte.setIva(reporte.getTotalVendido() - subtotal);
         reporte.setTotalConImpuestos(reporte.getTotalVendido());
         reporte.setUtilidad(reporte.getIngresos() - reporte.getCostos());
+    }
+
+    private double tasaFiscalPredeterminada() {
+        try {
+            return new FiscalDAO().obtenerImpuestoPredeterminado().getTasa().doubleValue();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private double totalDevolucionesEfectivo(Connection con, int idCaja) throws Exception {

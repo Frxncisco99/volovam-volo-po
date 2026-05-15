@@ -140,6 +140,17 @@ public class PermisoService {
                 autorizacion.idAdmin(),
                 "Accion autorizada: " + accion + " | permiso: " + permiso + " | admin: " + autorizacion.nombreAdmin()
         );
+        AuditoriaService.get().registrarDetalle(
+                SesionUsuario.getInstancia().getIdUsuario(),
+                autorizacion.idAdmin(),
+                "AUTORIZACION_ADMIN",
+                "Permisos",
+                "permisos",
+                autorizacion.idAdmin(),
+                "Accion autorizada: " + accion + " | permiso: " + permiso,
+                null,
+                "Admin: " + autorizacion.nombreAdmin()
+        );
         return true;
     }
 

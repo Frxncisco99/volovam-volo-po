@@ -6,9 +6,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.example.dao.CategoriaDAO;
+import org.example.dao.FiscalDAO;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Categoria;
+import org.example.modelo.Impuesto;
 import org.example.modelo.Producto;
+import org.example.servicio.PermisoService;
 
 import java.util.List;
 
@@ -20,6 +23,7 @@ public class EditarProductoController {
     @FXML private TextField           txtStock;
     @FXML private TextField           txtStockMinimo;
     @FXML private ComboBox<Categoria> cbCategoria;
+    @FXML private ComboBox<Impuesto>  cbImpuesto;
 
     // Código de barras
     @FXML private Button      btnToggleCodigo;
@@ -29,6 +33,7 @@ public class EditarProductoController {
     private boolean llevaCodigo = false;
     private Producto producto;
     private final ProductoDAO dao = new ProductoDAO();
+    private final FiscalDAO fiscalDAO = new FiscalDAO();
 
     public void setProducto(Producto p) {
         this.producto = p;
@@ -48,6 +53,9 @@ public class EditarProductoController {
                 setText(empty || c == null ? null : c.getNombre());
             }
         });
+        cbImpuesto.setItems(FXCollections.observableArrayList(fiscalDAO.obtenerImpuestosActivos()));
+        fiscalDAO.obtenerImpuestoProducto(p.getIdProducto())
+                .ifPresentOrElse(cbImpuesto::setValue, () -> cbImpuesto.setValue(fiscalDAO.obtenerImpuestoPredeterminado()));
 
         txtNombre.setText(p.getNombre());
         txtPrecio.setText(String.valueOf(p.getPrecio()));
@@ -107,6 +115,9 @@ public class EditarProductoController {
 
     @FXML
     private void guardarCambios() {
+        if (!PermisoService.tienePermiso(PermisoService.PRODUCTOS_EDITAR)) {
+            mostrarAlerta("No tienes permiso para editar productos."); return;
+        }
         if (txtNombre.getText().isBlank()) {
             mostrarAlerta("El nombre no puede estar vacío."); return;
         }
@@ -147,6 +158,9 @@ public class EditarProductoController {
         producto.setIdCategoria(cbCategoria.getValue().getIdCategoria());
         producto.setCodigoBarras(codigo);
         dao.actualizarProducto(producto);
+        if (cbImpuesto.getValue() != null) {
+            fiscalDAO.asignarImpuestoProducto(producto.getIdProducto(), cbImpuesto.getValue().getIdImpuesto());
+        }
         org.example.servicio.AuditoriaService.get().registrar(
                 "EDICION_PRODUCTO", "productos", producto.getIdProducto(),
                 "Producto editado: " + producto.getNombre() +

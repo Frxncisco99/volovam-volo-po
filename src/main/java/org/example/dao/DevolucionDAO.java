@@ -4,6 +4,7 @@ import org.example.modelo.DevolucionLinea;
 import org.example.servicio.AuditoriaService;
 import org.example.servicio.FolioService;
 import org.example.servicio.InventarioMovimientoService;
+import org.example.servicio.PermisoService;
 
 import java.sql.*;
 import java.util.*;
@@ -58,6 +59,12 @@ public class DevolucionDAO {
                                     String tipoReembolso, String notas) throws Exception {
 
         // Primero validar TODOS los límites antes de tocar nada
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.VENTAS_DEVOLVER,
+                "Procesar devolucion de venta " + FolioService.venta(idVenta))) {
+            throw new SecurityException("No se autorizo la devolucion.");
+        }
+
         validarVentaDevolvible(idVenta);
         validarLimites(devolucionesPorDetalle);
 

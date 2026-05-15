@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Producto;
+import org.example.servicio.PermisoService;
 
 public class AjustarStockController {
 
@@ -74,6 +75,11 @@ public class AjustarStockController {
     }
 
     private void ejecutarAjuste(boolean esAdicion) {
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.INVENTARIO_AJUSTAR,
+                "Ajuste manual de stock")) {
+            return;
+        }
         int cantidad;
         try {
             cantidad = Integer.parseInt(txtCantidad.getText().trim());

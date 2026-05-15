@@ -290,6 +290,11 @@ public class VentasController {
 
     @FXML
     public void abrirDevoluciones() {
+        if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
+                org.example.servicio.PermisoService.VENTAS_DEVOLVER,
+                "Procesar devolucion")) {
+            return;
+        }
         try {
             Stage stage = new Stage();
             stage.setTitle("Devoluciones");
@@ -691,12 +696,12 @@ public class VentasController {
             Region spacer = new Region(); HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
             Button btnMenos = new Button("-"); btnMenos.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
             btnMenos.setOnAction(e -> {
-                if (!autorizarAccionRestringida("Quitar producto del carrito")) return;
+                if (!autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO, "Quitar producto del carrito")) return;
                 if (cantidad <= 1) carrito.remove(id); else item[2] = cantidad - 1;
                 actualizarCarrito();
             });
             TextField tfCantidad = new TextField(String.valueOf(cantidad)); tfCantidad.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #0052cc; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
-            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva < cantidad && !autorizarAccionRestringida("Reducir cantidad en carrito")) { tfCantidad.setText(String.valueOf(cantidad)); return; } if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
+            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva < cantidad && !autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO, "Reducir cantidad en carrito")) { tfCantidad.setText(String.valueOf(cantidad)); return; } if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
             tfCantidad.setOnAction(e -> validarYActualizar.run()); tfCantidad.focusedProperty().addListener((obs, o, n) -> { if (!n) validarYActualizar.run(); });
             Button btnMas = new Button("+"); btnMas.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
             btnMas.setOnAction(e -> { int stockReal = obtenerStock(id); if (cantidad >= stockReal) { mostrarAlerta("Sin stock", "No hay mas unidades disponibles."); return; } item[2] = cantidad + 1; actualizarCarrito(); });
@@ -704,9 +709,10 @@ public class VentasController {
             fila.getChildren().addAll(lblNombre, spacer, btnMenos, tfCantidad, btnMas, lblSub);
             listaCarrito.getChildren().add(fila);
         }
-        double iva = total * 0.16; double subtotalSinIva = total - iva;
-        lblSubtotal.setText("$" + String.format("%.2f", subtotalSinIva));
-        lblIva.setText("$" + String.format("%.2f", iva));
+        org.example.modelo.ResumenCalculoFiscal fiscal = new org.example.servicio.ImpuestoService().calcularCarrito(carrito);
+        total = fiscal.getTotal().doubleValue();
+        lblSubtotal.setText("$" + String.format("%.2f", fiscal.getSubtotal().doubleValue()));
+        lblIva.setText("$" + String.format("%.2f", fiscal.getImpuestos().doubleValue()));
         lblTotal.setText("$" + String.format("%.2f", total));
         lblCantidadItems.setText(totalItems + " items");
     }
@@ -748,6 +754,10 @@ public class VentasController {
 
     @FXML
     public void handleCobrar() {
+        if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.VENTAS_COBRAR)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para cobrar ventas.");
+            return;
+        }
         if (carrito.isEmpty()) { mostrarAlerta("Carrito vacío", "Agrega productos antes de cobrar."); return; }
         if (limiteCredito > 0) { double disponible = limiteCredito - saldoCliente; if (total > disponible) { mostrarAlerta("Credito insuficiente", nombreClienteSeleccionado + " solo tiene $" + String.format("%.2f", disponible) + " de credito disponible."); return; } }
         try {
@@ -768,7 +778,7 @@ public class VentasController {
     @FXML
     public void handleCancelar() {
         if (carrito.isEmpty()) return;
-        if (!autorizarAccionRestringida("Cancelar venta en curso")) return;
+        if (!autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_CANCELAR, "Cancelar venta en curso")) return;
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION); alerta.setTitle("Cancelar venta"); alerta.setHeaderText(null); alerta.setContentText("¿Seguro que deseas cancelar la venta?");
         alerta.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) { carrito.clear(); actualizarCarrito(); } });
     }
@@ -847,12 +857,30 @@ public class VentasController {
         btnCancelar.setMaxWidth(Double.MAX_VALUE);
         btnCancelar.setOnAction(e -> manejarCancelacion(idVenta, stage::close));
 
-        VBox layout = new VBox(10, tabla, btnCancelar);
+        Button btnPrefactura = new Button("Generar prefactura");
+        btnPrefactura.setStyle("-fx-background-color: #1a6fa8; -fx-text-fill: white; " +
+                "-fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; " +
+                "-fx-font-weight: bold;");
+        btnPrefactura.setMaxWidth(Double.MAX_VALUE);
+        btnPrefactura.setOnAction(e -> generarPrefactura(idVenta));
+
+        VBox layout = new VBox(10, tabla, btnPrefactura, btnCancelar);
         layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
         stage.setScene(new Scene(layout, 520, 400));
         stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         stage.show();
     }
+
+    private void generarPrefactura(int idVenta) {
+        try {
+            int idFactura = new org.example.servicio.FacturacionService().generarPrefactura(idVenta);
+            mostrarAlerta("Prefactura", "Prefactura generada/consultada correctamente. ID: " + idFactura);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo generar la prefactura: " + e.getMessage());
+        }
+    }
+
     private void manejarCancelacion(int idVenta, Runnable onExito) {
         javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
         dialog.setTitle("Cancelar venta");
@@ -886,6 +914,12 @@ public class VentasController {
     @FXML public void abrirSalida()  { abrirMovimientoCaja("RETIRO"); }
 
     private void abrirMovimientoCaja(String tipo) {
+        String permiso = "INGRESO".equals(tipo)
+                ? org.example.servicio.PermisoService.CAJA_HACER_INGRESO
+                : org.example.servicio.PermisoService.CAJA_HACER_RETIRO;
+        String accion = "INGRESO".equals(tipo) ? "Registrar ingreso de caja" : "Registrar retiro de caja";
+        if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(permiso, accion)) return;
+
         boolean esIngreso = tipo.equals("INGRESO"); Stage stage = new Stage();
         stage.setTitle(esIngreso ? "Registrar ingreso" : "Registrar salida");
         Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
@@ -933,9 +967,9 @@ public class VentasController {
     @FXML public void irADashboard()  { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
     @FXML public void irAInventario(ActionEvent event) { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
     @FXML public void irAReportes(ActionEvent event)   { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
-    @FXML public void irAEmpleados()  { if (!SesionUsuario.getInstancia().getRol().equals("admin")) { mostrarAlerta("Acceso Denegado","Solo el Administrador"); return; } cambiarEscena("/org/example/vista/Empleados.fxml"); }
+    @FXML public void irAEmpleados()  { navegarConPermiso(org.example.servicio.PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
     @FXML private void irAConfiguracion() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
-    @FXML private void irACorteCaja()     { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irACorteCaja()     { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
     @FXML private void irAAuditoria() {
         navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
@@ -959,9 +993,9 @@ public class VentasController {
         Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
     }
 
-    private boolean autorizarAccionRestringida(String accion) {
+    private boolean autorizarAccionRestringida(String permiso, String accion) {
         return org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
-                org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO,
+                permiso,
                 accion
         );
     }

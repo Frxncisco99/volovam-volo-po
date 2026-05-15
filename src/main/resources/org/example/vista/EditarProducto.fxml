@@ -9,7 +9,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.EditarProductoController"
       style="-fx-background-color: #f0f7ff;"
-      prefHeight="520" prefWidth="380">
+      prefHeight="570" prefWidth="380">
 
     <!-- ── HEADER ── -->
     <HBox alignment="CENTER_LEFT" spacing="12"
@@ -69,6 +69,13 @@
         </HBox>
 
         <ComboBox fx:id="cbCategoria" promptText="Categoría"
+                  maxWidth="Infinity"
+                  style="-fx-background-color: white; -fx-border-color: #c8dff0;
+                         -fx-border-radius: 7; -fx-background-radius: 7;
+                         -fx-font-size: 13px; -fx-padding: 2 4;"/>
+
+
+        <ComboBox fx:id="cbImpuesto" promptText="Impuesto del producto"
                   maxWidth="Infinity"
                   style="-fx-background-color: white; -fx-border-color: #c8dff0;
                          -fx-border-radius: 7; -fx-background-radius: 7;

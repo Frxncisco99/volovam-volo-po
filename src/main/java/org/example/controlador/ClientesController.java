@@ -31,6 +31,7 @@ import org.example.servicio.MarcaService;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
@@ -65,7 +66,15 @@ public class ClientesController {
 
     private void cargarClientes() {
         clientes.clear();
-        String sql = """
+        boolean fiscales = columnasFiscalesClientes();
+        String sql = fiscales ? """
+                SELECT id_cliente, nombre, telefono, limite_credito, saldo_actual,
+                       rfc, razon_social, regimen_fiscal, uso_cfdi_default,
+                       codigo_postal_fiscal, correo_facturacion
+                FROM clientes
+                WHERE activo = 1 AND nombre LIKE ? AND nombre != 'Publico General'
+                ORDER BY nombre
+                """ : """
                 SELECT id_cliente, nombre, telefono, limite_credito, saldo_actual
                 FROM clientes
                 WHERE activo = 1 AND nombre LIKE ? AND nombre != 'Publico General'
@@ -81,7 +90,13 @@ public class ClientesController {
                         rs.getString("nombre"),
                         rs.getString("telefono"),
                         rs.getDouble("limite_credito"),
-                        rs.getDouble("saldo_actual")));
+                        rs.getDouble("saldo_actual"),
+                        fiscales ? rs.getString("rfc") : "",
+                        fiscales ? rs.getString("razon_social") : "",
+                        fiscales ? rs.getString("regimen_fiscal") : "",
+                        fiscales ? rs.getString("uso_cfdi_default") : "",
+                        fiscales ? rs.getString("codigo_postal_fiscal") : "",
+                        fiscales ? rs.getString("correo_facturacion") : ""));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,7 +118,8 @@ public class ClientesController {
         List<ClienteRow> filtrados = clientes.stream()
                 .filter(c -> filtro.isEmpty()
                         || c.nombre().toLowerCase().contains(filtro)
-                        || (c.telefono() != null && c.telefono().toLowerCase().contains(filtro)))
+                        || (c.telefono() != null && c.telefono().toLowerCase().contains(filtro))
+                        || (c.rfc() != null && c.rfc().toLowerCase().contains(filtro)))
                 .toList();
         lblConteoActivos.setText(filtrados.size() + " clientes activos");
         flowClientes.getChildren().clear();
@@ -164,6 +180,11 @@ public class ClientesController {
         tel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7A5535;");
         telefono.getChildren().addAll(phone, tel);
 
+        Label fiscal = new Label(cliente.rfc() == null || cliente.rfc().isBlank()
+                ? "Sin RFC fiscal"
+                : "RFC: " + cliente.rfc());
+        fiscal.setStyle("-fx-font-size: 11px; -fx-text-fill: #475569;");
+
         VBox credito = new VBox(4);
         credito.setStyle("-fx-background-color: #F5EFE6; -fx-background-radius: 8; -fx-padding: 10;");
         credito.getChildren().addAll(
@@ -195,7 +216,7 @@ public class ClientesController {
         btnDesactivar.setMaxWidth(Double.MAX_VALUE);
         acciones2.getChildren().addAll(btnPago, btnDesactivar);
 
-        body.getChildren().addAll(nombre, telefono, credito, acciones1, acciones2);
+        body.getChildren().addAll(nombre, telefono, fiscal, credito, acciones1, acciones2);
         card.getChildren().addAll(header, body);
         return card;
     }
@@ -222,11 +243,19 @@ public class ClientesController {
 
     @FXML
     public void handleNuevoCliente() {
+        if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.CLIENTES_CREAR)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para crear clientes.");
+            return;
+        }
         mostrarDialogoCliente(null);
     }
 
     private void mostrarDialogoCliente(ClienteRow cliente) {
         boolean nuevo = cliente == null;
+        if (!nuevo && !org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.CLIENTES_EDITAR)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para editar clientes.");
+            return;
+        }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(nuevo ? "Nuevo cliente" : "Editar cliente");
 
@@ -236,13 +265,31 @@ public class ClientesController {
         TextField txtNombre = new TextField(nuevo ? "" : cliente.nombre());
         TextField txtTelefono = new TextField(nuevo ? "" : cliente.telefono());
         TextField txtLimite = new TextField(nuevo || cliente.limite() <= 0 ? "" : String.valueOf(cliente.limite()));
+        TextField txtRfc = new TextField(nuevo ? "" : cliente.rfc());
+        TextField txtRazonSocial = new TextField(nuevo ? "" : cliente.razonSocial());
+        TextField txtRegimen = new TextField(nuevo ? "" : cliente.regimenFiscal());
+        TextField txtUsoCfdi = new TextField(nuevo ? "" : cliente.usoCfdi());
+        TextField txtCpFiscal = new TextField(nuevo ? "" : cliente.cpFiscal());
+        TextField txtCorreoFacturacion = new TextField(nuevo ? "" : cliente.correoFacturacion());
 
         txtNombre.setPromptText("Nombre completo");
         txtTelefono.setPromptText("Telefono a 10 digitos");
         txtLimite.setPromptText("Limite de credito");
+        txtRfc.setPromptText("RFC");
+        txtRazonSocial.setPromptText("Razon social");
+        txtRegimen.setPromptText("Regimen fiscal");
+        txtUsoCfdi.setPromptText("Uso CFDI");
+        txtCpFiscal.setPromptText("Codigo postal fiscal");
+        txtCorreoFacturacion.setPromptText("Correo de facturacion");
         aplicarEstiloCampo(txtNombre);
         aplicarEstiloCampo(txtTelefono);
         aplicarEstiloCampo(txtLimite);
+        aplicarEstiloCampo(txtRfc);
+        aplicarEstiloCampo(txtRazonSocial);
+        aplicarEstiloCampo(txtRegimen);
+        aplicarEstiloCampo(txtUsoCfdi);
+        aplicarEstiloCampo(txtCpFiscal);
+        aplicarEstiloCampo(txtCorreoFacturacion);
 
         txtTelefono.textProperty().addListener((obs, old, nuevoTexto) -> {
             if (!nuevoTexto.matches("\\d{0,10}")) txtTelefono.setText(old);
@@ -251,7 +298,9 @@ public class ClientesController {
         contenido.getChildren().addAll(
                 new Label("Nombre"), txtNombre,
                 new Label("Telefono"), txtTelefono,
-                new Label("Limite de credito"), txtLimite
+                new Label("Limite de credito"), txtLimite,
+                new Label("Datos fiscales"), txtRfc, txtRazonSocial, txtRegimen,
+                txtUsoCfdi, txtCpFiscal, txtCorreoFacturacion
         );
         dialog.getDialogPane().setContent(contenido);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -274,8 +323,16 @@ public class ClientesController {
                 mostrarAlerta("Error", "El limite de credito debe ser mayor o igual a 0.");
                 return;
             }
-            if (nuevo) insertarCliente(nombre, telefono, limite);
-            else actualizarCliente(cliente.id(), nombre, telefono, limite);
+            ClienteFiscal fiscal = new ClienteFiscal(
+                    txtRfc.getText().trim(),
+                    txtRazonSocial.getText().trim(),
+                    txtRegimen.getText().trim(),
+                    txtUsoCfdi.getText().trim(),
+                    txtCpFiscal.getText().trim(),
+                    txtCorreoFacturacion.getText().trim()
+            );
+            if (nuevo) insertarCliente(nombre, telefono, limite, fiscal);
+            else actualizarCliente(cliente.id(), nombre, telefono, limite, fiscal);
         });
     }
 
@@ -283,13 +340,24 @@ public class ClientesController {
         field.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
     }
 
-    private void insertarCliente(String nombre, String telefono, double limite) {
-        String sql = "INSERT INTO clientes (nombre, telefono, limite_credito) VALUES (?, ?, ?)";
+    private void insertarCliente(String nombre, String telefono, double limite, ClienteFiscal fiscal) {
+        boolean fiscales = columnasFiscalesClientes();
+        String sql = fiscales
+                ? "INSERT INTO clientes (nombre, telefono, limite_credito, rfc, razon_social, regimen_fiscal, uso_cfdi_default, codigo_postal_fiscal, correo_facturacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                : "INSERT INTO clientes (nombre, telefono, limite_credito) VALUES (?, ?, ?)";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nombre);
             ps.setString(2, telefono);
             ps.setDouble(3, limite);
+            if (fiscales) {
+                ps.setString(4, fiscal.rfc());
+                ps.setString(5, fiscal.razonSocial());
+                ps.setString(6, fiscal.regimenFiscal());
+                ps.setString(7, fiscal.usoCfdi());
+                ps.setString(8, fiscal.cpFiscal());
+                ps.setString(9, fiscal.correoFacturacion());
+            }
             ps.executeUpdate();
             cargarClientes();
             mostrarInfo("Exito", "Cliente registrado correctamente.");
@@ -299,14 +367,27 @@ public class ClientesController {
         }
     }
 
-    private void actualizarCliente(int id, String nombre, String telefono, double limite) {
-        String sql = "UPDATE clientes SET nombre = ?, telefono = ?, limite_credito = ? WHERE id_cliente = ?";
+    private void actualizarCliente(int id, String nombre, String telefono, double limite, ClienteFiscal fiscal) {
+        boolean fiscales = columnasFiscalesClientes();
+        String sql = fiscales
+                ? "UPDATE clientes SET nombre = ?, telefono = ?, limite_credito = ?, rfc = ?, razon_social = ?, regimen_fiscal = ?, uso_cfdi_default = ?, codigo_postal_fiscal = ?, correo_facturacion = ? WHERE id_cliente = ?"
+                : "UPDATE clientes SET nombre = ?, telefono = ?, limite_credito = ? WHERE id_cliente = ?";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nombre);
             ps.setString(2, telefono);
             ps.setDouble(3, limite);
-            ps.setInt(4, id);
+            if (fiscales) {
+                ps.setString(4, fiscal.rfc());
+                ps.setString(5, fiscal.razonSocial());
+                ps.setString(6, fiscal.regimenFiscal());
+                ps.setString(7, fiscal.usoCfdi());
+                ps.setString(8, fiscal.cpFiscal());
+                ps.setString(9, fiscal.correoFacturacion());
+                ps.setInt(10, id);
+            } else {
+                ps.setInt(4, id);
+            }
             ps.executeUpdate();
             cargarClientes();
             mostrarInfo("Exito", "Cliente actualizado correctamente.");
@@ -317,6 +398,11 @@ public class ClientesController {
     }
 
     private void mostrarPago(ClienteRow cliente) {
+        if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
+                org.example.servicio.PermisoService.CLIENTES_CREDITO,
+                "Registrar abono de cliente")) {
+            return;
+        }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Registrar pago");
         VBox contenido = new VBox(10);
@@ -432,6 +518,10 @@ public class ClientesController {
     }
 
     private void desactivarCliente(ClienteRow cliente) {
+        if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.CLIENTES_EDITAR)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para desactivar clientes.");
+            return;
+        }
         if (cliente.saldo() > 0) {
             mostrarAlerta("No permitido", "No se puede desactivar un cliente con adeudo pendiente.");
             return;
@@ -471,6 +561,18 @@ public class ClientesController {
         String[] colores = {"#1a6fa8", "#6B4226", "#2E7D32", "#8B5CF6", "#D97706", "#C0392B"};
         int index = Math.abs((nombre == null ? "" : nombre).hashCode()) % colores.length;
         return colores[index];
+    }
+
+    private boolean columnasFiscalesClientes() {
+        try (Connection con = ConexionDB.getConexion()) {
+            if (con == null) return false;
+            DatabaseMetaData meta = con.getMetaData();
+            try (ResultSet rs = meta.getColumns(con.getCatalog(), null, "clientes", "rfc")) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void registrarLogout() {
@@ -547,7 +649,12 @@ public class ClientesController {
         alerta.showAndWait();
     }
 
-    private record ClienteRow(int id, String nombre, String telefono, double limite, double saldo) {}
+    private record ClienteRow(int id, String nombre, String telefono, double limite, double saldo,
+                              String rfc, String razonSocial, String regimenFiscal, String usoCfdi,
+                              String cpFiscal, String correoFacturacion) {}
+
+    private record ClienteFiscal(String rfc, String razonSocial, String regimenFiscal, String usoCfdi,
+                                 String cpFiscal, String correoFacturacion) {}
 
     private static class PagoRow {
         private final javafx.beans.property.SimpleStringProperty fecha;
