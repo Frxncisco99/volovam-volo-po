@@ -8,18 +8,17 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import javafx.animation.FadeTransition;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -131,12 +130,17 @@ public class ConfiguracionController {
 
     private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
     private final ObservableList<UsuarioRow> usuarios = FXCollections.observableArrayList();
+    private List<VBox> panelesConfiguracion;
+    private List<Button> botonesConfiguracion;
+    private FadeTransition feedbackFade;
 
     @FXML
     public void initialize() {
+        prepararColeccionesUI();
         cargarSesion();
         prepararCombos();
         prepararUsuarios();
+        prepararInteracciones();
         cargarConfiguracion();
         cargarUsuarios();
         cargarInfoBaseDatos();
@@ -166,8 +170,6 @@ public class ConfiguracionController {
         if (cmbImpresora.getItems().isEmpty()) {
             cmbImpresora.getItems().add("Impresora predeterminada");
         }
-
-        cmbEmailSmtp.valueProperty().addListener((obs, old, value) -> actualizarVisibilidadSmtp());
     }
 
     private void prepararUsuarios() {
@@ -217,6 +219,27 @@ public class ConfiguracionController {
         return btn;
     }
 
+    private void instalarTooltip(Control control, String texto) {
+        Tooltip tooltip = new Tooltip(texto);
+        tooltip.setShowDelay(Duration.millis(250));
+        control.setTooltip(tooltip);
+    }
+
+    private void validarCampo(TextField campo, java.util.function.Predicate<String> invalido) {
+        campo.textProperty().addListener((obs, old, value) -> marcarCampoInvalido(campo, invalido.test(value == null ? "" : value.trim())));
+        marcarCampoInvalido(campo, invalido.test(campo.getText() == null ? "" : campo.getText().trim()));
+    }
+
+    private void marcarCampoInvalido(Control control, boolean invalido) {
+        if (invalido) {
+            if (!control.getStyleClass().contains("cfg-field-invalid")) {
+                control.getStyleClass().add("cfg-field-invalid");
+            }
+        } else {
+            control.getStyleClass().remove("cfg-field-invalid");
+        }
+    }
+
     @FXML private void tabNegocio() { mostrarTab("negocio"); }
     @FXML private void tabTicket() { mostrarTab("ticket"); }
     @FXML private void tabCajon() { mostrarTab("cajon"); }
@@ -224,16 +247,34 @@ public class ConfiguracionController {
     @FXML private void tabUsuarios() { mostrarTab("usuarios"); }
     @FXML private void tabBaseDatos() { mostrarTab("basedatos"); }
 
-    private void mostrarTab(String tab) {
-        panelNegocio.setManaged(false); panelNegocio.setVisible(false);
-        panelTicket.setManaged(false); panelTicket.setVisible(false);
-        panelCajon.setManaged(false); panelCajon.setVisible(false);
-        panelEmail.setManaged(false); panelEmail.setVisible(false);
-        panelUsuarios.setManaged(false); panelUsuarios.setVisible(false);
-        panelBaseDatos.setManaged(false); panelBaseDatos.setVisible(false);
+    private void prepararColeccionesUI() {
+        panelesConfiguracion = List.of(panelNegocio, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos);
+        botonesConfiguracion = List.of(btnTabNegocio, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
+    }
 
-        List<Button> botones = List.of(btnTabNegocio, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
-        botones.forEach(b -> b.getStyleClass().remove("cfg-tab-active"));
+    private void prepararInteracciones() {
+        cmbEmailSmtp.valueProperty().addListener((obs, old, value) -> actualizarVisibilidadSmtp());
+
+        instalarTooltip(btnGuardarCambios, "Guarda todos los cambios visibles en base de datos y Preferences.");
+        instalarTooltip(btnTabNegocio, "Datos generales del negocio.");
+        instalarTooltip(btnTabTicket, "Campos usados por el flujo de impresion de tickets.");
+        instalarTooltip(btnTabCajon, "Apertura automatica del cajon de dinero.");
+        instalarTooltip(btnTabEmail, "Configuracion SMTP para tickets por correo.");
+        instalarTooltip(btnTabUsuarios, "Administracion de usuarios del POS.");
+        instalarTooltip(btnTabBaseDatos, "Estado de conexion y respaldo SQL.");
+
+        validarCampo(txtCorreo, texto -> !texto.isBlank() && !texto.contains("@"));
+        validarCampo(txtEmailRemitente, texto -> !texto.isBlank() && !texto.contains("@"));
+        validarCampo(txtEmailPuerto, texto -> !texto.isBlank() && !texto.matches("\\d{2,5}"));
+        validarCampo(txtCP, texto -> !texto.isBlank() && !texto.matches("\\d{4,6}"));
+    }
+
+    private void mostrarTab(String tab) {
+        panelesConfiguracion.forEach(panel -> {
+            panel.setManaged(false);
+            panel.setVisible(false);
+        });
+        botonesConfiguracion.forEach(boton -> boton.getStyleClass().remove("cfg-tab-active"));
 
         switch (tab) {
             case "ticket" -> activar(panelTicket, btnTabTicket);
@@ -253,9 +294,16 @@ public class ConfiguracionController {
         }
     }
 
-    // ── Guardar toda la configuración ────────────────────────────────────────
     @FXML
     public void guardarConfiguracion() {
+        guardarNegocio();
+        guardarTicket();
+        guardarCajon();
+        guardarEmail();
+        feedbackGuardado();
+    }
+
+    private void guardarNegocio() {
         guardarValor("negocio_nombre", txtNombreNegocio.getText());
         guardarValor("negocio_slogan", txtSlogan.getText());
         guardarValor("negocio_telefono", txtTelefono.getText());
@@ -266,7 +314,9 @@ public class ConfiguracionController {
         guardarValor("negocio_web", txtSitioWeb.getText());
         guardarValor("negocio_rfc", txtRFC.getText());
         lblMarcaNegocio.setText(MarcaService.nombreNegocio());
+    }
 
+    private void guardarTicket() {
         guardarValor("ticket_nombre", txtTicketNombre.getText());
         guardarValor("ticket_giro", txtTicketGiro.getText());
         guardarValor("ticket_direccion", txtTicketDireccion.getText());
@@ -282,11 +332,15 @@ public class ConfiguracionController {
         guardarBoolean("ticket_folio", tglFolioTicket.isSelected());
         guardarBoolean("ticket_desglose", tglDesglose.isSelected());
         guardarBoolean("ticket_qr", tglQR.isSelected());
+    }
 
+    private void guardarCajon() {
         guardarBoolean("cajon_activo", tglCajonActivo.isSelected());
         guardarValor("cajon_puerto", valor(cmbCajonPuerto, "Via impresora termica (ESC/POS)"));
         guardarValor("cajon_pulso", valor(cmbCajonPulso, "Pulso 1 (pin 2)"));
+    }
 
+    private void guardarEmail() {
         guardarBoolean("email_activo", tglEmailActivo.isSelected());
         guardarValor("email_smtp", valor(cmbEmailSmtp, "Gmail"));
         guardarValor("email_remitente", txtEmailRemitente.getText());
@@ -294,11 +348,17 @@ public class ConfiguracionController {
         guardarValor("email_host", txtEmailHost.getText());
         guardarValor("email_puerto", txtEmailPuerto.getText());
         guardarBoolean("email_reporte_diario", tglEmailReporteDiario.isSelected());
-
-        feedbackGuardado();
     }
 
     private void cargarConfiguracion() {
+        cargarNegocio();
+        cargarTicket();
+        cargarCajon();
+        cargarEmail();
+        actualizarVisibilidadSmtp();
+    }
+
+    private void cargarNegocio() {
         txtNombreNegocio.setText(leerValor("negocio_nombre", ""));
         txtSlogan.setText(leerValor("negocio_slogan", ""));
         txtTelefono.setText(leerValor("negocio_telefono", ""));
@@ -308,7 +368,9 @@ public class ConfiguracionController {
         txtCorreo.setText(leerValor("negocio_correo", ""));
         txtSitioWeb.setText(leerValor("negocio_web", ""));
         txtRFC.setText(leerValor("negocio_rfc", ""));
+    }
 
+    private void cargarTicket() {
         txtTicketNombre.setText(leerValor("ticket_nombre", "Volovan Volo"));
         txtTicketGiro.setText(leerValor("ticket_giro", "Panaderia y Reposteria"));
         txtTicketDireccion.setText(leerValor("ticket_direccion", ""));
@@ -323,11 +385,15 @@ public class ConfiguracionController {
         tglFolioTicket.setSelected(leerBoolean("ticket_folio", true));
         tglDesglose.setSelected(leerBoolean("ticket_desglose", true));
         tglQR.setSelected(leerBoolean("ticket_qr", false));
+    }
 
+    private void cargarCajon() {
         tglCajonActivo.setSelected(leerBoolean("cajon_activo", false));
         seleccionar(cmbCajonPuerto, leerValor("cajon_puerto", "Via impresora termica (ESC/POS)"), "Via impresora termica (ESC/POS)");
         seleccionar(cmbCajonPulso, leerValor("cajon_pulso", "Pulso 1 (pin 2)"), "Pulso 1 (pin 2)");
+    }
 
+    private void cargarEmail() {
         tglEmailActivo.setSelected(leerBoolean("email_activo", false));
         seleccionar(cmbEmailSmtp, leerValor("email_smtp", "Gmail"), "Gmail");
         txtEmailRemitente.setText(leerValor("email_remitente", ""));
@@ -335,7 +401,6 @@ public class ConfiguracionController {
         txtEmailHost.setText(leerValor("email_host", ""));
         txtEmailPuerto.setText(leerValor("email_puerto", ""));
         tglEmailReporteDiario.setSelected(leerBoolean("email_reporte_diario", false));
-        actualizarVisibilidadSmtp();
     }
 
     private void guardarValor(String clave, String valor) {
@@ -696,15 +761,19 @@ public class ConfiguracionController {
     }
 
     private void feedbackGuardado() {
+        if (feedbackFade != null) {
+            feedbackFade.stop();
+        }
         lblFeedbackGuardado.setOpacity(1);
         lblFeedbackGuardado.setText("Cambios guardados");
-        String oldStyle = btnGuardarCambios.getStyle();
-        btnGuardarCambios.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 18;");
-        FadeTransition fade = new FadeTransition(Duration.millis(1800), lblFeedbackGuardado);
-        fade.setFromValue(1);
-        fade.setToValue(0);
-        fade.setOnFinished(e -> btnGuardarCambios.setStyle(oldStyle));
-        fade.play();
+        if (!btnGuardarCambios.getStyleClass().contains("primary-button-success")) {
+            btnGuardarCambios.getStyleClass().add("primary-button-success");
+        }
+        feedbackFade = new FadeTransition(Duration.millis(1800), lblFeedbackGuardado);
+        feedbackFade.setFromValue(1);
+        feedbackFade.setToValue(0);
+        feedbackFade.setOnFinished(e -> btnGuardarCambios.getStyleClass().remove("primary-button-success"));
+        feedbackFade.play();
     }
 
     private String valor(ComboBox<String> combo, String fallback) {
