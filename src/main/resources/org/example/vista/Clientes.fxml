@@ -100,10 +100,10 @@
                     </HBox>
                     <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
                           style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #1a6fa820; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
-                        <Label style="-fx-background-color: #FDE8E8; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;" text="$"/>
+                        <Label style="-fx-background-color: #FDE8E8; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;" text="\$"/>
                         <VBox>
                             <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="TOTAL ADEUDO"/>
-                            <Label fx:id="lblStatAdeudo" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #C0392B;" text="$0.00"/>
+                            <Label fx:id="lblStatAdeudo" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #C0392B;" text="\$0.00"/>
                         </VBox>
                     </HBox>
                     <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
