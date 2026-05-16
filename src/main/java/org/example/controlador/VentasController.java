@@ -22,9 +22,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
-import org.example.modelo.CalculoFiscal;
 import org.example.modelo.SesionUsuario;
-import org.example.servicio.FiscalService;
 import org.example.servicio.MarcaService;
 
 import java.io.IOException;
@@ -65,8 +63,6 @@ public class VentasController {
     private String categoriaSeleccionada = "Todas";
     private Map<Integer, Object[]> carrito = new HashMap<>();
     private double total = 0;
-    private final FiscalService fiscalService = new FiscalService();
-    private CalculoFiscal calculoFiscal = new CalculoFiscal();
 
     // ── Ventas en espera: lista de snapshots ──
     // Cada snapshot: [carrito, idCliente, nombreCliente, limiteCredito, saldoCliente, etiqueta]

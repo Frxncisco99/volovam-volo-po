@@ -1,13 +1,18 @@
 package org.example.controlador;
 
-import javafx.application.Platform;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import javafx.animation.FadeTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -27,10 +32,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.dao.ConexionDB;
 import org.example.dao.FiscalDAO;
 import org.example.modelo.ConfiguracionFiscal;
@@ -45,9 +49,14 @@ import org.example.servicio.PermisoService;
 import org.example.servicio.TicketRenderer;
 import org.example.servicio.UsuarioSeguridadService;
 
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import java.io.File;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -58,26 +67,18 @@ import java.util.prefs.Preferences;
 
 public class ConfiguracionController {
 
-    // ── Sidebar ───────────────────────────────────────────────────────────────
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
+    @FXML private Label lblMarcaNegocio;
+    @FXML private Label lblFeedbackGuardado;
 
-    // ── Topbar ────────────────────────────────────────────────────────────────
-    @FXML private Label  lblHora;
-    @FXML private Label  lblEstadoCaja;
-    @FXML private Label  lblGuardadoAt;   // feedback "Guardado a las HH:mm:ss"
-    @FXML private Button btnGuardar;      // para animación de feedback
-
-    // ── Pestañas ──────────────────────────────────────────────────────────────
     @FXML private VBox panelNegocio;
     @FXML private VBox panelFiscal;
     @FXML private VBox panelTicket;
     @FXML private VBox panelCajon;
     @FXML private VBox panelEmail;
     @FXML private VBox panelUsuarios;
-    @FXML private VBox panelFiscal;
-    @FXML private VBox panelIntegraciones;
     @FXML private VBox panelBaseDatos;
 
     @FXML private Button btnTabNegocio;
@@ -86,11 +87,9 @@ public class ConfiguracionController {
     @FXML private Button btnTabCajon;
     @FXML private Button btnTabEmail;
     @FXML private Button btnTabUsuarios;
-    @FXML private Button btnTabFiscal;
-    @FXML private Button btnTabIntegraciones;
     @FXML private Button btnTabBaseDatos;
+    @FXML private Button btnGuardarCambios;
 
-    // ── Panel Negocio ─────────────────────────────────────────────────────────
     @FXML private TextField txtNombreNegocio;
     @FXML private TextField txtSlogan;
     @FXML private TextField txtTelefono;
@@ -169,46 +168,18 @@ public class ConfiguracionController {
 
     @FXML
     public void initialize() {
-        cargarDatosUsuario();
-        iniciarReloj();
-        poblarCombos();
-        configurarTablaUsuarios();
-        configurarTablaImpuestos();
-        configurarListeners();
+        prepararColeccionesUI();
+        cargarSesion();
+        prepararCombos();
+        prepararUsuarios();
+        prepararInteracciones();
+        cargarConfiguracion();
+        cargarUsuarios();
+        cargarInfoBaseDatos();
         mostrarTab("negocio");
-        cargarConfiguracion();          // BD → campos (con fallback a Preferences)
-        verificarEstadoDB();            // estado real al abrir
-        cargarUsuariosDesdeDB();
     }
 
-    private void configurarListeners() {
-        if (txtBuscarUsuario != null) {
-            txtBuscarUsuario.textProperty().addListener((o, a, b) -> filtrarUsuarios(b));
-        }
-    }
-
-    // ── Reloj en tiempo real ──────────────────────────────────────────────────
-    private void iniciarReloj() {
-        if (lblHora == null) return;
-        lblHora.setText(LocalDateTime.now().format(HORA_FMT));
-        relojTimeline = new javafx.animation.Timeline(
-                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e ->
-                        lblHora.setText(LocalDateTime.now().format(HORA_FMT))
-                )
-        );
-        relojTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
-        relojTimeline.play();
-    }
-
-    private void detenerReloj() {
-        if (relojTimeline != null) {
-            relojTimeline.stop();
-            relojTimeline = null;
-        }
-    }
-
-    // ── Datos del usuario activo ──────────────────────────────────────────────
-    private void cargarDatosUsuario() {
+    private void cargarSesion() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
         String nombre = sesion.getNombre() == null ? "Usuario" : sesion.getNombre();
         lblNombreUsuario.setText(nombre);
@@ -229,16 +200,8 @@ public class ConfiguracionController {
         for (PrintService service : printServices) {
             cmbImpresora.getItems().add(service.getName());
         }
-    }
-
-    /** Guarda un par clave/valor en la tabla configuracion (UPSERT). */
-    private void dbSet(Connection con, String clave, String valor) throws SQLException {
-        String sql = "INSERT INTO configuracion (clave, valor) VALUES (?, ?) " +
-                "ON DUPLICATE KEY UPDATE valor = VALUES(valor)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, clave);
-            ps.setString(2, valor == null ? "" : valor);
-            ps.executeUpdate();
+        if (cmbImpresora.getItems().isEmpty()) {
+            cmbImpresora.getItems().add("Impresora predeterminada");
         }
     }
 
@@ -320,140 +283,46 @@ public class ConfiguracionController {
                 });
             }
 
-        if (asegurarTablaConfiguracion()) {
-            try (Connection con = ConexionDB.getConexion()) {
-                for (Map.Entry<String, String> entry : valores.entrySet()) {
-                    dbSet(con, entry.getKey(), entry.getValue());
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
                 }
-                guardadoEnBD = true;
-            } catch (Exception e) {
-                e.printStackTrace();
+                UsuarioRow row = getTableView().getItems().get(getIndex());
+                btnEstado.setText(row.activo() ? "Desactivar" : "Activar");
+                setGraphic(box);
             }
-        }
-
-        // Fallback: tambien en Preferences (portabilidad y compatibilidad con TicketService)
-        guardarEnPreferences(valores);
-        guardadoEnBD = guardarConfiguracionFiscal() || guardadoEnBD;
-
-        // ── Feedback visual inline — sin Alert ──────────────────────────────
-        mostrarFeedbackGuardado(guardadoEnBD);
+        });
+        tablaUsuarios.setItems(usuarios);
+        txtBuscarUsuario.textProperty().addListener((obs, old, value) -> cargarUsuarios());
     }
 
-    private Map<String, String> obtenerValoresConfiguracion() {
-        Map<String, String> valores = new LinkedHashMap<>();
-
-        valores.put("negocio_nombre", text(txtNombreNegocio));
-        valores.put("negocio_slogan", text(txtSlogan));
-        valores.put("negocio_telefono", text(txtTelefono));
-        valores.put("negocio_direccion", text(txtDireccion));
-        valores.put("negocio_ciudad", text(txtCiudad));
-        valores.put("negocio_cp", text(txtCP));
-        valores.put("negocio_correo", text(txtCorreo));
-        valores.put("negocio_web", text(txtSitioWeb));
-        valores.put("negocio_rfc", text(txtRFC));
-        valores.put("negocio_moneda", combo(cmbMoneda, "MXN - Peso Mexicano"));
-        valores.put("negocio_zona", combo(cmbZonaHoraria, "America/Monterrey (CST)"));
-        valores.put("negocio_hora_ap", text(txtHoraApertura));
-        valores.put("negocio_hora_ci", text(txtHoraCierre));
-        valores.put("negocio_dias", diasOperacion());
-        valores.put("negocio_credito", text(txtLimiteCredito));
-        valores.put("negocio_sucursal", text(txtNumSucursal));
-        valores.put("negocio_mantenimiento", bool(tglMantenimiento));
-
-        valores.put("pos_metodo_pago", combo(cmbMetodoPago, "Efectivo y Tarjeta"));
-        valores.put("pos_redondeo", combo(cmbRedondeo, "Sin redondeo"));
-        valores.put("pos_busqueda", combo(cmbBusqueda, "Nombre o codigo"));
-        valores.put("pos_orden_productos", combo(cmbOrdenProductos, "Por categoria"));
-        valores.put("pos_apertura_caja", bool(tglAperturaCaja));
-        valores.put("pos_confirmar_cobro", bool(tglConfirmarCobro));
-        valores.put("pos_auto_imprimir", bool(tglAutoImprimir));
-        valores.put("pos_imagenes_producto", bool(tglImagenesProducto));
-        valores.put("pos_alerta_stock", bool(tglAlertaStock));
-        valores.put("pos_venta_sin_stock", bool(tglVentaSinStock));
-        valores.put("pos_asociar_cliente", bool(tglAsociarCliente));
-        valores.put("pos_venta_credito", bool(tglVentaCredito));
-        valores.put("pos_devoluciones", bool(tglDevoluciones));
-        valores.put("pos_venta_rapida", bool(tglVentaRapida));
-        valores.put("pos_nota_interna", text(txtNotaInterna));
-
-        valores.put("seguridad_auto_bloqueo", bool(tglAutoBloqueo));
-        valores.put("seguridad_inactividad", combo(cmbInactividad, "15 minutos"));
-        valores.put("seguridad_auditoria", bool(tglAuditoria));
-
-        valores.put("ticket_impresora", combo(cmbImpresora, "EPSON TM-T20III"));
-        valores.put("ticket_nombre", text(txtTicketNombre));
-        valores.put("ticket_giro", text(txtTicketGiro));
-        valores.put("ticket_direccion", text(txtTicketDireccion));
-        valores.put("ticket_ciudad", text(txtTicketCiudad));
-        valores.put("ticket_telefono", text(txtTicketTelefono));
-        valores.put("ticket_encabezado", text(txtMensajeEncabezado));
-        valores.put("ticket_pie", text(txtMensajePie));
-        valores.put("ticket_aviso", text(txtAvisoFiscal));
-        valores.put("ticket_ancho", combo(cmbAnchoPapel, "58 mm"));
-        valores.put("ticket_logo", bool(tglLogoTicket));
-        valores.put("ticket_folio", bool(tglFolioTicket));
-        valores.put("ticket_desglose", bool(tglDesglose));
-        valores.put("ticket_qr", bool(tglQR));
-        valores.put("ticket_copia_cocina", bool(tglCopiacocina));
-        valores.put("ticket_mostrar_fecha", bool(tglMostrarFecha));
-        valores.put("ticket_mostrar_cajero", bool(tglMostrarCajero));
-
-        valores.put("int_clip", text(txtClipToken));
-        valores.put("int_stripe", text(txtStripeKey));
-        valores.put("int_correo_rep", text(txtCorreoReportes));
-        valores.put("int_smtp", combo(cmbSmtp, "Gmail"));
-        valores.put("int_reporte_diario", bool(tglReporteDiario));
-        valores.put("int_alerta_stock_correo", bool(tglAlertaStockCorreo));
-        valores.put("int_twilio_sid", text(txtTwilioSid));
-        valores.put("int_twilio_token", text(txtTwilioToken));
-        valores.put("int_ticket_whatsapp", bool(tglTicketWhatsapp));
-
-        valores.put("respaldo_ruta", text(txtRutaRespaldo));
-        valores.put("respaldo_frecuencia", combo(cmbFrecuenciaRespaldo, "Diario"));
-        valores.put("respaldo_auto", bool(tglRespaldoAuto));
-        return valores;
+    private Button botonAccion(String texto) {
+        Button btn = new Button(texto);
+        btn.getStyleClass().add("cfg-action-button");
+        return btn;
     }
 
-    private void cargarConfiguracionFiscal() {
-        try {
-            ConfiguracionFiscal cfg = fiscalConfigService.cargar();
-            setText(txtRfcFiscal, cfg.getRfcNegocio().isBlank() ? text(txtRFC) : cfg.getRfcNegocio());
-            setText(txtRazonSocialFiscal, cfg.getRazonSocial());
-            setText(txtRegimenFiscal, cfg.getRegimenFiscal());
-            setText(txtCPFiscal, cfg.getCodigoPostalFiscal());
-            setComboValue(cmbIVADefault, cfg.getImpuestoPredeterminadoClave(), "IVA_16");
-            setComboValue(cmbRegionFiscal, cfg.getRegionFiscal(), "GENERAL");
-            setSwitch(tglPrecioIncluyeImpuesto, String.valueOf(cfg.isPrecioIncluyeImpuesto()));
-            setSwitch(tglImpuestoPorProducto, String.valueOf(cfg.isImpuestoPorProducto()));
-            setComboValue(cmbModoFacturacion, cfg.getModoFacturacion(), "PREFACTURA");
-            setText(txtSerieFactura, cfg.getSerieFactura());
-            setText(txtFolioInicial, String.valueOf(cfg.getFolioInicial()));
-            setText(txtUsoCfdiDefault, cfg.getUsoCfdiDefault());
-            setComboValue(cmbMetodoPagoSat, cfg.getMetodoPagoSat(), "PUE");
-            setComboValue(cmbFormaPagoSat, cfg.getFormaPagoSat(), "01");
-            if (tglDesglose != null) {
-                tglDesglose.setSelected(cfg.isMostrarDesgloseTicket());
-            }
-            cargarImpuestosFiscales();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void instalarTooltip(Control control, String texto) {
+        Tooltip tooltip = new Tooltip(texto);
+        tooltip.setShowDelay(Duration.millis(250));
+        control.setTooltip(tooltip);
     }
 
-    private boolean guardarConfiguracionFiscal() {
-        try {
-            ConfiguracionFiscal anterior = fiscalConfigService.cargar();
-            ConfiguracionFiscal cfg = fiscalDesdeCampos();
-            fiscalConfigService.guardar(cfg);
-            if (txtRFC != null && !cfg.getRfcNegocio().isBlank()) {
-                txtRFC.setText(cfg.getRfcNegocio());
+    private void validarCampo(TextField campo, java.util.function.Predicate<String> invalido) {
+        campo.textProperty().addListener((obs, old, value) -> marcarCampoInvalido(campo, invalido.test(value == null ? "" : value.trim())));
+        marcarCampoInvalido(campo, invalido.test(campo.getText() == null ? "" : campo.getText().trim()));
+    }
+
+    private void marcarCampoInvalido(Control control, boolean invalido) {
+        if (invalido) {
+            if (!control.getStyleClass().contains("cfg-field-invalid")) {
+                control.getStyleClass().add("cfg-field-invalid");
             }
-            registrarCambiosFiscales(anterior, cfg);
-            cargarImpuestosFiscales();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        } else {
+            control.getStyleClass().remove("cfg-field-invalid");
         }
     }
 
@@ -470,13 +339,8 @@ public class ConfiguracionController {
         botonesConfiguracion = List.of(btnTabNegocio, btnTabFiscal, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
     }
 
-    private void auditarSiCambio(String accion, String campo, String anterior, String actual) {
-        String a = anterior == null ? "" : anterior;
-        String b = actual == null ? "" : actual;
-        if (!a.equals(b)) {
-            AuditoriaService.get().registrar(accion, "configuracion_fiscal", 1, campo + ": " + a + " -> " + b);
-        }
-    }
+    private void prepararInteracciones() {
+        cmbEmailSmtp.valueProperty().addListener((obs, old, value) -> actualizarVisibilidadSmtp());
 
         instalarTooltip(btnGuardarCambios, "Guarda todos los cambios visibles en base de datos y Preferences.");
         instalarTooltip(btnTabNegocio, "Datos generales del negocio.");
@@ -495,10 +359,12 @@ public class ConfiguracionController {
         validarCampo(txtFolioInicial, texto -> !texto.isBlank() && !texto.matches("\\d+"));
     }
 
-    @FXML
-    private void desactivarImpuestoSeleccionado() {
-        cambiarEstadoImpuestoSeleccionado(false);
-    }
+    private void mostrarTab(String tab) {
+        panelesConfiguracion.forEach(panel -> {
+            panel.setManaged(false);
+            panel.setVisible(false);
+        });
+        botonesConfiguracion.forEach(boton -> boton.getStyleClass().remove("cfg-tab-active"));
 
         switch (tab) {
             case "fiscal" -> activar(panelFiscal, btnTabFiscal);
@@ -511,11 +377,11 @@ public class ConfiguracionController {
         }
     }
 
-    private int parseEntero(String value, int defaultValue) {
-        try {
-            return Integer.parseInt(value);
-        } catch (Exception e) {
-            return defaultValue;
+    private void activar(VBox panel, Button boton) {
+        panel.setManaged(true);
+        panel.setVisible(true);
+        if (!boton.getStyleClass().contains("cfg-tab-active")) {
+            boton.getStyleClass().add("cfg-tab-active");
         }
     }
 
@@ -605,63 +471,6 @@ public class ConfiguracionController {
         guardarBoolean("email_reporte_diario", tglEmailReporteDiario.isSelected());
     }
 
-    private void mostrarDialogo(String titulo, String mensaje) {
-        mostrarAlerta(Alert.AlertType.WARNING, titulo, mensaje);
-    }
-
-    private String combo(ComboBox<String> combo, String defaultValue) {
-        return combo != null && combo.getValue() != null ? combo.getValue() : defaultValue;
-    }
-
-    private String bool(org.example.modelo.SwitchToggle toggle) {
-        return String.valueOf(toggle != null && toggle.isSelected());
-    }
-
-    private String bool(ToggleButton toggle) {
-        return String.valueOf(toggle != null && toggle.isSelected());
-    }
-
-    private String diasOperacion() {
-        return bool(tglLun) + "," + bool(tglMar) + "," + bool(tglMie) + "," +
-                bool(tglJue) + "," + bool(tglVie) + "," + bool(tglSab) + "," + bool(tglDom);
-    }
-
-    /**
-     * Muestra feedback inline en el topbar:
-     * - El botón "Guardar Cambios" se vuelve verde por 2 segundos
-     * - lblGuardadoAt muestra "Guardado a las HH:mm:ss"
-     */
-    private void mostrarFeedbackGuardado(boolean enBD) {
-        if (lblGuardadoAt != null) {
-            String hora = LocalDateTime.now().format(HORA_FMT);
-            String origen = enBD ? "BD" : "local";
-            lblGuardadoAt.setText("Guardado a las " + hora + " (" + origen + ")");
-            lblGuardadoAt.setVisible(true);
-            lblGuardadoAt.setManaged(true);
-        }
-
-        if (btnGuardar != null) {
-            setStyleClass(btnGuardar, BTN_SUCCESS);
-            btnGuardar.setText("Guardado");
-
-            // Vuelve al estado original después de 2.5 segundos
-            javafx.animation.PauseTransition pausa =
-                    new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
-            pausa.setOnFinished(ev -> {
-                setStyleClass(btnGuardar, BTN_PRIMARY);
-                btnGuardar.setText("Guardar Cambios");
-            });
-            pausa.play();
-        }
-    }
-
-    // ── Guardar en Preferences (fallback / portabilidad) ─────────────────────
-    private void guardarEnPreferences(Map<String, String> valores) {
-        Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-        valores.forEach(prefs::put);
-    }
-
-    // ── Cargar configuración: BD primero, fallback a Preferences ─────────────
     private void cargarConfiguracion() {
         cargarNegocio();
         cargarFiscal();
@@ -671,77 +480,16 @@ public class ConfiguracionController {
         actualizarVisibilidadSmtp();
     }
 
-    private void cargarDesdePreferences() {
-        Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-        txtNombreNegocio.setText(prefs.get("negocio_nombre", ""));
-        txtSlogan.setText(prefs.get("negocio_slogan", ""));
-        txtTelefono.setText(prefs.get("negocio_telefono", ""));
-        txtDireccion.setText(prefs.get("negocio_direccion", ""));
-        txtCiudad.setText(prefs.get("negocio_ciudad", ""));
-        txtCP.setText(prefs.get("negocio_cp", ""));
-        txtCorreo.setText(prefs.get("negocio_correo", ""));
-        txtSitioWeb.setText(prefs.get("negocio_web", ""));
-        txtRFC.setText(prefs.get("negocio_rfc", ""));
-        setComboValue(cmbMoneda, prefs.get("negocio_moneda", "MXN - Peso Mexicano"), "MXN - Peso Mexicano");
-        setComboValue(cmbZonaHoraria, prefs.get("negocio_zona", "America/Monterrey (CST)"), "America/Monterrey (CST)");
-        txtHoraApertura.setText(prefs.get("negocio_hora_ap", "08:00"));
-        txtHoraCierre.setText(prefs.get("negocio_hora_ci", "21:00"));
-        aplicarDiasOperacion(prefs.get("negocio_dias", "true,true,true,true,true,true,false"));
-        txtLimiteCredito.setText(prefs.get("negocio_credito", ""));
-        txtNumSucursal.setText(prefs.get("negocio_sucursal", ""));
-        tglMantenimiento.setSelected(prefs.getBoolean("negocio_mantenimiento", false));
-
-        setComboValue(cmbMetodoPago, prefs.get("pos_metodo_pago", "Efectivo y Tarjeta"), "Efectivo y Tarjeta");
-        setComboValue(cmbRedondeo, prefs.get("pos_redondeo", "Sin redondeo"), "Sin redondeo");
-        setComboValue(cmbBusqueda, prefs.get("pos_busqueda", "Nombre o codigo"), "Nombre o codigo");
-        setComboValue(cmbOrdenProductos, prefs.get("pos_orden_productos", "Por categoria"), "Por categoria");
-        tglAperturaCaja.setSelected(prefs.getBoolean("pos_apertura_caja", true));
-        tglConfirmarCobro.setSelected(prefs.getBoolean("pos_confirmar_cobro", true));
-        tglAutoImprimir.setSelected(prefs.getBoolean("pos_auto_imprimir", false));
-        tglImagenesProducto.setSelected(prefs.getBoolean("pos_imagenes_producto", true));
-        tglAlertaStock.setSelected(prefs.getBoolean("pos_alerta_stock", true));
-        tglVentaSinStock.setSelected(prefs.getBoolean("pos_venta_sin_stock", false));
-        tglAsociarCliente.setSelected(prefs.getBoolean("pos_asociar_cliente", true));
-        tglVentaCredito.setSelected(prefs.getBoolean("pos_venta_credito", false));
-        tglDevoluciones.setSelected(prefs.getBoolean("pos_devoluciones", true));
-        tglVentaRapida.setSelected(prefs.getBoolean("pos_venta_rapida", false));
-        txtNotaInterna.setText(prefs.get("pos_nota_interna", ""));
-
-        tglAutoBloqueo.setSelected(prefs.getBoolean("seguridad_auto_bloqueo", true));
-        setComboValue(cmbInactividad, prefs.get("seguridad_inactividad", "15 minutos"), "15 minutos");
-        tglAuditoria.setSelected(prefs.getBoolean("seguridad_auditoria", true));
-
-        tglLogoTicket.setSelected(   prefs.getBoolean("ticket_logo",     true));
-        tglFolioTicket.setSelected(  prefs.getBoolean("ticket_folio",    true));
-        tglDesglose.setSelected(     prefs.getBoolean("ticket_desglose", true));
-        tglQR.setSelected(           prefs.getBoolean("ticket_qr",       false));
-        tglCopiacocina.setSelected(prefs.getBoolean("ticket_copia_cocina", false));
-        tglMostrarFecha.setSelected(prefs.getBoolean("ticket_mostrar_fecha", true));
-        tglMostrarCajero.setSelected(prefs.getBoolean("ticket_mostrar_cajero", true));
-        setComboValue(cmbImpresora, prefs.get("ticket_impresora", "EPSON TM-T20III"), "EPSON TM-T20III");
-        txtTicketNombre.setText(    prefs.get("ticket_nombre",    "Volovan Volo"));
-        txtTicketGiro.setText(      prefs.get("ticket_giro",      "Panaderia y Reposteria"));
-        txtTicketDireccion.setText( prefs.get("ticket_direccion", ""));
-        txtTicketCiudad.setText(    prefs.get("ticket_ciudad",    ""));
-        txtTicketTelefono.setText(  prefs.get("ticket_telefono",  ""));
-        txtMensajeEncabezado.setText(prefs.get("ticket_encabezado", "Bienvenido!\nGracias por visitarnos."));
-        txtMensajePie.setText(       prefs.get("ticket_pie",        "Gracias por su compra!\nVuelva pronto."));
-        txtAvisoFiscal.setText(      prefs.get("ticket_aviso",      "Este ticket no es\nComprobante fiscal"));
-        String ancho = prefs.get("ticket_ancho", "58 mm");
-        if (cmbAnchoPapel.getItems().contains(ancho)) cmbAnchoPapel.setValue(ancho);
-        txtClipToken.setText(      prefs.get("int_clip",       ""));
-        txtStripeKey.setText(      prefs.get("int_stripe",     ""));
-        txtCorreoReportes.setText( prefs.get("int_correo_rep", ""));
-        setComboValue(cmbSmtp, prefs.get("int_smtp", "Gmail"), "Gmail");
-        tglReporteDiario.setSelected(prefs.getBoolean("int_reporte_diario", false));
-        tglAlertaStockCorreo.setSelected(prefs.getBoolean("int_alerta_stock_correo", true));
-        txtTwilioSid.setText(      prefs.get("int_twilio_sid", ""));
-        txtTwilioToken.setText(    prefs.get("int_twilio_token", ""));
-        tglTicketWhatsapp.setSelected(prefs.getBoolean("int_ticket_whatsapp", false));
-
-        txtRutaRespaldo.setText(prefs.get("respaldo_ruta", ""));
-        setComboValue(cmbFrecuenciaRespaldo, prefs.get("respaldo_frecuencia", "Diario"), "Diario");
-        tglRespaldoAuto.setSelected(prefs.getBoolean("respaldo_auto", true));
+    private void cargarNegocio() {
+        txtNombreNegocio.setText(leerValor("negocio_nombre", ""));
+        txtSlogan.setText(leerValor("negocio_slogan", ""));
+        txtTelefono.setText(leerValor("negocio_telefono", ""));
+        txtDireccion.setText(leerValor("negocio_direccion", ""));
+        txtCiudad.setText(leerValor("negocio_ciudad", ""));
+        txtCP.setText(leerValor("negocio_cp", ""));
+        txtCorreo.setText(leerValor("negocio_correo", ""));
+        txtSitioWeb.setText(leerValor("negocio_web", ""));
+        txtRFC.setText(leerValor("negocio_rfc", ""));
     }
 
     private void cargarFiscal() {
@@ -780,401 +528,73 @@ public class ConfiguracionController {
         tglQR.setSelected(leerBoolean("ticket_qr", false));
     }
 
-    private void setSwitch(org.example.modelo.SwitchToggle toggle, String value) {
-        if (toggle != null) toggle.setSelected(Boolean.parseBoolean(value));
+    private void cargarCajon() {
+        tglCajonActivo.setSelected(leerBoolean("cajon_activo", false));
+        seleccionar(cmbCajonPuerto, leerValor("cajon_puerto", "Via impresora termica (ESC/POS)"), "Via impresora termica (ESC/POS)");
+        seleccionar(cmbCajonPulso, leerValor("cajon_pulso", "Pulso 1 (pin 2)"), "Pulso 1 (pin 2)");
     }
 
-    private void aplicarDiasOperacion(String encoded) {
-        String[] dias = encoded != null ? encoded.split(",", -1) : new String[0];
-        setDia(tglLun, dias, 0, true);
-        setDia(tglMar, dias, 1, true);
-        setDia(tglMie, dias, 2, true);
-        setDia(tglJue, dias, 3, true);
-        setDia(tglVie, dias, 4, true);
-        setDia(tglSab, dias, 5, true);
-        setDia(tglDom, dias, 6, false);
+    private void cargarEmail() {
+        tglEmailActivo.setSelected(leerBoolean("email_activo", false));
+        seleccionar(cmbEmailSmtp, leerValor("email_smtp", "Gmail"), "Gmail");
+        txtEmailRemitente.setText(leerValor("email_remitente", ""));
+        txtEmailPassword.setText(leerValor("email_password", ""));
+        txtEmailHost.setText(leerValor("email_host", ""));
+        txtEmailPuerto.setText(leerValor("email_puerto", ""));
+        tglEmailReporteDiario.setSelected(leerBoolean("email_reporte_diario", false));
     }
 
-    private void setDia(ToggleButton toggle, String[] dias, int index, boolean defaultValue) {
-        if (toggle == null) return;
-        toggle.setSelected(dias.length > index ? Boolean.parseBoolean(dias[index]) : defaultValue);
+    private void guardarValor(String clave, String valor) {
+        String limpio = valor == null ? "" : valor.trim();
+        prefs.put(clave, limpio);
+        dbSet(clave, limpio);
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  ESTADO DE BASE DE DATOS AL INICIAR
-    // ═════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Verifica la conexión actual al abrir la pantalla y actualiza
-     * el badge de estado sin esperar a que el usuario haga click en "Probar".
-     */
-    private void verificarEstadoDB() {
-        if (lblEstadoDB == null) return;
-        // Corre en hilo separado para no bloquear el UI thread
-        Thread t = new Thread(() -> {
-            Connection con = ConexionDB.getConexion();
-            boolean ok = con != null;
-            if (ok) {
-                try { con.close(); } catch (Exception ignored) {}
-            }
-            Platform.runLater(() -> actualizarBadgeDB(ok));
-        });
-        t.setDaemon(true);
-        t.start();
+    private void guardarBoolean(String clave, boolean valor) {
+        prefs.putBoolean(clave, valor);
+        dbSet(clave, Boolean.toString(valor));
     }
 
-    private void actualizarBadgeDB(boolean conectado) {
-        if (lblEstadoDB == null) return;
-        if (conectado) {
-            String host = txtDBHost != null ? txtDBHost.getText() : "localhost";
-            String db   = txtDBNombre != null ? txtDBNombre.getText() : "pospanaderia";
-            lblEstadoDB.setText("Conectado - " + db + "@" + host);
-            setStyleClass(lblEstadoDB, "cfg-db-status-label");
-            setStyleClass(boxEstadoDB, "cfg-db-status-ok");
-            if (icoEstadoDB != null) icoEstadoDB.setIconColor(Color.web("#27AE60"));
-        } else {
-            lblEstadoDB.setText("Sin conexion - revisa los parametros");
-            setStyleClass(lblEstadoDB, "cfg-db-status-label-error");
-            setStyleClass(boxEstadoDB, "cfg-db-status-error");
-            if (icoEstadoDB != null) icoEstadoDB.setIconColor(Color.web("#C0392B"));
-        }
+    private String leerValor(String clave, String fallback) {
+        return dbGet(clave, prefs.get(clave, fallback));
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  TABLA DE USUARIOS DESDE BD
-    // ═════════════════════════════════════════════════════════════════════════
-
-    private void configurarTablaUsuarios() {
-        if (tablaUsuarios == null) return;
-
-        tablaUsuarios.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        colUsuNombre.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombreCompleto()));
-        colUsuRol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getRol()));
-        colUsuEstado.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstado()));
-        colUsuUltimoAcceso.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUltimoAcceso()));
-
-        // Columna ROL — badge de color
-        colUsuRol.setCellFactory(col -> new TableCell<>() {
-            private final Label badge = new Label();
-            @Override protected void updateItem(String rol, boolean empty) {
-                super.updateItem(rol, empty);
-                setAlignment(Pos.CENTER);
-                if (empty || rol == null) { setGraphic(null); return; }
-                badge.setText(rol);
-                setStyleClasses(badge, "cfg-role-badge", claseRol(rol));
-                setGraphic(badge);
-            }
-        });
-
-        // Columna ESTADO — color
-        colUsuEstado.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String estado, boolean empty) {
-                super.updateItem(estado, empty);
-                setAlignment(Pos.CENTER);
-                getStyleClass().removeAll("cfg-user-status-active", "cfg-user-status-inactive");
-                if (empty || estado == null) { setText(null); return; }
-                setText(estado);
-                getStyleClass().add("Activo".equalsIgnoreCase(estado)
-                        ? "cfg-user-status-active"
-                        : "cfg-user-status-inactive");
-            }
-        });
-
-        // Columna ACCIONES
-        colUsuAcciones.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEditar   = new Button("Editar");
-            private final Button btnPassword = new Button("Clave");
-            private final Button btnEliminar = new Button("Borrar");
-            private final HBox   caja        = new HBox(6, btnEditar, btnPassword, btnEliminar);
-            {
-                setStyleClasses(btnEditar, "cfg-table-action", "cfg-table-action-edit");
-                setStyleClasses(btnPassword, "cfg-table-action", "cfg-table-action-key");
-                setStyleClasses(btnEliminar, "cfg-table-action", "cfg-table-action-delete");
-                caja.setAlignment(Pos.CENTER);
-                btnEditar.setOnAction(e   -> editarUsuario());
-                btnPassword.setOnAction(e -> cambiarPassword());
-                btnEliminar.setOnAction(e -> {
-                    FilaUsuario u = getTableView().getItems().get(getIndex());
-                    confirmarEliminarUsuario(u);
-                });
-            }
-            @Override protected void updateItem(Void v, boolean empty) {
-                super.updateItem(v, empty);
-                setGraphic(empty ? null : caja);
-            }
-        });
-
-        tablaUsuarios.setItems(listaUsuarios);
+    private boolean leerBoolean(String clave, boolean fallback) {
+        return Boolean.parseBoolean(dbGet(clave, Boolean.toString(prefs.getBoolean(clave, fallback))));
     }
 
-    private void configurarTablaImpuestos() {
-        if (tablaImpuestos == null) return;
-        tablaImpuestos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        colImpClave.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getClave()));
-        colImpNombre.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNombre()));
-        colImpTipo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTipo()));
-        colImpTasa.setCellValueFactory(c -> new SimpleStringProperty(String.format("%.2f%%", c.getValue().getTasa() * 100)));
-        colImpActivo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().isActivo() ? "Activo" : "Inactivo"));
-        tablaImpuestos.setItems(listaImpuestos);
-    }
-
-    private void cargarImpuestosFiscales() {
-        try {
-            FiscalSchemaService.asegurarEstructura();
-            listaImpuestos.setAll(impuestoDAO.obtenerTodos());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String claseRol(String rol) {
-        return switch (rol.toLowerCase()) {
-            case "administrador" -> "cfg-role-badge-admin";
-            case "gerente" -> "cfg-role-badge-manager";
-            default -> "cfg-role-badge-default";
-        };
-    }
-
-    private void cargarUsuariosDesdeDB() {
-        if (tablaUsuarios == null) return;
-        listaUsuarios.clear();
-        String sql = "SELECT u.id_usuario, u.nombre, u.apellido, r.nombre AS rol, " +
-                "u.activo, u.ultimo_acceso " +
-                "FROM usuarios u " +
-                "LEFT JOIN roles r ON u.id_rol = r.id_rol " +
-                "ORDER BY u.nombre";
+    private String dbGet(String clave, String fallback) {
+        String sql = "SELECT valor FROM configuracion WHERE clave = ?";
         try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String nombre    = rs.getString("nombre") + " " +
-                        (rs.getString("apellido") != null ? rs.getString("apellido") : "");
-                String rol       = rs.getString("rol") != null ? rs.getString("rol") : "Sin rol";
-                String estado    = rs.getBoolean("activo") ? "Activo" : "Inactivo";
-                String acceso    = rs.getTimestamp("ultimo_acceso") != null
-                        ? rs.getTimestamp("ultimo_acceso")
-                        .toLocalDateTime()
-                        .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
-                        : "Nunca";
-                listaUsuarios.add(new FilaUsuario(
-                        rs.getInt("id_usuario"), nombre.trim(), rol, estado, acceso));
-            }
-        } catch (Exception e) {
-            // Si la tabla tiene columnas distintas, intenta con esquema mínimo
-            cargarUsuariosEsquemaSimple();
-        }
-    }
-
-    /** Fallback con esquema mínimo (solo usuarios sin JOIN a roles) */
-    private void cargarUsuariosEsquemaSimple() {
-        String sql = "SELECT id_usuario, nombre, rol, activo FROM usuarios ORDER BY nombre";
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                String estado = rs.getBoolean("activo") ? "Activo" : "Inactivo";
-                listaUsuarios.add(new FilaUsuario(
-                        rs.getInt("id_usuario"),
-                        rs.getString("nombre"),
-                        rs.getString("rol") != null ? rs.getString("rol") : "—",
-                        estado,
-                        "—"));
-            }
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, clave);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString(1);
         } catch (Exception ignored) {
-            // Sin acceso a la tabla — la tabla queda vacía, no explota
+        }
+        return fallback;
+    }
+
+    private void dbSet(String clave, String valor) {
+        String sql = "INSERT INTO configuracion (clave, valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, clave);
+            ps.setString(2, valor);
+            ps.executeUpdate();
+        } catch (Exception ignored) {
         }
     }
-
-    private void filtrarUsuarios(String texto) {
-        if (texto == null || texto.isBlank()) {
-            tablaUsuarios.setItems(listaUsuarios);
-            return;
-        }
-        String lower = texto.toLowerCase();
-        ObservableList<FilaUsuario> filtrada = FXCollections.observableArrayList();
-        for (FilaUsuario u : listaUsuarios) {
-            if (u.getNombreCompleto().toLowerCase().contains(lower) ||
-                    u.getRol().toLowerCase().contains(lower)) {
-                filtrada.add(u);
-            }
-        }
-        tablaUsuarios.setItems(filtrada);
-    }
-
-    private void confirmarEliminarUsuario(FilaUsuario u) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Eliminar usuario");
-        a.setHeaderText(null);
-        a.setContentText("¿Eliminar a \"" + u.getNombreCompleto() + "\"? Esta acción no se puede deshacer.");
-        a.getButtonTypes().setAll(
-                new ButtonType("Eliminar", ButtonBar.ButtonData.OK_DONE),
-                new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE));
-        a.showAndWait().ifPresent(r -> {
-            if (r.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-                try (Connection con = ConexionDB.getConexion();
-                     PreparedStatement ps = con.prepareStatement(
-                             "UPDATE usuarios SET activo = 0 WHERE id_usuario = ?")) {
-                    ps.setInt(1, u.getIdUsuario());
-                    ps.executeUpdate();
-                    cargarUsuariosDesdeDB();
-                } catch (Exception ex) {
-                    mostrarAlerta(Alert.AlertType.ERROR, "Error", ex.getMessage());
-                }
-            }
-        });
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  MODELO FilaUsuario
-    // ═════════════════════════════════════════════════════════════════════════
-
-    public static class FilaUsuario {
-        private final int    idUsuario;
-        private final String nombreCompleto;
-        private final String rol;
-        private final String estado;
-        private final String ultimoAcceso;
-
-        public FilaUsuario(int id, String nombre, String rol, String estado, String acceso) {
-            this.idUsuario      = id;
-            this.nombreCompleto = nombre;
-            this.rol            = rol;
-            this.estado         = estado;
-            this.ultimoAcceso   = acceso;
-        }
-
-        public int    getIdUsuario()      { return idUsuario; }
-        public String getNombreCompleto() { return nombreCompleto; }
-        public String getRol()            { return rol; }
-        public String getEstado()         { return estado; }
-        public String getUltimoAcceso()   { return ultimoAcceso; }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  PESTAÑAS
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML private void tabNegocio()       { mostrarTab("negocio"); }
-    @FXML private void tabPOS()           { mostrarTab("pos"); }
-    @FXML private void tabUsuarios()      { mostrarTab("usuarios"); }
-    @FXML private void tabFiscal()        { mostrarTab("fiscal"); }
-    @FXML private void tabIntegraciones() { mostrarTab("integraciones"); }
-    @FXML private void tabBaseDatos()     { mostrarTab("basedatos"); }
-
-    private void mostrarTab(String tab) {
-        panelNegocio.setVisible(false);       panelNegocio.setManaged(false);
-        panelPOS.setVisible(false);           panelPOS.setManaged(false);
-        panelUsuarios.setVisible(false);      panelUsuarios.setManaged(false);
-        panelFiscal.setVisible(false);        panelFiscal.setManaged(false);
-        panelIntegraciones.setVisible(false); panelIntegraciones.setManaged(false);
-        panelBaseDatos.setVisible(false);     panelBaseDatos.setManaged(false);
-
-        setStyleClass(btnTabNegocio, TAB);
-        setStyleClass(btnTabPOS, TAB);
-        setStyleClass(btnTabUsuarios, TAB);
-        setStyleClass(btnTabFiscal, TAB);
-        setStyleClass(btnTabIntegraciones, TAB);
-        setStyleClass(btnTabBaseDatos, TAB);
-
-        switch (tab) {
-            case "negocio"       -> { panelNegocio.setVisible(true);       panelNegocio.setManaged(true);       setStyleClass(btnTabNegocio, TAB_ACTIVE); }
-            case "pos"           -> { panelPOS.setVisible(true);           panelPOS.setManaged(true);           setStyleClass(btnTabPOS, TAB_ACTIVE); }
-            case "usuarios"      -> { panelUsuarios.setVisible(true);      panelUsuarios.setManaged(true);      setStyleClass(btnTabUsuarios, TAB_ACTIVE);
-                cargarUsuariosDesdeDB(); } // refresca al abrir la pestaña
-            case "fiscal"        -> { panelFiscal.setVisible(true);        panelFiscal.setManaged(true);        setStyleClass(btnTabFiscal, TAB_ACTIVE); }
-            case "integraciones" -> { panelIntegraciones.setVisible(true); panelIntegraciones.setManaged(true); setStyleClass(btnTabIntegraciones, TAB_ACTIVE); }
-            case "basedatos"     -> { panelBaseDatos.setVisible(true);     panelBaseDatos.setManaged(true);     setStyleClass(btnTabBaseDatos, TAB_ACTIVE);
-                verificarEstadoDB(); } // refresca estado al abrir la pestaña
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  RESTABLECER
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML
-    public void restablecerConfiguracion() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Restablecer"); a.setHeaderText(null);
-        a.setContentText("¿Restablecer todos los ajustes a los valores predeterminados?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                txtNombreNegocio.clear(); txtTelefono.clear(); txtDireccion.clear();
-                txtCorreo.clear();        txtSitioWeb.clear(); txtRFC.clear();
-                txtSlogan.clear();        txtCiudad.clear();   txtCP.clear();
-                txtHoraApertura.setText("08:00");
-                txtHoraCierre.setText("21:00");
-                aplicarDiasOperacion("true,true,true,true,true,true,false");
-                txtLimiteCredito.clear();
-                txtNumSucursal.clear();
-                tglMantenimiento.setSelected(false);
-                tglLogoTicket.setSelected(true);
-                tglFolioTicket.setSelected(true);
-                tglDesglose.setSelected(true);
-                tglQR.setSelected(false);
-                tglCopiacocina.setSelected(false);
-                tglMostrarFecha.setSelected(true);
-                tglMostrarCajero.setSelected(true);
-                cmbMoneda.setValue("MXN - Peso Mexicano");
-                cmbZonaHoraria.setValue("America/Monterrey (CST)");
-                cmbImpresora.setValue("EPSON TM-T20III");
-                cmbAnchoPapel.setValue("58 mm");
-                cmbMetodoPago.setValue("Efectivo y Tarjeta");
-                cmbRedondeo.setValue("Sin redondeo");
-                cmbBusqueda.setValue("Nombre o codigo");
-                cmbOrdenProductos.setValue("Por categoria");
-                tglAperturaCaja.setSelected(true);
-                tglConfirmarCobro.setSelected(true);
-                tglAutoImprimir.setSelected(false);
-                tglImagenesProducto.setSelected(true);
-                tglAlertaStock.setSelected(true);
-                tglVentaSinStock.setSelected(false);
-                tglAsociarCliente.setSelected(true);
-                tglVentaCredito.setSelected(false);
-                tglDevoluciones.setSelected(true);
-                tglVentaRapida.setSelected(false);
-                txtNotaInterna.clear();
-                tglAutoBloqueo.setSelected(true);
-                cmbInactividad.setValue("15 minutos");
-                tglAuditoria.setSelected(true);
-                txtTicketNombre.setText("Volovan Volo");
-                txtTicketGiro.setText("Panaderia y Reposteria");
-                txtTicketDireccion.clear();
-                txtTicketCiudad.clear();
-                txtTicketTelefono.clear();
-                txtMensajeEncabezado.setText("Bienvenido!\nGracias por visitarnos.");
-                txtMensajePie.setText("Gracias por su compra!\nVuelva pronto.\nfacebook.com/VolovanVolo");
-                txtAvisoFiscal.setText("Este ticket no es\nComprobante fiscal");
-                txtClipToken.clear();
-                txtStripeKey.clear();
-                txtCorreoReportes.clear();
-                cmbSmtp.setValue("Gmail");
-                tglReporteDiario.setSelected(false);
-                tglAlertaStockCorreo.setSelected(true);
-                txtTwilioSid.clear();
-                txtTwilioToken.clear();
-                tglTicketWhatsapp.setSelected(false);
-                txtRutaRespaldo.clear();
-                cmbFrecuenciaRespaldo.setValue("Diario");
-                tglRespaldoAuto.setSelected(true);
-            }
-        });
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  TICKET — vista previa e impresión (sin cambios funcionales)
-    // ═════════════════════════════════════════════════════════════════════════
 
     @FXML
     public void abrirVistaPrevia() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/vista/TicketPreview.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/TicketPreview.fxml"));
             Parent root = loader.load();
+            MarcaService.aplicar(root);
             TicketPreviewController ctrl = loader.getController();
-            int ancho = "58 mm".equals(cmbAnchoPapel.getValue())
-                    ? TicketRenderer.ANCHO_58MM : TicketRenderer.ANCHO_80MM;
-            ctrl.configurar(ticketMuestra(ancho),
+            int ancho = "58 mm".equals(cmbAnchoPapel.getValue()) ? TicketRenderer.ANCHO_58MM : TicketRenderer.ANCHO_80MM;
+            ctrl.configurar(ticketMuestra(),
                     txtTicketNombre.getText().trim(),
                     txtTicketGiro.getText().trim(),
                     txtTicketDireccion.getText().trim(),
@@ -1187,46 +607,80 @@ public class ConfiguracionController {
                     tglFolioTicket.isSelected(),
                     tglDesglose.isSelected(),
                     tglQR.isSelected(),
-                    tglMostrarFecha  != null && tglMostrarFecha.isSelected(),
-                    tglMostrarCajero != null && tglMostrarCajero.isSelected(),
+                    true,
+                    true,
                     ancho);
             Stage stage = new Stage();
-            stage.setTitle("Vista Previa — Ticket");
+            stage.setTitle("Vista previa - Ticket");
             stage.setScene(new javafx.scene.Scene(root));
             stage.setResizable(false);
             stage.initOwner(lblNombreUsuario.getScene().getWindow());
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error",
-                    "No se pudo abrir la vista previa.\n" + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Vista previa", "No se pudo abrir la vista previa.\n" + e.getMessage());
+        }
+    }
+
+    private Ticket ticketMuestra() {
+        return new Ticket(1234,
+                LocalDateTime.now(),
+                SesionUsuario.getInstancia().getNombre(),
+                List.of(
+                        new Ticket.LineaTicket("Croissant mantequilla", 2, 24.00),
+                        new Ticket.LineaTicket("Pan de chocolate", 1, 22.00),
+                        new Ticket.LineaTicket("Concha vainilla", 3, 12.00),
+                        new Ticket.LineaTicket("Cafe americano", 1, 35.00)
+                ),
+                141.00, 200.00, 59.00, 1);
+    }
+
+    private void actualizarVisibilidadSmtp() {
+        boolean personalizado = "SMTP personalizado".equals(cmbEmailSmtp.getValue());
+        boxSmtpPersonalizado.setVisible(personalizado);
+        boxSmtpPersonalizado.setManaged(personalizado);
+        if (!personalizado) {
+            String provider = valor(cmbEmailSmtp, "Gmail");
+            if ("Outlook / Hotmail".equals(provider)) {
+                txtEmailHost.setText("smtp.office365.com");
+                txtEmailPuerto.setText("587");
+            } else {
+                txtEmailHost.setText("smtp.gmail.com");
+                txtEmailPuerto.setText("587");
+            }
         }
     }
 
     @FXML
-    public void imprimirTicketPrueba() {
-        int ancho = "58 mm".equals(cmbAnchoPapel.getValue())
-                ? TicketRenderer.ANCHO_58MM : TicketRenderer.ANCHO_80MM;
+    public void probarCorreo() {
+        String remitente = txtEmailRemitente.getText().trim();
+        String password = txtEmailPassword.getText();
+        String host = txtEmailHost.getText().trim();
+        String puerto = txtEmailPuerto.getText().trim();
+        if (remitente.isEmpty() || password.isEmpty() || host.isEmpty() || puerto.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Correo", "Completa remitente, password, servidor y puerto.");
+            return;
+        }
         try {
-            impresora.imprimirConRenderer(ticketMuestra(ancho),
-                    txtTicketNombre.getText().trim(),
-                    txtTicketGiro.getText().trim(),
-                    txtTicketDireccion.getText().trim(),
-                    txtTicketCiudad.getText().trim(),
-                    txtTicketTelefono.getText().trim(),
-                    txtMensajeEncabezado.getText().trim(),
-                    txtMensajePie.getText().trim(),
-                    txtAvisoFiscal.getText().trim(),
-                    tglLogoTicket.isSelected(), tglFolioTicket.isSelected(),
-                    tglDesglose.isSelected(),   tglQR.isSelected(),
-                    tglMostrarFecha  != null && tglMostrarFecha.isSelected(),
-                    tglMostrarCajero != null && tglMostrarCajero.isSelected(),
-                    ancho);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Ticket de Prueba",
-                    "Ticket enviado a la impresora correctamente.");
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", host);
+            props.put("mail.smtp.port", puerto);
+            Session session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(remitente, password);
+                }
+            });
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(remitente));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(remitente));
+            message.setSubject("Prueba de correo POS");
+            message.setText("La configuracion de correo del POS funciona correctamente.");
+            Transport.send(message);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Correo", "Correo de prueba enviado a " + remitente + ".");
         } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Impresión",
-                    "No se pudo imprimir.\n" + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Correo", "No se pudo enviar el correo de prueba.\n" + e.getMessage());
         }
     }
 
@@ -1272,25 +726,35 @@ public class ConfiguracionController {
         });
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  USUARIOS Y ROLES — stubs de dialogo
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML public void agregarUsuario() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Nuevo Usuario",
-                "Aqui se abrira el dialogo para crear un nuevo usuario.");
-    }
-    @FXML public void editarUsuario() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Editar Usuario",
-                "Aqui se abrira el dialogo para editar el usuario seleccionado.");
-    }
-    @FXML public void cambiarPassword() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Cambiar Contrasena",
-                "Aqui se abrira el dialogo para cambiar la contrasena.");
-    }
-    @FXML public void eliminarUsuario() {
-        mostrarAlerta(Alert.AlertType.WARNING, "Selecciona un usuario",
-                "Selecciona un usuario de la tabla para eliminarlo.");
+    private void cargarUsuarios() {
+        usuarios.clear();
+        String filtro = txtBuscarUsuario == null || txtBuscarUsuario.getText() == null ? "" : txtBuscarUsuario.getText().trim();
+        String sql = """
+                SELECT u.id_usuario, u.nombre, u.usuario, r.nombre AS rol, u.activo
+                FROM usuarios u
+                JOIN roles r ON u.id_rol = r.id_rol
+                WHERE u.nombre LIKE ? OR u.usuario LIKE ? OR r.nombre LIKE ?
+                ORDER BY u.activo DESC, u.nombre
+                """;
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            String like = "%" + filtro + "%";
+            ps.setString(1, like);
+            ps.setString(2, like);
+            ps.setString(3, like);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                boolean activo = rs.getInt("activo") == 1;
+                usuarios.add(new UsuarioRow(
+                        rs.getInt("id_usuario"),
+                        rs.getString("nombre"),
+                        rs.getString("usuario"),
+                        rs.getString("rol"),
+                        activo ? "Activo" : "Inactivo",
+                        activo));
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void insertarUsuario(String nombre, String usuario, String password, String rol) {
@@ -1310,7 +774,6 @@ public class ConfiguracionController {
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo crear el usuario.\n" + e.getMessage());
         }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio", "Conexion con Twilio verificada.");
     }
 
     private void actualizarUsuario(int id, String nombre, String usuario, String password, String rol) {
@@ -1333,10 +796,9 @@ public class ConfiguracionController {
                 }
                 ps.executeUpdate();
             }
+            cargarUsuarios();
         } catch (Exception e) {
-            actualizarBadgeDB(false);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexion",
-                    "No se pudo conectar.\n" + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo actualizar el usuario.\n" + e.getMessage());
         }
     }
 
@@ -1465,68 +927,66 @@ public class ConfiguracionController {
         }
     }
 
-    @FXML public void exportarRespaldo() {
-        String ruta = txtRutaRespaldo.getText().trim();
-        if (ruta.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Respaldo", "Selecciona la carpeta primero."); return;
+    private void cargarInfoBaseDatos() {
+        lblDBHost.setText("localhost:3306");
+        lblDBNombre.setText("pospanaderia");
+        try (Connection con = ConexionDB.getConexion()) {
+            if (con == null) throw new IllegalStateException("Sin conexion");
+            DatabaseMetaData meta = con.getMetaData();
+            lblEstadoDB.setText("Conectado");
+            lblDBVersion.setText(meta.getDatabaseProductName() + " " + meta.getDatabaseProductVersion());
+        } catch (Exception e) {
+            lblEstadoDB.setText("Sin conexion");
+            lblDBVersion.setText("No disponible");
         }
-        String archivo = "respaldo_pos_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + ".sql";
-        lblUltimoRespaldo.setText(
-                LocalDateTime.now().format(FECHA_HORA_FMT) +
-                        " — " + archivo);
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo Exportado",
-                "Respaldo creado:\n" + ruta + java.io.File.separator + archivo);
     }
 
-    @FXML public void restaurarRespaldo() {
-        Alert c = new Alert(Alert.AlertType.CONFIRMATION);
-        c.setTitle("Restaurar"); c.setHeaderText("Advertencia: sobreescribira los datos actuales");
-        c.setContentText("¿Deseas seleccionar un archivo de respaldo?");
-        c.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                FileChooser fc = new FileChooser();
-                fc.setTitle("Seleccionar archivo de respaldo");
-                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos SQL", "*.sql"));
-                File archivo = fc.showOpenDialog((Stage) lblNombreUsuario.getScene().getWindow());
-                if (archivo != null)
-                    mostrarAlerta(Alert.AlertType.INFORMATION, "Restaurar",
-                            "Archivo: " + archivo.getName());
-            }
-        });
+    @FXML
+    public void seleccionarCarpetaRespaldo() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Seleccionar carpeta para respaldo");
+        File carpeta = chooser.showDialog(lblNombreUsuario.getScene().getWindow());
+        if (carpeta != null) txtRutaRespaldo.setText(carpeta.getAbsolutePath());
     }
 
-    @FXML public void actualizarEstadisticasDB() {
-        try (Connection conn = ConexionDB.getConexion()) {
-            if (conn == null) { lblTamanoDB.setText("Sin conexion"); return; }
-            try (Statement stmt = conn.createStatement()) {
-                ResultSet rsTickets = stmt.executeQuery("SELECT COUNT(*) FROM tickets");
-                if (rsTickets.next()) lblRegVentas.setText(rsTickets.getInt(1) + " registros");
-                ResultSet rsProductos = stmt.executeQuery("SELECT COUNT(*) FROM productos");
-                if (rsProductos.next()) lblRegProductos.setText(rsProductos.getInt(1) + " productos");
-            }
-            try (PreparedStatement psSize = conn.prepareStatement(
-                    "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS tamano_mb " +
-                            "FROM information_schema.tables WHERE table_schema = ?")) {
-                psSize.setString(1, txtDBNombre.getText());
-                ResultSet rsSize = psSize.executeQuery();
-                if (rsSize.next()) lblTamanoDB.setText(rsSize.getString(1) + " MB");
-            }
-        } catch (Exception e) { lblTamanoDB.setText("Error"); }
+    @FXML
+    public void exportarRespaldo() {
+        String carpeta = txtRutaRespaldo.getText().trim();
+        if (carpeta.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Respaldo", "Selecciona una carpeta de destino.");
+            return;
+        }
+        File destino = new File(carpeta, "pospanaderia_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".sql");
+        ProcessBuilder pb = new ProcessBuilder("mysqldump", "-h", "localhost", "-u", "root", "pospanaderia");
+        pb.redirectOutput(destino);
+        pb.redirectErrorStream(true);
+        try {
+            int code = pb.start().waitFor();
+            if (code == 0) mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo", "Respaldo exportado:\n" + destino.getAbsolutePath());
+            else mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "mysqldump termino con codigo " + code + ".");
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "No se pudo exportar el respaldo.\n" + e.getMessage());
+        }
     }
 
-    @FXML public void limpiarTemporales() {
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Limpiar Temporales", "Registros temporales eliminados.");
+    private void feedbackGuardado() {
+        if (feedbackFade != null) {
+            feedbackFade.stop();
+        }
+        lblFeedbackGuardado.setOpacity(1);
+        lblFeedbackGuardado.setText("Cambios guardados");
+        if (!btnGuardarCambios.getStyleClass().contains("primary-button-success")) {
+            btnGuardarCambios.getStyleClass().add("primary-button-success");
+        }
+        feedbackFade = new FadeTransition(Duration.millis(1800), lblFeedbackGuardado);
+        feedbackFade.setFromValue(1);
+        feedbackFade.setToValue(0);
+        feedbackFade.setOnFinished(e -> btnGuardarCambios.getStyleClass().remove("primary-button-success"));
+        feedbackFade.play();
     }
 
-    @FXML public void optimizarTablas() {
-        Connection conn = ConexionDB.getConexion();
-        if (conn == null) { mostrarAlerta(Alert.AlertType.ERROR, "Optimizar", "Sin conexion activa."); return; }
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute("OPTIMIZE TABLE productos, tickets, categorias");
-            conn.close();
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Optimizado", "Tablas optimizadas exitosamente.");
-        } catch (Exception e) { mostrarAlerta(Alert.AlertType.ERROR, "Error", e.getMessage()); }
+    private String valor(ComboBox<String> combo, String fallback) {
+        return combo.getValue() == null ? fallback : combo.getValue();
     }
 
     private String claveImpuestoSeleccionada() {
@@ -1561,44 +1021,42 @@ public class ConfiguracionController {
         else combo.setValue(fallback);
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  AUDITORÍA Y CIERRE DE SESIÓN
-    // ═════════════════════════════════════════════════════════════════════════
+    private String iniciales(String nombre) {
+        String limpio = nombre == null ? "" : nombre.trim();
+        if (limpio.isEmpty()) return "US";
+        String[] partes = limpio.split("\\s+");
+        if (partes.length > 1) return (partes[0].substring(0, 1) + partes[1].substring(0, 1)).toUpperCase();
+        return limpio.substring(0, Math.min(2, limpio.length())).toUpperCase();
+    }
 
     private void registrarLogout() {
-        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
-                "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
+        String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
-            String nombre = SesionUsuario.getInstancia().getNombre();
             ps.setInt(1, idUsuario);
             ps.setInt(2, idUsuario);
-            ps.setString(3, "Cierre de sesión: " + nombre);
+            ps.setString(3, "Cierre de sesion: " + SesionUsuario.getInstancia().getNombre());
             ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  NAVEGACIÓN
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML private void irADashboard()    { navegar("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML private void irAVentas()       { navegar("/org/example/vista/Ventas.fxml"); }
-    @FXML private void irAInventario()   { navegar("/org/example/vista/Inventario.fxml"); }
-    @FXML private void irAEmpleados()    { navegar("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAClientes()     { navegar("/org/example/vista/Clientes.fxml"); }
-    @FXML private void irAReportes()     { navegar("/org/example/vista/Reportes.fxml"); }
-    @FXML private void irAAuditoria()    { navegar("/org/example/vista/Auditoria.fxml"); }
-    @FXML private void irACorteCaja()    { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes() { navegar("/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes() { navegar("/org/example/vista/Reportes.fxml"); }
+    @FXML private void irAAuditoria() { navegar("/org/example/vista/Auditoria.fxml"); }
+    @FXML private void irACorteCaja() { navegar("/org/example/vista/CorteCaja.fxml"); }
 
     @FXML
     public void btnCerrar() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Salir"); a.setHeaderText(null);
-        a.setContentText("¿Seguro que deseas salir?");
+        a.setTitle("Cambiar sesion");
+        a.setHeaderText(null);
+        a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
@@ -1610,29 +1068,22 @@ public class ConfiguracionController {
 
     private void navegar(String ruta) {
         try {
-            detenerReloj();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
-            Parent root = loader.load();
+            Parent root = FXMLLoader.load(getClass().getResource(ruta));
+            MarcaService.aplicar(root);
             Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
             stage.getScene().setRoot(root);
-        } catch (IOException e) { e.printStackTrace(); }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  UTILIDAD
-    // ═════════════════════════════════════════════════════════════════════════
-
-    private void setStyleClass(Node node, String styleClass) {
-        if (node != null) node.getStyleClass().setAll(styleClass);
-    }
-
-    private void setStyleClasses(Node node, String... styleClasses) {
-        if (node != null) node.getStyleClass().setAll(styleClasses);
+        } catch (IOException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Navegacion", "No se pudo abrir la vista.\n" + e.getMessage());
+        }
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert a = new Alert(tipo);
-        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
+        a.setTitle(titulo);
+        a.setHeaderText(null);
+        a.setContentText(mensaje);
         a.showAndWait();
     }
+
+    private record UsuarioRow(int id, String nombre, String usuario, String rol, String estado, boolean activo) {}
 }

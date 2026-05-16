@@ -258,7 +258,7 @@
                             <Label fx:id="lblSubtotal" style="-fx-font-size: 12px; -fx-text-fill: #0d3d5e;" text="\$0.00" />
                         </HBox>
                         <HBox alignment="CENTER_LEFT">
-                            <Label style="-fx-font-size: 12px; -fx-text-fill: #6a96b8;" text="Impuestos:" />
+                            <Label style="-fx-font-size: 12px; -fx-text-fill: #6a96b8;" text="IVA (16%):" />
                             <Region HBox.hgrow="ALWAYS" />
                             <Label fx:id="lblIva" style="-fx-font-size: 12px; -fx-text-fill: #0d3d5e;" text="\$0.00" />
                         </HBox>

@@ -111,14 +111,6 @@ public final class TicketRenderer {
                             prod, l.getCantidad(), l.getPrecioUnitario(), l.getSubtotal()));
                 }
             }
-            if (mostrarDesglose && !blank(l.getImpuestoDisplay())) {
-                String etiquetaImpuesto = "  " + cortar(l.getImpuestoDisplay(), Math.max(8, ancho - 14));
-                if (l.getImpuestoImporte() > 0) {
-                    sb.append(par(etiquetaImpuesto, String.format("$%.2f", l.getImpuestoImporte()), ancho)).append('\n');
-                } else {
-                    sb.append(cortar(etiquetaImpuesto, ancho)).append('\n');
-                }
-            }
         }
 
         // ── 5. TOTALES ────────────────────────────────────────────────────────
@@ -129,31 +121,8 @@ public final class TicketRenderer {
         sb.append(par("Articulos", totalArt + " pza(s)", ancho)).append('\n');
         sb.append(SEP2).append('\n');
 
-        if (mostrarDesglose) {
+        if (mostrarDesglose)
             sb.append(derechaFmt("Subtotal:", ticket.getSubtotal(), ancho)).append('\n');
-            if (ticket.getDescuento() > 0) {
-                sb.append(derechaFmt("Descuento:", ticket.getDescuento(), ancho)).append('\n');
-            }
-            if (ticket.getTotalGravado() > 0) {
-                sb.append(derechaFmt("Gravado:", ticket.getTotalGravado(), ancho)).append('\n');
-            }
-            if (ticket.getTotalExento() > 0) {
-                sb.append(derechaFmt("Exento:", ticket.getTotalExento(), ancho)).append('\n');
-            }
-            if (ticket.getTotalTasa0() > 0) {
-                sb.append(derechaFmt("Tasa 0:", ticket.getTotalTasa0(), ancho)).append('\n');
-            }
-            if (ticket.getIva() > 0) {
-                sb.append(derechaFmt("IVA:", ticket.getIva(), ancho)).append('\n');
-            }
-            if (ticket.getIeps() > 0) {
-                sb.append(derechaFmt("IEPS:", ticket.getIeps(), ancho)).append('\n');
-            }
-            double otros = Math.max(0, ticket.getImpuestos() - ticket.getIva() - ticket.getIeps());
-            if (otros > 0) {
-                sb.append(derechaFmt("Otros imp.:", otros, ancho)).append('\n');
-            }
-        }
 
         // Línea TOTAL destacada con espacio arriba
         sb.append(derechaFmt("TOTAL:", ticket.getTotal(), ancho)).append('\n');

@@ -152,8 +152,8 @@
                                     <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
                                         <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Impuestos y ganancia"/>
                                         <HBox><Label text="Subtotal" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblSubtotal" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
-                                        <HBox><Label text="Impuestos cobrados" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIva" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
-                                        <HBox><Label text="Total ventas" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalImpuestos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="IVA" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIva" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
+                                        <HBox><Label text="Total" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblTotalImpuestos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
                                         <Separator/>
                                         <HBox><Label text="Ingresos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblIngresos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>
                                         <HBox><Label text="Costos" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblCostos" style="-fx-font-weight: bold;" text="\$0.00"/></HBox>

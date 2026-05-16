@@ -159,9 +159,6 @@ public class ReporteController {
     @FXML private Label lblVentasBrutas;
     @FXML private Label lblTotalDevoluciones;
     @FXML private Label lblVentasNetas;
-    @FXML private TableView<Map<String, Object>> tablaFiscal;
-    @FXML private TableColumn<Map<String, Object>, String> colFiscalConcepto;
-    @FXML private TableColumn<Map<String, Object>, String> colFiscalMonto;
     // ─────────────────────────────────────────────────────────────
     // INIT
     // ─────────────────────────────────────────────────────────────
@@ -912,7 +909,6 @@ public class ReporteController {
         cargarTablaHoras(ini, fin);
         cargarTablaRentabilidad(ini, fin);
         cargarTablaClientes();
-        cargarTablaFiscal(ini, fin);
     }
 
     private void cargarResumenNeto(String ini, String fin) {
@@ -1003,13 +999,6 @@ public class ReporteController {
         }
 
         tablaClientesCredito.getItems().setAll(daoAvanzado.clientesConCredito());
-    }
-
-    private void cargarTablaFiscal(String ini, String fin) {
-        if (tablaFiscal == null) return;
-        configurarColumnaStr(colFiscalConcepto, r -> (String) r.get("concepto"));
-        configurarColumnaStr(colFiscalMonto, r -> "$" + df.format((double) r.get("monto")));
-        tablaFiscal.getItems().setAll(daoAvanzado.reporteFiscal(ini, fin));
     }
 
     // Helper para no repetir setCellValueFactory
