@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import org.example.servicio.FiscalSchemaService;
+
 import java.sql.*;
 import java.util.*;
 
@@ -191,6 +193,64 @@ public class ReporteAvanzadoDAO {
                 fila.put("ultima_compra", uc != null ? uc.toLocalDateTime()
                                                        .format(java.time.format.DateTimeFormatter
                                                                .ofPattern("dd/MM/yyyy")) : "—");
+                lista.add(fila);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
+    }
+
+    public List<Map<String, Object>> reporteFiscal(String fechaInicio, String fechaFin) {
+        List<Map<String, Object>> lista = new ArrayList<>();
+        String sql = """
+            SELECT concepto, monto FROM (
+                SELECT 'Ventas gravadas IVA 16' AS concepto,
+                       COALESCE(SUM(CASE WHEN dv.impuesto_tipo = 'IVA' AND ABS(dv.impuesto_tasa - 0.16) < 0.0001
+                                         THEN dv.subtotal_sin_impuesto ELSE 0 END), 0) AS monto
+                FROM detalle_venta dv JOIN ventas v ON v.id_venta = dv.id_venta
+                WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'Ventas gravadas IVA 8',
+                       COALESCE(SUM(CASE WHEN dv.impuesto_tipo = 'IVA' AND ABS(dv.impuesto_tasa - 0.08) < 0.0001
+                                         THEN dv.subtotal_sin_impuesto ELSE 0 END), 0)
+                FROM detalle_venta dv JOIN ventas v ON v.id_venta = dv.id_venta
+                WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'Ventas exentas', COALESCE(SUM(v.total_exento), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'Ventas tasa 0', COALESCE(SUM(v.total_tasa0), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'IVA trasladado', COALESCE(SUM(v.iva), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'IEPS cobrado', COALESCE(SUM(v.ieps), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'Total facturado', COALESCE(SUM(CASE WHEN v.estado_facturacion IN ('PENDIENTE','GENERADA') THEN v.total ELSE 0 END), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT 'Total no facturado', COALESCE(SUM(CASE WHEN v.estado_facturacion IS NULL OR v.estado_facturacion = 'NO_FACTURADA' THEN v.total ELSE 0 END), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                UNION ALL
+                SELECT CONCAT('Metodo de pago: ', COALESCE(v.metodo_pago, 'Sin metodo')), COALESCE(SUM(v.total), 0)
+                FROM ventas v WHERE v.fecha BETWEEN ? AND ? AND (v.estado IS NULL OR v.estado != 'CANCELADA')
+                GROUP BY COALESCE(v.metodo_pago, 'Sin metodo')
+            ) fiscal
+            """;
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            FiscalSchemaService.asegurarEstructura(con);
+            int idx = 1;
+            for (int i = 0; i < 9; i++) {
+                ps.setString(idx++, fechaInicio);
+                ps.setString(idx++, fechaFin);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> fila = new LinkedHashMap<>();
+                fila.put("concepto", rs.getString("concepto"));
+                fila.put("monto", rs.getDouble("monto"));
                 lista.add(fila);
             }
         } catch (Exception e) { e.printStackTrace(); }

@@ -26,6 +26,12 @@ public class CorteCajaReporte {
     private int cantidadCancelaciones;
     private double subtotal;
     private double iva;
+    private double ieps;
+    private double totalImpuestos;
+    private double totalExento;
+    private double totalTasa0;
+    private int ventasFacturadas;
+    private int ventasNoFacturadas;
     private double totalConImpuestos;
     private double ingresos;
     private double costos;
@@ -76,6 +82,18 @@ public class CorteCajaReporte {
     public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
     public double getIva() { return iva; }
     public void setIva(double iva) { this.iva = iva; }
+    public double getIeps() { return ieps; }
+    public void setIeps(double ieps) { this.ieps = ieps; }
+    public double getTotalImpuestos() { return totalImpuestos; }
+    public void setTotalImpuestos(double totalImpuestos) { this.totalImpuestos = totalImpuestos; }
+    public double getTotalExento() { return totalExento; }
+    public void setTotalExento(double totalExento) { this.totalExento = totalExento; }
+    public double getTotalTasa0() { return totalTasa0; }
+    public void setTotalTasa0(double totalTasa0) { this.totalTasa0 = totalTasa0; }
+    public int getVentasFacturadas() { return ventasFacturadas; }
+    public void setVentasFacturadas(int ventasFacturadas) { this.ventasFacturadas = ventasFacturadas; }
+    public int getVentasNoFacturadas() { return ventasNoFacturadas; }
+    public void setVentasNoFacturadas(int ventasNoFacturadas) { this.ventasNoFacturadas = ventasNoFacturadas; }
     public double getTotalConImpuestos() { return totalConImpuestos; }
     public void setTotalConImpuestos(double totalConImpuestos) { this.totalConImpuestos = totalConImpuestos; }
     public double getIngresos() { return ingresos; }

@@ -11,6 +11,9 @@ public class Producto {
     private int stockMinimo;
     private int idCategoria;
     private boolean activo;
+    private int idImpuesto;
+    private String impuestoClave;
+    private String impuestoNombre;
 
     // ESTE CAMPO ES PARA EL INVENTARIO (JOIN)
     private String categoria;
@@ -62,6 +65,15 @@ public class Producto {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public int getIdImpuesto() { return idImpuesto; }
+    public void setIdImpuesto(int idImpuesto) { this.idImpuesto = idImpuesto; }
+
+    public String getImpuestoClave() { return impuestoClave; }
+    public void setImpuestoClave(String impuestoClave) { this.impuestoClave = impuestoClave; }
+
+    public String getImpuestoNombre() { return impuestoNombre; }
+    public void setImpuestoNombre(String impuestoNombre) { this.impuestoNombre = impuestoNombre; }
 
     public boolean isBajoStock() {
         return stock <= stockMinimo;

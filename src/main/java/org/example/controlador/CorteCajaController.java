@@ -301,7 +301,7 @@ public class CorteCajaController {
         lblTotalCancelado.setText(moneda(r.getTotalCancelado()));
         lblCantidadCancelaciones.setText(String.valueOf(r.getCantidadCancelaciones()));
         lblSubtotal.setText(moneda(r.getSubtotal()));
-        lblIva.setText(moneda(r.getIva()));
+        lblIva.setText(moneda(r.getTotalImpuestos()));
         lblTotalImpuestos.setText(moneda(r.getTotalConImpuestos()));
         lblIngresos.setText(moneda(r.getIngresos()));
         lblCostos.setText(moneda(r.getCostos()));
