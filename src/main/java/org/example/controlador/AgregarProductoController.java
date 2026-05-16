@@ -54,37 +54,10 @@ public class AgregarProductoController {
         cbImpuesto.getItems().addAll(fiscalDAO.obtenerImpuestosActivos());
         cbImpuesto.setValue(fiscalDAO.obtenerImpuestoPredeterminado());
 
-        cargarImpuestos();
-
         permitirSoloNumeros(txtPrecio,      true);
         permitirSoloNumeros(txtCosto,       true);
         permitirSoloNumeros(txtStock,       false);
         permitirSoloNumeros(txtStockMinimo, false);
-    }
-
-    private void cargarImpuestos() {
-        if (cbImpuesto == null) {
-            return;
-        }
-        cbImpuesto.getItems().setAll(impuestoDAO.obtenerActivos());
-        cbImpuesto.setCellFactory(lv -> new ListCell<>() {
-            @Override protected void updateItem(Impuesto impuesto, boolean empty) {
-                super.updateItem(impuesto, empty);
-                setText(empty || impuesto == null ? null : impuesto.toString());
-            }
-        });
-        cbImpuesto.setButtonCell(new ListCell<>() {
-            @Override protected void updateItem(Impuesto impuesto, boolean empty) {
-                super.updateItem(impuesto, empty);
-                setText(empty || impuesto == null ? null : impuesto.toString());
-            }
-        });
-        cbImpuesto.getItems().stream()
-                .filter(Impuesto::isPredeterminado)
-                .findFirst()
-                .or(() -> cbImpuesto.getItems().stream().filter(i -> "IVA_16".equals(i.getClave())).findFirst())
-                .or(() -> cbImpuesto.getItems().stream().findFirst())
-                .ifPresent(cbImpuesto::setValue);
     }
 
     // Alterna entre lleva código/no lleva código
@@ -152,12 +125,9 @@ public class AgregarProductoController {
         if (stockMinimo < 0){ error("El stock mínimo no puede ser negativo."); return; }
 
         Categoria cat = cbCategoria.getValue();
-        Impuesto impuesto = cbImpuesto == null ? null : cbImpuesto.getValue();
         if (cat == null)   { error("Selecciona una categoría."); return; }
 
         // Código de barras (si el toggle está activo)
-        if (impuesto == null) { error("Selecciona un impuesto para el producto."); return; }
-
         String codigo = null;
         if (llevaCodigo) {
             codigo = txtCodigoBarras.getText().trim();
@@ -172,7 +142,6 @@ public class AgregarProductoController {
         p.setStockMinimo(stockMinimo);
         p.setIdCategoria(cat.getIdCategoria());
         p.setCodigoBarras(codigo);
-        p.setIdImpuesto(impuesto.getIdImpuesto());
 
         int idProducto = productoDAO.insertarProducto(p);
         if (idProducto > 0 && cbImpuesto.getValue() != null) {

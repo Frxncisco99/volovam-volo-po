@@ -32,12 +32,6 @@ public class Ticket {
     private String estado        = "Completada"; // default seguro
     private String nombreCliente = null;         // null = público general
     private double descuento     = 0.0;
-    private double iva           = 0.0;
-    private double ieps          = 0.0;
-    private double impuestos     = 0.0;
-    private double totalGravado  = 0.0;
-    private double totalExento   = 0.0;
-    private double totalTasa0    = 0.0;
 
     // ── Constructores ──────────────────────────────────────────────────────────
 
@@ -140,24 +134,6 @@ public class Ticket {
     public double getDescuento()                        { return descuento; }
     public void setDescuento(double descuento)          { this.descuento = Math.max(0, descuento); }
 
-    public double getIva()                              { return iva; }
-    public void setIva(double iva)                      { this.iva = Math.max(0, iva); }
-
-    public double getIeps()                             { return ieps; }
-    public void setIeps(double ieps)                    { this.ieps = Math.max(0, ieps); }
-
-    public double getImpuestos()                        { return impuestos; }
-    public void setImpuestos(double impuestos)          { this.impuestos = Math.max(0, impuestos); }
-
-    public double getTotalGravado()                     { return totalGravado; }
-    public void setTotalGravado(double totalGravado)    { this.totalGravado = Math.max(0, totalGravado); }
-
-    public double getTotalExento()                      { return totalExento; }
-    public void setTotalExento(double totalExento)      { this.totalExento = Math.max(0, totalExento); }
-
-    public double getTotalTasa0()                       { return totalTasa0; }
-    public void setTotalTasa0(double totalTasa0)        { this.totalTasa0 = Math.max(0, totalTasa0); }
-
     /** true si la venta fue cancelada. Útil para colorear filas en tablas. */
     public boolean isCancelada() {
         return "Cancelada".equalsIgnoreCase(estado);
@@ -172,12 +148,6 @@ public class Ticket {
         private double precioUnitario;
         private double costoUnitario;
         private double subtotal;
-        private String impuestoClave;
-        private String impuestoNombre;
-        private String impuestoTipo;
-        private double impuestoTasa;
-        private double impuestoImporte;
-        private double subtotalSinImpuesto;
 
         public LineaTicket() {}
 
@@ -213,34 +183,6 @@ public class Ticket {
 
         public double getSubtotal()                          { return subtotal; }
         public void setSubtotal(double subtotal)             { this.subtotal = subtotal; }
-
-        public String getImpuestoClave()                     { return impuestoClave; }
-        public void setImpuestoClave(String impuestoClave)   { this.impuestoClave = impuestoClave; }
-
-        public String getImpuestoNombre()                    { return impuestoNombre; }
-        public void setImpuestoNombre(String impuestoNombre) { this.impuestoNombre = impuestoNombre; }
-
-        public String getImpuestoTipo()                      { return impuestoTipo; }
-        public void setImpuestoTipo(String impuestoTipo)     { this.impuestoTipo = impuestoTipo; }
-
-        public double getImpuestoTasa()                      { return impuestoTasa; }
-        public void setImpuestoTasa(double impuestoTasa)     { this.impuestoTasa = Math.max(0, impuestoTasa); }
-
-        public double getImpuestoImporte()                   { return impuestoImporte; }
-        public void setImpuestoImporte(double importe)       { this.impuestoImporte = Math.max(0, importe); }
-
-        public double getSubtotalSinImpuesto()               { return subtotalSinImpuesto; }
-        public void setSubtotalSinImpuesto(double subtotal)  { this.subtotalSinImpuesto = Math.max(0, subtotal); }
-
-        public String getImpuestoDisplay() {
-            if (impuestoNombre == null || impuestoNombre.isBlank() || "SIN_IMPUESTO".equalsIgnoreCase(impuestoTipo)) {
-                return "";
-            }
-            if (impuestoTasa > 0) {
-                return impuestoNombre + " " + String.format("%.2f%%", impuestoTasa * 100);
-            }
-            return impuestoNombre;
-        }
 
         /**
          * Ganancia bruta de esta línea.

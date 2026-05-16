@@ -27,7 +27,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
-import org.example.servicio.FiscalSchemaService;
 import org.example.servicio.MarcaService;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -62,7 +61,6 @@ public class ClientesController {
         lblAvatarIniciales.setText(iniciales(nombre));
 
         txtBuscar.textProperty().addListener((obs, old, nuevo) -> renderClientes());
-        FiscalSchemaService.asegurarEstructura();
         cargarClientes();
     }
 

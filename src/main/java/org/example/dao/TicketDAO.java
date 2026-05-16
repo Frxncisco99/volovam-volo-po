@@ -2,7 +2,6 @@ package org.example.dao;
 
 import org.example.modelo.Ticket;
 import org.example.modelo.Ticket.LineaTicket;
-import org.example.servicio.FiscalSchemaService;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -23,18 +22,14 @@ public class TicketDAO {
      */
     public Ticket obtenerTicketPorVenta(int idVenta) throws Exception {
         String sqlVenta =
-                "SELECT v.id_venta, v.fecha, v.total, v.subtotal, v.descuento, v.iva, v.ieps, v.impuestos, " +
-                        "       v.total_gravado, v.total_exento, v.total_tasa0, v.id_caja, v.metodo_pago, v.estado, " +
-                        "       u.nombre AS cajero, c.nombre AS cliente " +
+                "SELECT v.id_venta, v.fecha, v.total, v.id_caja, " +
+                        "       u.nombre AS cajero " +
                         "FROM ventas v " +
                         "JOIN usuarios u ON v.id_usuario = u.id_usuario " +
-                        "LEFT JOIN clientes c ON v.id_cliente = c.id_cliente " +
                         "WHERE v.id_venta = ?";
 
         String sqlDetalle =
-                "SELECT p.nombre, dv.cantidad, dv.precio_unitario, dv.subtotal, p.costo, " +
-                        "       dv.impuesto_clave, dv.impuesto_nombre, dv.impuesto_tipo, dv.impuesto_tasa, " +
-                        "       dv.impuesto_importe, COALESCE(dv.subtotal_sin_impuesto, dv.subtotal) AS subtotal_sin_impuesto " +
+                "SELECT p.nombre, dv.cantidad, dv.precio_unitario, dv.subtotal, p.costo " +
                         "FROM detalle_venta dv " +
                         "JOIN productos p ON dv.id_producto = p.id_producto " +
                         "WHERE dv.id_venta = ?";
@@ -45,7 +40,6 @@ public class TicketDAO {
                         "WHERE id_venta = ?";
 
         try (Connection con = ConexionDB.getConexion()) {
-            FiscalSchemaService.asegurarEstructura(con);
 
             // ── 1. Datos de la venta ──────────────────────────────────────
             Ticket ticket = new Ticket();
@@ -58,17 +52,6 @@ public class TicketDAO {
                 ticket.setIdVenta(rs.getInt("id_venta"));
                 ticket.setFechaHora(rs.getTimestamp("fecha").toLocalDateTime());
                 ticket.setTotal(rs.getDouble("total"));
-                ticket.setSubtotal(rs.getDouble("subtotal"));
-                ticket.setDescuento(rs.getDouble("descuento"));
-                ticket.setIva(rs.getDouble("iva"));
-                ticket.setIeps(rs.getDouble("ieps"));
-                ticket.setImpuestos(rs.getDouble("impuestos"));
-                ticket.setTotalGravado(rs.getDouble("total_gravado"));
-                ticket.setTotalExento(rs.getDouble("total_exento"));
-                ticket.setTotalTasa0(rs.getDouble("total_tasa0"));
-                ticket.setMetodoPago(rs.getString("metodo_pago"));
-                ticket.setEstado(rs.getString("estado"));
-                ticket.setNombreCliente(rs.getString("cliente"));
                 ticket.setNumeroCaja(rs.getInt("id_caja"));
                 ticket.setNombreCajero(rs.getString("cajero"));
             }
@@ -86,23 +69,15 @@ public class TicketDAO {
                             rs.getDouble("costo")   // ← esto era lo que faltaba
                     );
                     linea.setSubtotal(rs.getDouble("subtotal"));
-                    linea.setSubtotalSinImpuesto(rs.getDouble("subtotal_sin_impuesto"));
-                    linea.setImpuestoClave(rs.getString("impuesto_clave"));
-                    linea.setImpuestoNombre(rs.getString("impuesto_nombre"));
-                    linea.setImpuestoTipo(rs.getString("impuesto_tipo"));
-                    linea.setImpuestoTasa(rs.getDouble("impuesto_tasa"));
-                    linea.setImpuestoImporte(rs.getDouble("impuesto_importe"));
                     lineas.add(linea);
                 }
             }
             ticket.setLineas(lineas);
 
             // Subtotal calculado desde líneas
-            if (ticket.getSubtotal() <= 0) {
-                double subtotal = lineas.stream()
-                        .mapToDouble(LineaTicket::getSubtotal).sum();
-                ticket.setSubtotal(subtotal);
-            }
+            double subtotal = lineas.stream()
+                    .mapToDouble(LineaTicket::getSubtotal).sum();
+            ticket.setSubtotal(subtotal);
 
             // ── 3. Datos del pago ────────────────────────────────────────
             try (PreparedStatement ps = con.prepareStatement(sqlPago)) {
