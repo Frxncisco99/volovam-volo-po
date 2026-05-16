@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.example.servicio.AppExitService;
 
 public class Main extends Application {
 
@@ -28,14 +27,6 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setResizable(false);
-        primaryStage.setOnCloseRequest(event -> {
-            event.consume();
-            if (AppExitService.confirmarSalida(scene.getRoot())) {
-                AppExitService.registrarSalida();
-                javafx.application.Platform.exit();
-                System.exit(0);
-            }
-        });
         primaryStage.show();
     }
 }

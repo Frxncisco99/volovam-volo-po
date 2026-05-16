@@ -9,8 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
-import org.example.modelo.LineaCalculoFiscal;
-import org.example.modelo.ResumenCalculoFiscal;
+import org.example.modelo.CalculoFiscal;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.Ticket;
 import org.example.servicio.AuditoriaService;
@@ -18,7 +17,6 @@ import org.example.servicio.EmailTicketService;
 import org.example.servicio.FacturacionService;
 import org.example.servicio.FiscalService;
 import org.example.servicio.FolioService;
-import org.example.servicio.ImpuestoService;
 import org.example.servicio.InventarioMovimientoService;
 import org.example.servicio.TicketService;
 
@@ -26,7 +24,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -394,21 +391,15 @@ public class PagoController {
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
         try (Connection con = ConexionDB.getConexion()) {
             con.setAutoCommit(false);
-            ResumenCalculoFiscal resumenFiscal = new ImpuestoService().calcularCarrito(carrito);
-            if (resumenFiscal.getTotal().doubleValue() > 0) {
-                total = resumenFiscal.getTotal().doubleValue();
-            }
-            Map<Integer, LineaCalculoFiscal> lineasFiscales = new HashMap<>();
-            for (LineaCalculoFiscal linea : resumenFiscal.getLineas()) {
-                lineasFiscales.put(linea.getIdProducto(), linea);
-            }
+            calculoFiscal = fiscalService.calcularVenta(con, carrito);
+            total = calculoFiscal.getTotal() > 0 ? calculoFiscal.getTotal() : total;
 
             // 1. Insertar venta
-            boolean tieneFechaHora = columnaExiste(con, "ventas", "fecha_hora");
-            String sqlVenta = tieneFechaHora
-                    ? "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado, fecha_hora) VALUES (?, ?, ?, ?, ?, 'COMPLETADA', NOW())"
-                    : "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) VALUES (?, ?, ?, ?, ?, 'COMPLETADA')";
-            PreparedStatement psVenta = con.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement psVenta = con.prepareStatement(
+                    "INSERT INTO ventas (total, subtotal, descuento, iva, ieps, impuestos, " +
+                            "total_gravado, total_exento, total_tasa0, id_usuario, id_caja, id_cliente, metodo_pago, estado, estado_facturacion) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'COMPLETADA', 'NO_FACTURADA')",
+                    Statement.RETURN_GENERATED_KEYS);
             psVenta.setDouble(1, total);
             psVenta.setDouble(2, calculoFiscal.getSubtotal());
             psVenta.setDouble(3, calculoFiscal.getDescuento());
@@ -427,11 +418,9 @@ public class PagoController {
             ResultSet rs = psVenta.getGeneratedKeys();
             rs.next();
             int idVenta = rs.getInt(1);
-            actualizarFiscalVenta(con, idVenta, resumenFiscal);
 
             // 2. Detalle + movimientos + stock (en ese orden)
             InventarioMovimientoService invService = InventarioMovimientoService.get();
-            boolean detalleFiscal = columnaExiste(con, "detalle_venta", "impuesto_clave");
 
             for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
                 int    idProducto = entry.getKey();
@@ -441,43 +430,26 @@ public class PagoController {
                 CalculoFiscal.Linea lineaFiscal = calculoFiscal.lineaPorProducto(idProducto).orElse(null);
 
                 // Detalle de venta
-                LineaCalculoFiscal lineaFiscal = lineasFiscales.get(idProducto);
-                if (detalleFiscal && lineaFiscal != null) {
-                    try (PreparedStatement psDetalle = con.prepareStatement("""
-                            INSERT INTO detalle_venta (
-                                id_venta, id_producto, cantidad, precio_unitario, subtotal,
-                                impuesto_id, impuesto_clave, impuesto_nombre, impuesto_tipo, impuesto_tasa,
-                                subtotal_sin_impuesto, descuento, impuesto_importe, total_linea
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            """)) {
-                        psDetalle.setInt(1, idVenta);
-                        psDetalle.setInt(2, idProducto);
-                        psDetalle.setInt(3, cantidad);
-                        psDetalle.setDouble(4, precio);
-                        psDetalle.setDouble(5, subtotal);
-                        if (lineaFiscal.getImpuesto().getIdImpuesto() > 0) psDetalle.setInt(6, lineaFiscal.getImpuesto().getIdImpuesto());
-                        else psDetalle.setNull(6, java.sql.Types.INTEGER);
-                        psDetalle.setString(7, lineaFiscal.getImpuesto().getClave());
-                        psDetalle.setString(8, lineaFiscal.getImpuesto().getNombre());
-                        psDetalle.setString(9, lineaFiscal.getImpuesto().getTipo());
-                        psDetalle.setBigDecimal(10, lineaFiscal.getImpuesto().getTasa());
-                        psDetalle.setBigDecimal(11, lineaFiscal.getSubtotalSinImpuesto());
-                        psDetalle.setBigDecimal(12, lineaFiscal.getDescuento());
-                        psDetalle.setBigDecimal(13, lineaFiscal.getImpuestoImporte());
-                        psDetalle.setBigDecimal(14, lineaFiscal.getTotalLinea());
-                        psDetalle.executeUpdate();
-                    }
-                } else {
-                    try (PreparedStatement psDetalle = con.prepareStatement(
-                            "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)")) {
-                        psDetalle.setInt(1, idVenta);
-                        psDetalle.setInt(2, idProducto);
-                        psDetalle.setInt(3, cantidad);
-                        psDetalle.setDouble(4, precio);
-                        psDetalle.setDouble(5, subtotal);
-                        psDetalle.executeUpdate();
-                    }
-                }
+                PreparedStatement psDetalle = con.prepareStatement(
+                        "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal, " +
+                                "impuesto_id, impuesto_clave, impuesto_nombre, impuesto_tipo, impuesto_tasa, " +
+                                "subtotal_sin_impuesto, descuento, impuesto_importe, total_linea) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                psDetalle.setInt(1, idVenta);
+                psDetalle.setInt(2, idProducto);
+                psDetalle.setInt(3, cantidad);
+                psDetalle.setDouble(4, precio);
+                psDetalle.setDouble(5, lineaFiscal != null ? lineaFiscal.getTotalLinea() : subtotal);
+                psDetalle.setObject(6, lineaFiscal != null && lineaFiscal.getImpuestoId() > 0 ? lineaFiscal.getImpuestoId() : null);
+                psDetalle.setString(7, lineaFiscal != null ? lineaFiscal.getImpuestoClave() : "SIN_IMPUESTO");
+                psDetalle.setString(8, lineaFiscal != null ? lineaFiscal.getImpuestoNombre() : "Sin impuesto");
+                psDetalle.setString(9, lineaFiscal != null ? lineaFiscal.getImpuestoTipo() : "SIN_IMPUESTO");
+                psDetalle.setDouble(10, lineaFiscal != null ? lineaFiscal.getImpuestoTasa() : 0);
+                psDetalle.setDouble(11, lineaFiscal != null ? lineaFiscal.getSubtotalBase() : subtotal);
+                psDetalle.setDouble(12, lineaFiscal != null ? lineaFiscal.getDescuento() : 0);
+                psDetalle.setDouble(13, lineaFiscal != null ? lineaFiscal.getImpuestoImporte() : 0);
+                psDetalle.setDouble(14, lineaFiscal != null ? lineaFiscal.getTotalLinea() : subtotal);
+                psDetalle.executeUpdate();
 
                 // Registrar movimiento ANTES de descontar stock
                 // (así obtenerStock() lee el stock correcto todavía)
@@ -520,7 +492,6 @@ public class PagoController {
                 psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
                 psPago.setDouble(4, cambio);
                 psPago.executeUpdate();
-                registrarDetallePago(con, idVenta, montoEfectivo, montoTarjeta);
             }
 
             con.commit();
@@ -571,74 +542,6 @@ public class PagoController {
 
     private double parse(String s) {
         return (s == null || s.isEmpty()) ? 0.0 : Double.parseDouble(s);
-    }
-
-    private void registrarDetallePago(Connection con, int idVenta, double montoEfectivo, double montoTarjeta) {
-        String sql = "INSERT INTO detalle_pago (id_venta, metodo_pago, monto, referencia) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            switch (metodoPago) {
-                case "EFECTIVO" -> agregarDetallePago(ps, idVenta, "EFECTIVO", total, null);
-                case "TARJETA" -> agregarDetallePago(ps, idVenta, "TARJETA", total, null);
-                case "TRANSFERENCIA" -> agregarDetallePago(ps, idVenta, "TRANSFERENCIA", total, null);
-                case "MIXTO" -> {
-                    double efectivoAplicado = Math.min(montoEfectivo, total);
-                    if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, null);
-                    double restante = Math.max(total - efectivoAplicado, 0);
-                    if (restante > 0) agregarDetallePago(ps, idVenta, "TARJETA", restante, null);
-                }
-                case "DOLARES" -> agregarDetallePago(ps, idVenta, "DOLARES", total, "Equivalente MXN");
-                case "MIXTO_USD" -> {
-                    double efectivoAplicado = Math.min(montoEfectivo, total);
-                    if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, "MXN/USD");
-                }
-                case "OTROS" -> agregarDetallePago(ps, idVenta, "OTROS", total, null);
-                default -> {
-                }
-            }
-            ps.executeBatch();
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void agregarDetallePago(PreparedStatement ps, int idVenta, String metodo, double monto, String referencia) throws Exception {
-        ps.setInt(1, idVenta);
-        ps.setString(2, metodo);
-        ps.setDouble(3, monto);
-        ps.setString(4, referencia);
-        ps.addBatch();
-    }
-
-    private void actualizarFiscalVenta(Connection con, int idVenta, ResumenCalculoFiscal resumen) {
-        if (resumen == null || !columnaExiste(con, "ventas", "subtotal")) return;
-        String sql = """
-                UPDATE ventas
-                SET subtotal = ?, descuento = ?, iva = ?, ieps = ?, impuestos = ?,
-                    total_gravado = ?, total_exento = ?, total_tasa0 = ?, total = ?
-                WHERE id_venta = ?
-                """;
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setBigDecimal(1, resumen.getSubtotal());
-            ps.setBigDecimal(2, resumen.getDescuento());
-            ps.setBigDecimal(3, resumen.getIva());
-            ps.setBigDecimal(4, resumen.getIeps());
-            ps.setBigDecimal(5, resumen.getImpuestos());
-            ps.setBigDecimal(6, resumen.getTotalGravado());
-            ps.setBigDecimal(7, resumen.getTotalExento());
-            ps.setBigDecimal(8, resumen.getTotalTasa0());
-            ps.setBigDecimal(9, resumen.getTotal());
-            ps.setInt(10, idVenta);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private boolean columnaExiste(Connection con, String tabla, String columna) {
-        try (ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, tabla, columna)) {
-            return rs.next();
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     private double montoRegistradoEnPago(double montoEfectivo, double montoTarjeta) {

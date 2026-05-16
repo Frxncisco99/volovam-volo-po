@@ -11,9 +11,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -175,47 +173,6 @@
                                             <Label text="Efectivo contado" style="-fx-text-fill: #64748b;"/>
                                             <TextField fx:id="txtDineroContado" promptText="0.00" prefWidth="180"
                                                        style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #93c5fd; -fx-padding: 8; -fx-font-size: 14px;"/>
-                                        </HBox>
-                                        <Separator/>
-                                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Conteo por denominaciones"/>
-                                        <GridPane hgap="8" vgap="8">
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                                <ColumnConstraints percentWidth="16.6"/>
-                                            </columnConstraints>
-                                            <Label text="\$1000" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$500" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$200" GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$100" GridPane.columnIndex="3" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$50" GridPane.columnIndex="4" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$20" GridPane.columnIndex="5" GridPane.rowIndex="0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <TextField fx:id="txtBillete1000" promptText="0" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtBillete500" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtBillete200" promptText="0" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtBillete100" promptText="0" GridPane.columnIndex="3" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtBillete50" promptText="0" GridPane.columnIndex="4" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtBillete20" promptText="0" GridPane.columnIndex="5" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <Label text="\$20" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$10" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$5" GridPane.columnIndex="2" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$2" GridPane.columnIndex="3" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$1" GridPane.columnIndex="4" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <Label text="\$0.50" GridPane.columnIndex="5" GridPane.rowIndex="2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
-                                            <TextField fx:id="txtMoneda20" promptText="0" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtMoneda10" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtMoneda5" promptText="0" GridPane.columnIndex="2" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtMoneda2" promptText="0" GridPane.columnIndex="3" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtMoneda1" promptText="0" GridPane.columnIndex="4" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                            <TextField fx:id="txtMoneda050" promptText="0" GridPane.columnIndex="5" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dbe7f3; -fx-padding: 7;"/>
-                                        </GridPane>
-                                        <HBox>
-                                            <Label text="Total denominaciones" style="-fx-text-fill: #64748b;"/>
-                                            <Region HBox.hgrow="ALWAYS"/>
-                                            <Label fx:id="lblTotalDenominaciones" text="\$0.00" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2563eb;"/>
                                         </HBox>
                                         <Separator/>
                                         <HBox><Label text="Diferencia" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="lblDiferencia" style="-fx-font-size: 22px; -fx-font-weight: bold;" text="\$0.00"/></HBox>

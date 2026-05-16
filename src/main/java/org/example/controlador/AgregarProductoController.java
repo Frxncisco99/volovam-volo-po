@@ -7,12 +7,11 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import org.example.dao.CategoriaDAO;
-import org.example.dao.FiscalDAO;
+import org.example.dao.ImpuestoDAO;
 import org.example.dao.ProductoDAO;
 import org.example.modelo.Categoria;
 import org.example.modelo.Impuesto;
 import org.example.modelo.Producto;
-import org.example.servicio.PermisoService;
 
 public class AgregarProductoController {
 
@@ -33,7 +32,7 @@ public class AgregarProductoController {
 
     private final ProductoDAO  productoDAO  = new ProductoDAO();
     private final CategoriaDAO categoriaDAO = new CategoriaDAO();
-    private final FiscalDAO fiscalDAO = new FiscalDAO();
+    private final ImpuestoDAO  impuestoDAO  = new ImpuestoDAO();
 
     @FXML
     public void initialize() {
@@ -51,8 +50,6 @@ public class AgregarProductoController {
                 setText(empty || c == null ? null : c.getNombre());
             }
         });
-        cbImpuesto.getItems().addAll(fiscalDAO.obtenerImpuestosActivos());
-        cbImpuesto.setValue(fiscalDAO.obtenerImpuestoPredeterminado());
 
         cargarImpuestos();
 
@@ -121,10 +118,6 @@ public class AgregarProductoController {
 
     @FXML
     private void guardarProducto() {
-        if (!PermisoService.tienePermiso(PermisoService.PRODUCTOS_CREAR)) {
-            error("No tienes permiso para crear productos.");
-            return;
-        }
         String nombre = txtNombre.getText().trim();
         if (nombre.isEmpty())         { error("El nombre del producto es obligatorio."); return; }
         if (nombre.length() < 2)      { error("El nombre debe tener al menos 2 caracteres."); return; }
@@ -174,12 +167,9 @@ public class AgregarProductoController {
         p.setCodigoBarras(codigo);
         p.setIdImpuesto(impuesto.getIdImpuesto());
 
-        int idProducto = productoDAO.insertarProducto(p);
-        if (idProducto > 0 && cbImpuesto.getValue() != null) {
-            fiscalDAO.asignarImpuestoProducto(idProducto, cbImpuesto.getValue().getIdImpuesto());
-        }
+        productoDAO.insertarProducto(p);
         org.example.servicio.AuditoriaService.get().registrar(
-                "ALTA_PRODUCTO", "productos", idProducto,
+                "ALTA_PRODUCTO", "productos", 0,
                 "Producto creado: " + p.getNombre() +
                         " | Precio: $" + String.format("%.2f", p.getPrecio()) +
                         " | Stock inicial: " + p.getStock()

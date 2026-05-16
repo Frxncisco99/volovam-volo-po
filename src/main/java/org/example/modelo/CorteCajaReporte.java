@@ -36,7 +36,6 @@ public class CorteCajaReporte {
     private double ingresos;
     private double costos;
     private double utilidad;
-    private String conteoDenominaciones = "";
 
     private final List<MetodoPago> metodosPago = new ArrayList<>();
     private final List<MovimientoCaja> movimientos = new ArrayList<>();
@@ -102,8 +101,6 @@ public class CorteCajaReporte {
     public void setCostos(double costos) { this.costos = costos; }
     public double getUtilidad() { return utilidad; }
     public void setUtilidad(double utilidad) { this.utilidad = utilidad; }
-    public String getConteoDenominaciones() { return conteoDenominaciones; }
-    public void setConteoDenominaciones(String conteoDenominaciones) { this.conteoDenominaciones = conteoDenominaciones; }
     public List<MetodoPago> getMetodosPago() { return metodosPago; }
     public List<MovimientoCaja> getMovimientos() { return movimientos; }
     public List<CancelacionDevolucion> getCancelacionesDevoluciones() { return cancelacionesDevoluciones; }

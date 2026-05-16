@@ -27,7 +27,6 @@
     <VBox spacing="12" VBox.vgrow="ALWAYS"
           style="-fx-padding: 20 24 16 24; -fx-background-color: #f0f7ff;">
 
-
         <!-- Sección: Información general -->
         <Label text="INFORMACIÓN GENERAL"
                style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;

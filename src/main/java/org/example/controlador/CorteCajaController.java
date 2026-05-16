@@ -25,7 +25,6 @@ import javafx.stage.Stage;
 import org.example.dao.CorteCajaDAO;
 import org.example.modelo.CorteCajaReporte;
 import org.example.modelo.SesionUsuario;
-import org.example.servicio.AuditoriaService;
 import org.example.servicio.FolioService;
 import org.example.servicio.MarcaService;
 import org.example.servicio.ReportePDFService;
@@ -64,19 +63,6 @@ public class CorteCajaController {
     @FXML private Label lblCostos;
     @FXML private Label lblUtilidad;
     @FXML private TextField txtDineroContado;
-    @FXML private TextField txtBillete1000;
-    @FXML private TextField txtBillete500;
-    @FXML private TextField txtBillete200;
-    @FXML private TextField txtBillete100;
-    @FXML private TextField txtBillete50;
-    @FXML private TextField txtBillete20;
-    @FXML private TextField txtMoneda20;
-    @FXML private TextField txtMoneda10;
-    @FXML private TextField txtMoneda5;
-    @FXML private TextField txtMoneda2;
-    @FXML private TextField txtMoneda1;
-    @FXML private TextField txtMoneda050;
-    @FXML private Label lblTotalDenominaciones;
     @FXML private TextArea txtObservaciones;
 
     @FXML private Label lblNombreUsuario;
@@ -133,7 +119,6 @@ public class CorteCajaController {
     public void initialize() {
         configurarSesion();
         configurarTablas();
-        configurarConteoDenominaciones();
         cargarDatos();
         txtDineroContado.textProperty().addListener((obs, old, nuevo) -> actualizarConteoFisico(nuevo));
         lblObsRequerida.setVisible(false);
@@ -210,79 +195,6 @@ public class CorteCajaController {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo cargar el corte de caja.");
         }
-    }
-
-    private void configurarConteoDenominaciones() {
-        for (TextField campo : camposDenominaciones()) {
-            if (campo == null) continue;
-            campo.textProperty().addListener((obs, old, nuevo) -> {
-                if (nuevo == null || nuevo.matches("\\d{0,5}")) {
-                    recalcularDenominaciones();
-                } else {
-                    campo.setText(old);
-                }
-            });
-        }
-    }
-
-    private TextField[] camposDenominaciones() {
-        return new TextField[]{
-                txtBillete1000, txtBillete500, txtBillete200, txtBillete100, txtBillete50, txtBillete20,
-                txtMoneda20, txtMoneda10, txtMoneda5, txtMoneda2, txtMoneda1, txtMoneda050
-        };
-    }
-
-    private void recalcularDenominaciones() {
-        double total = cantidad(txtBillete1000) * 1000
-                + cantidad(txtBillete500) * 500
-                + cantidad(txtBillete200) * 200
-                + cantidad(txtBillete100) * 100
-                + cantidad(txtBillete50) * 50
-                + cantidad(txtBillete20) * 20
-                + cantidad(txtMoneda20) * 20
-                + cantidad(txtMoneda10) * 10
-                + cantidad(txtMoneda5) * 5
-                + cantidad(txtMoneda2) * 2
-                + cantidad(txtMoneda1)
-                + cantidad(txtMoneda050) * 0.50;
-        if (lblTotalDenominaciones != null) {
-            lblTotalDenominaciones.setText(moneda(total));
-        }
-        if (reporteActual != null) {
-            reporteActual.setConteoDenominaciones(conteoDenominaciones());
-        }
-        if (total > 0) {
-            txtDineroContado.setText(String.format(Locale.US, "%.2f", total));
-        }
-    }
-
-    private int cantidad(TextField campo) {
-        if (campo == null || campo.getText() == null || campo.getText().isBlank()) return 0;
-        try {
-            return Integer.parseInt(campo.getText().trim());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    private String conteoDenominaciones() {
-        int b1000 = cantidad(txtBillete1000);
-        int b500 = cantidad(txtBillete500);
-        int b200 = cantidad(txtBillete200);
-        int b100 = cantidad(txtBillete100);
-        int b50 = cantidad(txtBillete50);
-        int b20 = cantidad(txtBillete20);
-        int m20 = cantidad(txtMoneda20);
-        int m10 = cantidad(txtMoneda10);
-        int m5 = cantidad(txtMoneda5);
-        int m2 = cantidad(txtMoneda2);
-        int m1 = cantidad(txtMoneda1);
-        int m050 = cantidad(txtMoneda050);
-        boolean hayConteo = b1000 + b500 + b200 + b100 + b50 + b20 + m20 + m10 + m5 + m2 + m1 + m050 > 0;
-        if (!hayConteo) return "";
-        return String.format(Locale.US,
-                "{\"1000\":%d,\"500\":%d,\"200\":%d,\"100\":%d,\"50\":%d,\"20\":%d,\"moneda20\":%d,\"moneda10\":%d,\"moneda5\":%d,\"moneda2\":%d,\"moneda1\":%d,\"moneda0.50\":%d}",
-                b1000, b500, b200, b100, b50, b20, m20, m10, m5, m2, m1, m050);
     }
 
     private void pintarReporte(CorteCajaReporte r) {
@@ -397,7 +309,6 @@ public class CorteCajaController {
             return;
         }
         actualizarConteoFisico(txtDineroContado.getText());
-        reporteActual.setConteoDenominaciones(conteoDenominaciones());
 
         if (reporteActual.getDiferencia() != 0 && txtObservaciones.getText().trim().isEmpty()) {
             mostrarAlerta("Observaciones requeridas", "Hay diferencia de efectivo. Captura una observacion antes de cerrar.");
@@ -504,12 +415,7 @@ public class CorteCajaController {
         a.setHeaderText(null);
         a.setContentText("Seguro que deseas cambiar de sesion?");
         a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
-                AuditoriaService.get().registrar(idUsuario, "LOGOUT", "usuarios", idUsuario, "Cambio de sesion");
-                SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
+            if (r == ButtonType.OK) navegar("/org/example/vista/Login.fxml");
         });
     }
 

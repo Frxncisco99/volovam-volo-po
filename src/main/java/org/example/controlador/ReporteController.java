@@ -320,16 +320,14 @@ public class ReporteController {
         // Detectar qué columnas opcionales existen en la tabla ventas
         boolean tieneMetodoPago = columnaExiste("ventas", "metodo_pago");
         boolean tieneEstado     = columnaExiste("ventas", "estado");
-        boolean tieneFechaHora  = columnaExiste("ventas", "fecha_hora");
 
         String colEstado = tieneEstado     ? "COALESCE(v.estado, 'completada')"    : "'completada'";
-        String colFechaVenta = tieneFechaHora ? "COALESCE(v.fecha_hora, v.fecha)" : "v.fecha";
 
         String sql =
                 "SELECT " +
                         "  v.id_venta, " +
-                        "  DATE_FORMAT(" + colFechaVenta + ", '%d/%m/%Y') AS fecha, " +
-                        "  DATE_FORMAT(" + colFechaVenta + ", '%H:%i')    AS hora, " +
+                        "  DATE_FORMAT(v.fecha, '%d/%m/%Y') AS fecha, " +
+                        "  DATE_FORMAT(v.fecha, '%H:%i')    AS hora, " +
                         "  COALESCE(c.nombre, 'Publico General') AS cliente, " +
                         "  u.nombre AS cajero, " +
                         "  COALESCE(p.tipo_pago, v.metodo_pago, 'Efectivo') AS metodo_pago, " +
@@ -341,8 +339,8 @@ public class ReporteController {
                         "JOIN usuarios u ON v.id_usuario = u.id_usuario " +
                         "LEFT JOIN clientes c ON v.id_cliente = c.id_cliente " +
                         "LEFT JOIN pagos p ON p.id_venta = v.id_venta " +
-                        "WHERE " + colFechaVenta + " BETWEEN ? AND ? " +
-                        "ORDER BY " + colFechaVenta + " DESC";
+                        "WHERE v.fecha BETWEEN ? AND ? " +
+                        "ORDER BY v.fecha DESC";
 
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -439,15 +437,7 @@ public class ReporteController {
         tablaDetalle.getColumns().addAll(cProd, cCant, cPrecio, cSub);
 
         // Consulta detalle
-        boolean detalleFiscal = columnaExiste("detalle_venta", "impuesto_clave");
-        String sqlDet = detalleFiscal ? """
-            SELECT p.nombre AS producto, dv.cantidad,
-                   dv.precio_unitario AS precio,
-                   COALESCE(dv.total_linea, dv.subtotal) AS subtotal
-            FROM detalle_venta dv
-            JOIN productos p ON dv.id_producto = p.id_producto
-            WHERE dv.id_venta = ?
-            """ : """
+        String sqlDet = """
             SELECT p.nombre AS producto, dv.cantidad,
                    dv.precio_unitario AS precio,
                    (dv.cantidad * dv.precio_unitario) AS subtotal
@@ -476,17 +466,13 @@ public class ReporteController {
         footer.setStyle("-fx-padding: 10 20 16 20; -fx-background-color: #f0f7ff;" +
                 "-fx-border-color: #d0e4f4 transparent transparent transparent; -fx-border-width: 1;");
 
-        double[] fiscal = totalesFiscalesVenta(fila.getIdVenta(), fila.getTotal());
-        double subtotalN = fiscal[0];
-        double iva = fiscal[1];
-        double ieps = fiscal[2];
-        double impuestos = fiscal[3];
+        double[] fiscal = obtenerTotalesFiscalesVenta(fila.getIdVenta(), fila.getTotal());
 
         footer.getChildren().addAll(
-                filaTotal("Subtotal:", "$" + df.format(subtotalN), false),
-                filaTotal("IVA:",      "$" + df.format(iva),       false),
-                filaTotal("IEPS:",     "$" + df.format(ieps),      false),
-                filaTotal("Impuestos:","$" + df.format(impuestos), false),
+                filaTotal("Subtotal:",            "$" + df.format(fiscal[0]), false),
+                filaTotal("IVA:",                 "$" + df.format(fiscal[1]), false),
+                filaTotal("IEPS:",                "$" + df.format(fiscal[2]), false),
+                filaTotal("Impuestos:",           "$" + df.format(fiscal[3]), false),
                 filaTotal("TOTAL:",                "$" + df.format(fila.getTotal()), true)
         );
 
@@ -496,16 +482,11 @@ public class ReporteController {
     }
 
     // helpers para el modal de detalle
-    private double[] totalesFiscalesVenta(int idVenta, double totalFallback) {
-        if (!columnaExiste("ventas", "subtotal")) {
-            double tasa = tasaFiscalPredeterminada();
-            double subtotal = tasa > 0 ? totalFallback / (1 + tasa) : totalFallback;
-            double impuesto = totalFallback - subtotal;
-            return new double[]{subtotal, impuesto, 0, impuesto};
-        }
+    private double[] obtenerTotalesFiscalesVenta(int idVenta, double totalFallback) {
         String sql = "SELECT subtotal, iva, ieps, impuestos FROM ventas WHERE id_venta = ?";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            org.example.servicio.FiscalSchemaService.asegurarEstructura(con);
             ps.setInt(1, idVenta);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -516,20 +497,10 @@ public class ReporteController {
                         rs.getDouble("impuestos")
                 };
             }
-        } catch (Exception ignored) {
-        }
-        double tasa = tasaFiscalPredeterminada();
-        double subtotal = tasa > 0 ? totalFallback / (1 + tasa) : totalFallback;
-        double impuesto = totalFallback - subtotal;
-        return new double[]{subtotal, impuesto, 0, impuesto};
-    }
-
-    private double tasaFiscalPredeterminada() {
-        try {
-            return new org.example.dao.FiscalDAO().obtenerImpuestoPredeterminado().getTasa().doubleValue();
         } catch (Exception e) {
-            return 0;
+            e.printStackTrace();
         }
+        return new double[]{totalFallback, 0, 0, 0};
     }
 
     private VBox infoChip(String etiq, String valor) {
@@ -566,10 +537,6 @@ public class ReporteController {
     // ─────────────────────────────────────────────────────────────
     @FXML
     private void exportarVentasCSV() {
-        if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.REPORTES_EXPORTAR_PDF)) {
-            alerta("No tienes permiso para exportar reportes.");
-            return;
-        }
         if (ultimasFilasVenta.isEmpty()) { alerta("Genera un reporte primero."); return; }
 
         FileChooser fc = new FileChooser();
@@ -601,10 +568,6 @@ public class ReporteController {
     // ─────────────────────────────────────────────────────────────
     @FXML
     private void guardarPDF() {
-        if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.REPORTES_EXPORTAR_PDF)) {
-            alerta("No tienes permiso para exportar PDF.");
-            return;
-        }
         try {
             LocalDateTime inicio = dateInicio.getValue().atStartOfDay();
             LocalDateTime fin    = dateFin.getValue().atTime(23, 59);
@@ -827,7 +790,6 @@ public class ReporteController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });

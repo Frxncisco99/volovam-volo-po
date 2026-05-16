@@ -153,42 +153,77 @@
                 <Button fx:id="btnTabBaseDatos"     onAction="#tabBaseDatos"     styleClass="cfg-tab"        text="Base de Datos"/>
             </HBox>
 
-            <VBox VBox.vgrow="ALWAYS" styleClass="workspace">
-                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="config-tabs">
-                    <Button fx:id="btnTabNegocio" text="General" onAction="#tabNegocio" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-store" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabFiscal" text="Fiscal" onAction="#tabFiscal" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabTicket" text="Tickets" onAction="#tabTicket" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-receipt" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabCajon" text="Caja" onAction="#tabCajon" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabEmail" text="Correo" onAction="#tabEmail" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-envelope" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabUsuarios" text="Seguridad" onAction="#tabUsuarios" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-user-shield" iconSize="13"/></graphic>
-                    </Button>
-                    <Button fx:id="btnTabBaseDatos" text="Sistema" onAction="#tabBaseDatos" graphicTextGap="8" styleClass="cfg-tab-button">
-                        <graphic><FontIcon iconLiteral="fas-database" iconSize="13"/></graphic>
-                    </Button>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="BD + Preferences" styleClass="nav-note-text"/>
-                </HBox>
+            <!-- ── SCROLL AREA ──────────────────────────── -->
+            <ScrollPane fitToWidth="true"
+                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;"
+                        VBox.vgrow="ALWAYS">
+                <VBox style="-fx-padding: 20 24 28 24; -fx-spacing: 18;">
 
-                <ScrollPane fitToWidth="true" styleClass="config-scroll" VBox.vgrow="ALWAYS">
-                    <VBox spacing="18" maxWidth="1180" styleClass="content-shell">
+                    <!-- ╔══════════════════════════════════════╗
+                         ║  PANEL NEGOCIO                       ║
+                         ╚══════════════════════════════════════╝ -->
+                    <VBox fx:id="panelNegocio" spacing="16">
+                        <HBox spacing="16">
 
-                        <VBox fx:id="panelNegocio" spacing="18">
-                            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
-                                <FontIcon iconLiteral="fas-building" iconSize="20" iconColor="#0b3b75"/>
-                                <VBox>
-                                    <Label text="Configuracion general" styleClass="section-title"/>
-                                    <Label text="Informacion publica del negocio usada en reportes, pantalla y tickets." styleClass="section-subtitle"/>
+                            <!-- Info General -->
+                            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 14;
+                                         -fx-border-color: transparent; -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);">
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0;">
+                                    <FontIcon iconLiteral="fas-store" iconSize="15" iconColor="#1a6fa8"/>
+                                    <VBox spacing="2">
+                                        <Label styleClass="cfg-card-title" text="Informacion General"/>
+                                        <Label styleClass="cfg-card-subtitle" text="Datos principales del negocio"/>
+                                    </VBox>
+                                </HBox>
+                                <Separator/>
+                                <VBox spacing="4" style="-fx-padding: 14 0 0 0;">
+                                    <Label styleClass="cfg-label-key" text="NOMBRE DEL NEGOCIO"/>
+                                    <TextField fx:id="txtNombreNegocio" promptText="Ej. Volovan Volo"/>
+                                    <Label styleClass="cfg-label-key" text="SLOGAN / DESCRIPCION CORTA"/>
+                                    <TextField fx:id="txtSlogan" promptText="Ej. El sabor de casa"/>
+                                    <Label styleClass="cfg-label-key" text="TELEFONO"/>
+                                    <TextField fx:id="txtTelefono" promptText="878-123-4567"/>
+                                    <Label styleClass="cfg-label-key" text="CORREO ELECTRONICO"/>
+                                    <TextField fx:id="txtCorreo" promptText="admin@negocio.mx"/>
+                                    <Label styleClass="cfg-label-key" text="SITIO WEB"/>
+                                    <TextField fx:id="txtSitioWeb" promptText="www.negocio.mx"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Configuracion Regional -->
+                            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 14;
+                                         -fx-border-color: transparent; -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);">
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0;">
+                                    <FontIcon iconLiteral="fas-map-marker-alt" iconSize="15" iconColor="#1a6fa8"/>
+                                    <VBox spacing="2">
+                                        <Label styleClass="cfg-card-title" text="Configuracion Regional"/>
+                                        <Label styleClass="cfg-card-subtitle" text="Ubicacion, moneda y zona horaria"/>
+                                    </VBox>
+                                </HBox>
+                                <Separator/>
+                                <VBox spacing="4" style="-fx-padding: 14 0 0 0;">
+                                    <Label styleClass="cfg-label-key" text="DIRECCION"/>
+                                    <TextField fx:id="txtDireccion" promptText="Calle, Num, Colonia"/>
+                                    <HBox spacing="10">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="CIUDAD"/>
+                                            <TextField fx:id="txtCiudad" promptText="Ej. Piedras Negras"/>
+                                        </VBox>
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="cfg-label-key" text="C.P."/>
+                                            <TextField fx:id="txtCP" promptText="26000"/>
+                                        </VBox>
+                                    </HBox>
+                                    <Label styleClass="cfg-label-key" text="RFC"/>
+                                    <TextField fx:id="txtRFC" promptText="XAXX010101000"/>
+                                    <Label styleClass="cfg-label-key" text="MONEDA"/>
+                                    <ComboBox fx:id="cmbMoneda" maxWidth="Infinity"/>
+                                    <Label styleClass="cfg-label-key" text="ZONA HORARIA"/>
+                                    <ComboBox fx:id="cmbZonaHoraria" maxWidth="Infinity"/>
                                 </VBox>
                             </VBox>
 
@@ -303,125 +338,54 @@
                                                       style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                     </HBox>
                                 </VBox>
-                            </GridPane>
-                        </VBox>
+                            </VBox>
 
-                        <VBox fx:id="panelFiscal" spacing="18" visible="false" managed="false">
-                            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
-                                <FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20" iconColor="#0b3b75"/>
-                                <VBox>
-                                    <Label text="Facturacion e impuestos" styleClass="section-title"/>
-                                    <Label text="Base fiscal configurable para prefacturas, impuestos por producto y tickets." styleClass="section-subtitle"/>
-                                </VBox>
-                            </HBox>
-                            <GridPane hgap="18" vgap="18" styleClass="card-grid">
-                                <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                            <!-- Productos y Busqueda -->
+                            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: white; -fx-background-radius: 14;
+                                         -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(13,61,94,0.07), 12, 0, 0, 2);">
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0;">
+                                    <FontIcon iconLiteral="fas-barcode" iconSize="15" iconColor="#1a6fa8"/>
+                                    <VBox spacing="2">
+                                        <Label styleClass="cfg-card-title" text="Productos y Busqueda"/>
+                                        <Label styleClass="cfg-card-subtitle" text="Como se muestran y buscan los articulos"/>
+                                    </VBox>
+                                </HBox>
+                                <Separator/>
+                                <VBox spacing="4" style="-fx-padding: 14 0 0 0;">
+                                    <Label styleClass="cfg-label-key" text="BUSQUEDA POR"/>
+                                    <ComboBox fx:id="cmbBusqueda" maxWidth="Infinity"/>
+                                    <Label styleClass="cfg-label-key" text="ORDEN DE PRODUCTOS EN CAJA"/>
+                                    <ComboBox fx:id="cmbOrdenProductos" maxWidth="Infinity"/>
 
-                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
-                                        <FontIcon iconLiteral="fas-id-card" iconSize="18" iconColor="#0b3b75"/>
-                                        <VBox>
-                                            <Label text="Datos fiscales del negocio" styleClass="card-title"/>
-                                            <Label text="Informacion del emisor para facturacion mexicana." styleClass="card-subtitle"/>
+                                    <HBox alignment="CENTER_LEFT" spacing="12"
+                                          style="-fx-background-color: #f5f9ff; -fx-padding: 10 14; -fx-background-radius: 10; -fx-min-height: 52; -fx-max-height: 52;">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Mostrar imagen de producto en caja"/>
+                                            <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Miniatura en cada articulo del carrito"/>
                                         </VBox>
+                                        <SwitchToggle fx:id="tglImagenesProducto" selected="true"
+                                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                     </HBox>
-                                    <GridPane hgap="14" vgap="12">
-                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
-                                        <Label text="RFC negocio" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                        <TextField fx:id="txtFiscalRfc" promptText="XAXX010101000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <Label text="Codigo postal fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                        <TextField fx:id="txtFiscalCP" promptText="26000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                        <Label text="Razon social" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                                        <TextField fx:id="txtFiscalRazonSocial" promptText="Razon social del negocio" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-                                        <Label text="Regimen fiscal" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                                        <ComboBox fx:id="cmbFiscalRegimen" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
-                                    </GridPane>
-                                </VBox>
-
-                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
-                                        <FontIcon iconLiteral="fas-percentage" iconSize="18" iconColor="#0b3b75"/>
-                                        <VBox>
-                                            <Label text="Politica de impuestos" styleClass="card-title"/>
-                                            <Label text="Las tasas se leen de la tabla impuestos, no desde calculos fijos." styleClass="card-subtitle"/>
+                                    <HBox alignment="CENTER_LEFT" spacing="12"
+                                          style="-fx-background-color: #f5f9ff; -fx-padding: 10 14; -fx-background-radius: 10; -fx-min-height: 52; -fx-max-height: 52;">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Alertar stock bajo en caja"/>
+                                            <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Aviso al agregar producto con poco inventario"/>
                                         </VBox>
+                                        <SwitchToggle fx:id="tglAlertaStock" selected="true"
+                                                      style="-fx-background-color: #1a6fa8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                     </HBox>
-                                    <GridPane hgap="14" vgap="12">
-                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
-                                        <Label text="IVA predeterminado" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                        <ComboBox fx:id="cmbFiscalImpuestoDefault" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <Label text="Region fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                        <ComboBox fx:id="cmbRegionFiscal" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                    </GridPane>
-                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
-                                        <VBox HBox.hgrow="ALWAYS">
-                                            <Label text="Precio incluye impuesto" styleClass="option-title"/>
-                                            <Label text="Si esta activo, el impuesto se desglosa desde el precio final." styleClass="card-subtitle"/>
+                                    <HBox alignment="CENTER_LEFT" spacing="12"
+                                          style="-fx-background-color: #f5f9ff; -fx-padding: 10 14; -fx-background-radius: 10; -fx-min-height: 52; -fx-max-height: 52;">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label style="-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 12px;" text="Vender producto sin stock"/>
+                                            <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px;" text="Permite vender aunque el inventario sea 0"/>
                                         </VBox>
-                                        <SwitchToggle fx:id="tglPrecioIncluyeImpuesto"/>
+                                        <SwitchToggle fx:id="tglVentaSinStock"
+                                                      style="-fx-background-color: #b0c4d8; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 24; -fx-cursor: hand;"/>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
-                                        <VBox HBox.hgrow="ALWAYS">
-                                            <Label text="Impuesto por producto" styleClass="option-title"/>
-                                            <Label text="Permite que cada producto use una tasa fiscal distinta." styleClass="card-subtitle"/>
-                                        </VBox>
-                                        <SwitchToggle fx:id="tglImpuestoPorProducto"/>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
-                                        <VBox HBox.hgrow="ALWAYS">
-                                            <Label text="Mostrar desglose fiscal en ticket" styleClass="option-title"/>
-                                            <Label text="Preferencia lista para TicketRenderer en la siguiente fase." styleClass="card-subtitle"/>
-                                        </VBox>
-                                        <SwitchToggle fx:id="tglMostrarDesgloseFiscal"/>
-                                    </HBox>
-                                </VBox>
-
-                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
-                                        <FontIcon iconLiteral="fas-file-signature" iconSize="18" iconColor="#0b3b75"/>
-                                        <VBox>
-                                            <Label text="Prefactura" styleClass="card-title"/>
-                                            <Label text="Folios internos listos para integracion PAC futura." styleClass="card-subtitle"/>
-                                        </VBox>
-                                    </HBox>
-                                    <GridPane hgap="14" vgap="12">
-                                        <columnConstraints><ColumnConstraints percentWidth="32"/><ColumnConstraints percentWidth="34"/><ColumnConstraints percentWidth="34"/></columnConstraints>
-                                        <Label text="Serie" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                        <TextField fx:id="txtSerieFactura" promptText="A" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <Label text="Folio inicial" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                        <TextField fx:id="txtFolioInicial" promptText="1" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                        <Label text="Modo" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                                        <ComboBox fx:id="cmbModoFacturacion" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                                    </GridPane>
-                                </VBox>
-
-                                <VBox spacing="14" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="card-header">
-                                        <FontIcon iconLiteral="fas-university" iconSize="18" iconColor="#0b3b75"/>
-                                        <VBox>
-                                            <Label text="Datos SAT predeterminados" styleClass="card-title"/>
-                                            <Label text="Valores iniciales para ventas al publico o clientes sin datos completos." styleClass="card-subtitle"/>
-                                        </VBox>
-                                    </HBox>
-                                    <Label text="Uso CFDI default" styleClass="field-label"/>
-                                    <ComboBox fx:id="cmbUsoCfdiDefault" maxWidth="Infinity" styleClass="cfg-combo"/>
-                                    <GridPane hgap="14" vgap="12">
-                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
-                                        <Label text="Metodo de pago SAT" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                        <ComboBox fx:id="cmbMetodoPagoSat" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <Label text="Forma de pago SAT" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                        <ComboBox fx:id="cmbFormaPagoSat" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                    </GridPane>
-                                </VBox>
-                            </GridPane>
-                        </VBox>
-
-                        <VBox fx:id="panelTicket" spacing="18" visible="false" managed="false">
-                            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
-                                <FontIcon iconLiteral="fas-receipt" iconSize="20" iconColor="#0b3b75"/>
-                                <VBox>
-                                    <Label text="Tickets e impresion" styleClass="section-title"/>
-                                    <Label text="Mantiene las mismas claves usadas por TicketService, TicketImpresora y TicketRenderer." styleClass="section-subtitle"/>
                                 </VBox>
                             </VBox>
 
