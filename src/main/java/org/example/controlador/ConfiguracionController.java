@@ -9,7 +9,22 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -17,24 +32,28 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
-import org.example.dao.ImpuestoDAO;
+import org.example.dao.FiscalDAO;
 import org.example.modelo.ConfiguracionFiscal;
 import org.example.modelo.Impuesto;
 import org.example.modelo.SesionUsuario;
+import org.example.modelo.SwitchToggle;
+import org.example.modelo.Ticket;
 import org.example.servicio.AuditoriaService;
-import org.example.servicio.FiscalConfigService;
-import org.example.servicio.FiscalSchemaService;
-import org.example.servicio.TicketImpresora;
+import org.example.servicio.MarcaService;
+import org.example.servicio.PasswordService;
+import org.example.servicio.PermisoService;
 import org.example.servicio.TicketRenderer;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.example.servicio.UsuarioSeguridadService;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 public class ConfiguracionController {
@@ -52,14 +71,20 @@ public class ConfiguracionController {
 
     // ── Pestañas ──────────────────────────────────────────────────────────────
     @FXML private VBox panelNegocio;
-    @FXML private VBox panelPOS;
+    @FXML private VBox panelFiscal;
+    @FXML private VBox panelTicket;
+    @FXML private VBox panelCajon;
+    @FXML private VBox panelEmail;
     @FXML private VBox panelUsuarios;
     @FXML private VBox panelFiscal;
     @FXML private VBox panelIntegraciones;
     @FXML private VBox panelBaseDatos;
 
     @FXML private Button btnTabNegocio;
-    @FXML private Button btnTabPOS;
+    @FXML private Button btnTabFiscal;
+    @FXML private Button btnTabTicket;
+    @FXML private Button btnTabCajon;
+    @FXML private Button btnTabEmail;
     @FXML private Button btnTabUsuarios;
     @FXML private Button btnTabFiscal;
     @FXML private Button btnTabIntegraciones;
@@ -75,141 +100,72 @@ public class ConfiguracionController {
     @FXML private TextField txtCorreo;
     @FXML private TextField txtSitioWeb;
     @FXML private TextField txtRFC;
-    @FXML private ComboBox<String> cmbMoneda;
-    @FXML private ComboBox<String> cmbZonaHoraria;
-    @FXML private TextField txtHoraApertura;
-    @FXML private TextField txtHoraCierre;
-    @FXML private ToggleButton tglLun, tglMar, tglMie, tglJue, tglVie, tglSab, tglDom;
-    @FXML private TextField txtLimiteCredito;
-    @FXML private TextField txtNumSucursal;
-    @FXML private ToggleButton tglMantenimiento;
 
-    // ── Panel POS ─────────────────────────────────────────────────────────────
-    @FXML private ComboBox<String> cmbMetodoPago;
-    @FXML private ComboBox<String> cmbRedondeo;
-    @FXML private org.example.modelo.SwitchToggle tglAperturaCaja;
-    @FXML private org.example.modelo.SwitchToggle tglConfirmarCobro;
-    @FXML private org.example.modelo.SwitchToggle tglAutoImprimir;
-    @FXML private ComboBox<String> cmbBusqueda;
-    @FXML private ComboBox<String> cmbOrdenProductos;
-    @FXML private org.example.modelo.SwitchToggle tglImagenesProducto;
-    @FXML private org.example.modelo.SwitchToggle tglAlertaStock;
-    @FXML private org.example.modelo.SwitchToggle tglVentaSinStock;
-    @FXML private org.example.modelo.SwitchToggle tglAsociarCliente;
-    @FXML private org.example.modelo.SwitchToggle tglVentaCredito;
-    @FXML private org.example.modelo.SwitchToggle tglDevoluciones;
-    @FXML private org.example.modelo.SwitchToggle tglVentaRapida;
-    @FXML private TextField txtNotaInterna;
+    @FXML private TextField txtFiscalRfc;
+    @FXML private TextField txtFiscalCP;
+    @FXML private TextField txtFiscalRazonSocial;
+    @FXML private ComboBox<String> cmbFiscalRegimen;
+    @FXML private ComboBox<String> cmbFiscalImpuestoDefault;
+    @FXML private ComboBox<String> cmbRegionFiscal;
+    @FXML private SwitchToggle tglPrecioIncluyeImpuesto;
+    @FXML private SwitchToggle tglImpuestoPorProducto;
+    @FXML private SwitchToggle tglMostrarDesgloseFiscal;
+    @FXML private TextField txtSerieFactura;
+    @FXML private TextField txtFolioInicial;
+    @FXML private ComboBox<String> cmbModoFacturacion;
+    @FXML private ComboBox<String> cmbUsoCfdiDefault;
+    @FXML private ComboBox<String> cmbMetodoPagoSat;
+    @FXML private ComboBox<String> cmbFormaPagoSat;
 
-    // ── Panel Usuarios ────────────────────────────────────────────────────────
-    @FXML private TextField txtBuscarUsuario;
-    @FXML private TableView<FilaUsuario> tablaUsuarios;
-    @FXML private TableColumn<FilaUsuario, String> colUsuNombre;
-    @FXML private TableColumn<FilaUsuario, String> colUsuRol;
-    @FXML private TableColumn<FilaUsuario, String> colUsuEstado;
-    @FXML private TableColumn<FilaUsuario, String> colUsuUltimoAcceso;
-    @FXML private TableColumn<FilaUsuario, Void>   colUsuAcciones;
-    @FXML private org.example.modelo.SwitchToggle tglAutoBloqueo;
-    @FXML private ComboBox<String> cmbInactividad;
-    @FXML private org.example.modelo.SwitchToggle tglAuditoria;
-
-    private final ObservableList<FilaUsuario> listaUsuarios = FXCollections.observableArrayList();
-
-    // ── Panel Fiscal ──────────────────────────────────────────────────────────
-    @FXML private org.example.modelo.SwitchToggle tglLogoTicket;
-    @FXML private org.example.modelo.SwitchToggle tglFolioTicket;
-    @FXML private org.example.modelo.SwitchToggle tglDesglose;
-    @FXML private org.example.modelo.SwitchToggle tglQR;
-    @FXML private org.example.modelo.SwitchToggle tglCopiacocina;
-    @FXML private org.example.modelo.SwitchToggle tglMostrarFecha;
-    @FXML private org.example.modelo.SwitchToggle tglMostrarCajero;
-    @FXML private ComboBox<String> cmbImpresora;
-    @FXML private ComboBox<String> cmbAnchoPapel;
     @FXML private TextField txtTicketNombre;
     @FXML private TextField txtTicketGiro;
     @FXML private TextField txtTicketDireccion;
     @FXML private TextField txtTicketCiudad;
     @FXML private TextField txtTicketTelefono;
-    @FXML private TextArea  txtMensajeEncabezado;
-    @FXML private TextArea  txtMensajePie;
-    @FXML private TextArea  txtAvisoFiscal;
-    @FXML private TextField txtRfcFiscal;
-    @FXML private TextField txtRazonSocialFiscal;
-    @FXML private TextField txtRegimenFiscal;
-    @FXML private TextField txtCPFiscal;
-    @FXML private ComboBox<String> cmbIVADefault;
-    @FXML private ComboBox<String> cmbRegionFiscal;
-    @FXML private org.example.modelo.SwitchToggle tglPrecioIncluyeImpuesto;
-    @FXML private org.example.modelo.SwitchToggle tglImpuestoPorProducto;
-    @FXML private ComboBox<String> cmbModoFacturacion;
-    @FXML private TextField txtSerieFactura;
-    @FXML private TextField txtFolioInicial;
-    @FXML private TextField txtUsoCfdiDefault;
-    @FXML private ComboBox<String> cmbMetodoPagoSat;
-    @FXML private ComboBox<String> cmbFormaPagoSat;
-    @FXML private TableView<Impuesto> tablaImpuestos;
-    @FXML private TableColumn<Impuesto, String> colImpClave;
-    @FXML private TableColumn<Impuesto, String> colImpNombre;
-    @FXML private TableColumn<Impuesto, String> colImpTipo;
-    @FXML private TableColumn<Impuesto, String> colImpTasa;
-    @FXML private TableColumn<Impuesto, String> colImpActivo;
-    @FXML private TextField txtImpClave;
-    @FXML private TextField txtImpNombre;
-    @FXML private TextField txtImpTasa;
-    @FXML private ComboBox<String> cmbImpTipo;
+    @FXML private TextArea txtMensajeEncabezado;
+    @FXML private TextArea txtMensajePie;
+    @FXML private TextArea txtAvisoFiscal;
+    @FXML private SwitchToggle tglLogoTicket;
+    @FXML private SwitchToggle tglFolioTicket;
+    @FXML private SwitchToggle tglDesglose;
+    @FXML private SwitchToggle tglQR;
+    @FXML private ComboBox<String> cmbImpresora;
+    @FXML private ComboBox<String> cmbAnchoPapel;
 
-    private final ObservableList<Impuesto> listaImpuestos = FXCollections.observableArrayList();
+    @FXML private SwitchToggle tglCajonActivo;
+    @FXML private ComboBox<String> cmbCajonPuerto;
+    @FXML private ComboBox<String> cmbCajonPulso;
 
-    // ── Panel Integraciones ───────────────────────────────────────────────────
-    @FXML private TextField txtClipToken;
-    @FXML private TextField txtStripeKey;
-    @FXML private TextField txtCorreoReportes;
-    @FXML private ComboBox<String> cmbSmtp;
-    @FXML private org.example.modelo.SwitchToggle tglReporteDiario;
-    @FXML private org.example.modelo.SwitchToggle tglAlertaStockCorreo;
-    @FXML private TextField txtTwilioSid;
-    @FXML private TextField txtTwilioToken;
-    @FXML private org.example.modelo.SwitchToggle tglTicketWhatsapp;
+    @FXML private SwitchToggle tglEmailActivo;
+    @FXML private ComboBox<String> cmbEmailSmtp;
+    @FXML private TextField txtEmailRemitente;
+    @FXML private PasswordField txtEmailPassword;
+    @FXML private TextField txtEmailHost;
+    @FXML private TextField txtEmailPuerto;
+    @FXML private SwitchToggle tglEmailReporteDiario;
+    @FXML private VBox boxSmtpPersonalizado;
 
-    // ── Panel Base de Datos ───────────────────────────────────────────────────
-    @FXML private HBox       boxEstadoDB;
-    @FXML private FontIcon   icoEstadoDB;
-    @FXML private Label      lblEstadoDB;
-    @FXML private ComboBox<String> cmbMotorDB;
-    @FXML private TextField  txtDBHost;
-    @FXML private TextField  txtDBPuerto;
-    @FXML private TextField  txtDBNombre;
-    @FXML private TextField  txtDBUsuario;
-    @FXML private PasswordField txtDBPassword;
-    @FXML private TextField  txtRutaRespaldo;
-    @FXML private ComboBox<String> cmbFrecuenciaRespaldo;
-    @FXML private org.example.modelo.SwitchToggle tglRespaldoAuto;
-    @FXML private Label      lblUltimoRespaldo;
-    @FXML private Label      lblTamanoRespaldo;
-    @FXML private Label      lblTamanoDB;
-    @FXML private Label      lblRegVentas;
-    @FXML private Label      lblRegProductos;
+    @FXML private TextField txtBuscarUsuario;
+    @FXML private TableView<UsuarioRow> tablaUsuarios;
+    @FXML private TableColumn<UsuarioRow, String> colUsuarioNombre;
+    @FXML private TableColumn<UsuarioRow, String> colUsuarioRol;
+    @FXML private TableColumn<UsuarioRow, String> colUsuarioEstado;
+    @FXML private TableColumn<UsuarioRow, Void> colUsuarioAcciones;
 
-    // ── Servicios ─────────────────────────────────────────────────────────────
-    private final TicketImpresora impresora = new TicketImpresora();
-    private final FiscalConfigService fiscalConfigService = new FiscalConfigService();
-    private final ImpuestoDAO impuestoDAO = new ImpuestoDAO();
-    private javafx.animation.Timeline relojTimeline;
+    @FXML private Label lblEstadoDB;
+    @FXML private Label lblDBHost;
+    @FXML private Label lblDBNombre;
+    @FXML private Label lblDBVersion;
+    @FXML private TextField txtRutaRespaldo;
 
-    private static final DateTimeFormatter HORA_FMT = DateTimeFormatter.ofPattern("HH:mm:ss");
-    private static final DateTimeFormatter FECHA_HORA_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final String TAB = "cfg-tab";
-    private static final String TAB_ACTIVE = "cfg-tab-active";
-    private static final String BTN_PRIMARY = "cfg-btn-primary";
-    private static final String BTN_SUCCESS = "cfg-btn-success";
-
-    // ── Clave usada en tabla configuracion ───────────────────────────────────
-    // Cada ajuste se guarda como fila: clave VARCHAR, valor TEXT
-    // Fallback automático a Preferences si la tabla no existe aún.
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  INICIALIZACIÓN
-    // ═════════════════════════════════════════════════════════════════════════
+    private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
+    private final FiscalDAO fiscalDAO = new FiscalDAO();
+    private final PasswordService passwordService = new PasswordService();
+    private final UsuarioSeguridadService usuarioSeguridadService = new UsuarioSeguridadService();
+    private final ObservableList<UsuarioRow> usuarios = FXCollections.observableArrayList();
+    private List<VBox> panelesConfiguracion;
+    private List<Button> botonesConfiguracion;
+    private FadeTransition feedbackFade;
 
     @FXML
     public void initialize() {
@@ -254,66 +210,24 @@ public class ConfiguracionController {
     // ── Datos del usuario activo ──────────────────────────────────────────────
     private void cargarDatosUsuario() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
-        String nombre = sesion.getNombre() != null ? sesion.getNombre() : "Usuario";
-        if (lblNombreUsuario != null) lblNombreUsuario.setText(nombre);
-        if (lblRolUsuario    != null) lblRolUsuario.setText(sesion.getRol());
-        if (lblAvatarIniciales != null)
-            lblAvatarIniciales.setText(
-                    nombre.length() >= 2 ? nombre.substring(0, 2).toUpperCase() : nombre.toUpperCase());
+        String nombre = sesion.getNombre() == null ? "Usuario" : sesion.getNombre();
+        lblNombreUsuario.setText(nombre);
+        lblRolUsuario.setText(sesion.getRol());
+        lblAvatarIniciales.setText(iniciales(nombre));
+        lblMarcaNegocio.setText(MarcaService.nombreNegocio());
     }
 
-    // ── Poblar combos con valores fijos ───────────────────────────────────────
-    private void poblarCombos() {
-        setComboItems(cmbMoneda, "MXN - Peso Mexicano", "MXN - Peso Mexicano", "USD - Dolar", "EUR - Euro");
-        setComboItems(cmbZonaHoraria, "America/Monterrey (CST)",
-                "America/Monterrey (CST)", "America/Mexico_City (CST)",
-                "America/Tijuana (PST)", "America/Cancun (EST)");
-        setComboItems(cmbMetodoPago, "Efectivo y Tarjeta", "Efectivo", "Efectivo y Tarjeta", "Todos los metodos");
-        setComboItems(cmbRedondeo, "Sin redondeo", "Sin redondeo", "Redondear a $0.50", "Redondear a $1.00");
-        setComboItems(cmbBusqueda, "Nombre o codigo", "Nombre del producto", "Codigo de barras", "Nombre o codigo", "Categoria");
-        setComboItems(cmbOrdenProductos, "Por categoria", "Alfabetico", "Mas vendido primero", "Por categoria", "Precio ascendente");
-        setComboItems(cmbImpresora, "EPSON TM-T20III", "EPSON TM-T20III", "EPSON TM-T88V", "Star TSP100", "Generica");
-        setComboItems(cmbAnchoPapel, "58 mm", "58 mm", "80 mm");
-        setComboItems(cmbIVADefault, "IVA_16", "IVA_16", "IVA_8", "TASA_0", "EXENTO", "SIN_IMPUESTO");
-        setComboItems(cmbRegionFiscal, "GENERAL", "GENERAL", "FRONTERA");
-        setComboItems(cmbModoFacturacion, "PREFACTURA", "PREFACTURA", "PAC_FUTURO");
-        setComboItems(cmbMetodoPagoSat, "PUE", "PUE", "PPD");
-        setComboItems(cmbFormaPagoSat, "01", "01", "03", "04", "28", "99");
-        setComboItems(cmbImpTipo, "PERSONALIZADO", "PERSONALIZADO", "IVA", "IEPS", "TASA_0", "EXENTO", "SIN_IMPUESTO");
-        setComboItems(cmbInactividad, "15 minutos", "5 minutos", "10 minutos", "15 minutos", "30 minutos", "1 hora");
-        setComboItems(cmbSmtp, "Gmail", "Gmail", "Outlook / Hotmail", "Yahoo Mail", "SMTP personalizado");
-        setComboItems(cmbMotorDB, "MySQL 8.x", "MySQL 8.x", "MySQL 5.7", "MariaDB");
-        setComboItems(cmbFrecuenciaRespaldo, "Diario", "Diario", "Semanal", "Quincenal", "Mensual");
-    }
+    private void prepararCombos() {
+        cmbAnchoPapel.getItems().setAll("58 mm", "80 mm");
+        cmbCajonPuerto.getItems().setAll("Via impresora termica (ESC/POS)", "COM1", "COM2", "COM3", "COM4");
+        cmbCajonPulso.getItems().setAll("Pulso 1 (pin 2)", "Pulso 2 (pin 5)");
+        cmbEmailSmtp.getItems().setAll("Gmail", "Outlook / Hotmail", "SMTP personalizado");
+        prepararCombosFiscal();
 
-    @SafeVarargs
-    private final void setComboItems(ComboBox<String> combo, String defaultValue, String... values) {
-        if (combo == null) return;
-        combo.getItems().setAll(values);
-        combo.setValue(defaultValue);
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    //  STORAGE — BD (tabla configuracion) con fallback a Preferences
-    // ═════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Garantiza que la tabla 'configuracion' exista.
-     * Si no existe la crea; si no hay conexión, retorna false (usa Preferences).
-     */
-    private boolean asegurarTablaConfiguracion() {
-        String ddl = "CREATE TABLE IF NOT EXISTS configuracion (" +
-                "clave VARCHAR(120) PRIMARY KEY, " +
-                "valor TEXT NOT NULL, " +
-                "actualizado DATETIME DEFAULT CURRENT_TIMESTAMP " +
-                "ON UPDATE CURRENT_TIMESTAMP" +
-                ")";
-        try (Connection con = ConexionDB.getConexion();
-             Statement st  = con.createStatement()) {
-            st.execute(ddl);
-            return true;
-        } catch (Exception e) {
-            return false;
+        cmbImpresora.getItems().clear();
+        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+        for (PrintService service : printServices) {
+            cmbImpresora.getItems().add(service.getName());
         }
     }
 
@@ -328,22 +242,83 @@ public class ConfiguracionController {
         }
     }
 
-    /** Lee un valor de la tabla configuracion; devuelve el defaultVal si no existe. */
-    private String dbGet(Connection con, String clave, String defaultVal) {
-        try (PreparedStatement ps = con.prepareStatement(
-                "SELECT valor FROM configuracion WHERE clave = ?")) {
-            ps.setString(1, clave);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getString("valor");
-        } catch (Exception ignored) {}
-        return defaultVal;
+    private void prepararCombosFiscal() {
+        cmbFiscalRegimen.getItems().setAll(
+                "601 - General de Ley Personas Morales",
+                "603 - Personas Morales con Fines no Lucrativos",
+                "605 - Sueldos y Salarios",
+                "612 - Personas Fisicas con Actividades Empresariales",
+                "626 - Regimen Simplificado de Confianza"
+        );
+        cmbRegionFiscal.getItems().setAll("GENERAL", "FRONTERA");
+        cmbModoFacturacion.getItems().setAll("PREFACTURA", "PAC_FUTURO");
+        cmbUsoCfdiDefault.getItems().setAll(
+                "G03 - Gastos en general",
+                "S01 - Sin efectos fiscales",
+                "CP01 - Pagos",
+                "P01 - Por definir"
+        );
+        cmbMetodoPagoSat.getItems().setAll(
+                "PUE - Pago en una sola exhibicion",
+                "PPD - Pago en parcialidades o diferido"
+        );
+        cmbFormaPagoSat.getItems().setAll(
+                "01 - Efectivo",
+                "03 - Transferencia electronica",
+                "04 - Tarjeta de credito",
+                "28 - Tarjeta de debito",
+                "99 - Por definir"
+        );
+
+        cmbFiscalImpuestoDefault.getItems().clear();
+        List<Impuesto> impuestos = fiscalDAO.obtenerImpuestosActivos();
+        if (impuestos.isEmpty()) {
+            cmbFiscalImpuestoDefault.getItems().setAll(
+                    "IVA_16 - IVA general (16.00%)",
+                    "IVA_8 - IVA frontera (8.00%)",
+                    "TASA_0 - Tasa 0 (0.00%)",
+                    "EXENTO - Exento (0.00%)",
+                    "SIN_IMPUESTO - Sin impuesto (0.00%)"
+            );
+            return;
+        }
+        for (Impuesto impuesto : impuestos) {
+            double porcentaje = impuesto.getTasa().multiply(new java.math.BigDecimal("100")).doubleValue();
+            cmbFiscalImpuestoDefault.getItems().add(
+                    impuesto.getClave() + " - " + impuesto.getNombre() + " (" + String.format("%.2f", porcentaje) + "%)"
+            );
+        }
     }
 
-    // ── Guardar toda la configuración ────────────────────────────────────────
-    @FXML
-    public void guardarConfiguracion() {
-        boolean guardadoEnBD = false;
-        Map<String, String> valores = obtenerValoresConfiguracion();
+    private void prepararUsuarios() {
+        colUsuarioNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().nombre()));
+        colUsuarioRol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().rol()));
+        colUsuarioEstado.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().estado()));
+        colUsuarioAcciones.setCellFactory(col -> new TableCell<>() {
+            private final Button btnEditar = botonAccion("Editar");
+            private final Button btnClave = botonAccion("Clave");
+            private final Button btnPermisos = botonAccion("Permisos");
+            private final Button btnEstado = botonAccion("Desactivar");
+            private final HBox box = new HBox(6, btnEditar, btnClave, btnPermisos, btnEstado);
+
+            {
+                btnEditar.setOnAction(e -> {
+                    UsuarioRow row = getTableView().getItems().get(getIndex());
+                    mostrarDialogoUsuario(row);
+                });
+                btnClave.setOnAction(e -> {
+                    UsuarioRow row = getTableView().getItems().get(getIndex());
+                    cambiarPasswordUsuario(row);
+                });
+                btnPermisos.setOnAction(e -> {
+                    UsuarioRow row = getTableView().getItems().get(getIndex());
+                    mostrarDialogoPermisos(row);
+                });
+                btnEstado.setOnAction(e -> {
+                    UsuarioRow row = getTableView().getItems().get(getIndex());
+                    cambiarEstadoUsuario(row);
+                });
+            }
 
         if (asegurarTablaConfiguracion()) {
             try (Connection con = ConexionDB.getConexion()) {
@@ -482,34 +457,17 @@ public class ConfiguracionController {
         }
     }
 
-    private ConfiguracionFiscal fiscalDesdeCampos() {
-        ConfiguracionFiscal cfg = new ConfiguracionFiscal();
-        cfg.setRfcNegocio(text(txtRfcFiscal).isBlank() ? text(txtRFC) : text(txtRfcFiscal));
-        cfg.setRazonSocial(text(txtRazonSocialFiscal));
-        cfg.setRegimenFiscal(text(txtRegimenFiscal));
-        cfg.setCodigoPostalFiscal(text(txtCPFiscal).isBlank() ? text(txtCP) : text(txtCPFiscal));
-        cfg.setRegionFiscal(combo(cmbRegionFiscal, "GENERAL"));
-        cfg.setImpuestoPredeterminadoClave(combo(cmbIVADefault, "IVA_16"));
-        cfg.setPrecioIncluyeImpuesto(tglPrecioIncluyeImpuesto != null && tglPrecioIncluyeImpuesto.isSelected());
-        cfg.setImpuestoPorProducto(tglImpuestoPorProducto == null || tglImpuestoPorProducto.isSelected());
-        cfg.setMostrarDesgloseTicket(tglDesglose == null || tglDesglose.isSelected());
-        cfg.setSerieFactura(text(txtSerieFactura).isBlank() ? "A" : text(txtSerieFactura));
-        cfg.setFolioInicial(parseEntero(text(txtFolioInicial), 1));
-        cfg.setModoFacturacion(combo(cmbModoFacturacion, "PREFACTURA"));
-        cfg.setUsoCfdiDefault(text(txtUsoCfdiDefault).isBlank() ? "G03" : text(txtUsoCfdiDefault));
-        cfg.setMetodoPagoSat(combo(cmbMetodoPagoSat, "PUE"));
-        cfg.setFormaPagoSat(combo(cmbFormaPagoSat, "01"));
-        return cfg;
-    }
+    @FXML private void tabNegocio() { mostrarTab("negocio"); }
+    @FXML private void tabFiscal() { mostrarTab("fiscal"); }
+    @FXML private void tabTicket() { mostrarTab("ticket"); }
+    @FXML private void tabCajon() { mostrarTab("cajon"); }
+    @FXML private void tabEmail() { mostrarTab("email"); }
+    @FXML private void tabUsuarios() { mostrarTab("usuarios"); }
+    @FXML private void tabBaseDatos() { mostrarTab("basedatos"); }
 
-    private void registrarCambiosFiscales(ConfiguracionFiscal anterior, ConfiguracionFiscal actual) {
-        if (anterior == null || actual == null) return;
-        auditarSiCambio("CAMBIO_RFC_FISCAL", "RFC", anterior.getRfcNegocio(), actual.getRfcNegocio());
-        auditarSiCambio("CAMBIO_REGIMEN_FISCAL", "Regimen fiscal", anterior.getRegimenFiscal(), actual.getRegimenFiscal());
-        auditarSiCambio("CAMBIO_IVA_DEFAULT", "Impuesto predeterminado", anterior.getImpuestoPredeterminadoClave(), actual.getImpuestoPredeterminadoClave());
-        auditarSiCambio("CAMBIO_FOLIO_FACTURA", "Serie/Folio",
-                anterior.getSerieFactura() + "-" + anterior.getFolioInicial(),
-                actual.getSerieFactura() + "-" + actual.getFolioInicial());
+    private void prepararColeccionesUI() {
+        panelesConfiguracion = List.of(panelNegocio, panelFiscal, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos);
+        botonesConfiguracion = List.of(btnTabNegocio, btnTabFiscal, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
     }
 
     private void auditarSiCambio(String accion, String campo, String anterior, String actual) {
@@ -520,27 +478,21 @@ public class ConfiguracionController {
         }
     }
 
-    @FXML
-    private void agregarImpuestoPersonalizado() {
-        String clave = text(txtImpClave);
-        String nombre = text(txtImpNombre);
-        String tipo = combo(cmbImpTipo, "PERSONALIZADO");
-        double tasa = parseDouble(text(txtImpTasa), -1);
-        if (clave.isBlank() || nombre.isBlank() || tasa < 0) {
-            mostrarDialogo("Impuestos", "Captura clave, nombre y tasa valida.");
-            return;
-        }
-        impuestoDAO.insertarPersonalizado(clave, nombre, tipo, new org.example.servicio.FiscalService().tasaPorcentajeAUnitario(tasa));
-        AuditoriaService.get().registrar("ALTA_IMPUESTO", "impuestos", 0, clave + " - " + nombre + " " + tasa + "% (" + tipo + ")");
-        setText(txtImpClave, "");
-        setText(txtImpNombre, "");
-        setText(txtImpTasa, "");
-        cargarImpuestosFiscales();
-    }
+        instalarTooltip(btnGuardarCambios, "Guarda todos los cambios visibles en base de datos y Preferences.");
+        instalarTooltip(btnTabNegocio, "Datos generales del negocio.");
+        instalarTooltip(btnTabFiscal, "Datos fiscales, impuestos y prefactura.");
+        instalarTooltip(btnTabTicket, "Campos usados por el flujo de impresion de tickets.");
+        instalarTooltip(btnTabCajon, "Apertura automatica del cajon de dinero.");
+        instalarTooltip(btnTabEmail, "Configuracion SMTP para tickets por correo.");
+        instalarTooltip(btnTabUsuarios, "Administracion de usuarios del POS.");
+        instalarTooltip(btnTabBaseDatos, "Estado de conexion y respaldo SQL.");
 
-    @FXML
-    private void activarImpuestoSeleccionado() {
-        cambiarEstadoImpuestoSeleccionado(true);
+        validarCampo(txtCorreo, texto -> !texto.isBlank() && !texto.contains("@"));
+        validarCampo(txtEmailRemitente, texto -> !texto.isBlank() && !texto.contains("@"));
+        validarCampo(txtEmailPuerto, texto -> !texto.isBlank() && !texto.matches("\\d{2,5}"));
+        validarCampo(txtCP, texto -> !texto.isBlank() && !texto.matches("\\d{4,6}"));
+        validarCampo(txtFiscalCP, texto -> !texto.isBlank() && !texto.matches("\\d{5}"));
+        validarCampo(txtFolioInicial, texto -> !texto.isBlank() && !texto.matches("\\d+"));
     }
 
     @FXML
@@ -548,25 +500,14 @@ public class ConfiguracionController {
         cambiarEstadoImpuestoSeleccionado(false);
     }
 
-    private void cambiarEstadoImpuestoSeleccionado(boolean activo) {
-        if (tablaImpuestos == null || tablaImpuestos.getSelectionModel().getSelectedItem() == null) {
-            mostrarDialogo("Impuestos", "Selecciona un impuesto.");
-            return;
-        }
-        Impuesto impuesto = tablaImpuestos.getSelectionModel().getSelectedItem();
-        impuestoDAO.actualizarActivo(impuesto.getIdImpuesto(), activo);
-        AuditoriaService.get().registrar(activo ? "ACTIVAR_IMPUESTO" : "DESACTIVAR_IMPUESTO",
-                "impuestos", impuesto.getIdImpuesto(), impuesto.getClave());
-        cargarImpuestosFiscales();
-    }
-
-    private String text(TextInputControl control) {
-        return control != null && control.getText() != null ? control.getText().trim() : "";
-    }
-
-    private void setText(TextInputControl control, String value) {
-        if (control != null) {
-            control.setText(value == null ? "" : value);
+        switch (tab) {
+            case "fiscal" -> activar(panelFiscal, btnTabFiscal);
+            case "ticket" -> activar(panelTicket, btnTabTicket);
+            case "cajon" -> activar(panelCajon, btnTabCajon);
+            case "email" -> activar(panelEmail, btnTabEmail);
+            case "usuarios" -> activar(panelUsuarios, btnTabUsuarios);
+            case "basedatos" -> activar(panelBaseDatos, btnTabBaseDatos);
+            default -> activar(panelNegocio, btnTabNegocio);
         }
     }
 
@@ -578,12 +519,90 @@ public class ConfiguracionController {
         }
     }
 
-    private double parseDouble(String value, double defaultValue) {
-        try {
-            return Double.parseDouble(value);
-        } catch (Exception e) {
-            return defaultValue;
-        }
+    @FXML
+    public void guardarConfiguracion() {
+        guardarNegocio();
+        guardarFiscal();
+        guardarTicket();
+        guardarCajon();
+        guardarEmail();
+        feedbackGuardado();
+    }
+
+    private void guardarNegocio() {
+        guardarValor("negocio_nombre", txtNombreNegocio.getText());
+        guardarValor("negocio_slogan", txtSlogan.getText());
+        guardarValor("negocio_telefono", txtTelefono.getText());
+        guardarValor("negocio_direccion", txtDireccion.getText());
+        guardarValor("negocio_ciudad", txtCiudad.getText());
+        guardarValor("negocio_cp", txtCP.getText());
+        guardarValor("negocio_correo", txtCorreo.getText());
+        guardarValor("negocio_web", txtSitioWeb.getText());
+        guardarValor("negocio_rfc", txtRFC.getText());
+        lblMarcaNegocio.setText(MarcaService.nombreNegocio());
+    }
+
+    private void guardarFiscal() {
+        ConfiguracionFiscal config = new ConfiguracionFiscal();
+        config.setRfcNegocio(txtFiscalRfc.getText());
+        config.setRazonSocial(txtFiscalRazonSocial.getText());
+        config.setRegimenFiscal(valor(cmbFiscalRegimen, "601 - General de Ley Personas Morales"));
+        config.setCodigoPostalFiscal(txtFiscalCP.getText());
+        config.setRegionFiscal(valor(cmbRegionFiscal, "GENERAL"));
+        config.setPrecioIncluyeImpuesto(tglPrecioIncluyeImpuesto.isSelected());
+        config.setImpuestoPorProducto(tglImpuestoPorProducto.isSelected());
+        config.setMostrarDesgloseTicket(tglMostrarDesgloseFiscal.isSelected());
+        config.setImpuestoPredeterminadoClave(claveImpuestoSeleccionada());
+        config.setSerieFactura(txtSerieFactura.getText().isBlank() ? "A" : txtSerieFactura.getText());
+        config.setFolioInicial(parseEntero(txtFolioInicial.getText(), 1));
+        config.setModoFacturacion(valor(cmbModoFacturacion, "PREFACTURA"));
+        config.setUsoCfdiDefault(valor(cmbUsoCfdiDefault, "G03 - Gastos en general"));
+        config.setMetodoPagoSat(valor(cmbMetodoPagoSat, "PUE - Pago en una sola exhibicion"));
+        config.setFormaPagoSat(valor(cmbFormaPagoSat, "01 - Efectivo"));
+        fiscalDAO.guardarConfiguracionFiscal(config);
+        fiscalDAO.registrarAuditoriaFiscal(
+                "CONFIG_FISCAL",
+                "configuracion_fiscal",
+                1,
+                "Configuracion fiscal actualizada. RFC: " + config.getRfcNegocio()
+                        + " | Regimen: " + config.getRegimenFiscal()
+                        + " | Impuesto: " + config.getImpuestoPredeterminadoClave(),
+                SesionUsuario.getInstancia().getIdUsuario()
+        );
+    }
+
+    private void guardarTicket() {
+        guardarValor("ticket_nombre", txtTicketNombre.getText());
+        guardarValor("ticket_giro", txtTicketGiro.getText());
+        guardarValor("ticket_direccion", txtTicketDireccion.getText());
+        guardarValor("ticket_ciudad", txtTicketCiudad.getText());
+        guardarValor("ticket_telefono", txtTicketTelefono.getText());
+        guardarValor("ticket_encabezado", txtMensajeEncabezado.getText());
+        guardarValor("ticket_pie", txtMensajePie.getText());
+        guardarValor("ticket_aviso", txtAvisoFiscal.getText());
+        guardarValor("ticket_ancho", valor(cmbAnchoPapel, "58 mm"));
+        guardarValor("cmbImpresora", valor(cmbImpresora, ""));
+        guardarValor("cmbAnchoPapel", valor(cmbAnchoPapel, "58 mm"));
+        guardarBoolean("ticket_logo", tglLogoTicket.isSelected());
+        guardarBoolean("ticket_folio", tglFolioTicket.isSelected());
+        guardarBoolean("ticket_desglose", tglDesglose.isSelected());
+        guardarBoolean("ticket_qr", tglQR.isSelected());
+    }
+
+    private void guardarCajon() {
+        guardarBoolean("cajon_activo", tglCajonActivo.isSelected());
+        guardarValor("cajon_puerto", valor(cmbCajonPuerto, "Via impresora termica (ESC/POS)"));
+        guardarValor("cajon_pulso", valor(cmbCajonPulso, "Pulso 1 (pin 2)"));
+    }
+
+    private void guardarEmail() {
+        guardarBoolean("email_activo", tglEmailActivo.isSelected());
+        guardarValor("email_smtp", valor(cmbEmailSmtp, "Gmail"));
+        guardarValor("email_remitente", txtEmailRemitente.getText());
+        guardarValor("email_password", txtEmailPassword.getText());
+        guardarValor("email_host", txtEmailHost.getText());
+        guardarValor("email_puerto", txtEmailPuerto.getText());
+        guardarBoolean("email_reporte_diario", tglEmailReporteDiario.isSelected());
     }
 
     private void mostrarDialogo(String titulo, String mensaje) {
@@ -644,89 +663,12 @@ public class ConfiguracionController {
 
     // ── Cargar configuración: BD primero, fallback a Preferences ─────────────
     private void cargarConfiguracion() {
-        if (asegurarTablaConfiguracion()) {
-            try (Connection con = ConexionDB.getConexion()) {
-                txtNombreNegocio.setText(dbGet(con, "negocio_nombre", ""));
-                txtSlogan.setText(dbGet(con, "negocio_slogan", ""));
-                txtTelefono.setText(dbGet(con, "negocio_telefono", ""));
-                txtDireccion.setText(dbGet(con, "negocio_direccion", ""));
-                txtCiudad.setText(dbGet(con, "negocio_ciudad", ""));
-                txtCP.setText(dbGet(con, "negocio_cp", ""));
-                txtCorreo.setText(dbGet(con, "negocio_correo", ""));
-                txtSitioWeb.setText(dbGet(con, "negocio_web", ""));
-                txtRFC.setText(dbGet(con, "negocio_rfc", ""));
-                setComboValue(cmbMoneda, dbGet(con, "negocio_moneda", "MXN - Peso Mexicano"), "MXN - Peso Mexicano");
-                setComboValue(cmbZonaHoraria, dbGet(con, "negocio_zona", "America/Monterrey (CST)"), "America/Monterrey (CST)");
-                txtHoraApertura.setText(dbGet(con, "negocio_hora_ap", "08:00"));
-                txtHoraCierre.setText(dbGet(con, "negocio_hora_ci", "21:00"));
-                aplicarDiasOperacion(dbGet(con, "negocio_dias", "true,true,true,true,true,true,false"));
-                txtLimiteCredito.setText(dbGet(con, "negocio_credito", ""));
-                txtNumSucursal.setText(dbGet(con, "negocio_sucursal", ""));
-                tglMantenimiento.setSelected(Boolean.parseBoolean(dbGet(con, "negocio_mantenimiento", "false")));
-
-                setComboValue(cmbMetodoPago, dbGet(con, "pos_metodo_pago", "Efectivo y Tarjeta"), "Efectivo y Tarjeta");
-                setComboValue(cmbRedondeo, dbGet(con, "pos_redondeo", "Sin redondeo"), "Sin redondeo");
-                setComboValue(cmbBusqueda, dbGet(con, "pos_busqueda", "Nombre o codigo"), "Nombre o codigo");
-                setComboValue(cmbOrdenProductos, dbGet(con, "pos_orden_productos", "Por categoria"), "Por categoria");
-                setSwitch(tglAperturaCaja, dbGet(con, "pos_apertura_caja", "true"));
-                setSwitch(tglConfirmarCobro, dbGet(con, "pos_confirmar_cobro", "true"));
-                setSwitch(tglAutoImprimir, dbGet(con, "pos_auto_imprimir", "false"));
-                setSwitch(tglImagenesProducto, dbGet(con, "pos_imagenes_producto", "true"));
-                setSwitch(tglAlertaStock, dbGet(con, "pos_alerta_stock", "true"));
-                setSwitch(tglVentaSinStock, dbGet(con, "pos_venta_sin_stock", "false"));
-                setSwitch(tglAsociarCliente, dbGet(con, "pos_asociar_cliente", "true"));
-                setSwitch(tglVentaCredito, dbGet(con, "pos_venta_credito", "false"));
-                setSwitch(tglDevoluciones, dbGet(con, "pos_devoluciones", "true"));
-                setSwitch(tglVentaRapida, dbGet(con, "pos_venta_rapida", "false"));
-                txtNotaInterna.setText(dbGet(con, "pos_nota_interna", ""));
-
-                setSwitch(tglAutoBloqueo, dbGet(con, "seguridad_auto_bloqueo", "true"));
-                setComboValue(cmbInactividad, dbGet(con, "seguridad_inactividad", "15 minutos"), "15 minutos");
-                setSwitch(tglAuditoria, dbGet(con, "seguridad_auditoria", "true"));
-
-                tglLogoTicket.setSelected(   Boolean.parseBoolean(dbGet(con, "ticket_logo", "true")));
-                tglFolioTicket.setSelected(  Boolean.parseBoolean(dbGet(con, "ticket_folio", "true")));
-                tglDesglose.setSelected(     Boolean.parseBoolean(dbGet(con, "ticket_desglose", "true")));
-                tglQR.setSelected(           Boolean.parseBoolean(dbGet(con, "ticket_qr", "false")));
-                setSwitch(tglCopiacocina, dbGet(con, "ticket_copia_cocina", "false"));
-                setSwitch(tglMostrarFecha, dbGet(con, "ticket_mostrar_fecha", "true"));
-                setSwitch(tglMostrarCajero, dbGet(con, "ticket_mostrar_cajero", "true"));
-
-                setComboValue(cmbImpresora, dbGet(con, "ticket_impresora", "EPSON TM-T20III"), "EPSON TM-T20III");
-                txtTicketNombre.setText(    dbGet(con, "ticket_nombre",    "Volovan Volo"));
-                txtTicketGiro.setText(      dbGet(con, "ticket_giro",      "Panaderia y Reposteria"));
-                txtTicketDireccion.setText( dbGet(con, "ticket_direccion", ""));
-                txtTicketCiudad.setText(    dbGet(con, "ticket_ciudad",    ""));
-                txtTicketTelefono.setText(  dbGet(con, "ticket_telefono",  ""));
-                txtMensajeEncabezado.setText(dbGet(con, "ticket_encabezado", "Bienvenido!\nGracias por visitarnos."));
-                txtMensajePie.setText(       dbGet(con, "ticket_pie",        "Gracias por su compra!\nVuelva pronto."));
-                txtAvisoFiscal.setText(      dbGet(con, "ticket_aviso",      "Este ticket no es\nComprobante fiscal"));
-
-                String ancho = dbGet(con, "ticket_ancho", "58 mm");
-                if (cmbAnchoPapel.getItems().contains(ancho)) cmbAnchoPapel.setValue(ancho);
-
-                txtClipToken.setText(        dbGet(con, "int_clip",       ""));
-                txtStripeKey.setText(        dbGet(con, "int_stripe",     ""));
-                txtCorreoReportes.setText(   dbGet(con, "int_correo_rep", ""));
-                setComboValue(cmbSmtp, dbGet(con, "int_smtp", "Gmail"), "Gmail");
-                setSwitch(tglReporteDiario, dbGet(con, "int_reporte_diario", "false"));
-                setSwitch(tglAlertaStockCorreo, dbGet(con, "int_alerta_stock_correo", "true"));
-                txtTwilioSid.setText(        dbGet(con, "int_twilio_sid", ""));
-                txtTwilioToken.setText(      dbGet(con, "int_twilio_token", ""));
-                setSwitch(tglTicketWhatsapp, dbGet(con, "int_ticket_whatsapp", "false"));
-
-                txtRutaRespaldo.setText(dbGet(con, "respaldo_ruta", ""));
-                setComboValue(cmbFrecuenciaRespaldo, dbGet(con, "respaldo_frecuencia", "Diario"), "Diario");
-                setSwitch(tglRespaldoAuto, dbGet(con, "respaldo_auto", "true"));
-                cargarConfiguracionFiscal();
-                return; // cargado desde BD, no necesita Preferences
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        // Fallback a Preferences
-        cargarDesdePreferences();
-        cargarConfiguracionFiscal();
+        cargarNegocio();
+        cargarFiscal();
+        cargarTicket();
+        cargarCajon();
+        cargarEmail();
+        actualizarVisibilidadSmtp();
     }
 
     private void cargarDesdePreferences() {
@@ -802,9 +744,40 @@ public class ConfiguracionController {
         tglRespaldoAuto.setSelected(prefs.getBoolean("respaldo_auto", true));
     }
 
-    private void setComboValue(ComboBox<String> combo, String value, String defaultValue) {
-        if (combo == null) return;
-        combo.setValue(combo.getItems().contains(value) ? value : defaultValue);
+    private void cargarFiscal() {
+        ConfiguracionFiscal config = fiscalDAO.obtenerConfiguracionFiscal();
+        txtFiscalRfc.setText(config.getRfcNegocio().isBlank() ? txtRFC.getText() : config.getRfcNegocio());
+        txtFiscalRazonSocial.setText(config.getRazonSocial());
+        txtFiscalCP.setText(config.getCodigoPostalFiscal());
+        seleccionar(cmbFiscalRegimen, config.getRegimenFiscal(), "601 - General de Ley Personas Morales");
+        seleccionar(cmbRegionFiscal, config.getRegionFiscal(), "GENERAL");
+        seleccionarImpuesto(config.getImpuestoPredeterminadoClave());
+        tglPrecioIncluyeImpuesto.setSelected(config.isPrecioIncluyeImpuesto());
+        tglImpuestoPorProducto.setSelected(config.isImpuestoPorProducto());
+        tglMostrarDesgloseFiscal.setSelected(config.isMostrarDesgloseTicket());
+        txtSerieFactura.setText(config.getSerieFactura().isBlank() ? "A" : config.getSerieFactura());
+        txtFolioInicial.setText(String.valueOf(config.getFolioInicial()));
+        seleccionar(cmbModoFacturacion, config.getModoFacturacion(), "PREFACTURA");
+        seleccionar(cmbUsoCfdiDefault, config.getUsoCfdiDefault(), "G03 - Gastos en general");
+        seleccionar(cmbMetodoPagoSat, config.getMetodoPagoSat(), "PUE - Pago en una sola exhibicion");
+        seleccionar(cmbFormaPagoSat, config.getFormaPagoSat(), "01 - Efectivo");
+    }
+
+    private void cargarTicket() {
+        txtTicketNombre.setText(leerValor("ticket_nombre", "Volovan Volo"));
+        txtTicketGiro.setText(leerValor("ticket_giro", "Panaderia y Reposteria"));
+        txtTicketDireccion.setText(leerValor("ticket_direccion", ""));
+        txtTicketCiudad.setText(leerValor("ticket_ciudad", ""));
+        txtTicketTelefono.setText(leerValor("ticket_telefono", ""));
+        txtMensajeEncabezado.setText(leerValor("ticket_encabezado", "Bienvenido!\nGracias por visitarnos."));
+        txtMensajePie.setText(leerValor("ticket_pie", "Gracias por su compra!\nVuelva pronto.\nfacebook.com/VolovanVolo"));
+        txtAvisoFiscal.setText(leerValor("ticket_aviso", "Este ticket no es comprobante fiscal"));
+        seleccionar(cmbAnchoPapel, leerValor("ticket_ancho", leerValor("cmbAnchoPapel", "58 mm")), "58 mm");
+        seleccionar(cmbImpresora, leerValor("cmbImpresora", cmbImpresora.getItems().isEmpty() ? "" : cmbImpresora.getItems().get(0)), cmbImpresora.getItems().isEmpty() ? "" : cmbImpresora.getItems().get(0));
+        tglLogoTicket.setSelected(leerBoolean("ticket_logo", true));
+        tglFolioTicket.setSelected(leerBoolean("ticket_folio", true));
+        tglDesglose.setSelected(leerBoolean("ticket_desglose", true));
+        tglQR.setSelected(leerBoolean("ticket_qr", false));
     }
 
     private void setSwitch(org.example.modelo.SwitchToggle toggle, String value) {
@@ -1257,17 +1230,46 @@ public class ConfiguracionController {
         }
     }
 
-    private org.example.modelo.Ticket ticketMuestra(int ancho) {
-        java.util.List<org.example.modelo.Ticket.LineaTicket> lineas = java.util.List.of(
-                new org.example.modelo.Ticket.LineaTicket("Croissant mantequilla", 2, 24.00),
-                new org.example.modelo.Ticket.LineaTicket("Pan de chocolate",      1, 22.00),
-                new org.example.modelo.Ticket.LineaTicket("Cuerno azucarado",      3, 12.00),
-                new org.example.modelo.Ticket.LineaTicket("Cafe americano",        1, 35.00)
-        );
-        return new org.example.modelo.Ticket(1234,
-                LocalDateTime.now(),
-                SesionUsuario.getInstancia().getNombre(),
-                lineas, 141.00, 200.00, 59.00, 1);
+    @FXML
+    public void agregarUsuario() {
+        mostrarDialogoUsuario(null);
+    }
+
+    private void mostrarDialogoUsuario(UsuarioRow usuario) {
+        boolean nuevo = usuario == null;
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle(nuevo ? "Nuevo usuario" : "Editar usuario");
+        VBox form = new VBox(10);
+        form.getStyleClass().add("cfg-dialog-form");
+        TextField txtNombre = new TextField(nuevo ? "" : usuario.nombre());
+        TextField txtUsuario = new TextField(nuevo ? "" : usuario.usuario());
+        PasswordField txtPassword = new PasswordField();
+        ComboBox<String> cmbRol = new ComboBox<>(FXCollections.observableArrayList("admin", "cajero", "supervisor"));
+        cmbRol.setValue(nuevo ? "cajero" : usuario.rol());
+        txtNombre.setPromptText("Nombre completo");
+        txtUsuario.setPromptText("Usuario");
+        txtPassword.setPromptText(nuevo ? "Contrasena" : "Nueva contrasena (opcional)");
+        form.getChildren().addAll(new Label("Nombre"), txtNombre, new Label("Usuario"), txtUsuario,
+                new Label("Contrasena"), txtPassword, new Label("Rol"), cmbRol);
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.showAndWait().ifPresent(res -> {
+            if (res != ButtonType.OK) return;
+            String nombre = txtNombre.getText().trim();
+            String user = txtUsuario.getText().trim();
+            String pass = txtPassword.getText().trim();
+            String rol = cmbRol.getValue();
+            if (nombre.isEmpty() || user.isEmpty() || (nuevo && pass.isEmpty())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "Nombre, usuario y contrasena son obligatorios.");
+                return;
+            }
+            if (!nuevo && !usuarioSeguridadService.puedeCambiarRol(usuario.id(), rol)) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "No puedes dejar el sistema sin un usuario administrador activo.");
+                return;
+            }
+            if (nuevo) insertarUsuario(nombre, user, pass, rol);
+            else actualizarUsuario(usuario.id(), nombre, user, pass, rol);
+        });
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -1291,49 +1293,45 @@ public class ConfiguracionController {
                 "Selecciona un usuario de la tabla para eliminarlo.");
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  INTEGRACIONES
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML public void conectarClip() {
-        String token = txtClipToken.getText().trim();
-        if (token.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Clip", "Ingresa el token de Clip."); return; }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Clip",
-                "Token guardado: " + token.substring(0, Math.min(8, token.length())) + "...");
-    }
-    @FXML public void conectarStripe() {
-        String key = txtStripeKey.getText().trim();
-        if (key.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Stripe", "Ingresa la API Key de Stripe."); return; }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Stripe", "Conexion con Stripe configurada.");
-    }
-    @FXML public void enviarCorreoPrueba() {
-        String correo = txtCorreoReportes.getText().trim();
-        if (correo.isEmpty()) { mostrarAlerta(Alert.AlertType.WARNING, "Correo", "Ingresa el correo de destino."); return; }
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Correo de Prueba", "Correo enviado a: " + correo);
-    }
-    @FXML public void probarWhatsapp() {
-        if (txtTwilioSid.getText().trim().isEmpty() || txtTwilioToken.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Twilio", "Ingresa Account SID y Auth Token."); return;
+    private void insertarUsuario(String nombre, String usuario, String password, String rol) {
+        String sqlRol = "SELECT id_rol FROM roles WHERE nombre = ?";
+        String sql = "INSERT INTO usuarios (nombre, usuario, contrasena, password_hash, fecha_actualizacion_password, id_rol) VALUES (?, ?, '', ?, NOW(), ?)";
+        try (Connection con = ConexionDB.getConexion()) {
+            int idRol = obtenerRol(con, sqlRol, rol);
+            if (idRol == 0) return;
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, nombre);
+                ps.setString(2, usuario);
+                ps.setString(3, passwordService.hash(password));
+                ps.setInt(4, idRol);
+                ps.executeUpdate();
+            }
+            cargarUsuarios();
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo crear el usuario.\n" + e.getMessage());
         }
         mostrarAlerta(Alert.AlertType.INFORMATION, "WhatsApp / Twilio", "Conexion con Twilio verificada.");
     }
 
-    // ═════════════════════════════════════════════════════════════════════════
-    //  BASE DE DATOS
-    // ═════════════════════════════════════════════════════════════════════════
-
-    @FXML public void probarConexionDB() {
-        String url = "jdbc:mysql://" + txtDBHost.getText().trim() +
-                ":" + txtDBPuerto.getText().trim() +
-                "/" + txtDBNombre.getText().trim();
-        try {
-            Connection conn = java.sql.DriverManager.getConnection(
-                    url, txtDBUsuario.getText().trim(), txtDBPassword.getText());
-            if (conn != null) {
-                conn.close();
-                actualizarBadgeDB(true);
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Conexion Exitosa",
-                        "Base de datos conectada correctamente.");
+    private void actualizarUsuario(int id, String nombre, String usuario, String password, String rol) {
+        try (Connection con = ConexionDB.getConexion()) {
+            int idRol = obtenerRol(con, "SELECT id_rol FROM roles WHERE nombre = ?", rol);
+            if (idRol == 0) return;
+            String sql = password.isEmpty()
+                    ? "UPDATE usuarios SET nombre = ?, usuario = ?, id_rol = ? WHERE id_usuario = ?"
+                    : "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW(), id_rol = ? WHERE id_usuario = ?";
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, nombre);
+                ps.setString(2, usuario);
+                if (password.isEmpty()) {
+                    ps.setInt(3, idRol);
+                    ps.setInt(4, id);
+                } else {
+                    ps.setString(3, passwordService.hash(password));
+                    ps.setInt(4, idRol);
+                    ps.setInt(5, id);
+                }
+                ps.executeUpdate();
             }
         } catch (Exception e) {
             actualizarBadgeDB(false);
@@ -1342,28 +1340,129 @@ public class ConfiguracionController {
         }
     }
 
-    @FXML public void aplicarConexionDB() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Aplicar Conexion"); a.setHeaderText(null);
-        a.setContentText("¿Aplicar estos parametros como conexion activa?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
-                prefs.put("db_host",    txtDBHost.getText().trim());
-                prefs.put("db_puerto",  txtDBPuerto.getText().trim());
-                prefs.put("db_nombre",  txtDBNombre.getText().trim());
-                prefs.put("db_usuario", txtDBUsuario.getText().trim());
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Configuracion Aplicada",
-                        "Parametros de base de datos actualizados.");
+    private int obtenerRol(Connection con, String sql, String rol) throws Exception {
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, rol);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        }
+        mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "No existe el rol '" + rol + "' en la base de datos.");
+        return 0;
+    }
+
+    private void cambiarPasswordUsuario(UsuarioRow usuario) {
+        PasswordField field = new PasswordField();
+        field.setPromptText("Nueva contrasena");
+        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
+        dialog.setTitle("Cambiar clave");
+        dialog.setHeaderText("Nueva clave para " + usuario.nombre());
+        dialog.getDialogPane().setContent(field);
+        dialog.showAndWait().ifPresent(res -> {
+            if (res != ButtonType.OK || field.getText().trim().isEmpty()) return;
+            try (Connection con = ConexionDB.getConexion();
+                 PreparedStatement ps = con.prepareStatement("UPDATE usuarios SET contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW() WHERE id_usuario = ?")) {
+                ps.setString(1, passwordService.hash(field.getText()));
+                ps.setInt(2, usuario.id());
+                ps.executeUpdate();
+            } catch (Exception e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo cambiar la clave.\n" + e.getMessage());
             }
         });
     }
 
-    @FXML public void seleccionarCarpetaRespaldo() {
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Seleccionar carpeta de respaldos");
-        File carpeta = chooser.showDialog((Stage) lblNombreUsuario.getScene().getWindow());
-        if (carpeta != null) txtRutaRespaldo.setText(carpeta.getAbsolutePath());
+    private void cambiarEstadoUsuario(UsuarioRow usuario) {
+        if (usuario.activo() && !usuarioSeguridadService.puedeDesactivarUsuario(usuario.id())) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", usuarioSeguridadService.mensajeProteccionAdmin(usuario.id()));
+            return;
+        }
+        int nuevo = usuario.activo() ? 0 : 1;
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement("UPDATE usuarios SET activo = ? WHERE id_usuario = ?")) {
+            ps.setInt(1, nuevo);
+            ps.setInt(2, usuario.id());
+            ps.executeUpdate();
+            cargarUsuarios();
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Usuarios", "No se pudo actualizar el estado.\n" + e.getMessage());
+        }
+    }
+
+    private void mostrarDialogoPermisos(UsuarioRow usuario) {
+        if (!PermisoService.tienePermiso(PermisoService.PERMISOS_GESTIONAR)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Permisos", "No tienes permiso para gestionar permisos.");
+            return;
+        }
+        List<PermisoService.PermisoInfo> catalogo = PermisoService.listarPermisos();
+        if (catalogo.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Permisos", "Ejecuta primero db/migracion_seguridad_permisos.sql.");
+            return;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Gestion de permisos");
+        dialog.setHeaderText("Permisos para " + usuario.nombre());
+
+        Map<String, Boolean> actuales = PermisoService.permisosUsuario(usuario.id());
+        VBox lista = new VBox(8);
+        lista.setStyle("-fx-padding: 12;");
+        List<CheckBox> checks = new ArrayList<>();
+        String moduloActual = "";
+        for (PermisoService.PermisoInfo permiso : catalogo) {
+            if (!permiso.modulo().equals(moduloActual)) {
+                Label modulo = new Label(permiso.modulo());
+                modulo.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #0b3b75; -fx-padding: 10 0 2 0;");
+                lista.getChildren().add(modulo);
+                moduloActual = permiso.modulo();
+            }
+            CheckBox check = new CheckBox(permiso.codigo() + " - " + permiso.nombre());
+            check.setUserData(permiso.codigo());
+            check.setSelected(Boolean.TRUE.equals(actuales.get(permiso.codigo())));
+            check.setStyle("-fx-font-size: 12px;");
+            checks.add(check);
+            lista.getChildren().add(check);
+        }
+
+        ScrollPane scroll = new ScrollPane(lista);
+        scroll.setFitToWidth(true);
+        scroll.setPrefViewportHeight(460);
+        scroll.setPrefViewportWidth(560);
+        dialog.getDialogPane().setContent(scroll);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.showAndWait().ifPresent(res -> {
+            if (res != ButtonType.OK) return;
+            List<String> seleccionados = checks.stream()
+                    .filter(CheckBox::isSelected)
+                    .map(c -> String.valueOf(c.getUserData()))
+                    .toList();
+            try {
+                PermisoService.guardarPermisosUsuario(usuario.id(), seleccionados);
+                AuditoriaService.get().registrar(
+                        "CAMBIO_PERMISOS", "usuario_permisos", usuario.id(),
+                        "Permisos actualizados para " + usuario.usuario()
+                );
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Permisos", "Permisos guardados correctamente.");
+            } catch (Exception e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Permisos", e.getMessage());
+            }
+        });
+    }
+
+    @FXML
+    public void probarConexionDB() {
+        try (Connection con = ConexionDB.getConexion()) {
+            if (con == null) throw new IllegalStateException("Sin conexion");
+            DatabaseMetaData meta = con.getMetaData();
+            lblEstadoDB.setText("Conectado");
+            lblEstadoDB.getStyleClass().remove("cfg-status-error");
+            if (!lblEstadoDB.getStyleClass().contains("cfg-status-ok")) lblEstadoDB.getStyleClass().add("cfg-status-ok");
+            lblDBVersion.setText(meta.getDatabaseProductName() + " " + meta.getDatabaseProductVersion());
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Base de datos", "Conexion correcta.");
+        } catch (Exception e) {
+            lblEstadoDB.setText("Error de conexion");
+            lblEstadoDB.getStyleClass().remove("cfg-status-ok");
+            if (!lblEstadoDB.getStyleClass().contains("cfg-status-error")) lblEstadoDB.getStyleClass().add("cfg-status-error");
+            mostrarAlerta(Alert.AlertType.ERROR, "Base de datos", "No se pudo conectar.\n" + e.getMessage());
+        }
     }
 
     @FXML public void exportarRespaldo() {
@@ -1430,14 +1529,36 @@ public class ConfiguracionController {
         } catch (Exception e) { mostrarAlerta(Alert.AlertType.ERROR, "Error", e.getMessage()); }
     }
 
-    @FXML public void limpiarAuditoria() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Limpiar Log"); a.setHeaderText(null);
-        a.setContentText("¿Eliminar todos los registros del log de auditoria?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK)
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Log Limpiado", "Log de auditoria limpiado.");
-        });
+    private String claveImpuestoSeleccionada() {
+        String valor = valor(cmbFiscalImpuestoDefault, "IVA_16");
+        int idx = valor.indexOf(" - ");
+        return idx > 0 ? valor.substring(0, idx).trim() : valor.trim();
+    }
+
+    private void seleccionarImpuesto(String clave) {
+        String buscada = clave == null || clave.isBlank() ? "IVA_16" : clave;
+        for (String item : cmbFiscalImpuestoDefault.getItems()) {
+            if (item.equals(buscada) || item.startsWith(buscada + " - ")) {
+                cmbFiscalImpuestoDefault.setValue(item);
+                return;
+            }
+        }
+        if (!cmbFiscalImpuestoDefault.getItems().isEmpty()) {
+            cmbFiscalImpuestoDefault.setValue(cmbFiscalImpuestoDefault.getItems().get(0));
+        }
+    }
+
+    private int parseEntero(String texto, int fallback) {
+        try {
+            return Integer.parseInt(texto == null ? "" : texto.trim());
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private void seleccionar(ComboBox<String> combo, String valor, String fallback) {
+        if (combo.getItems().contains(valor)) combo.setValue(valor);
+        else combo.setValue(fallback);
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -1481,8 +1602,8 @@ public class ConfiguracionController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
-                detenerReloj();
-                Platform.exit();
+                org.example.modelo.SesionUsuario.cerrarSesion();
+                navegar("/org/example/vista/Login.fxml");
             }
         });
     }

@@ -13,7 +13,11 @@ public class CancelacionService {
      */
     public void cancelarVenta(int idVenta, String motivo) throws Exception {
 
-        PermisoService.verificar(PermisoService.Accion.CANCELAR_VENTA);
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.VENTAS_CANCELAR,
+                "Cancelar venta " + FolioService.venta(idVenta))) {
+            throw new SecurityException("No se autorizo la cancelacion.");
+        }
 
         Connection con = ConexionDB.getConexion();
         if (con == null) throw new Exception("Sin conexión a la base de datos.");
@@ -88,9 +92,18 @@ public class CancelacionService {
             }
 
             // 5. Actualizar estado de la venta
-            try (PreparedStatement ps = con.prepareStatement(
-                    "UPDATE ventas SET estado = 'CANCELADA' WHERE id_venta = ?")) {
-                ps.setInt(1, idVenta);
+            boolean tieneFechaCancelacion = columnaExiste(con, "ventas", "fecha_cancelacion");
+            boolean tieneMotivoCancelacion = columnaExiste(con, "ventas", "motivo_cancelacion");
+            String sqlCancelar = tieneFechaCancelacion && tieneMotivoCancelacion
+                    ? "UPDATE ventas SET estado = 'CANCELADA', fecha_cancelacion = NOW(), motivo_cancelacion = ? WHERE id_venta = ?"
+                    : "UPDATE ventas SET estado = 'CANCELADA' WHERE id_venta = ?";
+            try (PreparedStatement ps = con.prepareStatement(sqlCancelar)) {
+                if (tieneFechaCancelacion && tieneMotivoCancelacion) {
+                    ps.setString(1, motivo);
+                    ps.setInt(2, idVenta);
+                } else {
+                    ps.setInt(1, idVenta);
+                }
                 ps.executeUpdate();
             }
 
@@ -109,6 +122,14 @@ public class CancelacionService {
         } finally {
             con.setAutoCommit(true);
             con.close();
+        }
+    }
+
+    private boolean columnaExiste(Connection con, String tabla, String columna) {
+        try (ResultSet rs = con.getMetaData().getColumns(con.getCatalog(), null, tabla, columna)) {
+            return rs.next();
+        } catch (Exception e) {
+            return false;
         }
     }
 }

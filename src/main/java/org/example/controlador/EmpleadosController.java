@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.MarcaService;
+import org.example.servicio.PasswordService;
+import org.example.servicio.UsuarioSeguridadService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,6 +46,8 @@ public class  EmpleadosController {
 
     // Cache de datos
     private List<ObservableList<String>> todosLosEmpleados = new ArrayList<>();
+    private final PasswordService passwordService = new PasswordService();
+    private final UsuarioSeguridadService usuarioSeguridadService = new UsuarioSeguridadService();
 
 
     @FXML
@@ -287,6 +291,10 @@ public class  EmpleadosController {
 
     // Toggle activo/inactivo
     private void toggleEstado(int id, String nombre, boolean estaActivo) {
+        if (estaActivo && !usuarioSeguridadService.puedeDesactivarUsuario(id)) {
+            mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
+            return;
+        }
         int nuevoValor = estaActivo ? 0 : 1;
         String sql = "UPDATE usuarios SET activo = ? WHERE id_usuario = ?";
         try (Connection con = ConexionDB.getConexion();
@@ -361,6 +369,11 @@ public class  EmpleadosController {
                     return;
                 }
 
+                if (id != 0 && !usuarioSeguridadService.puedeCambiarRol(id, r)) {
+                    mostrarAlerta("Accion no permitida", "No puedes dejar el sistema sin un usuario administrador activo.");
+                    return;
+                }
+
                 if (id == 0) {
                     insertarEmpleado(n, u, p, r);
                 } else {
@@ -372,7 +385,7 @@ public class  EmpleadosController {
 
     private void insertarEmpleado(String nombre, String usuario, String password, String rol) {
         String sqlRol    = "SELECT id_rol FROM roles WHERE nombre = ?";
-        String sqlInsert = "INSERT INTO usuarios (nombre, usuario, contrasena, id_rol) VALUES (?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO usuarios (nombre, usuario, contrasena, password_hash, fecha_actualizacion_password, id_rol) VALUES (?, ?, '', ?, NOW(), ?)";
         try (Connection con = ConexionDB.getConexion()) {
             PreparedStatement psRol = con.prepareStatement(sqlRol);
             psRol.setString(1, rol);
@@ -382,7 +395,7 @@ public class  EmpleadosController {
                 PreparedStatement ps = con.prepareStatement(sqlInsert);
                 ps.setString(1, nombre);
                 ps.setString(2, usuario);
-                ps.setString(3, password);
+                ps.setString(3, passwordService.hash(password));
                 ps.setInt(4, idRol);
                 ps.executeUpdate();
                 cargarEmpleados();
@@ -412,11 +425,11 @@ public class  EmpleadosController {
                     ps.setInt(3, idRol);
                     ps.setInt(4, id);
                 } else {
-                    sql = "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = ?, id_rol = ? WHERE id_usuario = ?";
+                    sql = "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW(), id_rol = ? WHERE id_usuario = ?";
                     ps  = con.prepareStatement(sql);
                     ps.setString(1, nombre);
                     ps.setString(2, usuario);
-                    ps.setString(3, password);
+                    ps.setString(3, passwordService.hash(password));
                     ps.setInt(4, idRol);
                     ps.setInt(5, id);
                 }
@@ -431,6 +444,10 @@ public class  EmpleadosController {
     }
 
     private void eliminarEmpleado(int id, String nombre) {
+        if (!usuarioSeguridadService.puedeDesactivarUsuario(id)) {
+            mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
+            return;
+        }
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Eliminar empleado");
         alerta.setHeaderText(null);
@@ -501,6 +518,7 @@ public class  EmpleadosController {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
+                org.example.modelo.SesionUsuario.cerrarSesion();
                 navegar("/org/example/vista/Login.fxml");
             }
         });

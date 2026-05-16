@@ -91,6 +91,10 @@
                     style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
                 <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
             </Button>
+            <Button onAction="#salirAplicacion" prefHeight="44" prefWidth="230" text="Salir del sistema" graphicTextGap="10"
+                    style="-fx-background-color: rgba(248,113,113,0.12); -fx-text-fill: #fecaca; -fx-cursor: hand;">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#f87171"/></graphic>
+            </Button>
 
         </VBox>
     </left>

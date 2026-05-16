@@ -55,13 +55,12 @@ public class ProductoDAO {
         }
     }
 
-    public void insertarProducto(Producto p) {
+    public int insertarProducto(Producto p) {
         String sql = "INSERT INTO productos(nombre, codigo_barras, precio, costo, " +
                 "stock, stock_minimo, activo, id_categoria) VALUES (?, ?, ?, ?, ?, ?, 1, ?)";
 
         try (Connection conn = ConexionDB.getConexion();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            FiscalSchemaService.asegurarEstructura(conn);
 
             ps.setString(1, p.getNombre());
             // null si no lleva código
@@ -78,17 +77,13 @@ public class ProductoDAO {
 
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    p.setIdProducto(rs.getInt(1));
-                }
-            }
-            if (p.getIdProducto() > 0 && p.getIdImpuesto() > 0) {
-                new ImpuestoDAO().asignarAProducto(conn, p.getIdProducto(), p.getIdImpuesto());
+                if (rs.next()) return rs.getInt(1);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return 0;
     }
 
     public List<Producto> obtenerProductos() {

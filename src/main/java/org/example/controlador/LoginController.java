@@ -2,6 +2,7 @@ package org.example.controlador;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.KeyCode;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
@@ -11,7 +12,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.AppExitService;
 import org.example.servicio.MarcaService;
+import org.example.servicio.PasswordService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -23,6 +26,7 @@ public class LoginController {
     @FXML private Button btnLogin;
     @FXML private TextField txtUsuario;
     @FXML private PasswordField txtPassword;
+    private final PasswordService passwordService = new PasswordService();
 
     @FXML
     public void initialize() {
@@ -32,6 +36,15 @@ public class LoginController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        txtPassword.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                try {
+                    handleIniciarSesion(new ActionEvent(btnLogin, btnLogin));
+                } catch (IOException ex) {
+                    mostrarAlerta("Error", "No se pudo iniciar sesion.");
+                }
+            }
+        });
     }
 
     @FXML
@@ -93,19 +106,26 @@ public class LoginController {
 
     private boolean validarCredenciales(String usuario, String contrasena) {
         String sql = """
-        SELECT u.id_usuario, u.nombre, u.usuario, u.id_rol, r.nombre AS rol
+        SELECT u.id_usuario, u.nombre, u.usuario, u.id_rol, r.nombre AS rol,
+               u.password_hash, u.contrasena
         FROM usuarios u
         JOIN roles r ON u.id_rol = r.id_rol
-        WHERE u.usuario = ? AND u.contrasena = ? AND u.activo = 1
+        WHERE u.usuario = ? AND u.activo = 1
     """;
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario);
-            ps.setString(2, contrasena);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                boolean passwordOk = passwordService.verificarYActualizarSiEsPlano(
+                        rs.getInt("id_usuario"),
+                        contrasena,
+                        rs.getString("password_hash"),
+                        rs.getString("contrasena")
+                );
+                if (!passwordOk) return false;
                 SesionUsuario sesion = SesionUsuario.getInstancia();
                 sesion.setIdUsuario(rs.getInt("id_usuario"));
                 sesion.setNombre(rs.getString("nombre"));
@@ -121,9 +141,40 @@ public class LoginController {
             return false;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            return validarCredencialesLegacy(usuario, contrasena);
         }
+    }
+
+    private boolean validarCredencialesLegacy(String usuario, String contrasena) {
+        String sql = """
+        SELECT u.id_usuario, u.nombre, u.usuario, u.id_rol, r.nombre AS rol
+        FROM usuarios u
+        JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.usuario = ? AND u.contrasena = ? AND u.activo = 1
+    """;
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, usuario);
+            ps.setString(2, contrasena);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                SesionUsuario sesion = SesionUsuario.getInstancia();
+                sesion.setIdUsuario(rs.getInt("id_usuario"));
+                sesion.setNombre(rs.getString("nombre"));
+                sesion.setUsuario(rs.getString("usuario"));
+                sesion.setIdRol(rs.getInt("id_rol"));
+                sesion.setRol(rs.getString("rol"));
+                registrarLogin(rs.getInt("id_usuario"), rs.getString("nombre"));
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        AppExitService.salir(btnLogin);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

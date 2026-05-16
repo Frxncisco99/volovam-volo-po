@@ -140,6 +140,7 @@ public class CorteCajaDAO {
                     idCorte = rs.getInt(1);
                 }
 
+                guardarConteoDenominaciones(con, idCorte, reporte.getConteoDenominaciones());
                 con.commit();
                 return idCorte;
             } catch (Exception e) {
@@ -177,6 +178,11 @@ public class CorteCajaDAO {
     }
 
     private void cargarResumenVentas(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
+        if (tablaExiste(con, "detalle_pago")) {
+            cargarResumenVentasConDetallePago(con, idCaja, reporte);
+            return;
+        }
+
         try (PreparedStatement ps = con.prepareStatement("""
                 SELECT ventas_resumen.tickets,
                        ventas_resumen.total_ventas,
@@ -245,6 +251,11 @@ public class CorteCajaDAO {
     }
 
     private void cargarMetodosPago(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
+        if (tablaExiste(con, "detalle_pago")) {
+            cargarMetodosPagoConDetallePago(con, idCaja, reporte);
+            return;
+        }
+
         Map<String, CorteCajaReporte.MetodoPago> base = new LinkedHashMap<>();
         base.put("Efectivo", new CorteCajaReporte.MetodoPago("Efectivo", 0, 0));
         base.put("Tarjeta", new CorteCajaReporte.MetodoPago("Tarjeta", 0, 0));
@@ -278,6 +289,114 @@ public class CorteCajaDAO {
                 ));
             }
         }
+        reporte.getMetodosPago().addAll(base.values());
+    }
+
+    private void cargarResumenVentasConDetallePago(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT COUNT(v.id_venta) AS tickets,
+                       COALESCE(SUM(v.total), 0) AS total_ventas
+                FROM ventas v
+                WHERE v.id_caja = ?
+                  AND COALESCE(v.estado, 'COMPLETADA') NOT IN ('CANCELADA')
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int tickets = rs.getInt("tickets");
+                double total = rs.getDouble("total_ventas");
+                reporte.setCantidadTickets(tickets);
+                reporte.setTotalVendido(total);
+                reporte.setPromedioTicket(tickets > 0 ? total / tickets : 0);
+                reporte.setIngresos(total);
+            }
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT COALESCE(SUM(dv.cantidad * COALESCE(p.costo, 0)), 0) AS costo_total
+                FROM detalle_venta dv
+                JOIN ventas v ON v.id_venta = dv.id_venta
+                LEFT JOIN productos p ON p.id_producto = dv.id_producto
+                WHERE v.id_caja = ?
+                  AND COALESCE(v.estado, 'COMPLETADA') NOT IN ('CANCELADA')
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) reporte.setCostos(rs.getDouble("costo_total"));
+        }
+
+        double efectivoReal = 0;
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT COALESCE(SUM(dp.monto), 0) AS efectivo_real
+                FROM detalle_pago dp
+                JOIN ventas v ON v.id_venta = dp.id_venta
+                WHERE v.id_caja = ?
+                  AND COALESCE(v.estado, 'COMPLETADA') NOT IN ('CANCELADA')
+                  AND UPPER(COALESCE(dp.metodo_pago, '')) IN ('EFECTIVO', 'DOLARES')
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) efectivoReal = rs.getDouble("efectivo_real");
+        }
+
+        reporte.setEfectivoEsperado(reporte.getFondoInicial() + efectivoReal - totalDevolucionesEfectivo(con, idCaja));
+    }
+
+    private void cargarMetodosPagoConDetallePago(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
+        Map<String, CorteCajaReporte.MetodoPago> base = new LinkedHashMap<>();
+        base.put("Efectivo", new CorteCajaReporte.MetodoPago("Efectivo", 0, 0));
+        base.put("Tarjeta", new CorteCajaReporte.MetodoPago("Tarjeta", 0, 0));
+        base.put("Transferencia", new CorteCajaReporte.MetodoPago("Transferencia", 0, 0));
+        base.put("Credito", new CorteCajaReporte.MetodoPago("Credito", 0, 0));
+
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT CASE
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) IN ('EFECTIVO', 'DOLARES') THEN 'Efectivo'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'TARJETA' THEN 'Tarjeta'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'TRANSFERENCIA' THEN 'Transferencia'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) IN ('FIADO', 'CREDITO') THEN 'Credito'
+                           ELSE COALESCE(dp.metodo_pago, 'Otro')
+                       END AS metodo,
+                       COUNT(DISTINCT dp.id_venta) AS cantidad,
+                       COALESCE(SUM(dp.monto), 0) AS total
+                FROM detalle_pago dp
+                JOIN ventas v ON v.id_venta = dp.id_venta
+                WHERE v.id_caja = ?
+                  AND COALESCE(v.estado, 'COMPLETADA') NOT IN ('CANCELADA')
+                GROUP BY metodo
+                ORDER BY total DESC
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                base.put(rs.getString("metodo"), new CorteCajaReporte.MetodoPago(
+                        rs.getString("metodo"),
+                        rs.getInt("cantidad"),
+                        rs.getDouble("total")
+                ));
+            }
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("""
+                SELECT COUNT(v.id_venta) AS cantidad,
+                       COALESCE(SUM(v.total), 0) AS total
+                FROM ventas v
+                WHERE v.id_caja = ?
+                  AND COALESCE(v.estado, 'COMPLETADA') NOT IN ('CANCELADA')
+                  AND UPPER(COALESCE(v.metodo_pago, '')) IN ('FIADO', 'CREDITO')
+                  AND NOT EXISTS (SELECT 1 FROM detalle_pago dp WHERE dp.id_venta = v.id_venta)
+                """)) {
+            ps.setInt(1, idCaja);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt("cantidad") > 0) {
+                base.put("Credito", new CorteCajaReporte.MetodoPago(
+                        "Credito",
+                        rs.getInt("cantidad"),
+                        rs.getDouble("total")
+                ));
+            }
+        }
+
         reporte.getMetodosPago().addAll(base.values());
     }
 
@@ -389,11 +508,20 @@ public class CorteCajaDAO {
     }
 
     private void calcularTotalesDerivados(CorteCajaReporte reporte) {
-        if (reporte.getSubtotal() <= 0 && reporte.getTotalVendido() > 0) {
-            reporte.setSubtotal(Math.max(0, reporte.getTotalVendido() - reporte.getTotalImpuestos()));
-        }
+        double tasa = tasaFiscalPredeterminada();
+        double subtotal = tasa > 0 ? reporte.getTotalVendido() / (1 + tasa) : reporte.getTotalVendido();
+        reporte.setSubtotal(subtotal);
+        reporte.setIva(reporte.getTotalVendido() - subtotal);
         reporte.setTotalConImpuestos(reporte.getTotalVendido());
         reporte.setUtilidad(reporte.getIngresos() - reporte.getCostos());
+    }
+
+    private double tasaFiscalPredeterminada() {
+        try {
+            return new FiscalDAO().obtenerImpuestoPredeterminado().getTasa().doubleValue();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private double totalDevolucionesEfectivo(Connection con, int idCaja) throws Exception {
@@ -410,6 +538,17 @@ public class CorteCajaDAO {
         }
     }
 
+    private void guardarConteoDenominaciones(Connection con, int idCorte, String conteoDenominaciones) throws Exception {
+        if (conteoDenominaciones == null || conteoDenominaciones.isBlank()) return;
+        if (!columnaExiste(con, "corte_caja", "conteo_denominaciones")) return;
+        try (PreparedStatement ps = con.prepareStatement(
+                "UPDATE corte_caja SET conteo_denominaciones = ? WHERE id_corte = ?")) {
+            ps.setString(1, conteoDenominaciones);
+            ps.setInt(2, idCorte);
+            ps.executeUpdate();
+        }
+    }
+
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toLocalDateTime();
     }
@@ -417,6 +556,13 @@ public class CorteCajaDAO {
     private boolean columnaExiste(Connection con, String tabla, String columna) throws Exception {
         DatabaseMetaData metaData = con.getMetaData();
         try (ResultSet rs = metaData.getColumns(con.getCatalog(), null, tabla, columna)) {
+            return rs.next();
+        }
+    }
+
+    private boolean tablaExiste(Connection con, String tabla) throws Exception {
+        DatabaseMetaData metaData = con.getMetaData();
+        try (ResultSet rs = metaData.getTables(con.getCatalog(), null, tabla, new String[]{"TABLE"})) {
             return rs.next();
         }
     }

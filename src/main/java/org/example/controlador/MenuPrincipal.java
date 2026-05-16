@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
+import org.example.servicio.AppExitService;
 import org.example.servicio.MarcaService;
 import org.example.servicio.PermisoService;
 
@@ -244,9 +245,15 @@ public class MenuPrincipal implements Initializable {
         a.showAndWait().ifPresent(r -> {
             if (r == ButtonType.OK) {
                 registrarLogout();
+                org.example.modelo.SesionUsuario.cerrarSesion();
                 cambiarEscena("/org/example/vista/Login.fxml");
             }
         });
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        AppExitService.salir(lblFecha);
     }
 
     public void abrirInventarioDesdeAfuera() {
