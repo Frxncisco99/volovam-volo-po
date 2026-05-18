@@ -4,8 +4,8 @@
 <?import org.kordamp.ikonli.javafx.*?>
 
 <!--
-    TicketPreview.fxml — Vista previa modal del ticket térmico 58 mm.
-    Paleta: MenuPrincipal (#091e4e azul oscuro, #1a6fa8 azul, #f0f7ff fondo claro)
+    Ventana modal de vista previa. El papel y txtTicketRender conservan
+    medidas, fuente y formato para no alterar el ticket renderizado.
 -->
 <VBox xmlns="http://javafx.com/javafx/17.0.12"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -15,183 +15,164 @@
       minWidth="360"
       maxWidth="360"
       spacing="0"
-      style="-fx-background-color: #091e4e;">
+      style="-fx-background-color: #f4f7fb;">
 
-    <!-- ════════════════════════════════════════════════════════════════════ -->
-    <!--  HEADER                                                             -->
-    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- HEADER -->
     <HBox alignment="CENTER_LEFT" spacing="12"
-          style="-fx-background-color: #0d2a6e;
-                 -fx-padding: 14 20;
-                 -fx-border-color: #1a4a8a;
-                 -fx-border-width: 0 0 1.5 0;">
+          style="-fx-background-color: white;
+                 -fx-padding: 16 20;
+                 -fx-border-color: transparent transparent #e3eaf5 transparent;
+                 -fx-border-width: 0 0 1 0;
+                 -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.045), 12, 0, 0, 3);">
 
-        <!-- Ícono circular azul -->
-        <StackPane minWidth="34" minHeight="34" maxWidth="34" maxHeight="34"
-                   style="-fx-background-color: #1a6fa8;
-                          -fx-background-radius: 17;">
-            <FontIcon iconLiteral="fas-receipt" iconSize="15" iconColor="white"/>
+        <StackPane minWidth="36" minHeight="36" maxWidth="36" maxHeight="36"
+                   style="-fx-background-color: #eef4fc;
+                          -fx-background-radius: 18;
+                          -fx-border-color: #c6d8ee;
+                          -fx-border-radius: 18;">
+            <FontIcon iconLiteral="fas-receipt" iconSize="15" iconColor="#0b3b75"/>
         </StackPane>
 
-        <!-- Textos -->
-        <VBox HBox.hgrow="ALWAYS" spacing="2">
-            <Label style="-fx-text-fill: white;
-                          -fx-font-size: 13px;
+        <VBox HBox.hgrow="ALWAYS" spacing="3">
+            <Label style="-fx-text-fill: #081a33;
+                          -fx-font-size: 16px;
                           -fx-font-weight: bold;"
-                   text="Vista Previa del Ticket"/>
-            <Label style="-fx-text-fill: rgba(255,255,255,0.5);
-                          -fx-font-size: 9px;"
-                   text="Lo que ves aqui es exactamente lo que se imprimira"/>
+                   text="Vista previa del ticket"/>
+            <Label style="-fx-text-fill: #64748b;
+                          -fx-font-size: 10px;"
+                   text="Ticket de prueba"/>
         </VBox>
 
-        <!-- Badge -->
-        <Label style="-fx-background-color: rgba(26,111,168,0.25);
-                      -fx-text-fill: #6ab4f0;
-                      -fx-font-size: 8px;
+        <Label style="-fx-background-color: #eef4fc;
+                      -fx-text-fill: #0b3b75;
+                      -fx-font-size: 9px;
                       -fx-font-weight: bold;
-                      -fx-background-radius: 8;
-                      -fx-padding: 4 8;
-                      -fx-border-color: rgba(26,111,168,0.5);
-                      -fx-border-radius: 8;
-                      -fx-border-width: 1;"
+                      -fx-background-radius: 14;
+                      -fx-padding: 5 10;
+                      -fx-border-color: #c6d8ee;
+                      -fx-border-radius: 14;"
                text="EJEMPLO"/>
     </HBox>
 
-    <!-- ════════════════════════════════════════════════════════════════════ -->
-    <!--  ZONA DE SCROLL — PAPEL TÉRMICO                                     -->
-    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- ZONA DE SCROLL: el ticket se mantiene al centro dentro de un card externo -->
     <ScrollPane fitToWidth="true"
                 fitToHeight="true"
                 pannable="true"
                 VBox.vgrow="ALWAYS"
                 hbarPolicy="NEVER"
                 vbarPolicy="AS_NEEDED"
-                style="-fx-background: #091e4e;
-                   -fx-background-color: #091e4e;
-                   -fx-padding: 0;
-                   -fx-border-color: transparent;">
+                style="-fx-background: #f4f7fb;
+                       -fx-background-color: #f4f7fb;
+                       -fx-padding: 0;
+                       -fx-border-color: transparent;">
 
-        <!-- Wrapper centrado con margen interno -->
-        <VBox alignment="TOP_CENTER"
-              style="-fx-background-color: #091e4e;
-                     -fx-padding: 20 20 24 20;">
+        <StackPane style="-fx-background-color: #f4f7fb;
+                          -fx-padding: 18 20 20 20;">
 
-            <!-- Sombra/soporte superior del rollo -->
-            <Region prefHeight="4" prefWidth="226"
-                    style="-fx-background-color: #040d20;
-                           -fx-background-radius: 3 3 0 0;"/>
+            <VBox alignment="TOP_CENTER"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 12;
+                         -fx-border-color: #e3eaf5;
+                         -fx-border-radius: 12;
+                         -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 18, 0, 0, 5);
+                         -fx-padding: 16 0 18 0;">
 
-            <!-- Diente de sierra superior (perforación) -->
-            <HBox minWidth="220" maxWidth="220" alignment="CENTER"
-                  style="-fx-background-color: #0d2a6e;
-                         -fx-padding: 4 0;">
-                <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
-                       style="-fx-font-family: 'Courier New', monospace;
-                              -fx-font-size: 8px;
-                              -fx-text-fill: #1a4a8a;
-                              -fx-alignment: CENTER;"
-                       text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
-            </HBox>
+                <!-- Soporte visual externo: no altera el ticket renderizado -->
+                <Region prefHeight="4" prefWidth="226"
+                        style="-fx-background-color: #cbd5e1;
+                               -fx-background-radius: 3 3 0 0;"/>
 
-            <!-- ─── EL PAPEL ─────────────────────────────────────────────── -->
-            <VBox minWidth="220" maxWidth="220" prefWidth="220"
-                  style="-fx-background-color: #FDFCF8;
-                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.1, 0, 8);
-                         -fx-border-color: #DDD5C0 #CCC5B0 #CCC5B0 #DDD5C0;
-                         -fx-border-width: 0 1 0 1;">
+                <HBox minWidth="220" maxWidth="220" alignment="CENTER"
+                      style="-fx-background-color: #eef4fc;
+                             -fx-padding: 4 0;">
+                    <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                           style="-fx-font-family: 'Courier New', monospace;
+                                  -fx-font-size: 8px;
+                                  -fx-text-fill: #c8d3e1;
+                                  -fx-alignment: CENTER;"
+                           text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
+                </HBox>
 
-                <TextArea fx:id="txtTicketRender"
-                          editable="false"
-                          wrapText="false"
-                          prefWidth="220"
-                          prefHeight="620"
-                          style="-fx-font-family: 'Courier New', Courier, monospace;
-                 -fx-font-size: 10px;
-                 -fx-background-color: #FDFCF8;
-                 -fx-control-inner-background: #FDFCF8;
-                 -fx-border-color: transparent;
-                 -fx-focus-color: transparent;
-                 -fx-faint-focus-color: transparent;
-                 -fx-background-radius: 0;
-                 -fx-text-fill: #0D0800;
-                 -fx-padding: 14 4 10 4;"/>
+                <!-- PAPEL: medidas y formato conservados -->
+                <VBox minWidth="220" maxWidth="220" prefWidth="220"
+                      style="-fx-background-color: #FDFCF8;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.1, 0, 8);
+                             -fx-border-color: #DDD5C0 #CCC5B0 #CCC5B0 #DDD5C0;
+                             -fx-border-width: 0 1 0 1;">
+
+                    <TextArea fx:id="txtTicketRender"
+                              editable="false"
+                              wrapText="false"
+                              prefWidth="220"
+                              prefHeight="620"
+                              style="-fx-font-family: 'Courier New', Courier, monospace;
+                     -fx-font-size: 10px;
+                     -fx-background-color: #FDFCF8;
+                     -fx-control-inner-background: #FDFCF8;
+                     -fx-border-color: transparent;
+                     -fx-focus-color: transparent;
+                     -fx-faint-focus-color: transparent;
+                     -fx-background-radius: 0;
+                     -fx-text-fill: #0D0800;
+                     -fx-padding: 14 4 10 4;"/>
+                </VBox>
+
+                <HBox minWidth="220" maxWidth="220" alignment="CENTER"
+                      style="-fx-background-color: #eef4fc;
+                             -fx-padding: 4 0;">
+                    <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                           style="-fx-font-family: 'Courier New', monospace;
+                                  -fx-font-size: 8px;
+                                  -fx-text-fill: #c8d3e1;
+                                  -fx-alignment: CENTER;"
+                           text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
+                </HBox>
+
+                <Region prefHeight="6" prefWidth="200"
+                        style="-fx-background-color: #cbd5e1;
+                               -fx-background-radius: 0 0 40 40;"/>
             </VBox>
-
-            <!-- Diente de sierra inferior -->
-            <HBox minWidth="220" maxWidth="220" alignment="CENTER"
-                  style="-fx-background-color: #0d2a6e;
-                         -fx-padding: 4 0;">
-                <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
-                       style="-fx-font-family: 'Courier New', monospace;
-                              -fx-font-size: 8px;
-                              -fx-text-fill: #1a4a8a;
-                              -fx-alignment: CENTER;"
-                       text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
-            </HBox>
-
-            <!-- Sombra inferior del rollo -->
-            <Region prefHeight="6" prefWidth="200"
-                    style="-fx-background-color: rgba(0,0,0,0.25);
-                           -fx-background-radius: 0 0 40 40;"/>
-
-        </VBox>
+        </StackPane>
     </ScrollPane>
 
-    <!-- ════════════════════════════════════════════════════════════════════ -->
-    <!--  FOOTER — ACCIONES                                                  -->
-    <!-- ════════════════════════════════════════════════════════════════════ -->
-    <VBox spacing="0"
-          style="-fx-background-color: #0d2a6e;
-                 -fx-border-color: #1a4a8a;
-                 -fx-border-width: 1.5 0 0 0;">
+    <!-- FOOTER -->
+    <HBox spacing="10" alignment="CENTER_RIGHT"
+          style="-fx-background-color: white;
+                 -fx-padding: 14 20 18 20;
+                 -fx-border-color: #e3eaf5 transparent transparent transparent;
+                 -fx-border-width: 1 0 0 0;">
 
-        <!-- Info pill -->
-        <HBox alignment="CENTER" spacing="6"
-              style="-fx-padding: 10 20 6 20;">
-            <FontIcon iconLiteral="fas-check-circle" iconSize="10" iconColor="#4a9a6a"/>
-            <Label style="-fx-text-fill: rgba(255,255,255,0.4);
-                          -fx-font-size: 9px;"
-                   text="Fidelidad 1:1 — mismo texto que recibira la impresora termica"/>
-        </HBox>
+        <Button prefHeight="38"
+                HBox.hgrow="ALWAYS"
+                maxWidth="Infinity"
+                onAction="#handleImprimir"
+                graphicTextGap="8"
+                style="-fx-background-color: #0b3b75;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-font-size: 12px;
+                       -fx-background-radius: 9;
+                       -fx-border-radius: 9;
+                       -fx-padding: 0 16;
+                       -fx-cursor: hand;"
+                text="Imprimir ticket">
+            <graphic>
+                <FontIcon iconLiteral="fas-print" iconSize="14" iconColor="white"/>
+            </graphic>
+        </Button>
 
-        <!-- Divider sutil -->
-        <Region prefHeight="1"
-                style="-fx-background-color: rgba(255,255,255,0.05);"/>
-
-        <!-- Botones -->
-        <HBox spacing="10"
-              style="-fx-padding: 12 20 18 20;">
-
-            <Button prefHeight="44"
-                    HBox.hgrow="ALWAYS"
-                    maxWidth="Infinity"
-                    onAction="#handleImprimir"
-                    graphicTextGap="8"
-                    style="-fx-background-color: #1a6fa8;
-                           -fx-text-fill: white;
-                           -fx-font-weight: bold;
-                           -fx-font-size: 12px;
-                           -fx-background-radius: 10;
-                           -fx-cursor: hand;
-                           -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.5), 10, 0, 0, 4);"
-                    text="Imprimir ticket">
-                <graphic>
-                    <FontIcon iconLiteral="fas-print" iconSize="14" iconColor="white"/>
-                </graphic>
-            </Button>
-
-            <Button prefHeight="44"
-                    prefWidth="90"
-                    onAction="#handleCerrar"
-                    style="-fx-background-color: transparent;
-                           -fx-border-color: rgba(255,255,255,0.25);
-                           -fx-border-radius: 10;
-                           -fx-border-width: 1.5;
-                           -fx-text-fill: rgba(255,255,255,0.6);
-                           -fx-font-size: 12px;
-                           -fx-cursor: hand;"
-                    text="Cerrar"/>
-        </HBox>
-    </VBox>
-
+        <Button prefHeight="38"
+                prefWidth="96"
+                onAction="#handleCerrar"
+                style="-fx-background-color: #eef4fc;
+                       -fx-text-fill: #0b3b75;
+                       -fx-border-color: #bfd0e5;
+                       -fx-border-radius: 9;
+                       -fx-background-radius: 9;
+                       -fx-font-size: 12px;
+                       -fx-font-weight: bold;
+                       -fx-padding: 0 16;
+                       -fx-cursor: hand;"
+                text="Cerrar"/>
+    </HBox>
 </VBox>
