@@ -590,7 +590,7 @@ public class ClientesController {
     }
 
     @FXML public void irADashboard() { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML public void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
+    @FXML public void irAVentas() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
     @FXML private void irAInventario() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
     @FXML public void irAEmpleados() { navegarConPermiso(org.example.servicio.PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
     @FXML public void irAReportes() { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
@@ -627,7 +627,7 @@ public class ClientesController {
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
             return;
         }
         navegar(ruta);

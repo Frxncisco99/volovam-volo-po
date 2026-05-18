@@ -146,6 +146,9 @@ public class InventarioController {
     //  CONFIGURAR COLUMNAS
     // ────────────────────────────────────────────────────────────────────────────
     private void configurarColumnas() {
+        if (tablaProductos != null && !tablaProductos.getStyleClass().contains("report-table")) {
+            tablaProductos.getStyleClass().add("report-table");
+        }
 
 
 
@@ -578,6 +581,7 @@ public class InventarioController {
             Parent root = loader.load();
             MarcaService.aplicar(root);
             Stage stage = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
@@ -605,6 +609,7 @@ public class InventarioController {
             EditarProductoController ctrl = loader.getController();
             ctrl.setProducto(p);
             Stage stage = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
@@ -632,6 +637,7 @@ public class InventarioController {
             AjustarStockController ctrl = loader.getController();
             ctrl.setProducto(p);
             Stage stage = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
@@ -661,6 +667,7 @@ public class InventarioController {
                 hCtrl.setProducto(p);
             }
             Stage stage = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Historial — " + p.getNombre());
@@ -741,14 +748,14 @@ public class InventarioController {
     // ────────────────────────────────────────────────────────────────────────────
     //  NAVEGACIÓN
     // ────────────────────────────────────────────────────────────────────────────
-    @FXML private void irADashboard()     { cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML private void irAVentas()        { cambiarEscena("/org/example/vista/Ventas.fxml"); }
-    @FXML private void irAEmpleados()     { cambiarEscena("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAClientes()      { cambiarEscena("/org/example/vista/Clientes.fxml"); }
-    @FXML private void irAReportes()      { cambiarEscena("/org/example/vista/Reportes.fxml"); }
-    @FXML private void irACorteCaja()     { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
-    @FXML private void irAAuditoria()     { cambiarEscena("/org/example/vista/Auditoria.fxml"); }
-    @FXML private void irAConfiguracion() { cambiarEscena("/org/example/vista/Configuracion.fxml"); }
+    @FXML private void irADashboard()     { navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAVentas()        { navegarConPermiso(PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAEmpleados()     { navegarConPermiso(PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes()      { navegarConPermiso(PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes()      { navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
+    @FXML private void irACorteCaja()     { navegarConPermiso(PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAAuditoria()     { navegarConPermiso(PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml"); }
+    @FXML private void irAConfiguracion() { navegarConPermiso(PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void cambiarEscena(String fxmlPath) {
         try {
@@ -760,6 +767,22 @@ public class InventarioController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void navegarConPermiso(PermisoService.Accion accion, String fxmlPath) {
+        if (!PermisoService.puede(accion)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            return;
+        }
+        cambiarEscena(fxmlPath);
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.WARNING);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
     }
 
     // ────────────────────────────────────────────────────────────────────────────

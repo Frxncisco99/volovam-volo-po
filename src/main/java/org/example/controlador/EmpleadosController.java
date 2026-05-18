@@ -484,19 +484,19 @@ public class  EmpleadosController {
 
     // Navegación
     @FXML public void irADashboard() {
-        navegar("/org/example/vista/MenuPrincipal.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml");
     }
     @FXML public void irAVentas() {
-        navegar("/org/example/vista/Ventas.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml");
     }
-    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
-    @FXML private void irAClientes() {navegar ("/org/example/vista/Clientes.fxml"); }
-    @FXML private void irAReportes()   { navegar("/org/example/vista/Reportes.fxml"); }
-    @FXML private void irACorteCaja()  { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irAInventario() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAClientes() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes()   { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
+    @FXML private void irACorteCaja()  { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
     @FXML private void irAAuditoria() {
-        navegar("/org/example/vista/Auditoria.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
-    @FXML private void irAConfiguracion() {navegar("/org/example/vista/Configuracion.fxml");}
+    @FXML private void irAConfiguracion() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void navegar(String ruta) {
         try {
@@ -508,6 +508,14 @@ public class  EmpleadosController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
+        if (!org.example.servicio.PermisoService.puede(accion)) {
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            return;
+        }
+        navegar(ruta);
     }
 
     @FXML

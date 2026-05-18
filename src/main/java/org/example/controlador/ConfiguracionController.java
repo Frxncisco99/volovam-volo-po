@@ -46,6 +46,7 @@ import org.example.servicio.AuditoriaService;
 import org.example.servicio.MarcaService;
 import org.example.servicio.PasswordService;
 import org.example.servicio.PermisoService;
+import org.example.servicio.SecretService;
 import org.example.servicio.TicketRenderer;
 import org.example.servicio.UsuarioSeguridadService;
 
@@ -465,7 +466,7 @@ public class ConfiguracionController {
         guardarBoolean("email_activo", tglEmailActivo.isSelected());
         guardarValor("email_smtp", valor(cmbEmailSmtp, "Gmail"));
         guardarValor("email_remitente", txtEmailRemitente.getText());
-        guardarValor("email_password", txtEmailPassword.getText());
+        guardarValor("email_password", SecretService.encrypt(txtEmailPassword.getText()));
         guardarValor("email_host", txtEmailHost.getText());
         guardarValor("email_puerto", txtEmailPuerto.getText());
         guardarBoolean("email_reporte_diario", tglEmailReporteDiario.isSelected());
@@ -538,7 +539,7 @@ public class ConfiguracionController {
         tglEmailActivo.setSelected(leerBoolean("email_activo", false));
         seleccionar(cmbEmailSmtp, leerValor("email_smtp", "Gmail"), "Gmail");
         txtEmailRemitente.setText(leerValor("email_remitente", ""));
-        txtEmailPassword.setText(leerValor("email_password", ""));
+        txtEmailPassword.setText(SecretService.decrypt(leerValor("email_password", "")));
         txtEmailHost.setText(leerValor("email_host", ""));
         txtEmailPuerto.setText(leerValor("email_puerto", ""));
         tglEmailReporteDiario.setSelected(leerBoolean("email_reporte_diario", false));
@@ -570,7 +571,8 @@ public class ConfiguracionController {
             ps.setString(1, clave);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getString(1);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return fallback;
     }
@@ -582,7 +584,8 @@ public class ConfiguracionController {
             ps.setString(1, clave);
             ps.setString(2, valor);
             ps.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -753,7 +756,8 @@ public class ConfiguracionController {
                         activo ? "Activo" : "Inactivo",
                         activo));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -1038,18 +1042,19 @@ public class ConfiguracionController {
             ps.setInt(2, idUsuario);
             ps.setString(3, "Cierre de sesion: " + SesionUsuario.getInstancia().getNombre());
             ps.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    @FXML private void irADashboard() { navegar("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML private void irAVentas() { navegar("/org/example/vista/Ventas.fxml"); }
-    @FXML private void irAInventario() { navegar("/org/example/vista/Inventario.fxml"); }
-    @FXML private void irAEmpleados() { navegar("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAClientes() { navegar("/org/example/vista/Clientes.fxml"); }
-    @FXML private void irAReportes() { navegar("/org/example/vista/Reportes.fxml"); }
-    @FXML private void irAAuditoria() { navegar("/org/example/vista/Auditoria.fxml"); }
-    @FXML private void irACorteCaja() { navegar("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irADashboard() { navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAVentas() { navegarConPermiso(PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAInventario() { navegarConPermiso(PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAEmpleados() { navegarConPermiso(PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes() { navegarConPermiso(PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
+    @FXML private void irAReportes() { navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
+    @FXML private void irAAuditoria() { navegarConPermiso(PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml"); }
+    @FXML private void irACorteCaja() { navegarConPermiso(PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
 
     @FXML
     public void btnCerrar() {
@@ -1075,6 +1080,14 @@ public class ConfiguracionController {
         } catch (IOException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Navegacion", "No se pudo abrir la vista.\n" + e.getMessage());
         }
+    }
+
+    private void navegarConPermiso(PermisoService.Accion accion, String ruta) {
+        if (!PermisoService.puede(accion)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            return;
+        }
+        navegar(ruta);
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {

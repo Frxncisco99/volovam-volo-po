@@ -122,7 +122,7 @@
                         </VBox>
                     </FlowPane>
 
-                    <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: transparent; -fx-tab-min-height: 36px;">
+                    <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="report-tabs">
                         <Tab text="Dashboard">
                             <VBox spacing="14" style="-fx-padding: 16 2 16 2;">
                                 <FlowPane hgap="12" vgap="12">
@@ -243,7 +243,7 @@
 
                         <Tab text="Movimientos">
                             <VBox spacing="12" style="-fx-padding: 16 2 16 2;">
-                                <TableView fx:id="tablaMovimientos" prefHeight="320" style="-fx-background-radius: 8;">
+                                <TableView fx:id="tablaMovimientos" prefHeight="320" styleClass="report-table">
                                     <columns>
                                         <TableColumn fx:id="colMovTipo" text="Tipo" prefWidth="110"/>
                                         <TableColumn fx:id="colMovConcepto" text="Concepto" prefWidth="280"/>
@@ -268,7 +268,7 @@
                                         <Label fx:id="lblCantidadCancelaciones" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="0"/>
                                     </VBox>
                                 </FlowPane>
-                                <TableView fx:id="tablaCancelaciones" prefHeight="300" style="-fx-background-radius: 8;">
+                                <TableView fx:id="tablaCancelaciones" prefHeight="300" styleClass="report-table">
                                     <columns>
                                         <TableColumn fx:id="colCanTipo" text="Tipo" prefWidth="120"/>
                                         <TableColumn fx:id="colCanFolio" text="Folio" prefWidth="120"/>
@@ -283,7 +283,7 @@
 
                         <Tab text="Top productos">
                             <VBox spacing="12" style="-fx-padding: 16 2 16 2;">
-                                <TableView fx:id="tablaProductos" prefHeight="360" style="-fx-background-radius: 8;">
+                                <TableView fx:id="tablaProductos" prefHeight="360" styleClass="report-table">
                                     <columns>
                                         <TableColumn fx:id="colProdNombre" text="Producto" prefWidth="320"/>
                                         <TableColumn fx:id="colProdCantidad" text="Cantidad" prefWidth="100"/>
@@ -310,7 +310,7 @@
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Label fx:id="lblTotalCortes" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" text=""/>
                                 </HBox>
-                                <TableView fx:id="tablaHistorial" prefHeight="360" style="-fx-background-radius: 8;">
+                                <TableView fx:id="tablaHistorial" prefHeight="360" styleClass="report-table">
                                     <columns>
                                         <TableColumn fx:id="colHisFolio" text="Folio" prefWidth="105"/>
                                         <TableColumn fx:id="colHisCajero" text="Cajero" prefWidth="130"/>

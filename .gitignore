@@ -1,4 +1,6 @@
 target/
+db.local.properties
+*.env
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

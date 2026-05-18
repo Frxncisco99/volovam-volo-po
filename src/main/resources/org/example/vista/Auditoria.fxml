@@ -140,8 +140,7 @@
 
             <!-- TABLA -->
             <VBox style="-fx-padding: 0 20 20 20;" VBox.vgrow="ALWAYS">
-                <TableView fx:id="tablaAuditoria" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #1a6fa820; -fx-border-width: 1; -fx-border-radius: 12;">
+                <TableView fx:id="tablaAuditoria" VBox.vgrow="ALWAYS" styleClass="report-table">
                     <columns>
                         <TableColumn fx:id="colFecha"    text="Fecha y Hora"  prefWidth="155"/>
                         <TableColumn fx:id="colUsuario"  text="Usuario"        prefWidth="130"/>

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 
 public class AppExitService {
@@ -22,6 +23,7 @@ public class AppExitService {
     public static void salir(Node owner) {
         if (!confirmarSalida(owner)) return;
         registrarSalida();
+        ConexionDB.cerrarPool();
         Platform.exit();
         System.exit(0);
     }
@@ -38,7 +40,8 @@ public class AppExitService {
                         "Salida del sistema: " + sesion.getNombre()
                 );
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

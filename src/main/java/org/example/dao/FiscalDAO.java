@@ -29,7 +29,8 @@ public class FiscalDAO {
                     impuestos.add(mapImpuesto(rs));
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return impuestos;
     }
@@ -48,7 +49,8 @@ public class FiscalDAO {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return Optional.empty();
     }
@@ -75,7 +77,8 @@ public class FiscalDAO {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return Optional.empty();
     }
@@ -93,7 +96,8 @@ public class FiscalDAO {
                 ps.setInt(2, idImpuesto);
                 ps.executeUpdate();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -132,7 +136,8 @@ public class FiscalDAO {
                     config.setFormaPagoSat(rs.getString("forma_pago_sat"));
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return config;
     }
@@ -182,7 +187,8 @@ public class FiscalDAO {
                 ps.setString(15, config.getFormaPagoSat());
                 ps.executeUpdate();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -201,7 +207,8 @@ public class FiscalDAO {
                 ps.setString(5, detalle);
                 ps.executeUpdate();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -219,7 +226,8 @@ public class FiscalDAO {
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return Optional.empty();
     }

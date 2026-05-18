@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.example.servicio.AppExitService;
+import org.example.servicio.SessionTimeoutService;
 
 public class Main extends Application {
 
@@ -26,12 +27,14 @@ public class Main extends Application {
         primaryStage.setTitle("Volovan Volo — Sistema de Gestion");
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         primaryStage.setScene(scene);
+        SessionTimeoutService.instalar(scene);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(event -> {
             event.consume();
             if (AppExitService.confirmarSalida(scene.getRoot())) {
                 AppExitService.registrarSalida();
+                org.example.dao.ConexionDB.cerrarPool();
                 javafx.application.Platform.exit();
                 System.exit(0);
             }

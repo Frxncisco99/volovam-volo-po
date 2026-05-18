@@ -2,6 +2,7 @@
 
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -204,7 +205,7 @@
 
             <!-- TabPane principal -->
             <VBox style="-fx-padding: 0 28 28 28;" VBox.vgrow="ALWAYS">
-                <TabPane fx:id="tabPaneReportes" style="-fx-background-color: white;                                 -fx-border-color: #d0e4f4; -fx-border-width: 1;                                 -fx-background-radius: 12; -fx-border-radius: 12;                                 -fx-effect: dropshadow(gaussian, rgba(26,111,168,0.07), 10, 0, 0, 2);                                 -fx-tab-min-height: 38px; -fx-tab-max-height: 38px;" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="tabPaneReportes" styleClass="report-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
 
                     <!-- ── TAB 1: Gráficas ── -->
                     <Tab text="📊  Gráficas de Productos">
@@ -223,7 +224,7 @@
                                 <yAxis><NumberAxis label="Cantidad" /></yAxis>
                             </BarChart>
 
-                            <TableView fx:id="tablaReporte" managed="false" style="-fx-background-color: transparent; -fx-border-color: transparent;                                               -fx-padding: 0 12 12 12;" visible="false" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaReporte" managed="false" styleClass="report-table" visible="false" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colTablaProducto" prefWidth="300" text="PRODUCTO" />
                                     <TableColumn fx:id="colTablaCantidad" prefWidth="120" text="CANTIDAD" />
@@ -243,7 +244,7 @@
                                 <Button onAction="#exportarVentasCSV" style="-fx-background-color: #e6f4ec; -fx-text-fill: #1e7d3e;                                                -fx-border-color: #1e7d3e; -fx-border-width: 1;                                                -fx-background-radius: 6; -fx-border-radius: 6;                                                -fx-font-size: 10px; -fx-padding: 5 14;                                                -fx-cursor: hand; -fx-font-weight: bold;" text="↓ Exportar CSV" />
                             </HBox>
 
-                            <TableView fx:id="tablaVentas" style="-fx-background-color: transparent; -fx-border-color: transparent;                                               -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaVentas" styleClass="report-table" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colVentaFolio" prefWidth="72" text="Folio" />
                                     <TableColumn fx:id="colVentaFecha" prefWidth="88" text="Fecha" />
@@ -286,7 +287,7 @@
                                 </VBox>
                             </HBox>
 
-                            <TableView fx:id="tablaCajeros" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaCajeros" styleClass="report-table" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colCajNombre" prefWidth="180" text="Cajero" />
                                     <TableColumn fx:id="colCajTickets" prefWidth="80" text="Tickets" />
@@ -308,16 +309,31 @@
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
                                 <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Ventas por hora del dia" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaHoras" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colHoraHora" prefWidth="180" text="Hora" />
-                                    <TableColumn fx:id="colHoraTickets" prefWidth="120" text="Tickets" />
-                                    <TableColumn fx:id="colHoraTotal" prefWidth="150" text="Total" />
-                                </columns>
-                                <placeholder>
-                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver ventas por hora" />
-                                </placeholder>
-                            </TableView>
+                            <HBox spacing="14" style="-fx-padding: 14 14 16 14;" VBox.vgrow="ALWAYS">
+                                <TableView fx:id="tablaHoras" prefWidth="410" styleClass="report-table" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colHoraHora" prefWidth="170" text="Hora" />
+                                        <TableColumn fx:id="colHoraTickets" prefWidth="95" text="Tickets" />
+                                        <TableColumn fx:id="colHoraTotal" prefWidth="125" text="Total" />
+                                    </columns>
+                                    <placeholder>
+                                        <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver ventas por hora" />
+                                    </placeholder>
+                                </TableView>
+                                <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 14; -fx-border-color: #b8d4ea; -fx-border-width: 1.2; -fx-border-radius: 14; -fx-padding: 14; -fx-effect: dropshadow(gaussian, #091e4e20, 18, 0, 0, 4);">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2">
+                                            <Label text="Horas pico" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" />
+                                            <Label text="Tickets emitidos por hora" style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" />
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                    </HBox>
+                                    <LineChart fx:id="chartHorasPico" animated="false" createSymbols="true" legendVisible="false" styleClass="peak-chart" VBox.vgrow="ALWAYS">
+                                        <xAxis><CategoryAxis label="Hora" /></xAxis>
+                                        <yAxis><NumberAxis label="Tickets" forceZeroInRange="true" /></yAxis>
+                                    </LineChart>
+                                </VBox>
+                            </HBox>
                         </VBox>
                     </Tab>
 
@@ -327,7 +343,7 @@
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
                                 <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Rentabilidad por producto" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaRentabilidad" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaRentabilidad" styleClass="report-table" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colRentNombre" prefWidth="200" text="Producto" />
                                     <TableColumn fx:id="colRentUnidades" prefWidth="80" text="Unidades" />
@@ -349,7 +365,7 @@
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
                                 <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Clientes con credito" HBox.hgrow="ALWAYS" />
                             </HBox>
-                            <TableView fx:id="tablaClientesCredito" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 12 12 12;" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="tablaClientesCredito" styleClass="report-table" VBox.vgrow="ALWAYS">
                                 <columns>
                                     <TableColumn fx:id="colCliNombre" prefWidth="180" text="Cliente" />
                                     <TableColumn fx:id="colCliSaldo" prefWidth="110" text="Saldo actual" />
@@ -360,6 +376,31 @@
                                 </columns>
                                 <placeholder>
                                     <Label style="-fx-text-fill: #6a96b8;" text="No hay clientes con credito registrados" />
+                                </placeholder>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <Tab text="Inventario">
+                        <VBox VBox.vgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 12 18; -fx-border-color: transparent transparent #e8f0f8 transparent; -fx-border-width: 1;">
+                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Movimientos de inventario" HBox.hgrow="ALWAYS" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #1a6fa8; -fx-background-color: #e8f2fb; -fx-background-radius: 20; -fx-padding: 4 12;" text="Entradas, salidas, ajustes y mermas" />
+                            </HBox>
+                            <TableView fx:id="tablaMovInventario" styleClass="report-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colMovInvFecha" prefWidth="128" text="Fecha" />
+                                    <TableColumn fx:id="colMovInvProducto" prefWidth="190" text="Producto" />
+                                    <TableColumn fx:id="colMovInvTipo" prefWidth="120" text="Tipo" />
+                                    <TableColumn fx:id="colMovInvCantidad" prefWidth="80" text="Cantidad" />
+                                    <TableColumn fx:id="colMovInvAnterior" prefWidth="80" text="Antes" />
+                                    <TableColumn fx:id="colMovInvNuevo" prefWidth="80" text="Despues" />
+                                    <TableColumn fx:id="colMovInvReferencia" prefWidth="130" text="Referencia" />
+                                    <TableColumn fx:id="colMovInvUsuario" prefWidth="130" text="Usuario" />
+                                    <TableColumn fx:id="colMovInvNotas" prefWidth="220" text="Notas" />
+                                </columns>
+                                <placeholder>
+                                    <Label style="-fx-text-fill: #6a96b8;" text="Genera un reporte para ver movimientos de inventario" />
                                 </placeholder>
                             </TableView>
                         </VBox>
