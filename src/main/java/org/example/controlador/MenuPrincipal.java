@@ -208,7 +208,7 @@ public class MenuPrincipal implements Initializable {
     }
 
     // Navegación
-    @FXML private void irAVentas() {cambiarEscena("/org/example/vista/Ventas.fxml");}
+    @FXML private void irAVentas() { navegarConPermiso(PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
     @FXML private void abrirInventario() { navegarConPermiso(PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml");}
     @FXML private void irAEmpleados()  { navegarConPermiso(PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
     @FXML private void irAClientes() {
@@ -261,7 +261,7 @@ public class MenuPrincipal implements Initializable {
     }
     private void navegarConPermiso(PermisoService.Accion accion, String ruta) {
         if (!PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
             return;
         }
         cambiarEscena(ruta);

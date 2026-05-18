@@ -20,7 +20,8 @@ public class FacturacionDAO {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) return rs.getInt("id_factura");
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

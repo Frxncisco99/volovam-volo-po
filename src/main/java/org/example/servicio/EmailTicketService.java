@@ -92,7 +92,7 @@ public class EmailTicketService {
         return new Config(
                 smtp,
                 prefs.get("email_remitente", "").trim(),
-                prefs.get("email_password", ""),
+                SecretService.decrypt(prefs.get("email_password", "")),
                 host,
                 puerto,
                 prefs.get("ticket_nombre", ""),

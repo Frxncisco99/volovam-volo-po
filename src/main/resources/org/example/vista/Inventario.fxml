@@ -283,11 +283,7 @@
                 <VBox style="-fx-padding: 0 18 0 18;" VBox.vgrow="ALWAYS">
 
                     <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS"
-                               style="-fx-background-color: white;
-                                      -fx-border-color: #dde8f2;
-                                      -fx-border-width: 1 1 0 1;
-                                      -fx-background-radius: 12 12 0 0;
-                                      -fx-border-radius: 12 12 0 0;">
+                               styleClass="report-table">
                         <columns>
                             <!-- Imagen miniatura -->
 
@@ -316,11 +312,12 @@
                     <!-- ── PIE DE TABLA: paginación ── -->
                     <HBox alignment="CENTER_LEFT" spacing="10"
                           style="-fx-background-color: white;
-                                 -fx-padding: 10 16;
-                                 -fx-border-color: #dde8f2;
-                                 -fx-border-width: 0 1 1 1;
-                                 -fx-background-radius: 0 0 12 12;
-                                 -fx-border-radius: 0 0 12 12;">
+                                 -fx-padding: 12 16;
+                                 -fx-border-color: #b8d4ea;
+                                 -fx-border-width: 0 1.2 1.2 1.2;
+                                 -fx-background-radius: 0 0 14 14;
+                                 -fx-border-radius: 0 0 14 14;
+                                 -fx-effect: dropshadow(gaussian, #091e4e12, 12, 0, 0, 3);">
 
                         <!-- Label conteo -->
                         <Label fx:id="lblConteo"

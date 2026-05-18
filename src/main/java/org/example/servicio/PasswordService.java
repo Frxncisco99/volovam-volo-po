@@ -29,22 +29,24 @@ public class PasswordService {
 
     public boolean verificarYActualizarSiEsPlano(int idUsuario, String passwordIngresado,
                                                   String passwordHash, String passwordPlanoActual) {
-        if (verificar(passwordIngresado, passwordHash)) return true;
+        if (passwordHash != null && !passwordHash.isBlank()) {
+            return verificar(passwordIngresado, passwordHash);
+        }
         if (passwordPlanoActual == null || passwordPlanoActual.isBlank()) return false;
         if (!passwordPlanoActual.equals(passwordIngresado)) return false;
 
         String nuevoHash = hash(passwordIngresado);
         String sql = "UPDATE usuarios SET password_hash = ?, contrasena = '', fecha_actualizacion_password = NOW() WHERE id_usuario = ?";
         try (Connection con = ConexionDB.getConexion()) {
-            if (con == null) return true;
+            if (con == null) return false;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, nuevoHash);
                 ps.setInt(2, idUsuario);
-                ps.executeUpdate();
+                return ps.executeUpdate() == 1;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            return false;
         }
-        return true;
     }
 
     public boolean validarUsuarioActivo(String usuario, String password) {

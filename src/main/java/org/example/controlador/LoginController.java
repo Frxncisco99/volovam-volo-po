@@ -141,33 +141,7 @@ public class LoginController {
             return false;
 
         } catch (Exception e) {
-            return validarCredencialesLegacy(usuario, contrasena);
-        }
-    }
-
-    private boolean validarCredencialesLegacy(String usuario, String contrasena) {
-        String sql = """
-        SELECT u.id_usuario, u.nombre, u.usuario, u.id_rol, r.nombre AS rol
-        FROM usuarios u
-        JOIN roles r ON u.id_rol = r.id_rol
-        WHERE u.usuario = ? AND u.contrasena = ? AND u.activo = 1
-    """;
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, usuario);
-            ps.setString(2, contrasena);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                SesionUsuario sesion = SesionUsuario.getInstancia();
-                sesion.setIdUsuario(rs.getInt("id_usuario"));
-                sesion.setNombre(rs.getString("nombre"));
-                sesion.setUsuario(rs.getString("usuario"));
-                sesion.setIdRol(rs.getInt("id_rol"));
-                sesion.setRol(rs.getString("rol"));
-                registrarLogin(rs.getInt("id_usuario"), rs.getString("nombre"));
-                return true;
-            }
-        } catch (Exception ignored) {
+            e.printStackTrace();
         }
         return false;
     }

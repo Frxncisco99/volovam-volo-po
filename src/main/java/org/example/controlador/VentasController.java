@@ -22,6 +22,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
+import org.example.dao.VentaEnEsperaDAO;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.MarcaService;
 
@@ -66,7 +67,8 @@ public class VentasController {
 
     // ── Ventas en espera: lista de snapshots ──
     // Cada snapshot: [carrito, idCliente, nombreCliente, limiteCredito, saldoCliente, etiqueta]
-    private final List<Object[]> ventasEnEspera = new ArrayList<>();
+    private final VentaEnEsperaDAO ventaEnEsperaDAO = new VentaEnEsperaDAO();
+    private List<VentaEnEsperaDAO.VentaEnEspera> ventasEnEspera = new ArrayList<>();
 
     // ─────────────────────────────────────────────
     @FXML
@@ -82,6 +84,7 @@ public class VentasController {
         cargarCategorias();
         cargarProductos("", "Todas");
         cargarFolio();
+        cargarVentasEnEsperaPersistidas();
         actualizarBadgeEspera();
 
         txtBuscar.textProperty().addListener((obs, old, nuevo) ->
@@ -149,14 +152,25 @@ public class VentasController {
             copia.put(e.getKey(), new Object[]{orig[0], orig[1], orig[2]});
         }
 
-        ventasEnEspera.add(new Object[]{
-                copia,
-                idClienteSeleccionado,
-                nombreClienteSeleccionado,
-                limiteCredito,
-                saldoCliente,
-                etiqueta
-        });
+        try {
+            double totalSnapshot = copia.values().stream()
+                    .mapToDouble(o -> ((Number) o[1]).doubleValue() * ((Number) o[2]).intValue())
+                    .sum();
+            ventaEnEsperaDAO.guardar(
+                    copia,
+                    idClienteSeleccionado,
+                    nombreClienteSeleccionado,
+                    limiteCredito,
+                    saldoCliente,
+                    etiqueta,
+                    totalSnapshot
+            );
+            cargarVentasEnEsperaPersistidas();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("No se pudo guardar", "La venta en espera no se guardo en la base de datos.");
+            return;
+        }
 
         // Limpiar carrito actual
         carrito.clear();
@@ -175,12 +189,14 @@ public class VentasController {
     @FXML
     @SuppressWarnings("unchecked")
     public void verVentasEnEspera() {
+        cargarVentasEnEsperaPersistidas();
         if (ventasEnEspera.isEmpty()) {
             mostrarAlerta("Sin ventas en espera", "No hay ventas guardadas en espera.");
             return;
         }
 
         Stage stage = new Stage();
+        org.example.servicio.VentanaEmergenteService.preparar(stage);
         stage.setTitle("Ventas en espera");
         stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         stage.initOwner(lblTotal.getScene().getWindow());
@@ -194,14 +210,11 @@ public class VentasController {
 
         for (int i = 0; i < ventasEnEspera.size(); i++) {
             final int idx = i;
-            Object[] snap = ventasEnEspera.get(i);
-            String etiqueta   = (String) snap[5];
-            String cliente    = (String) snap[2];
-            Map<Integer, Object[]> carritoSnap = (Map<Integer, Object[]>) snap[0];
-
-            // Calcular total del snapshot
-            double totalSnap = carritoSnap.values().stream()
-                    .mapToDouble(o -> (double) o[1] * (int) o[2]).sum();
+            VentaEnEsperaDAO.VentaEnEspera snap = ventasEnEspera.get(i);
+            String etiqueta = snap.getEtiqueta();
+            String cliente = snap.getNombreCliente();
+            Map<Integer, Object[]> carritoSnap = snap.getCarrito();
+            double totalSnap = snap.getTotal();
 
             HBox fila = new HBox(12);
             fila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
@@ -236,8 +249,7 @@ public class VentasController {
             btnEliminar.setStyle("-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B; -fx-background-radius: 8;" +
                     "-fx-padding: 6 10; -fx-cursor: hand; -fx-font-weight: bold;");
             btnEliminar.setOnAction(e -> {
-                ventasEnEspera.remove(idx);
-                actualizarBadgeEspera();
+                eliminarVentaEnEspera(idx);
                 stage.close();
                 if (!ventasEnEspera.isEmpty()) verVentasEnEspera();
             });
@@ -257,12 +269,19 @@ public class VentasController {
 
     @SuppressWarnings("unchecked")
     private void recuperarVentaEnEspera(int idx) {
-        Object[] snap = ventasEnEspera.remove(idx);
-        carrito               = new HashMap<>((Map<Integer, Object[]>) snap[0]);
-        idClienteSeleccionado = (int)    snap[1];
-        nombreClienteSeleccionado = (String) snap[2];
-        limiteCredito         = (double) snap[3];
-        saldoCliente          = (double) snap[4];
+        VentaEnEsperaDAO.VentaEnEspera snap = ventasEnEspera.get(idx);
+        try {
+            ventaEnEsperaDAO.eliminar(snap.getIdEspera());
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("No se pudo recuperar", "No se pudo quitar la venta de la lista en espera.");
+            return;
+        }
+        carrito = new HashMap<>(snap.getCarrito());
+        idClienteSeleccionado = snap.getIdCliente();
+        nombreClienteSeleccionado = snap.getNombreCliente();
+        limiteCredito = snap.getLimiteCredito();
+        saldoCliente = snap.getSaldoCliente();
 
         lblClienteSeleccionado.setText(nombreClienteSeleccionado);
         if (limiteCredito > 0) {
@@ -272,7 +291,24 @@ public class VentasController {
             lblCreditoDisponible.setText("");
         }
         actualizarCarrito();
+        cargarVentasEnEsperaPersistidas();
         actualizarBadgeEspera();
+    }
+
+    private void eliminarVentaEnEspera(int idx) {
+        VentaEnEsperaDAO.VentaEnEspera snap = ventasEnEspera.get(idx);
+        try {
+            ventaEnEsperaDAO.eliminar(snap.getIdEspera());
+            cargarVentasEnEsperaPersistidas();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("No se pudo eliminar", "No se pudo eliminar la venta en espera.");
+        }
+        actualizarBadgeEspera();
+    }
+
+    private void cargarVentasEnEsperaPersistidas() {
+        ventasEnEspera = ventaEnEsperaDAO.listarSesionActual();
     }
 
     private void actualizarBadgeEspera() {
@@ -297,13 +333,13 @@ public class VentasController {
         }
         try {
             Stage stage = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setTitle("Devoluciones");
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stage.initOwner(lblTotal.getScene().getWindow());
 
             VBox root = construirPantallaDevoluciones(stage);
             stage.setScene(new Scene(root, 860, 640));
-            stage.setResizable(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -766,6 +802,7 @@ public class VentasController {
             PagoController pagoController = loader.getController();
             pagoController.setDatos(total, carrito, this, idClienteSeleccionado, nombreClienteSeleccionado, limiteCredito, saldoCliente);
             Stage stagePago = new Stage();
+            org.example.servicio.VentanaEmergenteService.preparar(stagePago);
             stagePago.setTitle("Cobro");
             stagePago.setScene(new Scene(root));
             stagePago.setResizable(false);
@@ -785,7 +822,9 @@ public class VentasController {
 
     @FXML
     public void abrirHistorial() {
-        Stage stage = new Stage(); stage.setTitle("Historial de ventas del día");
+        Stage stage = new Stage();
+        org.example.servicio.VentanaEmergenteService.preparar(stage);
+        stage.setTitle("Historial de ventas del día");
         TableView<Map<String, Object>> tabla = new TableView<>(); tabla.setPrefWidth(780);
         TableColumn<Map<String, Object>, String> colFolio = new TableColumn<>("Folio"); colFolio.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.format("#%04d", (int) d.getValue().get("folio")))); colFolio.setPrefWidth(80);
         TableColumn<Map<String, Object>, String> colHora  = new TableColumn<>("Hora");  colHora.setCellValueFactory(d  -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("hora")));  colHora.setPrefWidth(120);
@@ -806,6 +845,7 @@ public class VentasController {
 
     private void mostrarDetalleVenta(int idVenta) {
         Stage stage = new Stage();
+        org.example.servicio.VentanaEmergenteService.preparar(stage);
         stage.setTitle("Detalle venta #" + String.format("%04d", idVenta));
 
         TableView<Map<String, Object>> tabla = new TableView<>();
@@ -921,6 +961,7 @@ public class VentasController {
         if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(permiso, accion)) return;
 
         boolean esIngreso = tipo.equals("INGRESO"); Stage stage = new Stage();
+        org.example.servicio.VentanaEmergenteService.preparar(stage);
         stage.setTitle(esIngreso ? "Registrar ingreso" : "Registrar salida");
         Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
         TextField txtMonto = new TextField(); txtMonto.setPromptText("$0.00"); txtMonto.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #000000; -fx-border-width: 1; -fx-padding: 8;");
@@ -1002,7 +1043,7 @@ public class VentasController {
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "El cajero solo puede acceder al modulo de ventas.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
             return;
         }
         cambiarEscena(ruta);

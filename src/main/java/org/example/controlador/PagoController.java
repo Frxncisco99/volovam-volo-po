@@ -532,7 +532,11 @@ public class PagoController {
                 if (imprimirTicket) {
                     try {
                         ticketService.imprimir(ticket);
-                        try { new org.example.servicio.TicketImpresora().abrirCajon(); } catch (Exception ignored) {}
+                        try {
+                            new org.example.servicio.TicketImpresora().abrirCajon();
+                        } catch (Exception drawerError) {
+                            drawerError.printStackTrace();
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -580,7 +584,8 @@ public class PagoController {
                 }
             }
             ps.executeBatch();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

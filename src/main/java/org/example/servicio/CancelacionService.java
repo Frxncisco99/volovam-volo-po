@@ -3,6 +3,8 @@ package org.example.servicio;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import java.sql.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,10 @@ public class CancelacionService {
      * Cancela una venta: regresa stock, marca estado, registra auditoría y movimientos.
      */
     public void cancelarVenta(int idVenta, String motivo) throws Exception {
+        if (motivo == null || motivo.trim().length() < 5) {
+            throw new IllegalArgumentException("Indica un motivo de cancelacion valido de al menos 5 caracteres.");
+        }
+        motivo = motivo.trim();
 
         if (!PermisoService.requerirPermisoOAutorizacionAdmin(
                 PermisoService.VENTAS_CANCELAR,
@@ -26,13 +32,16 @@ public class CancelacionService {
             con.setAutoCommit(false);
 
             // 1. Verificar que la venta existe y su estado actual
-            String sqlEstado = "SELECT estado FROM ventas WHERE id_venta = ?";
+            String sqlEstado = "SELECT estado, COALESCE(fecha_hora, fecha) AS fecha_venta FROM ventas WHERE id_venta = ?";
             String estadoActual;
+            LocalDateTime fechaVenta;
             try (PreparedStatement ps = con.prepareStatement(sqlEstado)) {
                 ps.setInt(1, idVenta);
                 ResultSet rs = ps.executeQuery();
                 if (!rs.next()) throw new Exception("Venta #" + idVenta + " no encontrada.");
                 estadoActual = rs.getString("estado");
+                Timestamp ts = rs.getTimestamp("fecha_venta");
+                fechaVenta = ts != null ? ts.toLocalDateTime() : null;
             }
 
             if ("CANCELADA".equalsIgnoreCase(estadoActual))
@@ -41,6 +50,7 @@ public class CancelacionService {
                 throw new IllegalStateException("No se puede cancelar una venta ya devuelta.");
             if ("PARCIALMENTE_DEVUELTA".equalsIgnoreCase(estadoActual))
                 throw new IllegalStateException("No se puede cancelar una venta con devoluciones parciales.");
+            validarVentanaCancelacion(con, fechaVenta);
 
             // 2. Obtener productos de la venta
             String sqlDetalle = """
@@ -131,5 +141,29 @@ public class CancelacionService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private void validarVentanaCancelacion(Connection con, LocalDateTime fechaVenta) throws Exception {
+        int limiteHoras = obtenerLimiteCancelacionHoras(con);
+        if (limiteHoras <= 0 || fechaVenta == null) {
+            return;
+        }
+        long horas = Duration.between(fechaVenta, LocalDateTime.now()).toHours();
+        if (horas > limiteHoras) {
+            throw new IllegalStateException("La venta supera el limite de " + limiteHoras + " horas para cancelacion.");
+        }
+    }
+
+    private int obtenerLimiteCancelacionHoras(Connection con) {
+        String sql = "SELECT valor FROM configuracion WHERE clave = 'cancelacion_limite_horas' LIMIT 1";
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return Integer.parseInt(rs.getString("valor"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 24;
     }
 }

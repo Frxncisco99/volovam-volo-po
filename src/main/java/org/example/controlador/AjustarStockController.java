@@ -66,18 +66,23 @@ public class AjustarStockController {
 
     @FXML
     private void confirmarAnadir() {
-        ejecutarAjuste(true);
+        ejecutarAjuste(true, false);
     }
 
     @FXML
     private void confirmarRestar() {
-        ejecutarAjuste(false);
+        ejecutarAjuste(false, false);
     }
 
-    private void ejecutarAjuste(boolean esAdicion) {
+    @FXML
+    private void confirmarMerma() {
+        ejecutarAjuste(false, true);
+    }
+
+    private void ejecutarAjuste(boolean esAdicion, boolean esMerma) {
         if (!PermisoService.requerirPermisoOAutorizacionAdmin(
                 PermisoService.INVENTARIO_AJUSTAR,
-                "Ajuste manual de stock")) {
+                esMerma ? "Registrar merma" : "Ajuste manual de stock")) {
             return;
         }
         int cantidad;
@@ -112,12 +117,14 @@ public class AjustarStockController {
         try (java.sql.Connection con = org.example.dao.ConexionDB.getConexion()) {
             org.example.servicio.InventarioMovimientoService.TipoMovimiento tipo = esAdicion
                     ? org.example.servicio.InventarioMovimientoService.TipoMovimiento.AJUSTE_ENTRADA
+                    : esMerma
+                    ? org.example.servicio.InventarioMovimientoService.TipoMovimiento.MERMA
                     : org.example.servicio.InventarioMovimientoService.TipoMovimiento.AJUSTE_SALIDA;
 
             org.example.servicio.InventarioMovimientoService.get().registrar(
                     con, producto.getIdProducto(), tipo, cantidad,
-                    0, "AJUSTE_MANUAL",
-                    "Ajuste manual de stock por " +
+                    0, esMerma ? "MERMA" : "AJUSTE_MANUAL",
+                    (esMerma ? "Merma registrada por " : "Ajuste manual de stock por ") +
                             org.example.modelo.SesionUsuario.getInstancia().getNombre()
             );
         } catch (Exception e) {
@@ -129,7 +136,7 @@ public class AjustarStockController {
                 "AJUSTE_STOCK", "productos", producto.getIdProducto(),
                 String.format("Producto: %s — %s %d unidades — Stock resultante: %d",
                         producto.getNombre(),
-                        esAdicion ? "Entrada" : "Salida",
+                        esAdicion ? "Entrada" : esMerma ? "Merma" : "Salida",
                         cantidad, resultado)
         );
 

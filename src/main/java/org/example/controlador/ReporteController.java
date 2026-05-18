@@ -136,6 +136,7 @@ public class ReporteController {
     @FXML private TableColumn<Map<String, Object>, String> colHoraHora;
     @FXML private TableColumn<Map<String, Object>, String> colHoraTickets;
     @FXML private TableColumn<Map<String, Object>, String> colHoraTotal;
+    @FXML private LineChart<String, Number> chartHorasPico;
 
     // Tab Rentabilidad
     @FXML private TableView<Map<String, Object>>           tablaRentabilidad;
@@ -154,6 +155,17 @@ public class ReporteController {
     @FXML private TableColumn<Map<String, Object>, String> colCliLimite;
     @FXML private TableColumn<Map<String, Object>, String> colCliCompras;
     @FXML private TableColumn<Map<String, Object>, String> colCliUltima;
+
+    @FXML private TableView<Map<String, Object>>           tablaMovInventario;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvFecha;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvProducto;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvTipo;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvCantidad;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvAnterior;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvNuevo;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvReferencia;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvUsuario;
+    @FXML private TableColumn<Map<String, Object>, String> colMovInvNotas;
 
     // Cards resumen neto
     @FXML private Label lblVentasBrutas;
@@ -184,7 +196,18 @@ public class ReporteController {
         reloj.setCycleCount(javafx.animation.Animation.INDEFINITE);
         reloj.play();
 
+        aplicarEstiloTablas(tablaReporte, tablaVentas, tablaCajeros, tablaHoras,
+                tablaRentabilidad, tablaClientesCredito, tablaMovInventario);
         configurarTablaVentas();
+    }
+
+    @SafeVarargs
+    private final void aplicarEstiloTablas(TableView<?>... tablas) {
+        for (TableView<?> tabla : tablas) {
+            if (tabla != null && !tabla.getStyleClass().contains("report-table")) {
+                tabla.getStyleClass().add("report-table");
+            }
+        }
     }
 
     private void cargarDatosUsuario() {
@@ -426,7 +449,7 @@ public class ReporteController {
 
         // ── Tabla de productos ──
         TableView<Map<String, Object>> tablaDetalle = new TableView<>();
-        tablaDetalle.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 16 16 16;");
+        tablaDetalle.getStyleClass().add("report-table");
         tablaDetalle.setPrefHeight(260);
 
         TableColumn<Map<String, Object>, String> cProd  = col("Producto",  220, o -> (String)  o.get("producto"));
@@ -513,7 +536,8 @@ public class ReporteController {
                         rs.getDouble("impuestos")
                 };
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         double tasa = tasaFiscalPredeterminada();
         double subtotal = tasa > 0 ? totalFallback / (1 + tasa) : totalFallback;
@@ -781,14 +805,14 @@ public class ReporteController {
     // ─────────────────────────────────────────────────────────────
     // NAVEGACIÓN
     // ─────────────────────────────────────────────────────────────
-    @FXML private void irADashboard()    { cambiarEscena("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML private void irAVentas()       { cambiarEscena("/org/example/vista/Ventas.fxml"); }
-    @FXML private void irAInventario()   { cambiarEscena("/org/example/vista/Inventario.fxml"); }
-    @FXML private void irAEmpleados()    { cambiarEscena("/org/example/vista/Empleados.fxml"); }
-    @FXML private void irAClientes()     { cambiarEscena("/org/example/vista/Clientes.fxml"); }
-    @FXML private void irACorteCaja()    { cambiarEscena("/org/example/vista/CorteCaja.fxml"); }
+    @FXML private void irADashboard()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML private void irAVentas()       { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
+    @FXML private void irAInventario()   { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML private void irAEmpleados()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
+    @FXML private void irAClientes()     { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
+    @FXML private void irACorteCaja()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
     @FXML private void irAAuditoria() {
-        cambiarEscena("/org/example/vista/Auditoria.fxml");
+        navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
     private void registrarLogout() {
         String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
@@ -805,7 +829,7 @@ public class ReporteController {
             e.printStackTrace();
         }
     }
-    @FXML private void irAConfiguracion(){ cambiarEscena("/org/example/vista/Configuracion.fxml"); }
+    @FXML private void irAConfiguracion(){ navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void cambiarEscena(String fxmlPath) {
         try {
@@ -814,6 +838,18 @@ public class ReporteController {
             Stage stage = (Stage) lblTotal.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String fxmlPath) {
+        if (!org.example.servicio.PermisoService.puede(accion)) {
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Acceso denegado");
+            alerta.setHeaderText(null);
+            alerta.setContentText("No tienes permiso para acceder a este modulo.");
+            alerta.showAndWait();
+            return;
+        }
+        cambiarEscena(fxmlPath);
     }
 
     @FXML
@@ -909,6 +945,7 @@ public class ReporteController {
         cargarTablaHoras(ini, fin);
         cargarTablaRentabilidad(ini, fin);
         cargarTablaClientes();
+        cargarTablaMovimientosInventario(ini, fin);
     }
 
     private void cargarResumenNeto(String ini, String fin) {
@@ -945,7 +982,24 @@ public class ReporteController {
         configurarColumnaStr(colHoraTickets, r -> String.valueOf(r.get("tickets")));
         configurarColumnaStr(colHoraTotal,   r -> "$" + df.format((double) r.get("total")));
 
-        tablaHoras.getItems().setAll(daoAvanzado.ventasPorHora(ini, fin));
+        List<Map<String, Object>> filas = daoAvanzado.ventasPorHora(ini, fin);
+        tablaHoras.getItems().setAll(filas);
+        pintarGraficaHorasPico(filas);
+    }
+
+    private void pintarGraficaHorasPico(List<Map<String, Object>> filas) {
+        if (chartHorasPico == null) return;
+        chartHorasPico.getData().clear();
+        XYChart.Series<String, Number> serie = new XYChart.Series<>();
+        serie.setName("Tickets");
+
+        for (Map<String, Object> fila : filas) {
+            int hora = ((Number) fila.get("hora")).intValue();
+            int tickets = ((Number) fila.get("tickets")).intValue();
+            serie.getData().add(new XYChart.Data<>(String.format("%02d:00", hora), tickets));
+        }
+
+        chartHorasPico.getData().add(serie);
     }
 
     private void cargarTablaRentabilidad(String ini, String fin) {
@@ -999,6 +1053,37 @@ public class ReporteController {
         }
 
         tablaClientesCredito.getItems().setAll(daoAvanzado.clientesConCredito());
+    }
+
+    private void cargarTablaMovimientosInventario(String ini, String fin) {
+        if (tablaMovInventario == null) return;
+        configurarColumnaStr(colMovInvFecha,      r -> (String) r.get("fecha"));
+        configurarColumnaStr(colMovInvProducto,   r -> (String) r.get("producto"));
+        configurarColumnaStr(colMovInvTipo,       r -> (String) r.get("tipo"));
+        configurarColumnaStr(colMovInvCantidad,   r -> String.valueOf(r.get("cantidad")));
+        configurarColumnaStr(colMovInvAnterior,   r -> String.valueOf(r.get("anterior")));
+        configurarColumnaStr(colMovInvNuevo,      r -> String.valueOf(r.get("nuevo")));
+        configurarColumnaStr(colMovInvReferencia, r -> (String) r.get("referencia"));
+        configurarColumnaStr(colMovInvUsuario,    r -> (String) r.get("usuario"));
+        configurarColumnaStr(colMovInvNotas,      r -> (String) r.get("notas"));
+
+        if (colMovInvTipo != null) {
+            colMovInvTipo.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String v, boolean empty) {
+                    super.updateItem(v, empty);
+                    if (empty || v == null) { setText(null); setStyle(""); return; }
+                    setText(v);
+                    String color = switch (v.toUpperCase()) {
+                        case "AJUSTE_ENTRADA", "ENTRADA", "DEVOLUCION", "CANCELACION" -> "#1e7d3e";
+                        case "MERMA", "AJUSTE_SALIDA", "SALIDA" -> "#C0392B";
+                        default -> "#1a6fa8";
+                    };
+                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
+                }
+            });
+        }
+
+        tablaMovInventario.getItems().setAll(daoAvanzado.movimientosInventario(ini, fin, 0));
     }
 
     // Helper para no repetir setCellValueFactory

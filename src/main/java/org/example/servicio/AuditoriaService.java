@@ -30,6 +30,7 @@ public class AuditoriaService {
             ps.setInt(4, idRegistro);
             ps.setString(5, detalle);
             ps.executeUpdate();
+            registrarDetalle(idUsuario, null, accion, tabla, tabla, idRegistro, detalle, null, null);
         } catch (Exception e) {
             e.printStackTrace(); // auditoría nunca debe romper el flujo principal
         }

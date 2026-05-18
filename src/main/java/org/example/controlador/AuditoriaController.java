@@ -87,6 +87,10 @@ public class AuditoriaController {
     }
 
     private void configurarColumnas() {
+        if (tablaAuditoria != null && !tablaAuditoria.getStyleClass().contains("report-table")) {
+            tablaAuditoria.getStyleClass().add("report-table");
+        }
+
         colFecha.setCellValueFactory(d ->
                 new SimpleStringProperty((String) d.getValue().get("fecha")));
         colUsuario.setCellValueFactory(d ->
@@ -116,16 +120,6 @@ public class AuditoriaController {
             }
         });
 
-        // Zebra striping
-        tablaAuditoria.setRowFactory(tv -> new TableRow<>() {
-            @Override protected void updateItem(Map<String, Object> item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) setStyle("");
-                else setStyle(getIndex() % 2 == 0
-                        ? "-fx-background-color: #f5f9ff;"
-                        : "-fx-background-color: #eaf2fa;");
-            }
-        });
     }
 
     private void cargarStats() {
@@ -180,14 +174,14 @@ public class AuditoriaController {
     }
 
     // Navegación
-    @FXML public void irADashboard()    { navegar("/org/example/vista/MenuPrincipal.fxml"); }
-    @FXML public void irAVentas()       { navegar("/org/example/vista/Ventas.fxml"); }
-    @FXML public void irAInventario()   { navegar("/org/example/vista/Inventario.fxml"); }
-    @FXML public void irAEmpleados()    { navegar("/org/example/vista/Empleados.fxml"); }
-    @FXML public void irAClientes()     { navegar("/org/example/vista/Clientes.fxml"); }
-    @FXML public void irAReportes()     { navegar("/org/example/vista/Reportes.fxml"); }
-    @FXML public void irACorteCaja()    { navegar("/org/example/vista/CorteCaja.fxml"); }
-    @FXML public void irAConfiguracion(){ navegar("/org/example/vista/Configuracion.fxml"); }
+    @FXML public void irADashboard()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
+    @FXML public void irAVentas()       { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
+    @FXML public void irAInventario()   { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
+    @FXML public void irAEmpleados()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
+    @FXML public void irAClientes()     { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CLIENTES, "/org/example/vista/Clientes.fxml"); }
+    @FXML public void irAReportes()     { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/Reportes.fxml"); }
+    @FXML public void irACorteCaja()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_CORTE_CAJA, "/org/example/vista/CorteCaja.fxml"); }
+    @FXML public void irAConfiguracion(){ navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     @FXML
     public void btnCerrar() {
@@ -227,5 +221,17 @@ public class AuditoriaController {
             Stage stage = (Stage) tablaAuditoria.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
+        if (!org.example.servicio.PermisoService.puede(accion)) {
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Acceso denegado");
+            alerta.setHeaderText(null);
+            alerta.setContentText("No tienes permiso para acceder a este modulo.");
+            alerta.showAndWait();
+            return;
+        }
+        navegar(ruta);
     }
 }
