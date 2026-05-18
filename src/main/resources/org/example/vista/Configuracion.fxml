@@ -334,6 +334,13 @@
                                         <VBox spacing="5"><Label text="Desglose" styleClass="field-label"/><SwitchToggle fx:id="tglDesglose"/></VBox>
                                         <VBox spacing="5"><Label text="QR" styleClass="field-label"/><SwitchToggle fx:id="tglQR"/></VBox>
                                     </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Ticket por defecto en ventas" styleClass="option-title"/>
+                                            <Label text="Al cobrar, deja seleccionada la opcion Generar e imprimir. Puede cambiarse en cada venta." wrapText="true" styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglTicketPorDefecto"/>
+                                    </HBox>
                                     <GridPane hgap="14" vgap="12">
                                         <columnConstraints><ColumnConstraints percentWidth="62"/><ColumnConstraints percentWidth="38"/></columnConstraints>
                                         <Label text="Impresora" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
@@ -12,6 +13,10 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="CENTER" spacing="12" style="-fx-background-color: #F0F6FF; -fx-padding: 24 28; -fx-min-width: 500; -fx-max-width: 560;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.PagoController">
+
+    <fx:define>
+        <ToggleGroup fx:id="grupoTicket" />
+    </fx:define>
 
     <!-- TÍTULO -->
     <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a;" text="Cobro" />
@@ -199,10 +204,18 @@
         <TextField fx:id="txtOtrosDescripcion" promptText="Ej: Vale, Credito interno, Cortesia..." style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 13px;" />
     </VBox>
 
-    <!-- CHECKBOX imprimir ticket -->
-    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #eaf2ff; -fx-background-radius: 8;                  -fx-padding: 10 14; -fx-border-color: #b0c8e0; -fx-border-radius: 8; -fx-border-width: 1;">
-        <CheckBox fx:id="chkImprimirTicket" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #1a2e4a; -fx-font-weight: bold;" text="Imprimir ticket al confirmar" />
-    </HBox>
+    <!-- OPCION DE TICKET -->
+    <VBox maxWidth="Infinity" spacing="8" style="-fx-background-color: #eaf2ff; -fx-background-radius: 10;                  -fx-padding: 10 14; -fx-border-color: #b0c8e0; -fx-border-radius: 10; -fx-border-width: 1;">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99; -fx-font-weight: bold;" text="Ticket de venta" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="lblModoTicket" style="-fx-font-size: 11px; -fx-text-fill: #5a7a99;" text="Se imprimira al confirmar" />
+        </HBox>
+        <HBox spacing="8">
+            <ToggleButton fx:id="btnConTicket" maxWidth="Infinity" onAction="#seleccionarConTicket" prefHeight="36" selected="true" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 12px;                               -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #2563eb;                               -fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;" text="Generar e imprimir" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
+            <ToggleButton fx:id="btnSinTicket" maxWidth="Infinity" onAction="#seleccionarSinTicket" prefHeight="36" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                               -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #c8d8e8;                               -fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;" text="Venta sin ticket" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </VBox>
 
     <Separator style="-fx-opacity: 0.3;" />
 

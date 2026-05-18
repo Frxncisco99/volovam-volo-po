@@ -18,6 +18,7 @@ import org.example.servicio.EmailTicketService;
 import org.example.servicio.FolioService;
 import org.example.servicio.ImpuestoService;
 import org.example.servicio.InventarioMovimientoService;
+import org.example.servicio.TicketImpresora;
 import org.example.servicio.TicketService;
 
 import java.sql.Connection;
@@ -27,6 +28,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 public class PagoController {
 
@@ -72,8 +74,11 @@ public class PagoController {
     @FXML private Label lblEquivalenteMixtoUSD;
     @FXML private Label lblCambioMixtoUSD;
 
-    // Checkbox imprimir ticket
-    @FXML private CheckBox chkImprimirTicket;
+    // Seleccion de ticket
+    @FXML private ToggleButton btnConTicket;
+    @FXML private ToggleButton btnSinTicket;
+    @FXML private ToggleGroup grupoTicket;
+    @FXML private Label lblModoTicket;
 
     private double total;
     private double tipoCambioDolar;
@@ -94,6 +99,28 @@ public class PagoController {
             "-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;" +
                     "-fx-background-radius: 10; -fx-border-color: #c8d8e8;" +
                     "-fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;";
+    private static final String ESTILO_TICKET_ACTIVO =
+            "-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 12px;" +
+                    "-fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #2563eb;" +
+                    "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;";
+    private static final String ESTILO_TICKET_INACTIVO =
+            "-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;" +
+                    "-fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #c8d8e8;" +
+                    "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;";
+
+    @FXML
+    private void initialize() {
+        if (grupoTicket != null) {
+            grupoTicket.selectedToggleProperty().addListener((obs, anterior, actual) -> {
+                if (actual == null && anterior != null) {
+                    anterior.setSelected(true);
+                    return;
+                }
+                actualizarModoTicket();
+            });
+        }
+        actualizarModoTicket();
+    }
 
     // ── Recibe datos desde VentasController ─────────────────────────────────
     public void setDatos(double total, Map<Integer, Object[]> carrito,
@@ -208,6 +235,8 @@ public class PagoController {
             if (e.getCode() == javafx.scene.input.KeyCode.ENTER) handleConfirmar();
         });
 
+        aplicarPreferenciaTicketPorDefecto();
+
         // Efectivo por defecto
         seleccionarEfectivo();
         javafx.application.Platform.runLater(() -> txtDineroRecibido.requestFocus());
@@ -292,6 +321,74 @@ public class PagoController {
         mostrarPanel(panelOtros);
         resaltarBoton(btnOtros);
         javafx.application.Platform.runLater(() -> txtOtrosDescripcion.requestFocus());
+    }
+
+    @FXML
+    private void seleccionarConTicket() {
+        if (btnConTicket != null) {
+            btnConTicket.setSelected(true);
+        }
+        actualizarModoTicket();
+    }
+
+    @FXML
+    private void seleccionarSinTicket() {
+        if (btnSinTicket != null) {
+            btnSinTicket.setSelected(true);
+        }
+        actualizarModoTicket();
+    }
+
+    private boolean ventaConTicket() {
+        return btnConTicket == null || btnConTicket.isSelected();
+    }
+
+    private void aplicarPreferenciaTicketPorDefecto() {
+        if (btnConTicket == null || btnSinTicket == null) {
+            return;
+        }
+
+        boolean imprimirPorDefecto = leerTicketPorDefecto();
+        btnConTicket.setSelected(imprimirPorDefecto);
+        btnSinTicket.setSelected(!imprimirPorDefecto);
+        actualizarModoTicket();
+    }
+
+    private boolean leerTicketPorDefecto() {
+        boolean fallback = Preferences
+                .userNodeForPackage(ConfiguracionController.class)
+                .getBoolean(ConfiguracionController.CLAVE_TICKET_POR_DEFECTO, true);
+
+        String sql = "SELECT valor FROM configuracion WHERE clave = ?";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, ConfiguracionController.CLAVE_TICKET_POR_DEFECTO);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Boolean.parseBoolean(rs.getString(1));
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return fallback;
+    }
+
+    private void actualizarModoTicket() {
+        if (btnConTicket == null || btnSinTicket == null) {
+            return;
+        }
+
+        boolean conTicket = ventaConTicket();
+        btnConTicket.setStyle(conTicket ? ESTILO_TICKET_ACTIVO : ESTILO_TICKET_INACTIVO);
+        btnSinTicket.setStyle(conTicket ? ESTILO_TICKET_INACTIVO : ESTILO_TICKET_ACTIVO);
+
+        if (lblModoTicket != null) {
+            lblModoTicket.setText(conTicket
+                    ? "Se imprimira al confirmar"
+                    : "Solo se guardara la venta");
+        }
     }
 
     // ── Confirmar cobro ───────────────────────────────────────────────────
@@ -523,25 +620,25 @@ public class PagoController {
             stagePago.close();
             ventasController.ventaCompletada();
 
-            EmailTicketService emailTicketService = new EmailTicketService();
-            boolean imprimirTicket = chkImprimirTicket != null && chkImprimirTicket.isSelected();
-            if (imprimirTicket || emailTicketService.estaActivo()) {
+            boolean conTicket = ventaConTicket();
+            EmailTicketService emailTicketService = null;
+            Ticket ticket = null;
+
+            if (conTicket) {
+                emailTicketService = new EmailTicketService();
                 TicketService ticketService = new TicketService();
-                Ticket ticket = ticketService.generarDesdeDB(idVentaFinal);
+                ticket = ticketService.generarDesdeDB(idVentaFinal);
 
-                if (imprimirTicket) {
-                    try {
-                        ticketService.imprimir(ticket);
-                        try {
-                            new org.example.servicio.TicketImpresora().abrirCajon();
-                        } catch (Exception drawerError) {
-                            drawerError.printStackTrace();
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                try {
+                    ticketService.imprimir(ticket);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
+            }
 
+            abrirCajonSeguro();
+
+            if (conTicket && emailTicketService != null && ticket != null) {
                 if (emailTicketService.estaActivo()) {
                     enviarTicketPorCorreo(emailTicketService, ticket);
                 }
@@ -555,6 +652,14 @@ public class PagoController {
     @FXML
     public void handleCancelar() {
         ((Stage) btnConfirmar.getScene().getWindow()).close();
+    }
+
+    private void abrirCajonSeguro() {
+        try {
+            new TicketImpresora().abrirCajon();
+        } catch (Exception drawerError) {
+            drawerError.printStackTrace();
+        }
     }
 
     private double parse(String s) {

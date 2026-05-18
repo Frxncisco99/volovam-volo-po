@@ -129,6 +129,7 @@ public class ConfiguracionController {
     @FXML private SwitchToggle tglFolioTicket;
     @FXML private SwitchToggle tglDesglose;
     @FXML private SwitchToggle tglQR;
+    @FXML private SwitchToggle tglTicketPorDefecto;
     @FXML private ComboBox<String> cmbImpresora;
     @FXML private ComboBox<String> cmbAnchoPapel;
 
@@ -157,6 +158,8 @@ public class ConfiguracionController {
     @FXML private Label lblDBNombre;
     @FXML private Label lblDBVersion;
     @FXML private TextField txtRutaRespaldo;
+
+    static final String CLAVE_TICKET_POR_DEFECTO = "ticket_imprimir_por_defecto";
 
     private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
     private final FiscalDAO fiscalDAO = new FiscalDAO();
@@ -454,6 +457,7 @@ public class ConfiguracionController {
         guardarBoolean("ticket_folio", tglFolioTicket.isSelected());
         guardarBoolean("ticket_desglose", tglDesglose.isSelected());
         guardarBoolean("ticket_qr", tglQR.isSelected());
+        guardarBoolean(CLAVE_TICKET_POR_DEFECTO, tglTicketPorDefecto.isSelected());
     }
 
     private void guardarCajon() {
@@ -527,6 +531,7 @@ public class ConfiguracionController {
         tglFolioTicket.setSelected(leerBoolean("ticket_folio", true));
         tglDesglose.setSelected(leerBoolean("ticket_desglose", true));
         tglQR.setSelected(leerBoolean("ticket_qr", false));
+        tglTicketPorDefecto.setSelected(leerBoolean(CLAVE_TICKET_POR_DEFECTO, true));
     }
 
     private void cargarCajon() {
