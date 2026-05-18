@@ -643,8 +643,10 @@ public class InventarioController {
             stage.setResizable(false);
             stage.setTitle("Ajustar Stock — " + p.getNombre());
             stage.showAndWait();
-            cargarProductos();
-            toast("Stock actualizado para " + p.getNombre(), "success");
+            if (ctrl.isAjusteConfirmado()) {
+                cargarProductos();
+                toast("Stock actualizado para " + p.getNombre(), "success");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             toast("Error al ajustar stock", "error");
