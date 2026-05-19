@@ -97,8 +97,11 @@
                     <Button fx:id="btnTabBaseDatos" text="Sistema" onAction="#tabBaseDatos" graphicTextGap="8" styleClass="cfg-tab-button">
                         <graphic><FontIcon iconLiteral="fas-database" iconSize="13"/></graphic>
                     </Button>
+                    <Button fx:id="btnTabCatalogoWeb" text="Catalogo Web" onAction="#tabCatalogoWeb" graphicTextGap="8" styleClass="cfg-tab-button">
+                        <graphic><FontIcon iconLiteral="fas-cloud" iconSize="13"/></graphic>
+                    </Button>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="BD + Preferences" styleClass="nav-note-text"/>
+                    <Label text="BD + Web" styleClass="nav-note-text"/>
                 </HBox>
 
                 <ScrollPane fitToWidth="true" styleClass="config-scroll" VBox.vgrow="ALWAYS">
@@ -501,6 +504,156 @@
                                     <Button text="Exportar respaldo SQL" onAction="#exportarRespaldo" graphicTextGap="8" styleClass="primary-button">
                                         <graphic><FontIcon iconLiteral="fas-download" iconSize="13" iconColor="white"/></graphic>
                                     </Button>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <VBox fx:id="panelCatalogoWeb" spacing="18" visible="false" managed="false">
+                            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
+                                <FontIcon iconLiteral="fas-cloud" iconSize="20" iconColor="#0b3b75"/>
+                                <VBox>
+                                    <Label text="Catalogo Web" styleClass="section-title"/>
+                                    <Label text="Conexion segura con Supabase sin reemplazar la base local del POS." styleClass="section-subtitle"/>
+                                </VBox>
+                            </HBox>
+
+                            <GridPane hgap="18" vgap="18" styleClass="card-grid">
+                                <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+
+                                <VBox spacing="16" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-plug" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Conexion" styleClass="card-title"/>
+                                            <Label text="Solo se guarda anon key/public key. No uses service role key aqui." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <Label fx:id="lblWebEstadoConexion" text="Sin conexion" styleClass="cfg-status"/>
+                                    </HBox>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                                        <Label text="URL de Supabase" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtWebSupabaseUrl" promptText="https://xxxxx.supabase.co" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                                        <Label text="Anon key / public key" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <PasswordField fx:id="txtWebAnonKey" promptText="eyJ..." styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                                        <Label text="Proyecto / ref" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtWebProyecto" promptText="zuztthgztyssalendcnm" styleClass="cfg-field" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                        <Label text="Enlace inventario" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                                        <ComboBox fx:id="cmbWebModoEnlace" maxWidth="Infinity" styleClass="cfg-combo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                                        <Button fx:id="btnProbarConexionWeb" text="Probar conexion" onAction="#probarConexionWeb" graphicTextGap="8" styleClass="secondary-button">
+                                            <graphic><FontIcon iconLiteral="fas-signal" iconSize="13"/></graphic>
+                                        </Button>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="16" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-sync-alt" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Sincronizacion" styleClass="card-title"/>
+                                            <Label text="La base local sigue siendo principal; la web recibe una copia controlada." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <Label fx:id="lblWebEstadoSync" text="Pendiente" styleClass="cfg-status"/>
+                                    </HBox>
+                                    <GridPane hgap="10" vgap="10">
+                                        <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
+                                        <Button fx:id="btnWebSincronizarAhora" text="Sincronizar ahora" onAction="#sincronizarWebAhora" graphicTextGap="8" styleClass="primary-button" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                                            <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white"/></graphic>
+                                        </Button>
+                                        <Button fx:id="btnWebSubirInventario" text="Subir inventario local" onAction="#subirInventarioWeb" graphicTextGap="8" styleClass="secondary-button" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                            <graphic><FontIcon iconLiteral="fas-upload" iconSize="13"/></graphic>
+                                        </Button>
+                                        <Button fx:id="btnWebDescargarDatos" text="Descargar datos web" onAction="#descargarDatosWeb" graphicTextGap="8" styleClass="secondary-button" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                                            <graphic><FontIcon iconLiteral="fas-download" iconSize="13"/></graphic>
+                                        </Button>
+                                        <Button fx:id="btnWebVerPendientes" text="Ver pendientes" onAction="#verPendientesWeb" graphicTextGap="8" styleClass="secondary-button" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                            <graphic><FontIcon iconLiteral="fas-list" iconSize="13"/></graphic>
+                                        </Button>
+                                    </GridPane>
+                                    <GridPane hgap="14" vgap="10" styleClass="details-grid">
+                                        <columnConstraints><ColumnConstraints percentWidth="42"/><ColumnConstraints percentWidth="58"/></columnConstraints>
+                                        <Label text="Ultima sincronizacion" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <Label fx:id="lblWebUltimaSincronizacion" text="Sin registros" wrapText="true" styleClass="value-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                </VBox>
+
+                                <VBox spacing="16" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-store" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Catalogo" styleClass="card-title"/>
+                                            <Label text="Opciones de visibilidad para productos publicados." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Catalogo web activo" styleClass="option-title"/>
+                                            <Label text="Permite mantener publicada la copia web del inventario." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglWebCatalogoActivo"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Mostrar sin stock como agotado" styleClass="option-title"/>
+                                            <Label text="El catalogo puede mostrar la ficha, pero bloquear pedidos." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglWebMostrarAgotados"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Ocultar productos sin stock" styleClass="option-title"/>
+                                            <Label text="Si se activa, los productos con stock 0 no aparecen." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglWebOcultarSinStock"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="16" styleClass="settings-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-shopping-bag" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox>
+                                            <Label text="Pedidos y contacto" styleClass="card-title"/>
+                                            <Label text="Parametros publicos usados por el catalogo y pedidos web." styleClass="card-subtitle"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Pedidos web activos" styleClass="option-title"/>
+                                            <Label text="Permite recibir pedidos desde el catalogo." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglWebPedidosActivos"/>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="inline-option">
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Entrega a domicilio" styleClass="option-title"/>
+                                            <Label text="Sincroniza la opcion domicilio con Supabase." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <SwitchToggle fx:id="tglWebDomicilioActivo"/>
+                                    </HBox>
+                                    <GridPane hgap="14" vgap="12">
+                                        <columnConstraints><ColumnConstraints percentWidth="35"/><ColumnConstraints percentWidth="65"/></columnConstraints>
+                                        <Label text="Costo envio" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtWebCostoEnvio" promptText="50.00" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label text="WhatsApp" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <TextField fx:id="txtWebWhatsapp" promptText="528771001603" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        <Label text="Facebook" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtWebFacebook" promptText="https://facebook.com/VolovanVoloPyR" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                                    </GridPane>
+                                </VBox>
+
+                                <VBox spacing="16" styleClass="settings-card" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="card-header">
+                                        <FontIcon iconLiteral="fas-link" iconSize="18" iconColor="#0b3b75"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Label text="Mapeo con inventario local" styleClass="card-title"/>
+                                            <Label text="Se evita duplicar productos usando id_producto o codigo_barras como referencia web." styleClass="card-subtitle"/>
+                                        </VBox>
+                                        <Button fx:id="btnWebGenerarEnlaces" text="Generar enlaces automaticos" onAction="#generarEnlacesWeb" graphicTextGap="8" styleClass="secondary-button">
+                                            <graphic><FontIcon iconLiteral="fas-magic" iconSize="13"/></graphic>
+                                        </Button>
+                                    </HBox>
+                                    <Label fx:id="lblWebAdvertenciaMapeo" text="Sin datos de mapeo cargados." wrapText="true" styleClass="info-note"/>
                                 </VBox>
                             </GridPane>
                         </VBox>
