@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
@@ -24,6 +25,7 @@ import org.example.servicio.TicketService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,23 +92,12 @@ public class PagoController {
     private double saldoCliente = 0;
     private String metodoPago = "EFECTIVO";
 
-    // Estilos de botones
-    private static final String ESTILO_ACTIVO =
-            "-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 12px;" +
-                    "-fx-font-weight: bold; -fx-background-radius: 10;" +
-                    "-fx-border-color: #2563eb; -fx-border-width: 2; -fx-border-radius: 10; -fx-cursor: hand;";
-    private static final String ESTILO_INACTIVO =
-            "-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;" +
-                    "-fx-background-radius: 10; -fx-border-color: #c8d8e8;" +
-                    "-fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;";
-    private static final String ESTILO_TICKET_ACTIVO =
-            "-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 12px;" +
-                    "-fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #2563eb;" +
-                    "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;";
-    private static final String ESTILO_TICKET_INACTIVO =
-            "-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;" +
-                    "-fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #c8d8e8;" +
-                    "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;";
+    private static final String METODO_ACTIVO = "pago-method-button-active";
+    private static final String METODO_INACTIVO = "pago-method-button";
+    private static final String TICKET_ACTIVO = "pago-ticket-toggle-active";
+    private static final String TICKET_INACTIVO = "pago-ticket-toggle";
+    private static final String CAMBIO_OK = "pago-change-box";
+    private static final String CAMBIO_ALERTA = "pago-change-box-warning";
 
     @FXML
     private void initialize() {
@@ -149,7 +140,7 @@ public class PagoController {
             btnFiado.setDisable(disponible < total);
         } else {
             btnFiado.setDisable(true);
-            btnFiado.setStyle(ESTILO_INACTIVO + "; -fx-opacity: 0.45;");
+            aplicarClaseMetodo(btnFiado, false);
         }
 
         // ── Listener efectivo ──────────────────────────────────────────────
@@ -158,19 +149,10 @@ public class PagoController {
                 double recibido = Double.parseDouble(nuevo);
                 double cambio   = recibido - total;
                 lblCambio.setText("$" + String.format("%.2f", Math.max(cambio, 0)));
-                // Color fondo verde si alcanza, rojo si no
-                cajasCambio.setStyle(cajasCambio.getStyle()
-                        .replace("-fx-background-color: #22c55e;", "")
-                        .replace("-fx-background-color: #ef4444;", "")
-                );
-                if (cambio >= 0) {
-                    cajasCambio.setStyle("-fx-background-color: #22c55e; -fx-background-radius: 10; -fx-padding: 14 16; -fx-min-width: 160; -fx-min-height: 72;");
-                } else {
-                    cajasCambio.setStyle("-fx-background-color: #ef4444; -fx-background-radius: 10; -fx-padding: 14 16; -fx-min-width: 160; -fx-min-height: 72;");
-                }
+                actualizarCajaCambio(cambio >= 0);
             } catch (NumberFormatException e) {
                 lblCambio.setText("$0.00");
-                cajasCambio.setStyle("-fx-background-color: #22c55e; -fx-background-radius: 10; -fx-padding: 14 16; -fx-min-width: 160; -fx-min-height: 72;");
+                actualizarCajaCambio(true);
             }
         });
 
@@ -181,10 +163,10 @@ public class PagoController {
                 double tar = parse(txtTarjetaMixto.getText());
                 double cambio = (ef + tar) - total;
                 lblCambioMixto.setText("$" + String.format("%.2f", Math.max(cambio, 0)));
-                lblCambioMixto.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " +
-                        (cambio >= 0 ? "#22c55e" : "#ef4444") + ";");
+                pintarResultado(lblCambioMixto, cambio >= 0);
             } catch (NumberFormatException e) {
                 lblCambioMixto.setText("$0.00");
+                pintarResultado(lblCambioMixto, true);
             }
         };
         txtEfectivoMixto.textProperty().addListener((obs, o, n) -> calcularMixto.run());
@@ -198,11 +180,11 @@ public class PagoController {
                 double cambio  = enPesos - total;
                 lblCambioDolares.setText("$" + String.format("%.2f", Math.max(cambio, 0)) +
                         " MXN  (" + String.format("%.2f", Math.max(cambio / tipoCambioDolar, 0)) + " USD)");
-                lblCambioDolares.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " +
-                        (cambio >= 0 ? "#22c55e" : "#ef4444") + ";");
+                pintarResultado(lblCambioDolares, cambio >= 0);
                 lblEquivalentePesos.setText("≈ $" + String.format("%.2f", enPesos) + " MXN");
             } catch (NumberFormatException e) {
                 lblCambioDolares.setText("$0.00");
+                pintarResultado(lblCambioDolares, true);
                 lblEquivalentePesos.setText("");
             }
         });
@@ -217,11 +199,11 @@ public class PagoController {
                 double cambio  = suma - total;
                 lblEquivalenteMixtoUSD.setText("Dólares equivalen a: $" + String.format("%.2f", enPesos) + " MXN");
                 lblCambioMixtoUSD.setText("$" + String.format("%.2f", Math.max(cambio, 0)) + " MXN");
-                lblCambioMixtoUSD.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " +
-                        (cambio >= 0 ? "#22c55e" : "#ef4444") + ";");
+                pintarResultado(lblCambioMixtoUSD, cambio >= 0);
             } catch (NumberFormatException e) {
                 lblEquivalenteMixtoUSD.setText("");
                 lblCambioMixtoUSD.setText("$0.00");
+                pintarResultado(lblCambioMixtoUSD, true);
             }
         };
         txtPesosMixtoUSD.textProperty().addListener((obs, o, n)   -> calcularMixtoUSD.run());
@@ -265,9 +247,8 @@ public class PagoController {
     private void resaltarBoton(Button activo) {
         for (Button b : new Button[]{btnEfectivo, btnTarjeta, btnTransferencia,
                 btnDolares, btnMixtoUSD, btnMixto, btnFiado, btnOtros}) {
-            b.setStyle(ESTILO_INACTIVO);
+            aplicarClaseMetodo(b, b == activo);
         }
-        activo.setStyle(ESTILO_ACTIVO);
     }
 
     // ── Selectores de método ──────────────────────────────────────────────
@@ -381,8 +362,8 @@ public class PagoController {
         }
 
         boolean conTicket = ventaConTicket();
-        btnConTicket.setStyle(conTicket ? ESTILO_TICKET_ACTIVO : ESTILO_TICKET_INACTIVO);
-        btnSinTicket.setStyle(conTicket ? ESTILO_TICKET_INACTIVO : ESTILO_TICKET_ACTIVO);
+        aplicarClaseTicket(btnConTicket, conTicket);
+        aplicarClaseTicket(btnSinTicket, !conTicket);
 
         if (lblModoTicket != null) {
             lblModoTicket.setText(conTicket
@@ -392,6 +373,39 @@ public class PagoController {
     }
 
     // ── Confirmar cobro ───────────────────────────────────────────────────
+    private void aplicarClaseMetodo(Button boton, boolean activo) {
+        if (boton == null) return;
+        boton.setStyle("");
+        boton.getStyleClass().removeAll(METODO_ACTIVO, METODO_INACTIVO);
+        String clase = activo ? METODO_ACTIVO : METODO_INACTIVO;
+        if (!boton.getStyleClass().contains(clase)) {
+            boton.getStyleClass().add(clase);
+        }
+    }
+
+    private void aplicarClaseTicket(ToggleButton boton, boolean activo) {
+        if (boton == null) return;
+        boton.setStyle("");
+        boton.getStyleClass().removeAll(TICKET_ACTIVO, TICKET_INACTIVO);
+        String clase = activo ? TICKET_ACTIVO : TICKET_INACTIVO;
+        if (!boton.getStyleClass().contains(clase)) {
+            boton.getStyleClass().add(clase);
+        }
+    }
+
+    private void actualizarCajaCambio(boolean suficiente) {
+        if (cajasCambio == null) return;
+        cajasCambio.setStyle("");
+        cajasCambio.getStyleClass().removeAll(CAMBIO_OK, CAMBIO_ALERTA);
+        cajasCambio.getStyleClass().add(suficiente ? CAMBIO_OK : CAMBIO_ALERTA);
+    }
+
+    private void pintarResultado(Label label, boolean positivo) {
+        if (label != null) {
+            label.setTextFill(Paint.valueOf(positivo ? "#22c55e" : "#ef4444"));
+        }
+    }
+
     @FXML
     public void handleConfirmar() {
         double montoEfectivo = 0;
@@ -484,7 +498,11 @@ public class PagoController {
 
     // ── Guardar venta en BD ───────────────────────────────────────────────
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
-        try (Connection con = ConexionDB.getConexion()) {
+        int idVentaFinal = 0;
+        Connection con = null;
+
+        try {
+            con = ConexionDB.getConexion();
             con.setAutoCommit(false);
             ResumenCalculoFiscal resumenFiscal = new ImpuestoService().calcularCarrito(carrito);
             if (resumenFiscal.getTotal().doubleValue() > 0) {
@@ -500,28 +518,36 @@ public class PagoController {
             String sqlVenta = tieneFechaHora
                     ? "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado, fecha_hora) VALUES (?, ?, ?, ?, ?, 'COMPLETADA', NOW())"
                     : "INSERT INTO ventas (total, id_usuario, id_caja, id_cliente, metodo_pago, estado) VALUES (?, ?, ?, ?, ?, 'COMPLETADA')";
-            PreparedStatement psVenta = con.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
-            psVenta.setDouble(1, total);
-            psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
-            psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
-            psVenta.setInt(4, idCliente);
-            psVenta.setString(5, metodoPago);
-            psVenta.executeUpdate();
+            try (PreparedStatement psVenta = con.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
+                psVenta.setDouble(1, total);
+                psVenta.setInt(2, SesionUsuario.getInstancia().getIdUsuario());
+                psVenta.setInt(3, SesionUsuario.getInstancia().getIdCaja());
+                psVenta.setInt(4, idCliente);
+                psVenta.setString(5, metodoPago);
+                psVenta.executeUpdate();
 
-            ResultSet rs = psVenta.getGeneratedKeys();
-            rs.next();
-            int idVenta = rs.getInt(1);
-            actualizarFiscalVenta(con, idVenta, resumenFiscal);
+                try (ResultSet rs = psVenta.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("No se pudo obtener el folio de la venta.");
+                    }
+                    idVentaFinal = rs.getInt(1);
+                }
+            }
+            actualizarFiscalVenta(con, idVentaFinal, resumenFiscal);
 
             // 2. Detalle + movimientos + stock (en ese orden)
             InventarioMovimientoService invService = InventarioMovimientoService.get();
             boolean detalleFiscal = columnaExiste(con, "detalle_venta", "impuesto_clave");
 
             for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
-                int    idProducto = entry.getKey();
-                double precio     = (double) entry.getValue()[1];
-                int    cantidad   = (int)    entry.getValue()[2];
-                double subtotal   = precio * cantidad;
+                int idProducto = entry.getKey();
+                Object[] item = entry.getValue();
+                String nombreProducto = item[0] == null ? "Producto #" + idProducto : item[0].toString();
+                double precio = (double) item[1];
+                int cantidad = (int) item[2];
+                double subtotal = precio * cantidad;
+
+                bloquearProductoParaVenta(con, idProducto, cantidad, nombreProducto);
 
                 // Detalle de venta
                 LineaCalculoFiscal lineaFiscal = lineasFiscales.get(idProducto);
@@ -533,7 +559,7 @@ public class PagoController {
                                 subtotal_sin_impuesto, descuento, impuesto_importe, total_linea
                             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """)) {
-                        psDetalle.setInt(1, idVenta);
+                        psDetalle.setInt(1, idVentaFinal);
                         psDetalle.setInt(2, idProducto);
                         psDetalle.setInt(3, cantidad);
                         psDetalle.setDouble(4, precio);
@@ -553,7 +579,7 @@ public class PagoController {
                 } else {
                     try (PreparedStatement psDetalle = con.prepareStatement(
                             "INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)")) {
-                        psDetalle.setInt(1, idVenta);
+                        psDetalle.setInt(1, idVentaFinal);
                         psDetalle.setInt(2, idProducto);
                         psDetalle.setInt(3, cantidad);
                         psDetalle.setDouble(4, precio);
@@ -564,58 +590,61 @@ public class PagoController {
 
                 // Registrar movimiento ANTES de descontar stock
                 // (así obtenerStock() lee el stock correcto todavía)
-                try {
-                    invService.registrar(con, idProducto,
-                            InventarioMovimientoService.TipoMovimiento.VENTA,
-                            cantidad, idVenta, "VENTA",
-                            "Venta " + FolioService.venta(idVenta));
-                } catch (Exception ex) {
-                    ex.printStackTrace(); // no rompe la venta si falla el log
-                }
+                invService.registrar(con, idProducto,
+                        InventarioMovimientoService.TipoMovimiento.VENTA,
+                        cantidad, idVentaFinal, "VENTA",
+                        "Venta " + FolioService.venta(idVentaFinal));
 
                 // Descontar stock
-                PreparedStatement psStock = con.prepareStatement(
-                        "UPDATE productos SET stock = stock - ? WHERE id_producto = ?");
-                psStock.setInt(1, cantidad);
-                psStock.setInt(2, idProducto);
-                psStock.executeUpdate();
+                descontarStockVenta(con, idProducto, cantidad, nombreProducto);
             }
 
             // 3. Fiado o pago normal
             if (metodoPago.equals("FIADO")) {
-                PreparedStatement psSaldo = con.prepareStatement(
-                        "UPDATE clientes SET saldo_actual = saldo_actual + ? WHERE id_cliente = ?");
-                psSaldo.setDouble(1, total);
-                psSaldo.setInt(2, idCliente);
-                psSaldo.executeUpdate();
+                try (PreparedStatement psSaldo = con.prepareStatement(
+                        "UPDATE clientes SET saldo_actual = saldo_actual + ? WHERE id_cliente = ?")) {
+                    psSaldo.setDouble(1, total);
+                    psSaldo.setInt(2, idCliente);
+                    psSaldo.executeUpdate();
+                }
 
-                PreparedStatement psCargo = con.prepareStatement(
-                        "INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas) VALUES (?, ?, 'CARGO', ?, 'Venta a credito')");
-                psCargo.setInt(1, idCliente);
-                psCargo.setDouble(2, total);
-                psCargo.setInt(3, idVenta);
-                psCargo.executeUpdate();
+                try (PreparedStatement psCargo = con.prepareStatement(
+                        "INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas) VALUES (?, ?, 'CARGO', ?, 'Venta a credito')")) {
+                    psCargo.setInt(1, idCliente);
+                    psCargo.setDouble(2, total);
+                    psCargo.setInt(3, idVentaFinal);
+                    psCargo.executeUpdate();
+                }
             } else {
-                PreparedStatement psPago = con.prepareStatement(
-                        "INSERT INTO pagos (id_venta, tipo_pago, monto_recibido, cambio) VALUES (?, ?, ?, ?)");
-                psPago.setInt(1, idVenta);
-                psPago.setString(2, tipoPagoParaBD());
-                psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
-                psPago.setDouble(4, cambio);
-                psPago.executeUpdate();
-                registrarDetallePago(con, idVenta, montoEfectivo, montoTarjeta);
+                try (PreparedStatement psPago = con.prepareStatement(
+                        "INSERT INTO pagos (id_venta, tipo_pago, monto_recibido, cambio) VALUES (?, ?, ?, ?)")) {
+                    psPago.setInt(1, idVentaFinal);
+                    psPago.setString(2, tipoPagoParaBD());
+                    psPago.setDouble(3, montoRegistradoEnPago(montoEfectivo, montoTarjeta));
+                    psPago.setDouble(4, cambio);
+                    psPago.executeUpdate();
+                }
+                registrarDetallePago(con, idVentaFinal, montoEfectivo, montoTarjeta);
             }
 
             con.commit();
+        } catch (Exception e) {
+            rollbackSilencioso(con);
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo guardar la venta.\n" + mensajeError(e));
+            return;
+        } finally {
+            cerrarConexion(con);
+        }
 
             // Auditoría (fuera de transacción)
             AuditoriaService.get().registrar(
-                    "VENTA", "ventas", idVenta,
+                    "VENTA", "ventas", idVentaFinal,
                     String.format("Venta %s — Total: $%.2f — Método: %s — Cliente ID: %d",
-                            FolioService.venta(idVenta), total, metodoPago, idCliente)
+                            FolioService.venta(idVentaFinal), total, metodoPago, idCliente)
             );
 
-            int idVentaFinal = idVenta;
+        try {
             Stage stagePago = (Stage) btnConfirmar.getScene().getWindow();
             stagePago.close();
             ventasController.ventaCompletada();
@@ -646,7 +675,7 @@ public class PagoController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo guardar la venta.");
+            mostrarAlerta("Venta guardada", "La venta se guardo, pero fallo una accion posterior.\n" + mensajeError(e));
         }
     }
     @FXML
@@ -663,34 +692,49 @@ public class PagoController {
     }
 
     private double parse(String s) {
-        return (s == null || s.isEmpty()) ? 0.0 : Double.parseDouble(s);
+        String texto = s == null ? "" : s.trim();
+        return texto.isEmpty() ? 0.0 : Double.parseDouble(texto);
     }
 
-    private void registrarDetallePago(Connection con, int idVenta, double montoEfectivo, double montoTarjeta) {
+    private void registrarDetallePago(Connection con, int idVenta, double montoEfectivo, double montoTarjeta) throws Exception {
+        if (!tablaExiste(con, "detalle_pago")) {
+            return;
+        }
         String sql = "INSERT INTO detalle_pago (id_venta, metodo_pago, monto, referencia) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             switch (metodoPago) {
                 case "EFECTIVO" -> agregarDetallePago(ps, idVenta, "EFECTIVO", total, null);
-                case "TARJETA" -> agregarDetallePago(ps, idVenta, "TARJETA", total, null);
-                case "TRANSFERENCIA" -> agregarDetallePago(ps, idVenta, "TRANSFERENCIA", total, null);
+                case "TARJETA" -> agregarDetallePago(ps, idVenta, "TARJETA", total, textoReferencia(txtReferencia));
+                case "TRANSFERENCIA" -> agregarDetallePago(ps, idVenta, "TRANSFERENCIA", total, textoReferencia(txtReferenciaTransferencia));
                 case "MIXTO" -> {
                     double efectivoAplicado = Math.min(montoEfectivo, total);
                     if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, null);
                     double restante = Math.max(total - efectivoAplicado, 0);
-                    if (restante > 0) agregarDetallePago(ps, idVenta, "TARJETA", restante, null);
+                    if (restante > 0) agregarDetallePago(ps, idVenta, "TARJETA", restante, textoReferencia(txtReferencia));
                 }
-                case "DOLARES" -> agregarDetallePago(ps, idVenta, "DOLARES", total, "Equivalente MXN");
+                case "DOLARES" -> agregarDetallePago(ps, idVenta, "DOLARES", total,
+                        String.format("%.2f USD @ %.2f", parse(txtDolaresRecibidos.getText()), tipoCambioDolar));
                 case "MIXTO_USD" -> {
-                    double efectivoAplicado = Math.min(montoEfectivo, total);
-                    if (efectivoAplicado > 0) agregarDetallePago(ps, idVenta, "EFECTIVO", efectivoAplicado, "MXN/USD");
+                    double pesos = parse(txtPesosMixtoUSD.getText());
+                    double dolares = parse(txtDolaresMixtoUSD.getText());
+                    double dolaresEnPesos = dolares * tipoCambioDolar;
+                    double restante = total;
+                    double pesosAplicados = Math.min(pesos, restante);
+                    if (pesosAplicados > 0) {
+                        agregarDetallePago(ps, idVenta, "EFECTIVO", pesosAplicados, "MXN");
+                        restante -= pesosAplicados;
+                    }
+                    double dolaresAplicados = Math.min(dolaresEnPesos, Math.max(restante, 0));
+                    if (dolaresAplicados > 0) {
+                        agregarDetallePago(ps, idVenta, "DOLARES", dolaresAplicados,
+                                String.format("%.2f USD @ %.2f", dolares, tipoCambioDolar));
+                    }
                 }
-                case "OTROS" -> agregarDetallePago(ps, idVenta, "OTROS", total, null);
+                case "OTROS" -> agregarDetallePago(ps, idVenta, "OTROS", total, textoReferencia(txtOtrosDescripcion));
                 default -> {
                 }
             }
             ps.executeBatch();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -700,6 +744,13 @@ public class PagoController {
         ps.setDouble(3, monto);
         ps.setString(4, referencia);
         ps.addBatch();
+    }
+
+    private String textoReferencia(TextField campo) {
+        if (campo == null || campo.getText() == null || campo.getText().trim().isEmpty()) {
+            return null;
+        }
+        return campo.getText().trim();
     }
 
     private void actualizarFiscalVenta(Connection con, int idVenta, ResumenCalculoFiscal resumen) {
@@ -735,8 +786,75 @@ public class PagoController {
         }
     }
 
+    private boolean tablaExiste(Connection con, String tabla) {
+        try (ResultSet rs = con.getMetaData().getTables(con.getCatalog(), null, tabla, null)) {
+            return rs.next();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void bloquearProductoParaVenta(Connection con, int idProducto, int cantidad, String nombreProducto) throws SQLException {
+        String sql = "SELECT stock FROM productos WHERE id_producto = ? FOR UPDATE";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProducto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new SQLException("Producto no encontrado: " + nombreProducto);
+                }
+                int stock = rs.getInt("stock");
+                if (stock < cantidad) {
+                    throw new IllegalStateException(
+                            "Stock insuficiente para " + nombreProducto + ". Disponible: " + stock + ", solicitado: " + cantidad
+                    );
+                }
+            }
+        }
+    }
+
+    private void descontarStockVenta(Connection con, int idProducto, int cantidad, String nombreProducto) throws SQLException {
+        String sql = "UPDATE productos SET stock = stock - ? WHERE id_producto = ? AND stock >= ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cantidad);
+            ps.setInt(2, idProducto);
+            ps.setInt(3, cantidad);
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("No se pudo descontar stock para " + nombreProducto + ".");
+            }
+        }
+    }
+
+    private void rollbackSilencioso(Connection con) {
+        if (con == null) return;
+        try {
+            con.rollback();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void cerrarConexion(Connection con) {
+        if (con == null) return;
+        try {
+            con.setAutoCommit(true);
+        } catch (Exception ignored) {
+        }
+        try {
+            con.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private String mensajeError(Exception e) {
+        return e.getMessage() == null || e.getMessage().isBlank()
+                ? "Ocurrio un error inesperado."
+                : e.getMessage();
+    }
+
     private double montoRegistradoEnPago(double montoEfectivo, double montoTarjeta) {
-        if ("MIXTO".equals(metodoPago) || "MIXTO_USD".equals(metodoPago)) {
+        if ("MIXTO".equals(metodoPago)) {
+            return montoEfectivo + montoTarjeta;
+        }
+        if ("MIXTO_USD".equals(metodoPago)) {
             return montoEfectivo;
         }
         return montoEfectivo + montoTarjeta;

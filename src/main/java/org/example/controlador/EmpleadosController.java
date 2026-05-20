@@ -12,15 +12,18 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.MarcaService;
 import org.example.servicio.PasswordService;
+import org.example.servicio.PermisoService;
 import org.example.servicio.UsuarioSeguridadService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -155,30 +158,16 @@ public class  EmpleadosController {
         VBox card = new VBox();
         card.setPrefWidth(260);
         card.setMaxWidth(260);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 16; " +
-                "-fx-border-color: #E8DDD0; -fx-border-width: 1; -fx-border-radius: 16; " +
-                "-fx-effect: dropshadow(gaussian,rgba(61,31,13,0.10),12,0,0,3);");
-
-        // Hover effect
-        card.setOnMouseEntered(e -> card.setStyle(card.getStyle().replace(
-                "dropshadow(gaussian,rgba(61,31,13,0.10),12,0,0,3)",
-                "dropshadow(gaussian,rgba(61,31,13,0.20),24,0,0,6)")));
-        card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace(
-                "dropshadow(gaussian,rgba(61,31,13,0.20),24,0,0,6)",
-                "dropshadow(gaussian,rgba(61,31,13,0.10),12,0,0,3)")));
+        card.getStyleClass().add("empleado-card");
 
         // Header con gradiente
         StackPane header = new StackPane();
         header.setPrefHeight(90);
-        header.setStyle("-fx-background-color: linear-gradient(to bottom right, #3D1F0D, #6B4226); " +
-                "-fx-background-radius: 16 16 0 0;");
+        header.getStyleClass().add("empleado-card-header");
 
         // Badge rol
         Label rolBadge = new Label(rol);
-        rolBadge.setStyle("-fx-background-color: rgba(212,168,67,0.22); -fx-text-fill: #D4A843; " +
-                "-fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 20; " +
-                "-fx-border-color: rgba(212,168,67,0.35); -fx-border-width: 1; -fx-border-radius: 20; " +
-                "-fx-padding: 3 10;");
+        rolBadge.getStyleClass().add("empleado-role-badge");
         StackPane.setAlignment(rolBadge, Pos.TOP_RIGHT);
         StackPane.setMargin(rolBadge, new Insets(10, 10, 0, 0));
 
@@ -192,18 +181,12 @@ public class  EmpleadosController {
         Label avatar = new Label(ini);
         avatar.setPrefSize(54, 54);
         avatar.setMaxSize(54, 54);
-        avatar.setStyle("-fx-background-color: #D4A843; -fx-text-fill: #6B4226; " +
-                "-fx-font-weight: bold; -fx-font-size: 18px; -fx-background-radius: 27; " +
-                "-fx-border-color: rgba(255,255,255,0.25); -fx-border-width: 2.5; -fx-border-radius: 27; " +
-                "-fx-alignment: center; -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.25),8,0,0,2);");
+        avatar.getStyleClass().add("empleado-avatar");
         StackPane.setAlignment(avatar, Pos.BOTTOM_LEFT);
         StackPane.setMargin(avatar, new Insets(0, 0, -20, 16));
 
-        // Badge estado
-        Label estadoBadge = new Label(activo ? "● Activo" : "○ Inactivo");
-        estadoBadge.setStyle(activo
-                ? "-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 3 10;"
-                : "-fx-background-color: #FFF3E0; -fx-text-fill: #E65100; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 3 10;");
+        Label estadoBadge = new Label(activo ? "Activo" : "Inactivo");
+        estadoBadge.getStyleClass().add(activo ? "empleado-status-active" : "empleado-status-inactive");
         StackPane.setAlignment(estadoBadge, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(estadoBadge, new Insets(0, 10, 8, 0));
 
@@ -211,68 +194,53 @@ public class  EmpleadosController {
 
         // Contenido
         VBox body = new VBox(4);
-        body.setPadding(new Insets(28, 16, 8, 16));
+        body.getStyleClass().add("empleado-card-body");
 
         Label lblNombre = new Label(nombre);
-        lblNombre.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C1A0E;");
+        lblNombre.getStyleClass().add("empleado-name");
         lblNombre.setWrapText(true);
 
         Label lblUsuario = new Label("@" + usuario);
-        lblUsuario.setStyle("-fx-font-size: 12px; -fx-text-fill: #7A5535;");
+        lblUsuario.getStyleClass().add("empleado-user");
 
         body.getChildren().addAll(lblNombre, lblUsuario);
 
         // Chips
         HBox chips = new HBox(8);
-        chips.setPadding(new Insets(8, 16, 8, 16));
-        chips.setStyle("-fx-border-color: #F0E8DC; -fx-border-width: 1 0 0 0;");
+        chips.getStyleClass().add("empleado-chip-row");
 
         Label chipId  = crearChip("# ID " + id);
-        Label chipRol = crearChip("🎭 " + rol);
+        Label chipRol = crearChip("Rol: " + rol);
         chips.getChildren().addAll(chipId, chipRol);
 
         // Acciones
         HBox acciones = new HBox(8);
-        acciones.setPadding(new Insets(8, 16, 14, 16));
+        acciones.getStyleClass().add("empleado-actions");
         acciones.setAlignment(Pos.CENTER_LEFT);
 
-        Button btnEditar = new Button("✏  Editar");
+        Button btnEditar = new Button("Editar");
         btnEditar.setPrefHeight(32);
-        btnEditar.setStyle("-fx-background-color: transparent; -fx-text-fill: #6B4226; " +
-                "-fx-border-color: #6B4226; -fx-border-width: 1.5; -fx-border-radius: 8; " +
-                "-fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: bold; -fx-cursor: hand;");
+        btnEditar.setGraphic(crearIcono("fas-pen"));
+        btnEditar.setGraphicTextGap(8);
+        btnEditar.getStyleClass().add("empleado-edit-button");
         HBox.setHgrow(btnEditar, Priority.ALWAYS);
         btnEditar.setMaxWidth(Double.MAX_VALUE);
-        btnEditar.setOnMouseEntered(e -> btnEditar.setStyle(btnEditar.getStyle()
-                .replace("-fx-background-color: transparent;", "-fx-background-color: #6B4226;")
-                .replace("-fx-text-fill: #6B4226;", "-fx-text-fill: white;")));
-        btnEditar.setOnMouseExited(e -> btnEditar.setStyle(btnEditar.getStyle()
-                .replace("-fx-background-color: #6B4226;", "-fx-background-color: transparent;")
-                .replace("-fx-text-fill: white;", "-fx-text-fill: #6B4226;")));
         btnEditar.setOnAction(e -> mostrarDialogoEmpleado(Integer.parseInt(id), nombre, usuario, rol));
 
-        // Botón activar/desactivar
-        Button btnToggle = new Button(activo ? "⏸" : "▶");
+        // Boton activar/desactivar
+        Button btnToggle = new Button();
         btnToggle.setPrefSize(32, 32);
-        btnToggle.setStyle("-fx-background-color: transparent; -fx-border-color: #D4C9B0; " +
-                "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; " +
-                "-fx-font-size: 13px; -fx-cursor: hand;");
+        btnToggle.setGraphic(crearIcono(activo ? "fas-pause" : "fas-play"));
+        btnToggle.getStyleClass().add("empleado-icon-button");
         btnToggle.setTooltip(new Tooltip(activo ? "Desactivar empleado" : "Activar empleado"));
         btnToggle.setOnAction(e -> toggleEstado(Integer.parseInt(id), nombre, activo));
 
-        // Botón eliminar
-        Button btnEliminar = new Button("🗑");
+        // Boton eliminar
+        Button btnEliminar = new Button();
         btnEliminar.setPrefSize(32, 32);
-        btnEliminar.setStyle("-fx-background-color: transparent; -fx-border-color: #D4C9B0; " +
-                "-fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; " +
-                "-fx-font-size: 13px; -fx-cursor: hand;");
+        btnEliminar.setGraphic(crearIcono("fas-trash-alt"));
+        btnEliminar.getStyleClass().add("empleado-danger-button");
         btnEliminar.setTooltip(new Tooltip("Eliminar empleado"));
-        btnEliminar.setOnMouseEntered(e -> btnEliminar.setStyle(btnEliminar.getStyle()
-                .replace("-fx-border-color: #D4C9B0;", "-fx-border-color: #C0392B;")
-                .replace("-fx-background-color: transparent;", "-fx-background-color: #FFF5F5;")));
-        btnEliminar.setOnMouseExited(e -> btnEliminar.setStyle(btnEliminar.getStyle()
-                .replace("-fx-border-color: #C0392B;", "-fx-border-color: #D4C9B0;")
-                .replace("-fx-background-color: #FFF5F5;", "-fx-background-color: transparent;")));
         btnEliminar.setOnAction(e -> eliminarEmpleado(Integer.parseInt(id), nombre));
 
         acciones.getChildren().addAll(btnEditar, btnToggle, btnEliminar);
@@ -283,14 +251,23 @@ public class  EmpleadosController {
 
     private Label crearChip(String texto) {
         Label chip = new Label(texto);
-        chip.setStyle("-fx-background-color: #F5EFE6; -fx-text-fill: #7A5535; -fx-font-size: 11px; " +
-                "-fx-background-radius: 6; -fx-border-color: #E8DDD0; -fx-border-width: 1; " +
-                "-fx-border-radius: 6; -fx-padding: 3 10;");
+        chip.getStyleClass().add("empleado-chip");
         return chip;
+    }
+
+    private FontIcon crearIcono(String iconLiteral) {
+        FontIcon icon = new FontIcon(iconLiteral);
+        icon.setIconSize(12);
+        return icon;
     }
 
     // Toggle activo/inactivo
     private void toggleEstado(int id, String nombre, boolean estaActivo) {
+        String permiso = estaActivo ? PermisoService.USUARIOS_DESACTIVAR : PermisoService.USUARIOS_EDITAR;
+        String accion = (estaActivo ? "Desactivar" : "Activar") + " empleado " + nombre;
+        if (!requerirPermiso(permiso, accion)) {
+            return;
+        }
         if (estaActivo && !usuarioSeguridadService.puedeDesactivarUsuario(id)) {
             mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
             return;
@@ -323,29 +300,45 @@ public class  EmpleadosController {
         mostrarDialogoEmpleado(0, "", "", "cajero");
     }
 
+    private void aplicarEstilosDialogo(Dialog<?> dialog) {
+        java.net.URL css = getClass().getResource("/org/example/vista/menuPrincipal.css");
+        if (css != null) {
+            dialog.getDialogPane().getStylesheets().add(css.toExternalForm());
+        }
+        dialog.getDialogPane().getStyleClass().add("empleado-dialog");
+    }
+
     private void mostrarDialogoEmpleado(int id, String nombre, String usuario, String rol) {
+        boolean nuevo = id == 0;
+        String permiso = nuevo ? PermisoService.USUARIOS_CREAR : PermisoService.USUARIOS_EDITAR;
+        String accion = nuevo ? "Crear empleado" : "Editar empleado " + nombre;
+        if (!requerirPermiso(permiso, accion)) {
+            return;
+        }
+
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle(id == 0 ? "Nuevo empleado" : "Editar empleado");
+        dialog.setTitle(nuevo ? "Nuevo empleado" : "Editar empleado");
+        aplicarEstilosDialogo(dialog);
 
         VBox contenido = new VBox(12);
-        contenido.setStyle("-fx-padding: 20;");
+        contenido.getStyleClass().add("empleado-dialog-content");
 
         TextField txtNombre = new TextField(nombre);
         txtNombre.setPromptText("Nombre completo");
-        txtNombre.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+        txtNombre.getStyleClass().add("empleado-dialog-input");
 
         TextField txtUsuario = new TextField(usuario);
         txtUsuario.setPromptText("Usuario");
-        txtUsuario.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+        txtUsuario.getStyleClass().add("empleado-dialog-input");
 
         PasswordField txtPassword = new PasswordField();
         txtPassword.setPromptText(id == 0 ? "Contraseña" : "Nueva contraseña (dejar vacío para no cambiar)");
-        txtPassword.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+        txtPassword.getStyleClass().add("empleado-dialog-input");
 
         ComboBox<String> cmbRol = new ComboBox<>();
-        cmbRol.getItems().addAll("admin", "cajero");
+        cmbRol.getItems().addAll("admin", "cajero", "supervisor");
         cmbRol.setValue(rol);
-        cmbRol.setStyle("-fx-background-radius: 8;");
+        cmbRol.getStyleClass().add("empleado-dialog-input");
 
         contenido.getChildren().addAll(
                 new Label("Nombre:"), txtNombre,
@@ -387,20 +380,29 @@ public class  EmpleadosController {
         String sqlRol    = "SELECT id_rol FROM roles WHERE nombre = ?";
         String sqlInsert = "INSERT INTO usuarios (nombre, usuario, contrasena, password_hash, fecha_actualizacion_password, id_rol) VALUES (?, ?, '', ?, NOW(), ?)";
         try (Connection con = ConexionDB.getConexion()) {
-            PreparedStatement psRol = con.prepareStatement(sqlRol);
-            psRol.setString(1, rol);
-            ResultSet rs = psRol.executeQuery();
-            if (rs.next()) {
-                int idRol = rs.getInt(1);
-                PreparedStatement ps = con.prepareStatement(sqlInsert);
-                ps.setString(1, nombre);
-                ps.setString(2, usuario);
-                ps.setString(3, passwordService.hash(password));
-                ps.setInt(4, idRol);
-                ps.executeUpdate();
-                cargarEmpleados();
-                mostrarAlerta("Exito", "Empleado creado correctamente.");
+            if (!usuarioDisponible(con, usuario, 0)) {
+                mostrarAlerta("Error", "El nombre de usuario ya existe.");
+                return;
             }
+            try (PreparedStatement psRol = con.prepareStatement(sqlRol)) {
+                psRol.setString(1, rol);
+                try (ResultSet rs = psRol.executeQuery()) {
+                    if (!rs.next()) {
+                        mostrarAlerta("Error", "El rol seleccionado no existe.");
+                        return;
+                    }
+                    int idRol = rs.getInt(1);
+                    try (PreparedStatement ps = con.prepareStatement(sqlInsert)) {
+                        ps.setString(1, nombre);
+                        ps.setString(2, usuario);
+                        ps.setString(3, passwordService.hash(password));
+                        ps.setInt(4, idRol);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+            cargarEmpleados();
+            mostrarAlerta("Exito", "Empleado creado correctamente.");
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo crear el empleado.");
@@ -410,40 +412,66 @@ public class  EmpleadosController {
     private void actualizarEmpleado(int id, String nombre, String usuario, String password, String rol) {
         String sqlRol = "SELECT id_rol FROM roles WHERE nombre = ?";
         try (Connection con = ConexionDB.getConexion()) {
-            PreparedStatement psRol = con.prepareStatement(sqlRol);
-            psRol.setString(1, rol);
-            ResultSet rs = psRol.executeQuery();
-            if (rs.next()) {
-                int idRol = rs.getInt(1);
-                String sql;
-                PreparedStatement ps;
-                if (password.isEmpty()) {
-                    sql = "UPDATE usuarios SET nombre = ?, usuario = ?, id_rol = ? WHERE id_usuario = ?";
-                    ps  = con.prepareStatement(sql);
-                    ps.setString(1, nombre);
-                    ps.setString(2, usuario);
-                    ps.setInt(3, idRol);
-                    ps.setInt(4, id);
-                } else {
-                    sql = "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW(), id_rol = ? WHERE id_usuario = ?";
-                    ps  = con.prepareStatement(sql);
-                    ps.setString(1, nombre);
-                    ps.setString(2, usuario);
-                    ps.setString(3, passwordService.hash(password));
-                    ps.setInt(4, idRol);
-                    ps.setInt(5, id);
-                }
-                ps.executeUpdate();
-                cargarEmpleados();
-                mostrarAlerta("Exito", "Empleado actualizado correctamente.");
+            if (!usuarioDisponible(con, usuario, id)) {
+                mostrarAlerta("Error", "El nombre de usuario ya existe.");
+                return;
             }
+            try (PreparedStatement psRol = con.prepareStatement(sqlRol)) {
+                psRol.setString(1, rol);
+                try (ResultSet rs = psRol.executeQuery()) {
+                    if (!rs.next()) {
+                        mostrarAlerta("Error", "El rol seleccionado no existe.");
+                        return;
+                    }
+                    int idRol = rs.getInt(1);
+                    String sql;
+                    if (password.isEmpty()) {
+                        sql = "UPDATE usuarios SET nombre = ?, usuario = ?, id_rol = ? WHERE id_usuario = ?";
+                    } else {
+                        sql = "UPDATE usuarios SET nombre = ?, usuario = ?, contrasena = '', password_hash = ?, fecha_actualizacion_password = NOW(), id_rol = ? WHERE id_usuario = ?";
+                    }
+                    try (PreparedStatement ps = con.prepareStatement(sql)) {
+                        ps.setString(1, nombre);
+                        ps.setString(2, usuario);
+                        if (password.isEmpty()) {
+                            ps.setInt(3, idRol);
+                            ps.setInt(4, id);
+                        } else {
+                            ps.setString(3, passwordService.hash(password));
+                            ps.setInt(4, idRol);
+                            ps.setInt(5, id);
+                        }
+                        ps.executeUpdate();
+                    }
+                }
+            }
+            cargarEmpleados();
+            mostrarAlerta("Exito", "Empleado actualizado correctamente.");
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo actualizar el empleado.");
         }
     }
 
+    private boolean usuarioDisponible(Connection con, String usuario, int idActual) throws SQLException {
+        String sql = "SELECT 1 FROM usuarios WHERE usuario = ? AND id_usuario <> ? LIMIT 1";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, usuario);
+            ps.setInt(2, idActual);
+            try (ResultSet rs = ps.executeQuery()) {
+                return !rs.next();
+            }
+        }
+    }
+
+    private boolean requerirPermiso(String permiso, String accion) {
+        return PermisoService.requerirPermisoOAutorizacionAdmin(permiso, accion);
+    }
+
     private void eliminarEmpleado(int id, String nombre) {
+        if (!requerirPermiso(PermisoService.USUARIOS_DESACTIVAR, "Eliminar empleado " + nombre)) {
+            return;
+        }
         if (!usuarioSeguridadService.puedeDesactivarUsuario(id)) {
             mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
             return;
@@ -451,7 +479,7 @@ public class  EmpleadosController {
         Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
         alerta.setTitle("Eliminar empleado");
         alerta.setHeaderText(null);
-        alerta.setContentText("¿Seguro que deseas eliminar a " + nombre + "?");
+        alerta.setContentText("Seguro que deseas eliminar a " + nombre + "?");
         alerta.showAndWait().ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) {
                 String sql = "UPDATE usuarios SET activo = 0 WHERE id_usuario = ?";
@@ -466,6 +494,7 @@ public class  EmpleadosController {
             }
         });
     }
+
     private void registrarLogout() {
         String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
                 "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";

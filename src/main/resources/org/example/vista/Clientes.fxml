@@ -5,121 +5,125 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             stylesheets="@menuPrincipal.css"
+            styleClass="clientes-root"
             fx:controller="org.example.controlador.ClientesController">
     <left>
-        <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
-            <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
-                <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Volovan Volo"/>
-                <Label style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;" text="SISTEMA DE PUNTO DE VENTA"/>
+        <VBox prefWidth="230" styleClass="clientes-sidebar">
+            <VBox spacing="3" styleClass="clientes-brand-block">
+                <Label styleClass="clientes-brand-title" text="Volovan Volo"/>
+                <Label styleClass="clientes-brand-subtitle" text="SISTEMA DE PUNTO DE VENTA"/>
             </VBox>
-            <Separator style="-fx-opacity: 0.15;"/>
-            <HBox spacing="10" style="-fx-padding: 14 18;">
-                <Label fx:id="lblAvatarIniciales"
-                       style="-fx-background-color: rgba(255,255,255,0.22); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 36; -fx-min-height: 36; -fx-background-radius: 18; -fx-alignment: center;"
-                       text="US"/>
+            <Separator styleClass="clientes-divider"/>
+            <HBox spacing="10" styleClass="clientes-profile-row">
+                <Label fx:id="lblAvatarIniciales" styleClass="clientes-sidebar-avatar" text="US"/>
                 <VBox spacing="2">
-                    <Label fx:id="lblNombreUsuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;" text="Usuario"/>
-                    <Label fx:id="lblRolUsuario" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" text="Rol"/>
+                    <Label fx:id="lblNombreUsuario" styleClass="clientes-profile-name" text="Usuario"/>
+                    <Label fx:id="lblRolUsuario" styleClass="clientes-profile-role" text="Rol"/>
                 </VBox>
             </HBox>
-            <Separator style="-fx-opacity: 0.15;"/>
-            <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 8 8 3 8;" text="PRINCIPAL"/>
+            <Separator styleClass="clientes-divider"/>
+            <VBox spacing="3" styleClass="clientes-nav-container" VBox.vgrow="ALWAYS">
+                <Label styleClass="clientes-nav-heading" text="PRINCIPAL"/>
                 <Button prefHeight="40" prefWidth="210" onAction="#irADashboard" text="Dashboard" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAVentas" text="Ventas / Caja" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAInventario" text="Inventario" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTION"/>
+                <Label styleClass="clientes-nav-heading" text="GESTION"/>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAEmpleados" text="Empleados" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" text="Clientes" graphicTextGap="12"
-                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14;">
+                        styleClass="clientes-nav-button-active">
                     <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#1a6fa8"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAReportes" text="Reportes" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irACorteCaja" text="Corte de Caja" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAAuditoria" text="Auditoria" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAConfiguracion" text="Configuracion" graphicTextGap="12"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;">
+                        styleClass="clientes-nav-button">
                     <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
             </VBox>
-            <Separator style="-fx-opacity: 0.15;"/>
+            <Separator styleClass="clientes-divider"/>
             <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,180,180,0.9); -fx-cursor: hand;">
+                    styleClass="clientes-session-button">
                 <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
             </Button>
         </VBox>
     </left>
 
     <center>
-        <VBox style="-fx-background-color: #F5ECD7;">
-            <HBox alignment="CENTER_LEFT"
-                  style="-fx-background-color: white; -fx-padding: 14 24; -fx-effect: dropshadow(gaussian, #1a6fa815, 8, 0, 0, 2);">
+        <VBox styleClass="clientes-page">
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="clientes-topbar">
                 <VBox spacing="2">
-                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Clientes"/>
-                    <Label fx:id="lblConteoActivos" style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;" text="0 clientes activos"/>
+                    <Label styleClass="clientes-title" text="Clientes"/>
+                    <Label fx:id="lblConteoActivos" styleClass="clientes-subtitle" text="0 clientes activos"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
                 <TextField fx:id="txtBuscar" promptText="Buscar por nombre o telefono..." prefWidth="300"
-                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #C8A97E; -fx-border-width: 1; -fx-padding: 9 12; -fx-font-size: 12px; -fx-background-color: white;"/>
+                           styleClass="clientes-search-field"/>
                 <Button onAction="#handleNuevoCliente" text="Nuevo cliente" graphicTextGap="8"
-                        style="-fx-background-color: #1a6fa8; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 9 16; -fx-cursor: hand; -fx-font-weight: bold; -fx-background-insets: 0; -fx-margin-left: 10;">
+                        styleClass="clientes-primary-button">
                     <graphic><FontIcon iconLiteral="fas-plus" iconSize="14" iconColor="white"/></graphic>
                 </Button>
             </HBox>
 
-            <VBox spacing="16" style="-fx-padding: 18 20 20 20;" VBox.vgrow="ALWAYS">
+            <VBox spacing="16" styleClass="clientes-content" VBox.vgrow="ALWAYS">
                 <HBox spacing="14">
                     <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
-                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #1a6fa820; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
-                        <Label style="-fx-background-color: #e8f3fb; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;" text="CL"/>
+                          styleClass="clientes-stat-card">
+                        <Label styleClass="clientes-stat-icon-blue">
+                            <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#1a6fa8"/></graphic>
+                        </Label>
                         <VBox>
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="TOTAL CLIENTES"/>
-                            <Label fx:id="lblStatTotal" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="0"/>
+                            <Label styleClass="clientes-stat-label" text="TOTAL CLIENTES"/>
+                            <Label fx:id="lblStatTotal" styleClass="clientes-stat-value-main" text="0"/>
                         </VBox>
                     </HBox>
                     <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
-                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #1a6fa820; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
-                        <Label style="-fx-background-color: #FDE8E8; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;" text="\$"/>
+                          styleClass="clientes-stat-card">
+                        <Label styleClass="clientes-stat-icon-red">
+                            <graphic><FontIcon iconLiteral="fas-dollar-sign" iconSize="16" iconColor="#c0392b"/></graphic>
+                        </Label>
                         <VBox>
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="TOTAL ADEUDO"/>
-                            <Label fx:id="lblStatAdeudo" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #C0392B;" text="\$0.00"/>
+                            <Label styleClass="clientes-stat-label" text="TOTAL ADEUDO"/>
+                            <Label fx:id="lblStatAdeudo" styleClass="clientes-stat-value-red" text="\$0.00"/>
                         </VBox>
                     </HBox>
                     <HBox spacing="12" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS"
-                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #1a6fa820; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 14 18; -fx-effect: dropshadow(gaussian,rgba(26,111,168,0.07),8,0,0,2);">
-                        <Label style="-fx-background-color: #FFF3E0; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-alignment: center;" text="!"/>
+                          styleClass="clientes-stat-card">
+                        <Label styleClass="clientes-stat-icon-orange">
+                            <graphic><FontIcon iconLiteral="fas-exclamation-circle" iconSize="16" iconColor="#d97706"/></graphic>
+                        </Label>
                         <VBox>
-                            <Label style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;" text="CON SALDO"/>
-                            <Label fx:id="lblStatConSaldo" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #D97706;" text="0"/>
+                            <Label styleClass="clientes-stat-label" text="CON SALDO"/>
+                            <Label fx:id="lblStatConSaldo" styleClass="clientes-stat-value-orange" text="0"/>
                         </VBox>
                     </HBox>
                 </HBox>
 
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                            style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                            styleClass="clientes-scroll">
                     <FlowPane fx:id="flowClientes" hgap="16" vgap="16"
-                              style="-fx-padding: 4 0 18 0; -fx-background-color: transparent;"/>
+                              styleClass="clientes-flow"/>
                 </ScrollPane>
             </VBox>
         </VBox>

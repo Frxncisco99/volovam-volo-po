@@ -58,24 +58,29 @@ public class DevolucionDAO {
                                     Map<Integer, Integer> devolucionesPorDetalle,
                                     String tipoReembolso, String notas) throws Exception {
 
-        // Primero validar TODOS los límites antes de tocar nada
         if (!PermisoService.requerirPermisoOAutorizacionAdmin(
                 PermisoService.VENTAS_DEVOLVER,
                 "Procesar devolucion de venta " + FolioService.venta(idVenta))) {
             throw new SecurityException("No se autorizo la devolucion.");
         }
 
-        validarVentaDevolvible(idVenta);
-        validarLimites(devolucionesPorDetalle);
+        if (devolucionesPorDetalle == null || devolucionesPorDetalle.values().stream().noneMatch(c -> c != null && c > 0)) {
+            throw new IllegalArgumentException("Selecciona al menos una cantidad valida para devolver.");
+        }
 
         Connection con = ConexionDB.getConexion();
         if (con == null) throw new Exception("Sin conexión a la base de datos.");
 
         try {
             con.setAutoCommit(false);
+            validarVentaDevolvible(con, idVenta);
+            validarLimites(con, idVenta, devolucionesPorDetalle);
 
             // Calcular monto total a devolver
             double montoTotal = calcularMonto(con, devolucionesPorDetalle);
+            if (montoTotal <= 0) {
+                throw new IllegalStateException("El monto de devolucion debe ser mayor a cero.");
+            }
 
             // Insertar en devoluciones
             int idDevolucion;
@@ -151,49 +156,55 @@ public class DevolucionDAO {
         }
     }
 
-    private void validarLimites(Map<Integer, Integer> devolucionesPorDetalle) throws Exception {
+    private void validarLimites(Connection con, int idVenta, Map<Integer, Integer> devolucionesPorDetalle) throws Exception {
         String sql = """
             SELECT dv.id_detalle,
-                   dv.cantidad - COALESCE(SUM(dd.cantidad), 0) AS disponible
+                   dv.cantidad - COALESCE((
+                       SELECT SUM(dd.cantidad)
+                       FROM detalle_devolucion dd
+                       WHERE dd.id_detalle_venta = dv.id_detalle
+                   ), 0) AS disponible
             FROM detalle_venta dv
-            LEFT JOIN detalle_devolucion dd ON dd.id_detalle_venta = dv.id_detalle
             WHERE dv.id_detalle = ?
-            GROUP BY dv.id_detalle, dv.cantidad
+              AND dv.id_venta = ?
+            FOR UPDATE
         """;
-        try (Connection con = ConexionDB.getConexion()) {
-            for (Map.Entry<Integer, Integer> entry : devolucionesPorDetalle.entrySet()) {
-                if (entry.getValue() <= 0) continue;
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
-                    ps.setInt(1, entry.getKey());
-                    ResultSet rs = ps.executeQuery();
-                    if (rs.next()) {
-                        int disponible = rs.getInt("disponible");
-                        if (entry.getValue() > disponible) {
-                            throw new IllegalStateException(
-                                    "Intento de devolver " + entry.getValue() +
-                                            " unidades, pero solo hay " + disponible +
-                                            " disponibles para el detalle #" + entry.getKey()
-                            );
-                        }
+        for (Map.Entry<Integer, Integer> entry : devolucionesPorDetalle.entrySet()) {
+            int cantidad = entry.getValue() == null ? 0 : entry.getValue();
+            if (cantidad <= 0) continue;
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, entry.getKey());
+                ps.setInt(2, idVenta);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new IllegalStateException("El detalle #" + entry.getKey() + " no pertenece a la venta seleccionada.");
+                    }
+                    int disponible = rs.getInt("disponible");
+                    if (cantidad > disponible) {
+                        throw new IllegalStateException(
+                                "Intento de devolver " + cantidad +
+                                        " unidades, pero solo hay " + disponible +
+                                        " disponibles para el detalle #" + entry.getKey()
+                        );
                     }
                 }
             }
         }
     }
 
-    private void validarVentaDevolvible(int idVenta) throws Exception {
-        String sql = "SELECT COALESCE(estado, 'COMPLETADA') AS estado FROM ventas WHERE id_venta = ?";
-        try (Connection con = ConexionDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    private void validarVentaDevolvible(Connection con, int idVenta) throws Exception {
+        String sql = "SELECT COALESCE(estado, 'COMPLETADA') AS estado FROM ventas WHERE id_venta = ? FOR UPDATE";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idVenta);
-            ResultSet rs = ps.executeQuery();
-            if (!rs.next()) throw new IllegalStateException("La venta no existe.");
-            String estado = rs.getString("estado");
-            if ("CANCELADA".equalsIgnoreCase(estado)) {
-                throw new IllegalStateException("Una venta cancelada no puede tener devoluciones.");
-            }
-            if ("DEVUELTA".equalsIgnoreCase(estado)) {
-                throw new IllegalStateException("Esta venta ya fue devuelta por completo.");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) throw new IllegalStateException("La venta no existe.");
+                String estado = rs.getString("estado");
+                if ("CANCELADA".equalsIgnoreCase(estado)) {
+                    throw new IllegalStateException("Una venta cancelada no puede tener devoluciones.");
+                }
+                if ("DEVUELTA".equalsIgnoreCase(estado)) {
+                    throw new IllegalStateException("Esta venta ya fue devuelta por completo.");
+                }
             }
         }
     }
@@ -205,8 +216,12 @@ public class DevolucionDAO {
             if (entry.getValue() <= 0) continue;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, entry.getKey());
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) total += rs.getDouble(1) * entry.getValue();
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new SQLException("No se encontro el detalle #" + entry.getKey());
+                    }
+                    total += rs.getDouble(1) * entry.getValue();
+                }
             }
         }
         return total;

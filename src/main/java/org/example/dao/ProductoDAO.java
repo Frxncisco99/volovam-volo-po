@@ -119,13 +119,21 @@ public class ProductoDAO {
         return lista;
     }
 
-    public void ajustarStock(int idProducto, int cantidad) {
-        String sql = "UPDATE productos SET stock = stock + ? WHERE id_producto = ?";
-        try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean ajustarStock(Connection conn, int idProducto, int cantidad) throws SQLException {
+        String sql = "UPDATE productos SET stock = stock + ? WHERE id_producto = ? AND stock + ? >= 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, cantidad);
             ps.setInt(2, idProducto);
-            ps.executeUpdate();
+            ps.setInt(3, cantidad);
+            return ps.executeUpdate() == 1;
+        }
+    }
+
+    public void ajustarStock(int idProducto, int cantidad) {
+        try (Connection conn = ConexionDB.getConexion()) {
+            if (!ajustarStock(conn, idProducto, cantidad)) {
+                throw new IllegalStateException("Stock insuficiente o producto no encontrado.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
