@@ -5,3 +5,4 @@
 SOURCE db/migracion_fiscal_financiera.sql;
 SOURCE db/migracion_seguridad_permisos.sql;
 SOURCE db/migracion_hardening_operativo.sql;
+SOURCE db/migracion_catalogo_web.sql;

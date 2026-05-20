@@ -425,6 +425,11 @@
     -fx-background-color: #fef2f2;
 }
 
+.cfg-status-warning {
+    -fx-text-fill: #92400e;
+    -fx-background-color: #fffbeb;
+}
+
 .table-view {
     -fx-background-color: white;
     -fx-border-color: #e3eaf5;

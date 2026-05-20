@@ -11,6 +11,7 @@ import javafx.animation.FadeTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -36,8 +37,10 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
+import org.example.dao.ConfiguracionWebDAO;
 import org.example.dao.FiscalDAO;
 import org.example.modelo.ConfiguracionFiscal;
+import org.example.modelo.ConfiguracionWeb;
 import org.example.modelo.Impuesto;
 import org.example.modelo.SesionUsuario;
 import org.example.modelo.SwitchToggle;
@@ -49,11 +52,13 @@ import org.example.servicio.PermisoService;
 import org.example.servicio.SecretService;
 import org.example.servicio.TicketRenderer;
 import org.example.servicio.UsuarioSeguridadService;
+import org.example.servicio.WebCatalogService;
 
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -64,6 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
 public class ConfiguracionController {
@@ -81,6 +87,7 @@ public class ConfiguracionController {
     @FXML private VBox panelEmail;
     @FXML private VBox panelUsuarios;
     @FXML private VBox panelBaseDatos;
+    @FXML private VBox panelCatalogoWeb;
 
     @FXML private Button btnTabNegocio;
     @FXML private Button btnTabFiscal;
@@ -89,6 +96,7 @@ public class ConfiguracionController {
     @FXML private Button btnTabEmail;
     @FXML private Button btnTabUsuarios;
     @FXML private Button btnTabBaseDatos;
+    @FXML private Button btnTabCatalogoWeb;
     @FXML private Button btnGuardarCambios;
 
     @FXML private TextField txtNombreNegocio;
@@ -129,6 +137,7 @@ public class ConfiguracionController {
     @FXML private SwitchToggle tglFolioTicket;
     @FXML private SwitchToggle tglDesglose;
     @FXML private SwitchToggle tglQR;
+    @FXML private SwitchToggle tglTicketPorDefecto;
     @FXML private ComboBox<String> cmbImpresora;
     @FXML private ComboBox<String> cmbAnchoPapel;
 
@@ -158,10 +167,37 @@ public class ConfiguracionController {
     @FXML private Label lblDBVersion;
     @FXML private TextField txtRutaRespaldo;
 
+    @FXML private TextField txtWebSupabaseUrl;
+    @FXML private PasswordField txtWebAnonKey;
+    @FXML private TextField txtWebProyecto;
+    @FXML private ComboBox<String> cmbWebModoEnlace;
+    @FXML private Label lblWebEstadoConexion;
+    @FXML private Label lblWebEstadoSync;
+    @FXML private Label lblWebUltimaSincronizacion;
+    @FXML private Label lblWebAdvertenciaMapeo;
+    @FXML private SwitchToggle tglWebCatalogoActivo;
+    @FXML private SwitchToggle tglWebMostrarAgotados;
+    @FXML private SwitchToggle tglWebOcultarSinStock;
+    @FXML private SwitchToggle tglWebPedidosActivos;
+    @FXML private SwitchToggle tglWebDomicilioActivo;
+    @FXML private TextField txtWebCostoEnvio;
+    @FXML private TextField txtWebWhatsapp;
+    @FXML private TextField txtWebFacebook;
+    @FXML private Button btnProbarConexionWeb;
+    @FXML private Button btnWebSincronizarAhora;
+    @FXML private Button btnWebSubirInventario;
+    @FXML private Button btnWebDescargarDatos;
+    @FXML private Button btnWebVerPendientes;
+    @FXML private Button btnWebGenerarEnlaces;
+
+    static final String CLAVE_TICKET_POR_DEFECTO = "ticket_imprimir_por_defecto";
+
     private final Preferences prefs = Preferences.userNodeForPackage(ConfiguracionController.class);
     private final FiscalDAO fiscalDAO = new FiscalDAO();
     private final PasswordService passwordService = new PasswordService();
     private final UsuarioSeguridadService usuarioSeguridadService = new UsuarioSeguridadService();
+    private final ConfiguracionWebDAO configuracionWebDAO = new ConfiguracionWebDAO();
+    private final WebCatalogService webCatalogService = new WebCatalogService(configuracionWebDAO);
     private final ObservableList<UsuarioRow> usuarios = FXCollections.observableArrayList();
     private List<VBox> panelesConfiguracion;
     private List<Button> botonesConfiguracion;
@@ -194,6 +230,7 @@ public class ConfiguracionController {
         cmbCajonPuerto.getItems().setAll("Via impresora termica (ESC/POS)", "COM1", "COM2", "COM3", "COM4");
         cmbCajonPulso.getItems().setAll("Pulso 1 (pin 2)", "Pulso 2 (pin 5)");
         cmbEmailSmtp.getItems().setAll("Gmail", "Outlook / Hotmail", "SMTP personalizado");
+        cmbWebModoEnlace.getItems().setAll("Codigo de barras", "ID producto local");
         prepararCombosFiscal();
 
         cmbImpresora.getItems().clear();
@@ -334,10 +371,11 @@ public class ConfiguracionController {
     @FXML private void tabEmail() { mostrarTab("email"); }
     @FXML private void tabUsuarios() { mostrarTab("usuarios"); }
     @FXML private void tabBaseDatos() { mostrarTab("basedatos"); }
+    @FXML private void tabCatalogoWeb() { mostrarTab("catalogoweb"); }
 
     private void prepararColeccionesUI() {
-        panelesConfiguracion = List.of(panelNegocio, panelFiscal, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos);
-        botonesConfiguracion = List.of(btnTabNegocio, btnTabFiscal, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos);
+        panelesConfiguracion = List.of(panelNegocio, panelFiscal, panelTicket, panelCajon, panelEmail, panelUsuarios, panelBaseDatos, panelCatalogoWeb);
+        botonesConfiguracion = List.of(btnTabNegocio, btnTabFiscal, btnTabTicket, btnTabCajon, btnTabEmail, btnTabUsuarios, btnTabBaseDatos, btnTabCatalogoWeb);
     }
 
     private void prepararInteracciones() {
@@ -351,6 +389,13 @@ public class ConfiguracionController {
         instalarTooltip(btnTabEmail, "Configuracion SMTP para tickets por correo.");
         instalarTooltip(btnTabUsuarios, "Administracion de usuarios del POS.");
         instalarTooltip(btnTabBaseDatos, "Estado de conexion y respaldo SQL.");
+        instalarTooltip(btnTabCatalogoWeb, "Conexion y sincronizacion segura con el catalogo web.");
+        instalarTooltip(btnProbarConexionWeb, "Prueba lectura publica con la anon key de Supabase.");
+        instalarTooltip(btnWebSincronizarAhora, "Sube inventario local e intenta consultar pedidos web.");
+        instalarTooltip(btnWebSubirInventario, "Envia categorias y productos activos a Supabase.");
+        instalarTooltip(btnWebDescargarDatos, "Prueba lectura de productos/pedidos web.");
+        instalarTooltip(btnWebVerPendientes, "Muestra cambios locales pendientes por sincronizar.");
+        instalarTooltip(btnWebGenerarEnlaces, "Prepara enlaces de productos usando codigo de barras o id local.");
 
         validarCampo(txtCorreo, texto -> !texto.isBlank() && !texto.contains("@"));
         validarCampo(txtEmailRemitente, texto -> !texto.isBlank() && !texto.contains("@"));
@@ -358,6 +403,8 @@ public class ConfiguracionController {
         validarCampo(txtCP, texto -> !texto.isBlank() && !texto.matches("\\d{4,6}"));
         validarCampo(txtFiscalCP, texto -> !texto.isBlank() && !texto.matches("\\d{5}"));
         validarCampo(txtFolioInicial, texto -> !texto.isBlank() && !texto.matches("\\d+"));
+        validarCampo(txtWebSupabaseUrl, texto -> !texto.isBlank() && !texto.startsWith("https://"));
+        validarCampo(txtWebCostoEnvio, texto -> !texto.isBlank() && !texto.matches("\\d+(\\.\\d{1,2})?"));
     }
 
     private void mostrarTab(String tab) {
@@ -374,6 +421,7 @@ public class ConfiguracionController {
             case "email" -> activar(panelEmail, btnTabEmail);
             case "usuarios" -> activar(panelUsuarios, btnTabUsuarios);
             case "basedatos" -> activar(panelBaseDatos, btnTabBaseDatos);
+            case "catalogoweb" -> activar(panelCatalogoWeb, btnTabCatalogoWeb);
             default -> activar(panelNegocio, btnTabNegocio);
         }
     }
@@ -393,6 +441,7 @@ public class ConfiguracionController {
         guardarTicket();
         guardarCajon();
         guardarEmail();
+        guardarConfiguracionWeb();
         feedbackGuardado();
     }
 
@@ -454,6 +503,7 @@ public class ConfiguracionController {
         guardarBoolean("ticket_folio", tglFolioTicket.isSelected());
         guardarBoolean("ticket_desglose", tglDesglose.isSelected());
         guardarBoolean("ticket_qr", tglQR.isSelected());
+        guardarBoolean(CLAVE_TICKET_POR_DEFECTO, tglTicketPorDefecto.isSelected());
     }
 
     private void guardarCajon() {
@@ -478,6 +528,7 @@ public class ConfiguracionController {
         cargarTicket();
         cargarCajon();
         cargarEmail();
+        cargarConfiguracionWeb();
         actualizarVisibilidadSmtp();
     }
 
@@ -527,6 +578,7 @@ public class ConfiguracionController {
         tglFolioTicket.setSelected(leerBoolean("ticket_folio", true));
         tglDesglose.setSelected(leerBoolean("ticket_desglose", true));
         tglQR.setSelected(leerBoolean("ticket_qr", false));
+        tglTicketPorDefecto.setSelected(leerBoolean(CLAVE_TICKET_POR_DEFECTO, true));
     }
 
     private void cargarCajon() {
@@ -543,6 +595,61 @@ public class ConfiguracionController {
         txtEmailHost.setText(leerValor("email_host", ""));
         txtEmailPuerto.setText(leerValor("email_puerto", ""));
         tglEmailReporteDiario.setSelected(leerBoolean("email_reporte_diario", false));
+    }
+
+    private void guardarConfiguracionWeb() {
+        ConfiguracionWeb config = construirConfiguracionWebDesdeUI();
+        webCatalogService.guardarConfiguracionWeb(config);
+        actualizarEstadoWeb(config.getEstadoConexion());
+        actualizarResumenMapeoWeb();
+    }
+
+    private void cargarConfiguracionWeb() {
+        ConfiguracionWeb config = webCatalogService.cargarConfiguracionWeb();
+        txtWebSupabaseUrl.setText(config.getSupabaseUrl());
+        txtWebAnonKey.setText(config.getSupabaseAnonKey());
+        txtWebProyecto.setText(config.getProyectoRef());
+        seleccionar(cmbWebModoEnlace, config.isUsarCodigoBarras() ? "Codigo de barras" : "ID producto local", "Codigo de barras");
+        tglWebCatalogoActivo.setSelected(config.isCatalogoActivo());
+        tglWebMostrarAgotados.setSelected(config.isMostrarAgotados());
+        tglWebOcultarSinStock.setSelected(config.isOcultarSinStock());
+        tglWebPedidosActivos.setSelected(config.isPedidosWebActivos());
+        tglWebDomicilioActivo.setSelected(config.isDomicilioActivo());
+        txtWebCostoEnvio.setText(config.getCostoEnvio().toPlainString());
+        txtWebWhatsapp.setText(config.getWhatsapp());
+        txtWebFacebook.setText(config.getFacebookUrl());
+        lblWebUltimaSincronizacion.setText(config.getUltimaSincronizacion() == null
+                ? "Sin registros"
+                : config.getUltimaSincronizacion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        actualizarEstadoWeb(config.getEstadoConexion());
+        actualizarResumenMapeoWeb();
+    }
+
+    private ConfiguracionWeb construirConfiguracionWebDesdeUI() {
+        ConfiguracionWeb actual = webCatalogService.cargarConfiguracionWeb();
+        actual.setSupabaseUrl(txtWebSupabaseUrl.getText());
+        actual.setSupabaseAnonKey(txtWebAnonKey.getText());
+        actual.setProyectoRef(txtWebProyecto.getText());
+        actual.setUsarCodigoBarras("Codigo de barras".equals(cmbWebModoEnlace.getValue()));
+        actual.setCatalogoActivo(tglWebCatalogoActivo.isSelected());
+        actual.setMostrarAgotados(tglWebMostrarAgotados.isSelected());
+        actual.setOcultarSinStock(tglWebOcultarSinStock.isSelected());
+        actual.setPedidosWebActivos(tglWebPedidosActivos.isSelected());
+        actual.setDomicilioActivo(tglWebDomicilioActivo.isSelected());
+        actual.setCostoEnvio(parseDecimal(txtWebCostoEnvio.getText(), new BigDecimal("50.00")));
+        actual.setWhatsapp(txtWebWhatsapp.getText());
+        actual.setFacebookUrl(txtWebFacebook.getText());
+        return actual;
+    }
+
+    private BigDecimal parseDecimal(String texto, BigDecimal fallback) {
+        try {
+            String limpio = texto == null ? "" : texto.trim();
+            if (limpio.isBlank()) return fallback;
+            return new BigDecimal(limpio);
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 
     private void guardarValor(String clave, String valor) {
@@ -684,6 +791,149 @@ public class ConfiguracionController {
             mostrarAlerta(Alert.AlertType.INFORMATION, "Correo", "Correo de prueba enviado a " + remitente + ".");
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Correo", "No se pudo enviar el correo de prueba.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void probarConexionWeb() {
+        ConfiguracionWeb config = construirConfiguracionWebDesdeUI();
+        webCatalogService.guardarConfiguracionWeb(config);
+        lblWebEstadoConexion.setText("Probando...");
+        actualizarEstadoWeb("PENDIENTE");
+        ejecutarOperacionWeb("Conexion web", () -> webCatalogService.probarConexion(config), true);
+    }
+
+    @FXML
+    public void sincronizarWebAhora() {
+        ConfiguracionWeb config = construirConfiguracionWebDesdeUI();
+        webCatalogService.guardarConfiguracionWeb(config);
+        lblWebEstadoSync.setText("Sincronizando...");
+        ejecutarOperacionWeb("Sincronizacion web", () -> webCatalogService.sincronizarInventario(config), true);
+    }
+
+    @FXML
+    public void subirInventarioWeb() {
+        ConfiguracionWeb config = construirConfiguracionWebDesdeUI();
+        webCatalogService.guardarConfiguracionWeb(config);
+        lblWebEstadoSync.setText("Subiendo...");
+        ejecutarOperacionWeb("Inventario web", () -> webCatalogService.subirInventarioLocalAWeb(config), true);
+    }
+
+    @FXML
+    public void descargarDatosWeb() {
+        ConfiguracionWeb config = construirConfiguracionWebDesdeUI();
+        webCatalogService.guardarConfiguracionWeb(config);
+        lblWebEstadoSync.setText("Consultando...");
+        ejecutarOperacionWeb("Datos web", () -> webCatalogService.descargarDatosWeb(), false);
+    }
+
+    @FXML
+    public void verPendientesWeb() {
+        int pendientes = configuracionWebDAO.contarPendientesSincronizacion();
+        int activos = configuracionWebDAO.contarProductosActivos();
+        int sinCodigo = configuracionWebDAO.contarProductosSinCodigoBarras();
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Pendientes de sincronizacion",
+                "Cambios pendientes/error: " + pendientes
+                        + "\nProductos activos locales: " + activos
+                        + "\nProductos sin codigo de barras: " + sinCodigo);
+        actualizarResumenMapeoWeb();
+    }
+
+    @FXML
+    public void generarEnlacesWeb() {
+        int encolados = configuracionWebDAO.generarEnlacesAutomaticos();
+        lblWebEstadoSync.setText("Pendiente");
+        actualizarEstadoLabel(lblWebEstadoSync, "PENDIENTE");
+        actualizarResumenMapeoWeb();
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Catalogo Web",
+                "Se prepararon " + encolados + " registro(s) para sincronizacion segura.");
+    }
+
+    private void ejecutarOperacionWeb(String titulo, Callable<WebCatalogService.WebResult> operacion, boolean recargarConfig) {
+        setBotonesWebDisabled(true);
+        Task<WebCatalogService.WebResult> task = new Task<>() {
+            @Override
+            protected WebCatalogService.WebResult call() throws Exception {
+                return operacion.call();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            setBotonesWebDisabled(false);
+            WebCatalogService.WebResult result = task.getValue();
+            if (result.ok()) {
+                lblWebEstadoConexion.setText("Conectado");
+                lblWebEstadoSync.setText("Sincronizado");
+                actualizarEstadoWeb("CONECTADO");
+                if (recargarConfig) cargarConfiguracionWeb();
+                mostrarAlerta(Alert.AlertType.INFORMATION, titulo, result.mensaje());
+            } else {
+                lblWebEstadoConexion.setText("Error");
+                lblWebEstadoSync.setText("Error");
+                actualizarEstadoWeb("ERROR");
+                mostrarAlerta(Alert.AlertType.WARNING, titulo, result.mensaje());
+            }
+            actualizarResumenMapeoWeb();
+        });
+        task.setOnFailed(event -> {
+            setBotonesWebDisabled(false);
+            lblWebEstadoConexion.setText("Error");
+            lblWebEstadoSync.setText("Error");
+            actualizarEstadoWeb("ERROR");
+            Throwable error = task.getException();
+            mostrarAlerta(Alert.AlertType.ERROR, titulo, error == null ? "Error desconocido." : error.getMessage());
+            actualizarResumenMapeoWeb();
+        });
+        Thread thread = new Thread(task, "catalogo-web-config-task");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void setBotonesWebDisabled(boolean disabled) {
+        btnProbarConexionWeb.setDisable(disabled);
+        btnWebSincronizarAhora.setDisable(disabled);
+        btnWebSubirInventario.setDisable(disabled);
+        btnWebDescargarDatos.setDisable(disabled);
+        btnWebVerPendientes.setDisable(disabled);
+        btnWebGenerarEnlaces.setDisable(disabled);
+    }
+
+    private void actualizarEstadoWeb(String estado) {
+        String normalizado = estado == null ? "SIN_CONEXION" : estado;
+        if ("CONECTADO".equals(normalizado) || "SINCRONIZADO".equals(normalizado)) {
+            lblWebEstadoConexion.setText("Conectado");
+            actualizarEstadoLabel(lblWebEstadoConexion, "OK");
+        } else if ("PENDIENTE".equals(normalizado)) {
+            lblWebEstadoConexion.setText("Pendiente");
+            actualizarEstadoLabel(lblWebEstadoConexion, "PENDIENTE");
+        } else if ("ERROR".equals(normalizado)) {
+            lblWebEstadoConexion.setText("Error");
+            actualizarEstadoLabel(lblWebEstadoConexion, "ERROR");
+        } else {
+            lblWebEstadoConexion.setText("Sin conexion");
+            actualizarEstadoLabel(lblWebEstadoConexion, "PENDIENTE");
+        }
+    }
+
+    private void actualizarEstadoLabel(Label label, String estado) {
+        label.getStyleClass().removeAll("cfg-status-ok", "cfg-status-error", "cfg-status-warning");
+        switch (estado) {
+            case "OK" -> label.getStyleClass().add("cfg-status-ok");
+            case "ERROR" -> label.getStyleClass().add("cfg-status-error");
+            default -> label.getStyleClass().add("cfg-status-warning");
+        }
+    }
+
+    private void actualizarResumenMapeoWeb() {
+        int activos = configuracionWebDAO.contarProductosActivos();
+        int sinCodigo = configuracionWebDAO.contarProductosSinCodigoBarras();
+        int pendientes = configuracionWebDAO.contarPendientesSincronizacion();
+        boolean usaCodigo = "Codigo de barras".equals(cmbWebModoEnlace.getValue());
+        if (usaCodigo && sinCodigo > 0) {
+            lblWebAdvertenciaMapeo.setText("Advertencia: " + sinCodigo + " de " + activos
+                    + " producto(s) activo(s) no tienen codigo de barras. Se puede usar id_producto como respaldo para evitar duplicados.");
+        } else {
+            lblWebAdvertenciaMapeo.setText("Mapeo listo: " + activos
+                    + " producto(s) activo(s). Pendientes de sincronizacion: " + pendientes + ".");
         }
     }
 
