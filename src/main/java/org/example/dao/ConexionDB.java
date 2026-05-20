@@ -8,8 +8,12 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConexionDB {
+
+    private static final Logger LOGGER = Logger.getLogger(ConexionDB.class.getName());
 
     private static final String URL_DEFAULT =
             "jdbc:mysql://localhost:3306/pospanaderia?useSSL=false&serverTimezone=America/Monterrey&useLegacyDatetimeCode=false&useJDBCCompliantTimezoneShift=true";
@@ -23,9 +27,21 @@ public class ConexionDB {
         try {
             return DATA_SOURCE.getConnection();
         } catch (SQLException e) {
-            System.err.println("No se pudo obtener conexion a la base de datos: " + e.getMessage());
-            return null;
+            LOGGER.log(Level.SEVERE, "No se pudo obtener conexion a la base de datos.", e);
+            throw new IllegalStateException("No se pudo obtener conexion a la base de datos.", e);
         }
+    }
+
+    public static String getJdbcUrl() {
+        return config("pos.db.url", "POS_DB_URL", URL_DEFAULT);
+    }
+
+    public static String getUsuario() {
+        return config("pos.db.user", "POS_DB_USER", USUARIO_DEFAULT);
+    }
+
+    public static String getClave() {
+        return config("pos.db.password", "POS_DB_PASSWORD", CLAVE_DEFAULT);
     }
 
     public static void cerrarPool() {

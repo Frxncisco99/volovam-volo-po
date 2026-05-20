@@ -12,215 +12,191 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="12" style="-fx-background-color: #F0F6FF; -fx-padding: 24 28; -fx-min-width: 500; -fx-max-width: 560;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controlador.PagoController">
+<VBox alignment="CENTER" spacing="12" styleClass="pago-root" stylesheets="@pago.css"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.controlador.PagoController">
 
     <fx:define>
         <ToggleGroup fx:id="grupoTicket" />
     </fx:define>
 
-    <!-- TÍTULO -->
-    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a;" text="Cobro" />
-    <Separator style="-fx-opacity: 0.3;" />
+    <Label styleClass="pago-title" text="Cobro" />
+    <Separator />
 
-    <!-- CLIENTE -->
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <Label style="-fx-font-size: 13px; -fx-text-fill: #5a7a99;" text="Cliente:" />
+        <Label styleClass="pago-label" text="Cliente:" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="lblClientePago" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a;" text="Publico General" />
+        <Label fx:id="lblClientePago" styleClass="pago-value" text="Publico General" />
     </HBox>
 
-    <!-- TOTAL -->
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <Label style="-fx-font-size: 14px; -fx-text-fill: #5a7a99;" text="Total a pagar:" />
+        <Label styleClass="pago-label" text="Total a pagar:" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="lblTotalPagar" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a;" text="\$0.00" />
+        <Label fx:id="lblTotalPagar" styleClass="pago-total" text="\$0.00" />
     </HBox>
 
-    <Separator style="-fx-opacity: 0.3;" />
+    <Separator />
 
-    <!-- MÉTODOS DE PAGO -->
-    <Label maxWidth="Infinity" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a; -fx-alignment: CENTER;" text="Metodo de pago:" />
+    <Label maxWidth="Infinity" styleClass="pago-section-title" text="Metodo de pago:" />
 
-    <!-- FILA 1 de botones -->
     <HBox spacing="8">
-        <Button fx:id="btnEfectivo" maxWidth="Infinity" onAction="#seleccionarEfectivo" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-font-weight: bold; -fx-background-radius: 10;                        -fx-border-color: #2563eb; -fx-border-width: 2; -fx-border-radius: 10;                        -fx-cursor: hand;" text="Efectivo" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="42.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                   <Image url="@/org/example/Imagenes/dinero (1).png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnTarjeta" maxWidth="Infinity" onAction="#seleccionarTarjeta" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="Tarjeta" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="44.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/tarjeta-de-credito.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnTransferencia" maxWidth="Infinity" onAction="#seleccionarTransferencia" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="Transferencia" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="39.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/metodo-de-pago.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnDolares" maxWidth="Infinity" onAction="#seleccionarDolares" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="USD" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="44.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/dinero.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
+        <Button fx:id="btnEfectivo" maxWidth="Infinity" onAction="#seleccionarEfectivo" prefHeight="52" styleClass="pago-method-button-active" text="Efectivo" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="42.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/dinero (1).png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnTarjeta" maxWidth="Infinity" onAction="#seleccionarTarjeta" prefHeight="52" styleClass="pago-method-button" text="Tarjeta" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="44.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/tarjeta-de-credito.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnTransferencia" maxWidth="Infinity" onAction="#seleccionarTransferencia" prefHeight="52" styleClass="pago-method-button" text="Transferencia" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="39.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/metodo-de-pago.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnDolares" maxWidth="Infinity" onAction="#seleccionarDolares" prefHeight="52" styleClass="pago-method-button" text="USD" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="44.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/dinero.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
     </HBox>
 
-    <!-- FILA 2 de botones -->
     <HBox spacing="8">
-        <Button fx:id="btnMixtoUSD" maxWidth="Infinity" onAction="#seleccionarMixtoUSD" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="MXN + USD" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="41.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/dinero-en-dolares.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnMixto" maxWidth="Infinity" onAction="#seleccionarMixto" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="Mixto" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="43.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/contribucion.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnFiado" maxWidth="Infinity" onAction="#seleccionarFiado" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="Credito" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="40.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/lista-de-quehaceres.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
-        <Button fx:id="btnOtros" maxWidth="Infinity" onAction="#seleccionarOtros" prefHeight="52" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                        -fx-background-radius: 10; -fx-border-color: #c8d8e8;                        -fx-border-width: 1.5; -fx-border-radius: 10; -fx-cursor: hand;" text="Otros" HBox.hgrow="ALWAYS">
-         <graphic>
-            <ImageView fitHeight="37.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@/org/example/Imagenes/compre-uno-y-llevese-otro-gratis.png" />
-               </image>
-            </ImageView>
-         </graphic></Button>
+        <Button fx:id="btnMixtoUSD" maxWidth="Infinity" onAction="#seleccionarMixtoUSD" prefHeight="52" styleClass="pago-method-button" text="MXN + USD" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="41.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/dinero-en-dolares.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnMixto" maxWidth="Infinity" onAction="#seleccionarMixto" prefHeight="52" styleClass="pago-method-button" text="Mixto" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="43.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/contribucion.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnFiado" maxWidth="Infinity" onAction="#seleccionarFiado" prefHeight="52" styleClass="pago-method-button" text="Credito" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="40.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/lista-de-quehaceres.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="btnOtros" maxWidth="Infinity" onAction="#seleccionarOtros" prefHeight="52" styleClass="pago-method-button" text="Otros" HBox.hgrow="ALWAYS">
+            <graphic>
+                <ImageView fitHeight="37.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true">
+                    <image><Image url="@/org/example/Imagenes/compre-uno-y-llevese-otro-gratis.png" /></image>
+                </ImageView>
+            </graphic>
+        </Button>
     </HBox>
 
-    <!-- ===== PANEL EFECTIVO ===== -->
-    <VBox fx:id="panelEfectivo" spacing="10" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;">
+    <VBox fx:id="panelEfectivo" spacing="10" styleClass="pago-panel">
         <HBox alignment="CENTER_LEFT" spacing="16">
-            <!-- Campo dinero recibido -->
             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Dinero recibido:" />
-                <TextField fx:id="txtDineroRecibido" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8;                                   -fx-border-color: #b0c8e0; -fx-border-width: 1.2;                                   -fx-padding: 10; -fx-font-size: 20px; -fx-font-weight: bold;                                   -fx-text-fill: #1a2e4a;" />
-                <!-- Denominaciones rápidas -->
+                <Label styleClass="pago-label" text="Dinero recibido:" />
+                <TextField fx:id="txtDineroRecibido" promptText="0.00" styleClass="pago-field-lg" />
                 <HBox spacing="6">
-                    <Button onAction="#denominacion50" style="-fx-background-color: #eaf2ff; -fx-text-fill: #2563eb;                                    -fx-background-radius: 6; -fx-border-color: #b0c8e0;                                    -fx-border-width: 1; -fx-border-radius: 6;                                    -fx-padding: 5 10; -fx-cursor: hand; -fx-font-size: 11px;" text="\$50 " />
-                    <Button onAction="#denominacion100" style="-fx-background-color: #eaf2ff; -fx-text-fill: #2563eb;                                    -fx-background-radius: 6; -fx-border-color: #b0c8e0;                                    -fx-border-width: 1; -fx-border-radius: 6;                                    -fx-padding: 5 10; -fx-cursor: hand; -fx-font-size: 11px;" text="\$100" />
-                    <Button onAction="#denominacion200" style="-fx-background-color: #eaf2ff; -fx-text-fill: #2563eb;                                    -fx-background-radius: 6; -fx-border-color: #b0c8e0;                                    -fx-border-width: 1; -fx-border-radius: 6;                                    -fx-padding: 5 10; -fx-cursor: hand; -fx-font-size: 11px;" text="\$200" />
-                    <Button onAction="#denominacion500" style="-fx-background-color: #eaf2ff; -fx-text-fill: #2563eb;                                    -fx-background-radius: 6; -fx-border-color: #b0c8e0;                                    -fx-border-width: 1; -fx-border-radius: 6;                                    -fx-padding: 5 10; -fx-cursor: hand; -fx-font-size: 11px;" text="\$500" />
+                    <Button onAction="#denominacion50" styleClass="pago-quick-button" text="\$50 " />
+                    <Button onAction="#denominacion100" styleClass="pago-quick-button" text="\$100" />
+                    <Button onAction="#denominacion200" styleClass="pago-quick-button" text="\$200" />
+                    <Button onAction="#denominacion500" styleClass="pago-quick-button" text="\$500" />
                 </HBox>
             </VBox>
-            <!-- Cambio -->
             <VBox alignment="CENTER" prefWidth="170" spacing="4">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Cambio:" />
-                <VBox fx:id="cajasCambio" alignment="CENTER" style="-fx-background-color: #22c55e; -fx-background-radius: 10;                              -fx-padding: 14 16; -fx-min-width: 160; -fx-min-height: 72;">
-                    <Label fx:id="lblCambio" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;" text="\$0.00" />
+                <Label styleClass="pago-label" text="Cambio:" />
+                <VBox fx:id="cajasCambio" alignment="CENTER" styleClass="pago-change-box">
+                    <Label fx:id="lblCambio" styleClass="pago-change-value" text="\$0.00" />
                 </VBox>
             </VBox>
         </HBox>
     </VBox>
 
-    <!-- ===== PANEL TARJETA ===== -->
-    <VBox fx:id="panelTarjeta" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Referencia (opcional):" />
-        <TextField fx:id="txtReferencia" promptText="Ultimos 4 digitos o referencia" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 14px;" />
+    <VBox fx:id="panelTarjeta" managed="false" spacing="8" styleClass="pago-panel" visible="false">
+        <Label styleClass="pago-label" text="Referencia (opcional):" />
+        <TextField fx:id="txtReferencia" promptText="Ultimos 4 digitos o referencia" styleClass="pago-field" />
     </VBox>
 
-    <!-- ===== PANEL TRANSFERENCIA ===== -->
-    <VBox fx:id="panelTransferencia" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Referencia de transferencia (opcional):" />
-        <TextField fx:id="txtReferenciaTransferencia" promptText="Numero de referencia" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 14px;" />
+    <VBox fx:id="panelTransferencia" managed="false" spacing="8" styleClass="pago-panel" visible="false">
+        <Label styleClass="pago-label" text="Referencia de transferencia (opcional):" />
+        <TextField fx:id="txtReferenciaTransferencia" promptText="Numero de referencia" styleClass="pago-field" />
     </VBox>
 
-    <!-- ===== PANEL MIXTO (MXN + tarjeta) ===== -->
-    <VBox fx:id="panelMixto" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Efectivo:" />
-        <TextField fx:id="txtEfectivoMixto" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 14px;" />
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Tarjeta / Transferencia:" />
-        <TextField fx:id="txtTarjetaMixto" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 14px;" />
+    <VBox fx:id="panelMixto" managed="false" spacing="8" styleClass="pago-panel" visible="false">
+        <Label styleClass="pago-label" text="Efectivo:" />
+        <TextField fx:id="txtEfectivoMixto" promptText="0.00" styleClass="pago-field" />
+        <Label styleClass="pago-label" text="Tarjeta / Transferencia:" />
+        <TextField fx:id="txtTarjetaMixto" promptText="0.00" styleClass="pago-field" />
         <HBox alignment="CENTER_LEFT">
-            <Label style="-fx-font-size: 13px; -fx-text-fill: #5a7a99;" text="Cambio:" />
+            <Label styleClass="pago-label" text="Cambio:" />
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblCambioMixto" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #22c55e;" text="\$0.00" />
+            <Label fx:id="lblCambioMixto" styleClass="pago-change-inline-lg" text="\$0.00" />
         </HBox>
     </VBox>
 
-    <!-- ===== PANEL FIADO ===== -->
-    <VBox fx:id="panelFiado" managed="false" spacing="6" style="-fx-background-color: #FFF8E7; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #ffe08a; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label fx:id="lblInfoFiado" style="-fx-font-size: 12px; -fx-text-fill: #E67E22; -fx-font-weight: bold;" text="Cargando info..." />
+    <VBox fx:id="panelFiado" managed="false" spacing="6" styleClass="pago-panel-warning" visible="false">
+        <Label fx:id="lblInfoFiado" styleClass="pago-credit-info" text="Cargando info..." />
     </VBox>
 
-    <!-- ===== PANEL DÓLARES ===== -->
-    <VBox fx:id="panelDolares" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
+    <VBox fx:id="panelDolares" managed="false" spacing="8" styleClass="pago-panel" visible="false">
         <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Tipo de cambio:" />
-            <Label fx:id="lblTipoCambio" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1a2e4a;" text="\$17.50 MXN/USD" />
+            <Label styleClass="pago-label" text="Tipo de cambio:" />
+            <Label fx:id="lblTipoCambio" styleClass="pago-value" text="\$17.50 MXN/USD" />
         </HBox>
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Dólares recibidos (USD):" />
-        <TextField fx:id="txtDolaresRecibidos" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 18px;" />
-        <Label fx:id="lblEquivalentePesos" style="-fx-font-size: 11px; -fx-text-fill: #5a7a99;" text="" />
+        <Label styleClass="pago-label" text="Dolares recibidos (USD):" />
+        <TextField fx:id="txtDolaresRecibidos" promptText="0.00" styleClass="pago-field-lg" />
+        <Label fx:id="lblEquivalentePesos" styleClass="pago-muted" text="" />
         <HBox alignment="CENTER_LEFT">
-            <Label style="-fx-font-size: 13px; -fx-text-fill: #5a7a99;" text="Cambio:" />
+            <Label styleClass="pago-label" text="Cambio:" />
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblCambioDolares" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #22c55e;" text="\$0.00" />
+            <Label fx:id="lblCambioDolares" styleClass="pago-change-inline" text="\$0.00" />
         </HBox>
     </VBox>
 
-    <!-- ===== PANEL MIXTO USD ===== -->
-    <VBox fx:id="panelMixtoUSD" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Pesos mexicanos (MXN):" />
-        <TextField fx:id="txtPesosMixtoUSD" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 14px;" />
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Dólares (USD):" />
-        <TextField fx:id="txtDolaresMixtoUSD" promptText="0.00" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 8; -fx-font-size: 14px;" />
-        <Label fx:id="lblEquivalenteMixtoUSD" style="-fx-font-size: 11px; -fx-text-fill: #5a7a99;" text="" />
+    <VBox fx:id="panelMixtoUSD" managed="false" spacing="8" styleClass="pago-panel" visible="false">
+        <Label styleClass="pago-label" text="Pesos mexicanos (MXN):" />
+        <TextField fx:id="txtPesosMixtoUSD" promptText="0.00" styleClass="pago-field" />
+        <Label styleClass="pago-label" text="Dolares (USD):" />
+        <TextField fx:id="txtDolaresMixtoUSD" promptText="0.00" styleClass="pago-field" />
+        <Label fx:id="lblEquivalenteMixtoUSD" styleClass="pago-muted" text="" />
         <HBox alignment="CENTER_LEFT">
-            <Label style="-fx-font-size: 13px; -fx-text-fill: #5a7a99;" text="Cambio:" />
+            <Label styleClass="pago-label" text="Cambio:" />
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblCambioMixtoUSD" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #22c55e;" text="\$0.00" />
+            <Label fx:id="lblCambioMixtoUSD" styleClass="pago-change-inline" text="\$0.00" />
         </HBox>
     </VBox>
 
-    <!-- ===== PANEL OTROS ===== -->
-    <VBox fx:id="panelOtros" managed="false" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12;                  -fx-padding: 14 16; -fx-border-color: #dce8f5; -fx-border-radius: 12; -fx-border-width: 1;" visible="false">
-        <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99;" text="Descripcion del pago (opcional):" />
-        <TextField fx:id="txtOtrosDescripcion" promptText="Ej: Vale, Credito interno, Cortesia..." style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b0c8e0;                           -fx-border-width: 1.2; -fx-padding: 10; -fx-font-size: 13px;" />
+    <VBox fx:id="panelOtros" managed="false" spacing="8" styleClass="pago-panel" visible="false">
+        <Label styleClass="pago-label" text="Descripcion del pago (opcional):" />
+        <TextField fx:id="txtOtrosDescripcion" promptText="Ej: Vale, Credito interno, Cortesia..." styleClass="pago-field" />
     </VBox>
 
-    <!-- OPCION DE TICKET -->
-    <VBox maxWidth="Infinity" spacing="8" style="-fx-background-color: #eaf2ff; -fx-background-radius: 10;                  -fx-padding: 10 14; -fx-border-color: #b0c8e0; -fx-border-radius: 10; -fx-border-width: 1;">
+    <VBox maxWidth="Infinity" spacing="8" styleClass="pago-ticket-box">
         <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label style="-fx-font-size: 12px; -fx-text-fill: #5a7a99; -fx-font-weight: bold;" text="Ticket de venta" />
+            <Label styleClass="pago-label" text="Ticket de venta" />
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblModoTicket" style="-fx-font-size: 11px; -fx-text-fill: #5a7a99;" text="Se imprimira al confirmar" />
+            <Label fx:id="lblModoTicket" styleClass="pago-muted" text="Se imprimira al confirmar" />
         </HBox>
         <HBox spacing="8">
-            <ToggleButton fx:id="btnConTicket" maxWidth="Infinity" onAction="#seleccionarConTicket" prefHeight="36" selected="true" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-size: 12px;                               -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #2563eb;                               -fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;" text="Generar e imprimir" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
-            <ToggleButton fx:id="btnSinTicket" maxWidth="Infinity" onAction="#seleccionarSinTicket" prefHeight="36" style="-fx-background-color: white; -fx-text-fill: #1a2e4a; -fx-font-size: 12px;                               -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-color: #c8d8e8;                               -fx-border-width: 1.5; -fx-border-radius: 8; -fx-cursor: hand;" text="Venta sin ticket" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
+            <ToggleButton fx:id="btnConTicket" maxWidth="Infinity" onAction="#seleccionarConTicket" prefHeight="36" selected="true" styleClass="pago-ticket-toggle-active" text="Generar e imprimir" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
+            <ToggleButton fx:id="btnSinTicket" maxWidth="Infinity" onAction="#seleccionarSinTicket" prefHeight="36" styleClass="pago-ticket-toggle" text="Venta sin ticket" toggleGroup="$grupoTicket" HBox.hgrow="ALWAYS" />
         </HBox>
     </VBox>
 
-    <Separator style="-fx-opacity: 0.3;" />
+    <Separator />
 
-    <!-- BOTÓN CONFIRMAR -->
-    <Button fx:id="btnConfirmar" maxWidth="Infinity" onAction="#handleConfirmar" prefHeight="48" prefWidth="460" style="-fx-background-color: #2563eb; -fx-background-radius: 12;                    -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;                    -fx-cursor: hand; -fx-effect: dropshadow(gaussian,#2563eb55,10,0,0,3);" text="Confirmar venta" />
-    <Button maxWidth="Infinity" onAction="#handleCancelar" prefHeight="38" prefWidth="460" style="-fx-background-color: transparent; -fx-border-color: #b0c8e0;                    -fx-border-radius: 12; -fx-border-width: 1.2; -fx-text-fill: #5a7a99;                    -fx-font-size: 13px; -fx-cursor: hand;" text="Cancelar" />
+    <Button fx:id="btnConfirmar" maxWidth="Infinity" onAction="#handleConfirmar" prefHeight="48" prefWidth="460" styleClass="pago-primary" text="Confirmar venta" />
+    <Button maxWidth="Infinity" onAction="#handleCancelar" prefHeight="38" prefWidth="460" styleClass="pago-secondary" text="Cancelar" />
 
 </VBox>

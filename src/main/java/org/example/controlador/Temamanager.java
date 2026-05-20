@@ -1,9 +1,8 @@
 package org.example.controlador;
 
-import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -19,7 +18,7 @@ public class Temamanager {
     public enum Tema {
         CAFE("cafe",    "☕ Café",   "tema-cafe.css"),
         OSCURO("oscuro","🌙 Oscuro", "tema-oscuro.css"),
-        VERDE("verde",  "🌿 Verde",  "tema-verde.css"),
+        VERDE("verde",  "🌿 Verde",  "verde.css"),
         AZUL("azul",    "❄️ Azul",   "tema-azul.css");
 
         public final String id;
@@ -75,16 +74,19 @@ public class Temamanager {
     private void aplicarTemaAScene(String temaId, Scene scene) {
         if (scene == null) return;
         Tema tema = Tema.porId(temaId);
-        String url = Temamanager.class.getResource(
-                "/org/example/vista/" + tema.archivo
-        ).toExternalForm();
+        URL recurso = Temamanager.class.getResource("/org/example/vista/" + tema.archivo);
+        if (recurso == null) {
+            return;
+        }
+        String url = recurso.toExternalForm();
 
         // Quitar temas anteriores, conservar otros CSS
         scene.getStylesheets().removeIf(s ->
                 s.contains("tema-cafe") ||
                         s.contains("tema-oscuro") ||
                         s.contains("tema-verde") ||
-                        s.contains("tema-azul")
+                        s.contains("tema-azul") ||
+                        s.contains("verde.css")
         );
         // Insertar el nuevo tema AL INICIO para que las variables estén disponibles
         scene.getStylesheets().add(0, url);

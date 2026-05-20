@@ -17,7 +17,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -128,7 +127,7 @@ public class ClientesController {
         }
         if (filtrados.isEmpty()) {
             Label vacio = new Label("No hay clientes para mostrar");
-            vacio.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 13px; -fx-padding: 20;");
+            vacio.getStyleClass().add("clientes-empty");
             flowClientes.getChildren().add(vacio);
         }
     }
@@ -136,66 +135,58 @@ public class ClientesController {
     private VBox crearCard(ClienteRow cliente) {
         double disponible = cliente.limite() - cliente.saldo();
         String estado = estadoCliente(cliente);
-        String estadoColor = switch (estado) {
-            case "Limite al maximo" -> "#8B1A1A";
-            case "Con adeudo" -> "#C0392B";
-            default -> "#2E7D32";
-        };
-
         VBox card = new VBox();
         card.setPrefWidth(295);
         card.setMaxWidth(295);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #E8DDD0; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian,rgba(61,31,13,0.10),12,0,0,3);");
+        card.getStyleClass().add("cliente-card");
 
         StackPane header = new StackPane();
         header.setPrefHeight(82);
-        header.setStyle("-fx-background-color: linear-gradient(to bottom right, #3D1F0D, #6B4226); -fx-background-radius: 8 8 0 0;");
+        header.getStyleClass().add("cliente-card-header");
 
         Label badge = new Label(estado);
-        badge.setStyle("-fx-background-color: " + estadoColor + "22; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px; -fx-background-radius: 14; -fx-padding: 4 10;");
+        badge.getStyleClass().add(estadoClase(cliente));
         StackPane.setAlignment(badge, Pos.TOP_RIGHT);
         StackPane.setMargin(badge, new Insets(10));
 
         Label avatar = new Label(iniciales(cliente.nombre()));
         avatar.setPrefSize(56, 56);
         avatar.setMaxSize(56, 56);
-        avatar.setStyle("-fx-background-color: " + colorAvatar(cliente.nombre()) + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px; -fx-background-radius: 28; -fx-border-color: rgba(255,255,255,0.35); -fx-border-width: 2; -fx-border-radius: 28; -fx-alignment: center;");
+        avatar.getStyleClass().add("cliente-avatar");
         StackPane.setAlignment(avatar, Pos.BOTTOM_LEFT);
         StackPane.setMargin(avatar, new Insets(0, 0, -24, 16));
         header.getChildren().addAll(badge, avatar);
 
         VBox body = new VBox(8);
-        body.setPadding(new Insets(30, 16, 12, 16));
+        body.getStyleClass().add("cliente-card-body");
 
         Label nombre = new Label(cliente.nombre());
         nombre.setWrapText(true);
-        nombre.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2C1A0E;");
+        nombre.getStyleClass().add("cliente-name");
 
         HBox telefono = new HBox(7);
         telefono.setAlignment(Pos.CENTER_LEFT);
-        FontIcon phone = new FontIcon("fas-phone");
-        phone.setIconSize(12);
-        phone.setIconColor(javafx.scene.paint.Color.web("#7A5535"));
+        FontIcon phone = crearIcono("fas-phone", "cliente-inline-icon");
         Label tel = new Label(cliente.telefono() == null || cliente.telefono().isBlank() ? "Sin telefono" : cliente.telefono());
-        tel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7A5535;");
+        tel.getStyleClass().add("cliente-phone-text");
         telefono.getChildren().addAll(phone, tel);
 
         Label fiscal = new Label(cliente.rfc() == null || cliente.rfc().isBlank()
                 ? "Sin RFC fiscal"
                 : "RFC: " + cliente.rfc());
-        fiscal.setStyle("-fx-font-size: 11px; -fx-text-fill: #475569;");
+        fiscal.getStyleClass().add("cliente-fiscal-text");
 
         VBox credito = new VBox(4);
-        credito.setStyle("-fx-background-color: #F5EFE6; -fx-background-radius: 8; -fx-padding: 10;");
+        credito.getStyleClass().add("cliente-credit-box");
         credito.getChildren().addAll(
-                lineaDato("Limite", "$" + String.format("%.2f", cliente.limite()), "#0d3d5e"),
-                lineaDato("Saldo", "$" + String.format("%.2f", cliente.saldo()), cliente.saldo() > 0 ? "#C0392B" : "#2E7D32"),
-                lineaDato("Disponible", "$" + String.format("%.2f", disponible), disponible <= 0 && cliente.limite() > 0 ? "#8B1A1A" : "#2E7D32")
+                lineaDato("Limite", "$" + String.format("%.2f", cliente.limite()), "cliente-data-value-primary"),
+                lineaDato("Saldo", "$" + String.format("%.2f", cliente.saldo()), cliente.saldo() > 0 ? "cliente-data-value-danger" : "cliente-data-value-success"),
+                lineaDato("Disponible", "$" + String.format("%.2f", disponible), disponible <= 0 && cliente.limite() > 0 ? "cliente-data-value-danger" : "cliente-data-value-success")
         );
 
         HBox acciones1 = new HBox(8);
-        Button btnEditar = boton("Editar", "#1a6fa8", "white");
-        Button btnHistorial = boton("Historial", "#F5ECD7", "#6B4226");
+        Button btnEditar = boton("Editar", "cliente-action-primary");
+        Button btnHistorial = boton("Historial", "cliente-action-secondary");
         btnEditar.setOnAction(e -> mostrarDialogoCliente(cliente));
         btnHistorial.setOnAction(e -> mostrarHistorial(cliente));
         HBox.setHgrow(btnEditar, Priority.ALWAYS);
@@ -205,8 +196,8 @@ public class ClientesController {
         acciones1.getChildren().addAll(btnEditar, btnHistorial);
 
         HBox acciones2 = new HBox(8);
-        Button btnPago = boton("Registrar pago", "#2E7D32", "white");
-        Button btnDesactivar = boton("Desactivar", "#FDE8E8", "#B91C1C");
+        Button btnPago = boton("Registrar pago", "cliente-action-success");
+        Button btnDesactivar = boton("Desactivar", "cliente-action-danger");
         btnPago.setOnAction(e -> mostrarPago(cliente));
         btnPago.setDisable(cliente.saldo() <= 0);
         btnDesactivar.setOnAction(e -> desactivarCliente(cliente));
@@ -221,24 +212,31 @@ public class ClientesController {
         return card;
     }
 
-    private HBox lineaDato(String etiqueta, String valor, String color) {
+    private HBox lineaDato(String etiqueta, String valor, String valorStyleClass) {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);
         Label left = new Label(etiqueta);
-        left.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px;");
+        left.getStyleClass().add("cliente-data-label");
         Label right = new Label(valor);
-        right.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px; -fx-font-weight: bold;");
+        right.getStyleClass().add(valorStyleClass);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         row.getChildren().addAll(left, spacer, right);
         return row;
     }
 
-    private Button boton(String texto, String fondo, String color) {
+    private Button boton(String texto, String estilo) {
         Button btn = new Button(texto);
         btn.setPrefHeight(32);
-        btn.setStyle("-fx-background-color: " + fondo + "; -fx-text-fill: " + color + "; -fx-background-radius: 8; -fx-padding: 6 10; -fx-cursor: hand; -fx-font-size: 11px; -fx-font-weight: bold;");
+        btn.getStyleClass().addAll("cliente-action-button", estilo);
         return btn;
+    }
+
+    private FontIcon crearIcono(String iconLiteral, String estilo) {
+        FontIcon icon = new FontIcon(iconLiteral);
+        icon.setIconSize(12);
+        icon.getStyleClass().add(estilo);
+        return icon;
     }
 
     @FXML
@@ -258,9 +256,11 @@ public class ClientesController {
         }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(nuevo ? "Nuevo cliente" : "Editar cliente");
+        aplicarEstilosDialogo(dialog);
 
         VBox contenido = new VBox(10);
-        contenido.setStyle("-fx-padding: 20; -fx-min-width: 380;");
+        contenido.setMinWidth(380);
+        contenido.getStyleClass().add("cliente-dialog-content");
 
         TextField txtNombre = new TextField(nuevo ? "" : cliente.nombre());
         TextField txtTelefono = new TextField(nuevo ? "" : cliente.telefono());
@@ -337,7 +337,15 @@ public class ClientesController {
     }
 
     private void aplicarEstiloCampo(TextField field) {
-        field.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #6B4226; -fx-padding: 8;");
+        field.getStyleClass().add("cliente-dialog-input");
+    }
+
+    private void aplicarEstilosDialogo(Dialog<?> dialog) {
+        java.net.URL css = getClass().getResource("/org/example/vista/menuPrincipal.css");
+        if (css != null) {
+            dialog.getDialogPane().getStylesheets().add(css.toExternalForm());
+        }
+        dialog.getDialogPane().getStyleClass().add("cliente-dialog");
     }
 
     private void insertarCliente(String nombre, String telefono, double limite, ClienteFiscal fiscal) {
@@ -405,8 +413,10 @@ public class ClientesController {
         }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Registrar pago");
+        aplicarEstilosDialogo(dialog);
         VBox contenido = new VBox(10);
-        contenido.setStyle("-fx-padding: 20; -fx-min-width: 360;");
+        contenido.setMinWidth(360);
+        contenido.getStyleClass().add("cliente-dialog-content");
         TextField txtMonto = new TextField();
         TextField txtConcepto = new TextField("Abono manual");
         txtMonto.setPromptText("Monto");
@@ -477,9 +487,11 @@ public class ClientesController {
     private void mostrarHistorial(ClienteRow cliente) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Historial de pagos - " + cliente.nombre());
+        aplicarEstilosDialogo(dialog);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
         TableView<PagoRow> tabla = new TableView<>();
+        tabla.getStyleClass().add("cliente-history-table");
         TableColumn<PagoRow, String> colFecha = new TableColumn<>("Fecha");
         TableColumn<PagoRow, String> colTipo = new TableColumn<>("Tipo");
         TableColumn<PagoRow, String> colMonto = new TableColumn<>("Monto");
@@ -549,18 +561,18 @@ public class ClientesController {
         return "Sin adeudo";
     }
 
+    private String estadoClase(ClienteRow cliente) {
+        if (cliente.limite() > 0 && cliente.saldo() >= cliente.limite()) return "cliente-status-danger";
+        if (cliente.saldo() > 0) return "cliente-status-warning";
+        return "cliente-status-ok";
+    }
+
     private String iniciales(String nombre) {
         String limpio = nombre == null ? "" : nombre.trim();
         if (limpio.isEmpty()) return "CL";
         String[] partes = limpio.split("\\s+");
         if (partes.length > 1) return (partes[0].substring(0, 1) + partes[1].substring(0, 1)).toUpperCase();
         return limpio.substring(0, Math.min(2, limpio.length())).toUpperCase();
-    }
-
-    private String colorAvatar(String nombre) {
-        String[] colores = {"#1a6fa8", "#6B4226", "#2E7D32", "#8B5CF6", "#D97706", "#C0392B"};
-        int index = Math.abs((nombre == null ? "" : nombre).hashCode()) % colores.length;
-        return colores[index];
     }
 
     private boolean columnasFiscalesClientes() {

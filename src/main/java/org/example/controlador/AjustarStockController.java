@@ -214,8 +214,13 @@ public class AjustarStockController {
         }
 
         int resultado = (int) resultadoCalculado;
-        registrarMovimientoInventario(esAdicion, cantidad);
-        dao.ajustarStock(producto.getIdProducto(), ajuste);
+        try {
+            aplicarAjusteTransaccional(esAdicion, cantidad, ajuste);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "No se pudo ajustar stock", mensajeError(e));
+            return;
+        }
 
         producto.setStock(resultado);
         lblStockActual.setText(String.valueOf(resultado));
@@ -232,20 +237,60 @@ public class AjustarStockController {
         cerrar();
     }
 
-    private void registrarMovimientoInventario(boolean esAdicion, int cantidad) {
-        try (java.sql.Connection con = ConexionDB.getConexion()) {
-            InventarioMovimientoService.TipoMovimiento tipo = esAdicion
-                    ? InventarioMovimientoService.TipoMovimiento.AJUSTE_ENTRADA
-                    : InventarioMovimientoService.TipoMovimiento.AJUSTE_SALIDA;
-
-            InventarioMovimientoService.get().registrar(
-                    con, producto.getIdProducto(), tipo, cantidad,
-                    0, "AJUSTE_MANUAL",
-                    "Ajuste manual de stock por " + SesionUsuario.getInstancia().getNombre()
-            );
+    private void aplicarAjusteTransaccional(boolean esAdicion, int cantidad, int ajuste) throws Exception {
+        java.sql.Connection con = null;
+        try {
+            con = ConexionDB.getConexion();
+            con.setAutoCommit(false);
+            registrarMovimientoInventario(con, esAdicion, cantidad);
+            if (!dao.ajustarStock(con, producto.getIdProducto(), ajuste)) {
+                throw new IllegalStateException("Stock insuficiente o producto no encontrado.");
+            }
+            con.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            rollbackSilencioso(con);
+            throw e;
+        } finally {
+            cerrarConexion(con);
         }
+    }
+
+    private void registrarMovimientoInventario(java.sql.Connection con, boolean esAdicion, int cantidad) throws Exception {
+        InventarioMovimientoService.TipoMovimiento tipo = esAdicion
+                ? InventarioMovimientoService.TipoMovimiento.AJUSTE_ENTRADA
+                : InventarioMovimientoService.TipoMovimiento.AJUSTE_SALIDA;
+
+        InventarioMovimientoService.get().registrar(
+                con, producto.getIdProducto(), tipo, cantidad,
+                0, "AJUSTE_MANUAL",
+                "Ajuste manual de stock por " + SesionUsuario.getInstancia().getNombre()
+        );
+    }
+
+    private void rollbackSilencioso(java.sql.Connection con) {
+        if (con == null) return;
+        try {
+            con.rollback();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void cerrarConexion(java.sql.Connection con) {
+        if (con == null) return;
+        try {
+            con.setAutoCommit(true);
+        } catch (Exception ignored) {
+        }
+        try {
+            con.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private String mensajeError(Exception e) {
+        return e.getMessage() == null || e.getMessage().isBlank()
+                ? "Ocurrio un error al actualizar el inventario."
+                : e.getMessage();
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {

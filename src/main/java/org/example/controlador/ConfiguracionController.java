@@ -939,11 +939,19 @@ public class ConfiguracionController {
 
     @FXML
     public void agregarUsuario() {
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(PermisoService.USUARIOS_CREAR, "Crear usuario")) {
+            return;
+        }
         mostrarDialogoUsuario(null);
     }
 
     private void mostrarDialogoUsuario(UsuarioRow usuario) {
         boolean nuevo = usuario == null;
+        if (!nuevo && !PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.USUARIOS_EDITAR,
+                "Editar usuario " + usuario.usuario())) {
+            return;
+        }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(nuevo ? "Nuevo usuario" : "Editar usuario");
         VBox form = new VBox(10);
@@ -1067,6 +1075,11 @@ public class ConfiguracionController {
     }
 
     private void cambiarPasswordUsuario(UsuarioRow usuario) {
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.USUARIOS_EDITAR,
+                "Cambiar clave de usuario " + usuario.usuario())) {
+            return;
+        }
         PasswordField field = new PasswordField();
         field.setPromptText("Nueva contrasena");
         Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
@@ -1087,6 +1100,11 @@ public class ConfiguracionController {
     }
 
     private void cambiarEstadoUsuario(UsuarioRow usuario) {
+        String permiso = usuario.activo() ? PermisoService.USUARIOS_DESACTIVAR : PermisoService.USUARIOS_EDITAR;
+        String accion = (usuario.activo() ? "Desactivar" : "Activar") + " usuario " + usuario.usuario();
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(permiso, accion)) {
+            return;
+        }
         if (usuario.activo() && !usuarioSeguridadService.puedeDesactivarUsuario(usuario.id())) {
             mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", usuarioSeguridadService.mensajeProteccionAdmin(usuario.id()));
             return;
@@ -1104,8 +1122,9 @@ public class ConfiguracionController {
     }
 
     private void mostrarDialogoPermisos(UsuarioRow usuario) {
-        if (!PermisoService.tienePermiso(PermisoService.PERMISOS_GESTIONAR)) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Permisos", "No tienes permiso para gestionar permisos.");
+        if (!PermisoService.requerirPermisoOAutorizacionAdmin(
+                PermisoService.PERMISOS_GESTIONAR,
+                "Gestionar permisos de usuario " + usuario.usuario())) {
             return;
         }
         List<PermisoService.PermisoInfo> catalogo = PermisoService.listarPermisos();
@@ -1211,7 +1230,13 @@ public class ConfiguracionController {
             return;
         }
         File destino = new File(carpeta, "pospanaderia_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".sql");
-        ProcessBuilder pb = new ProcessBuilder("mysqldump", "-h", "localhost", "-u", "root", "pospanaderia");
+        ProcessBuilder pb;
+        try {
+            pb = new ProcessBuilder(comandoMysqldump());
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "No se pudo preparar el respaldo.\n" + e.getMessage());
+            return;
+        }
         pb.redirectOutput(destino);
         pb.redirectErrorStream(true);
         try {
@@ -1222,6 +1247,60 @@ public class ConfiguracionController {
             mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "No se pudo exportar el respaldo.\n" + e.getMessage());
         }
     }
+
+    private List<String> comandoMysqldump() {
+        DatosMysql datos = datosMysqlDesdeJdbc(ConexionDB.getJdbcUrl());
+        List<String> comando = new ArrayList<>();
+        comando.add("mysqldump");
+        comando.add("--single-transaction");
+        comando.add("--routines");
+        comando.add("--triggers");
+        comando.add("-h");
+        comando.add(datos.host());
+        if (!datos.puerto().isBlank()) {
+            comando.add("-P");
+            comando.add(datos.puerto());
+        }
+        String usuario = ConexionDB.getUsuario();
+        if (usuario != null && !usuario.isBlank()) {
+            comando.add("-u");
+            comando.add(usuario);
+        }
+        String clave = ConexionDB.getClave();
+        if (clave != null && !clave.isBlank()) {
+            comando.add("-p" + clave);
+        }
+        comando.add(datos.baseDatos());
+        return comando;
+    }
+
+    private DatosMysql datosMysqlDesdeJdbc(String jdbcUrl) {
+        String url = jdbcUrl == null ? "" : jdbcUrl.trim();
+        String prefijo = "jdbc:mysql://";
+        if (!url.startsWith(prefijo)) {
+            throw new IllegalArgumentException("La URL JDBC configurada no es MySQL.");
+        }
+        String resto = url.substring(prefijo.length());
+        int slash = resto.indexOf('/');
+        String hostPuerto = slash >= 0 ? resto.substring(0, slash) : "localhost:3306";
+        String base = slash >= 0 ? resto.substring(slash + 1) : "";
+        int query = base.indexOf('?');
+        if (query >= 0) base = base.substring(0, query);
+        if (base.isBlank()) {
+            throw new IllegalArgumentException("No se pudo detectar la base de datos en la URL JDBC.");
+        }
+
+        String host = hostPuerto;
+        String puerto = "";
+        int dosPuntos = hostPuerto.lastIndexOf(':');
+        if (dosPuntos > 0 && dosPuntos < hostPuerto.length() - 1) {
+            host = hostPuerto.substring(0, dosPuntos);
+            puerto = hostPuerto.substring(dosPuntos + 1);
+        }
+        return new DatosMysql(host, puerto, base);
+    }
+
+    private record DatosMysql(String host, String puerto, String baseDatos) {}
 
     private void feedbackGuardado() {
         if (feedbackFade != null) {
