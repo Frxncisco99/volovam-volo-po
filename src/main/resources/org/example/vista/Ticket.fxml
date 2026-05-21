@@ -13,27 +13,23 @@
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.TicketController"
+      stylesheets="@menuPrincipal.css"
+      styleClass="ticket-root"
       prefWidth="500" prefHeight="700"
-      spacing="0"
-      style="-fx-background-color: #F5EFE6;">
+      spacing="0">
 
     <!-- topbar -->
-    <HBox alignment="CENTER_LEFT"
-          style="-fx-background-color: #3D1F0D; -fx-padding: 14 20;">
+    <HBox alignment="CENTER_LEFT" styleClass="ticket-topbar">
         <VBox spacing="1">
-            <Label style="-fx-text-fill: #D4A843; -fx-font-size: 16px; -fx-font-weight: bold;"
-                   text="Volovan Volo"/>
-            <Label style="-fx-text-fill: #C8A97E; -fx-font-size: 9px;"
-                   text="Sistema de Punto de Venta"/>
+            <Label styleClass="ticket-brand-title" text="Volovan Volo"/>
+            <Label styleClass="ticket-brand-subtitle" text="Sistema de Punto de Venta"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="lblNumeroVenta"
-               style="-fx-text-fill: #D4A843; -fx-font-size: 12px; -fx-font-weight: bold;"
-               text="Folio # --"/>
+        <Label fx:id="lblNumeroVenta" styleClass="ticket-folio" text="Folio # --"/>
     </HBox>
 
     <!-- resumen -->
-    <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 14 20;">
+    <VBox spacing="8" styleClass="ticket-summary">
 
         <!-- info de negocio -->
         <HBox spacing="14" alignment="CENTER_LEFT">
@@ -43,16 +39,11 @@
                 </image>
             </ImageView>
             <VBox spacing="3">
-                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"
-                       text="Volovan Volo"/>
-                <Label style="-fx-font-size: 10px; -fx-text-fill: #7A5535;"
-                       text="Panaderia y Reposteria"/>
-                <Label style="-fx-font-size: 9px; -fx-text-fill: #7A5535;"
-                       text="C. Francisco I Madero #1515"/>
-                <Label style="-fx-font-size: 9px; -fx-text-fill: #7A5535;"
-                       text="Col. Nogales, C.P. 26236"/>
-                <Label style="-fx-font-size: 9px; -fx-text-fill: #9E7040; -fx-font-style: italic;"
-                       text="Este ticket no es comprobante fiscal"/>
+                <Label styleClass="ticket-business-name" text="Volovan Volo"/>
+                <Label styleClass="ticket-business-line" text="Panaderia y Reposteria"/>
+                <Label styleClass="ticket-business-address" text="C. Francisco I Madero #1515"/>
+                <Label styleClass="ticket-business-address" text="Col. Nogales, C.P. 26236"/>
+                <Label styleClass="ticket-fiscal-note" text="Este ticket no es comprobante fiscal"/>
             </VBox>
         </HBox>
 
@@ -61,99 +52,69 @@
         <!-- Fecha / Cajero / Caja -->
         <HBox spacing="8">
             <VBox spacing="2" HBox.hgrow="ALWAYS">
-                <Label style="-fx-text-fill: #7A5535; -fx-font-size: 9px; -fx-font-weight: bold;" text="FECHA"/>
-                <Label fx:id="lblFecha"
-                       style="-fx-text-fill: #3D1F0D; -fx-font-size: 11px; -fx-font-weight: bold;"
-                       text="--/--/---- --:--"/>
+                <Label styleClass="ticket-meta-label" text="FECHA"/>
+                <Label fx:id="lblFecha" styleClass="ticket-meta-value" text="--/--/---- --:--"/>
             </VBox>
             <VBox spacing="2" HBox.hgrow="ALWAYS">
-                <Label style="-fx-text-fill: #7A5535; -fx-font-size: 9px; -fx-font-weight: bold;" text="CAJERO"/>
-                <Label fx:id="lblCajero"
-                       style="-fx-text-fill: #3D1F0D; -fx-font-size: 11px; -fx-font-weight: bold;"
-                       text="--"/>
+                <Label styleClass="ticket-meta-label" text="CAJERO"/>
+                <Label fx:id="lblCajero" styleClass="ticket-meta-value" text="--"/>
             </VBox>
             <VBox spacing="2">
-                <Label style="-fx-text-fill: #7A5535; -fx-font-size: 9px; -fx-font-weight: bold;" text="CAJA"/>
-                <Label fx:id="lblCaja"
-                       style="-fx-text-fill: #3D1F0D; -fx-font-size: 11px; -fx-font-weight: bold;"
-                       text="--"/>
+                <Label styleClass="ticket-meta-label" text="CAJA"/>
+                <Label fx:id="lblCaja" styleClass="ticket-meta-value" text="--"/>
             </VBox>
         </HBox>
 
         <!-- Total / Recibido / Cambio / Articulos -->
-        <HBox spacing="6" style="-fx-padding: 4 0 0 0;">
-            <VBox spacing="2" HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: #F5EFE6; -fx-background-radius: 8; -fx-padding: 8 10;">
-                <Label style="-fx-text-fill: #7A5535; -fx-font-size: 8px; -fx-font-weight: bold;" text="TOTAL"/>
-                <Label fx:id="lblTotal"
-                       style="-fx-text-fill: #6B4226; -fx-font-size: 17px; -fx-font-weight: bold;"
-                       text="0.00"/>
+        <HBox spacing="6" styleClass="ticket-totals-row">
+            <VBox spacing="2" HBox.hgrow="ALWAYS" styleClass="ticket-total-box">
+                <Label styleClass="ticket-total-label" text="TOTAL"/>
+                <Label fx:id="lblTotal" styleClass="ticket-total-value-primary" text="0.00"/>
             </VBox>
-            <VBox spacing="2" HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: #F5EFE6; -fx-background-radius: 8; -fx-padding: 8 10;">
-                <Label style="-fx-text-fill: #7A5535; -fx-font-size: 8px; -fx-font-weight: bold;" text="RECIBIDO"/>
-                <Label fx:id="lblRecibido"
-                       style="-fx-text-fill: #3D1F0D; -fx-font-size: 17px; -fx-font-weight: bold;"
-                       text="0.00"/>
+            <VBox spacing="2" HBox.hgrow="ALWAYS" styleClass="ticket-total-box">
+                <Label styleClass="ticket-total-label" text="RECIBIDO"/>
+                <Label fx:id="lblRecibido" styleClass="ticket-total-value" text="0.00"/>
             </VBox>
-            <VBox spacing="2" HBox.hgrow="ALWAYS"
-                  style="-fx-background-color: #E8F5E9; -fx-background-radius: 8; -fx-padding: 8 10;">
-                <Label style="-fx-text-fill: #2E7D32; -fx-font-size: 8px; -fx-font-weight: bold;" text="CAMBIO"/>
-                <Label fx:id="lblCambio"
-                       style="-fx-text-fill: #2E7D32; -fx-font-size: 17px; -fx-font-weight: bold;"
-                       text="0.00"/>
+            <VBox spacing="2" HBox.hgrow="ALWAYS" styleClass="ticket-total-box-success">
+                <Label styleClass="ticket-total-label-success" text="CAMBIO"/>
+                <Label fx:id="lblCambio" styleClass="ticket-total-value-success" text="0.00"/>
             </VBox>
-            <VBox spacing="2"
-                  style="-fx-background-color: #FFF8E7; -fx-background-radius: 8; -fx-padding: 8 10;">
-                <Label style="-fx-text-fill: #B8860B; -fx-font-size: 8px; -fx-font-weight: bold;" text="ARTICULOS"/>
-                <Label fx:id="lblArticulos"
-                       style="-fx-text-fill: #B8860B; -fx-font-size: 17px; -fx-font-weight: bold;"
-                       text="0"/>
+            <VBox spacing="2" styleClass="ticket-total-box-warning">
+                <Label styleClass="ticket-total-label-warning" text="ARTICULOS"/>
+                <Label fx:id="lblArticulos" styleClass="ticket-total-value-warning" text="0"/>
             </VBox>
         </HBox>
     </VBox>
 
     <!-- Vista previa -->
-    <VBox spacing="6" style="-fx-padding: 12 20;" VBox.vgrow="ALWAYS">
-        <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B4226;"
-               text="Vista previa del ticket"/>
+    <VBox spacing="6" styleClass="ticket-preview-section" VBox.vgrow="ALWAYS">
+        <Label styleClass="ticket-section-title" text="Vista previa del ticket"/>
         <TextArea fx:id="txtVistaPrevia"
                   VBox.vgrow="ALWAYS"
                   wrapText="false"
-                  style="-fx-font-family: 'Courier New', monospace;
-                         -fx-font-size: 11px;
-                         -fx-background-color: white;
-                         -fx-border-color: #D4A843;
-                         -fx-border-radius: 6;
-                         -fx-background-radius: 6;
-                         -fx-text-fill: #3D1F0D;"/>
+                  styleClass="ticket-text-preview"/>
     </VBox>
 
     <!-- Botones -->
-    <VBox spacing="8" style="-fx-background-color: white; -fx-padding: 12 20;">
+    <VBox spacing="8" styleClass="ticket-actions">
         <Separator/>
         <HBox spacing="10">
             <Button prefHeight="42" HBox.hgrow="ALWAYS"
                     onAction="#handleImprimir"
-                    style="-fx-background-color: #6B4226; -fx-text-fill: white; -fx-font-size: 13px;
-                           -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                    styleClass="ticket-print-button"
                     text="Imprimir ticket" graphicTextGap="8">
                 <graphic><FontIcon iconLiteral="fas-print" iconSize="16" iconColor="white"/></graphic>
             </Button>
             <Button prefHeight="42" prefWidth="130"
                     onAction="#handleReimprimir"
-                    style="-fx-background-color: transparent; -fx-border-color: #6B4226;
-                           -fx-border-width: 1.4; -fx-border-radius: 8; -fx-text-fill: #6B4226;
-                           -fx-font-size: 12px; -fx-cursor: hand;"
+                    styleClass="ticket-secondary-button"
                     text="Reimprimir" graphicTextGap="8">
-                <graphic><FontIcon iconLiteral="fas-redo" iconSize="13" iconColor="#6B4226"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-redo" iconSize="13" iconColor="#1a6fa8"/></graphic>
             </Button>
         </HBox>
         <Button prefHeight="36" prefWidth="460"
                 onAction="#handleCerrar"
-                style="-fx-background-color: transparent; -fx-border-color: #C0392B;
-                       -fx-border-width: 1.2; -fx-border-radius: 8; -fx-text-fill: #C0392B;
-                       -fx-font-size: 12px; -fx-cursor: hand;"
+                styleClass="ticket-danger-button"
                 text="Cerrar sin imprimir"/>
     </VBox>
 

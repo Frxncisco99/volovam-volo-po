@@ -1,5 +1,5 @@
 .app-sidebar {
-    -fx-background-color: #081a33;
+    -fx-background-color: #091e4e;
 }
 
 .brand-block {
@@ -14,7 +14,7 @@
 
 .sidebar-subtitle,
 .sidebar-role {
-    -fx-text-fill: rgba(255,255,255,0.58);
+    -fx-text-fill: rgba(255,255,255,0.5);
     -fx-font-size: 9px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .sidebar-avatar {
-    -fx-background-color: #1d4ed8;
+    -fx-background-color: rgba(255,255,255,0.22);
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 13px;
@@ -40,7 +40,7 @@
 }
 
 .sidebar-separator {
-    -fx-opacity: 0.14;
+    -fx-opacity: 0.15;
 }
 
 .main-menu {
@@ -48,7 +48,7 @@
 }
 
 .sidebar-section {
-    -fx-text-fill: rgba(255,255,255,0.38);
+    -fx-text-fill: rgba(255,255,255,0.35);
     -fx-font-size: 9px;
     -fx-font-weight: bold;
     -fx-padding: 8 8 3 8;
@@ -56,9 +56,9 @@
 
 .sidebar-button,
 .sidebar-button-active {
-    -fx-pref-width: 212;
+    -fx-pref-width: 210;
     -fx-pref-height: 40;
-    -fx-background-radius: 9;
+    -fx-background-radius: 8;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 14;
     -fx-cursor: hand;
@@ -66,11 +66,12 @@
 
 .sidebar-button {
     -fx-background-color: transparent;
-    -fx-text-fill: rgba(255,255,255,0.84);
+    -fx-text-fill: rgba(255,255,255,0.8);
 }
 
 .sidebar-button:hover {
-    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-text-fill: white;
 }
 
 .sidebar-button:pressed {
@@ -79,12 +80,17 @@
 
 .sidebar-button-active {
     -fx-background-color: white;
-    -fx-text-fill: #081a33;
+    -fx-text-fill: #1a6fa8;
     -fx-font-weight: bold;
 }
 
+.sidebar-button-active:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #1a6fa8;
+}
+
 .sidebar-logout {
-    -fx-pref-width: 232;
+    -fx-pref-width: 230;
     -fx-pref-height: 44;
     -fx-background-color: transparent;
     -fx-text-fill: #fecaca;

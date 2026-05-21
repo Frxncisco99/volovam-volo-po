@@ -7,51 +7,31 @@
     Ventana modal de vista previa. El papel y txtTicketRender conservan
     medidas, fuente y formato para no alterar el ticket renderizado.
 -->
-<VBox xmlns="http://javafx.com/javafx/17.0.12"
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controlador.TicketPreviewController"
+      stylesheets="@menuPrincipal.css"
+      styleClass="ticket-preview-root"
       prefWidth="360"
       prefHeight="820"
       minWidth="360"
       maxWidth="360"
-      spacing="0"
-      style="-fx-background-color: #f4f7fb;">
+      spacing="0">
 
     <!-- HEADER -->
-    <HBox alignment="CENTER_LEFT" spacing="12"
-          style="-fx-background-color: white;
-                 -fx-padding: 16 20;
-                 -fx-border-color: transparent transparent #e3eaf5 transparent;
-                 -fx-border-width: 0 0 1 0;
-                 -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.045), 12, 0, 0, 3);">
+    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="ticket-preview-header">
 
         <StackPane minWidth="36" minHeight="36" maxWidth="36" maxHeight="36"
-                   style="-fx-background-color: #eef4fc;
-                          -fx-background-radius: 18;
-                          -fx-border-color: #c6d8ee;
-                          -fx-border-radius: 18;">
-            <FontIcon iconLiteral="fas-receipt" iconSize="15" iconColor="#0b3b75"/>
+                   styleClass="ticket-preview-icon-shell">
+            <FontIcon iconLiteral="fas-receipt" iconSize="15" iconColor="#1a6fa8"/>
         </StackPane>
 
         <VBox HBox.hgrow="ALWAYS" spacing="3">
-            <Label style="-fx-text-fill: #081a33;
-                          -fx-font-size: 16px;
-                          -fx-font-weight: bold;"
-                   text="Vista previa del ticket"/>
-            <Label style="-fx-text-fill: #64748b;
-                          -fx-font-size: 10px;"
-                   text="Ticket de prueba"/>
+            <Label styleClass="ticket-preview-title" text="Vista previa del ticket"/>
+            <Label styleClass="ticket-preview-subtitle" text="Ticket de prueba"/>
         </VBox>
 
-        <Label style="-fx-background-color: #eef4fc;
-                      -fx-text-fill: #0b3b75;
-                      -fx-font-size: 9px;
-                      -fx-font-weight: bold;
-                      -fx-background-radius: 14;
-                      -fx-padding: 5 10;
-                      -fx-border-color: #c6d8ee;
-                      -fx-border-radius: 14;"
-               text="EJEMPLO"/>
+        <Label styleClass="ticket-preview-badge" text="EJEMPLO"/>
     </HBox>
 
     <!-- ZONA DE SCROLL: el ticket se mantiene al centro dentro de un card externo -->
@@ -61,100 +41,55 @@
                 VBox.vgrow="ALWAYS"
                 hbarPolicy="NEVER"
                 vbarPolicy="AS_NEEDED"
-                style="-fx-background: #f4f7fb;
-                       -fx-background-color: #f4f7fb;
-                       -fx-padding: 0;
-                       -fx-border-color: transparent;">
+                styleClass="ticket-preview-scroll">
 
-        <StackPane style="-fx-background-color: #f4f7fb;
-                          -fx-padding: 18 20 20 20;">
+        <StackPane styleClass="ticket-preview-canvas">
 
-            <VBox alignment="TOP_CENTER"
-                  style="-fx-background-color: white;
-                         -fx-background-radius: 12;
-                         -fx-border-color: #e3eaf5;
-                         -fx-border-radius: 12;
-                         -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 18, 0, 0, 5);
-                         -fx-padding: 16 0 18 0;">
+            <VBox alignment="TOP_CENTER" styleClass="ticket-preview-card">
 
                 <!-- Soporte visual externo: no altera el ticket renderizado -->
-                <Region prefHeight="4" prefWidth="226"
-                        style="-fx-background-color: #cbd5e1;
-                               -fx-background-radius: 3 3 0 0;"/>
+                <Region prefHeight="4" prefWidth="226" styleClass="ticket-preview-cap-top"/>
 
                 <HBox minWidth="220" maxWidth="220" alignment="CENTER"
-                      style="-fx-background-color: #eef4fc;
-                             -fx-padding: 4 0;">
+                      styleClass="ticket-preview-perforation">
                     <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
-                           style="-fx-font-family: 'Courier New', monospace;
-                                  -fx-font-size: 8px;
-                                  -fx-text-fill: #c8d3e1;
-                                  -fx-alignment: CENTER;"
+                           styleClass="ticket-preview-perforation-label"
                            text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
                 </HBox>
 
                 <!-- PAPEL: medidas y formato conservados -->
                 <VBox minWidth="220" maxWidth="220" prefWidth="220"
-                      style="-fx-background-color: #FDFCF8;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.1, 0, 8);
-                             -fx-border-color: #DDD5C0 #CCC5B0 #CCC5B0 #DDD5C0;
-                             -fx-border-width: 0 1 0 1;">
+                      styleClass="ticket-preview-paper">
 
                     <TextArea fx:id="txtTicketRender"
                               editable="false"
                               wrapText="false"
                               prefWidth="220"
                               prefHeight="620"
-                              style="-fx-font-family: 'Courier New', Courier, monospace;
-                     -fx-font-size: 10px;
-                     -fx-background-color: #FDFCF8;
-                     -fx-control-inner-background: #FDFCF8;
-                     -fx-border-color: transparent;
-                     -fx-focus-color: transparent;
-                     -fx-faint-focus-color: transparent;
-                     -fx-background-radius: 0;
-                     -fx-text-fill: #0D0800;
-                     -fx-padding: 14 4 10 4;"/>
+                              styleClass="ticket-render-text"/>
                 </VBox>
 
                 <HBox minWidth="220" maxWidth="220" alignment="CENTER"
-                      style="-fx-background-color: #eef4fc;
-                             -fx-padding: 4 0;">
+                      styleClass="ticket-preview-perforation">
                     <Label maxWidth="Infinity" HBox.hgrow="ALWAYS"
-                           style="-fx-font-family: 'Courier New', monospace;
-                                  -fx-font-size: 8px;
-                                  -fx-text-fill: #c8d3e1;
-                                  -fx-alignment: CENTER;"
+                           styleClass="ticket-preview-perforation-label"
                            text="^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^"/>
                 </HBox>
 
-                <Region prefHeight="6" prefWidth="200"
-                        style="-fx-background-color: #cbd5e1;
-                               -fx-background-radius: 0 0 40 40;"/>
+                <Region prefHeight="6" prefWidth="200" styleClass="ticket-preview-cap-bottom"/>
             </VBox>
         </StackPane>
     </ScrollPane>
 
     <!-- FOOTER -->
-    <HBox spacing="10" alignment="CENTER_RIGHT"
-          style="-fx-background-color: white;
-                 -fx-padding: 14 20 18 20;
-                 -fx-border-color: #e3eaf5 transparent transparent transparent;
-                 -fx-border-width: 1 0 0 0;">
+    <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="ticket-preview-footer">
 
         <Button prefHeight="38"
                 HBox.hgrow="ALWAYS"
                 maxWidth="Infinity"
                 onAction="#handleImprimir"
                 graphicTextGap="8"
-                style="-fx-background-color: #0b3b75;
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-font-size: 12px;
-                       -fx-background-radius: 9;
-                       -fx-border-radius: 9;
-                       -fx-padding: 0 16;
-                       -fx-cursor: hand;"
+                styleClass="ticket-preview-print-button"
                 text="Imprimir ticket">
             <graphic>
                 <FontIcon iconLiteral="fas-print" iconSize="14" iconColor="white"/>
@@ -164,15 +99,7 @@
         <Button prefHeight="38"
                 prefWidth="96"
                 onAction="#handleCerrar"
-                style="-fx-background-color: #eef4fc;
-                       -fx-text-fill: #0b3b75;
-                       -fx-border-color: #bfd0e5;
-                       -fx-border-radius: 9;
-                       -fx-background-radius: 9;
-                       -fx-font-size: 12px;
-                       -fx-font-weight: bold;
-                       -fx-padding: 0 16;
-                       -fx-cursor: hand;"
+                styleClass="ticket-preview-close-button"
                 text="Cerrar"/>
     </HBox>
 </VBox>
