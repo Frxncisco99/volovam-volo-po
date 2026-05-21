@@ -9,9 +9,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.dao.ConexionDB;
@@ -23,6 +20,7 @@ import org.example.servicio.PermisoService;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +29,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.chart.PieChart;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,10 +47,19 @@ public class MenuPrincipal implements Initializable {
     @FXML private Label lblPedidosHoy;
     @FXML private Label lblProductosVendidos;
     @FXML private Label lblProductosBajos;
-    @FXML private VBox listaUltimasVentas;
+    @FXML private TableView<DashboardVenta> tablaUltimasVentas;
+    @FXML private TableColumn<DashboardVenta, String> colUltFolio;
+    @FXML private TableColumn<DashboardVenta, String> colUltFechaHora;
+    @FXML private TableColumn<DashboardVenta, String> colUltTotal;
+    @FXML private TableColumn<DashboardVenta, String> colUltMetodo;
+    @FXML private TableColumn<DashboardVenta, String> colUltCajero;
+    @FXML private TableColumn<DashboardVenta, String> colUltProductos;
+    @FXML private TableColumn<DashboardVenta, String> colUltEstado;
     @FXML private Label lblSinVentas;
     @FXML private Label lblSinTop;
     @FXML private PieChart graficaVentas;
+
+    private final NumberFormat formatoMoneda = NumberFormat.getCurrencyInstance(new Locale("es", "MX"));
 
 
 
@@ -60,6 +68,7 @@ public class MenuPrincipal implements Initializable {
         mostrarFecha();
         iniciarReloj();
         cargarDatosUsuario();
+        configurarTablaUltimasVentas();
         cargarDashboard();
 
     }
@@ -94,6 +103,62 @@ public class MenuPrincipal implements Initializable {
         }
     }
 
+    private void configurarTablaUltimasVentas() {
+        if (tablaUltimasVentas == null) return;
+
+        colUltFolio.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFolio()));
+        colUltFechaHora.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFechaHora()));
+        colUltTotal.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTotal()));
+        colUltMetodo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMetodoPago()));
+        colUltCajero.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCajero()));
+        colUltProductos.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getProductos()));
+        colUltEstado.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstado()));
+
+        colUltTotal.setStyle("-fx-alignment: CENTER_RIGHT;");
+        colUltProductos.setStyle("-fx-alignment: CENTER;");
+
+        colUltEstado.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                setText(item);
+                String estado = item.toLowerCase(Locale.ROOT);
+                String color = switch (estado) {
+                    case "completada" -> "#1e7d3e";
+                    case "cancelada" -> "#c0392b";
+                    case "devuelta", "parcial" -> "#d97706";
+                    default -> "#1a6fa8";
+                };
+                String fondo = switch (estado) {
+                    case "completada" -> "#e6f4ec";
+                    case "cancelada" -> "#fde8e8";
+                    case "devuelta", "parcial" -> "#fff3e0";
+                    default -> "#e8f2fb";
+                };
+                setStyle("-fx-text-fill: " + color + "; -fx-background-color: " + fondo + "; " +
+                        "-fx-background-radius: 12; -fx-padding: 3 8; -fx-font-weight: bold; -fx-alignment: CENTER;");
+            }
+        });
+
+        tablaUltimasVentas.setFixedCellSize(54);
+        tablaUltimasVentas.setRowFactory(tv -> {
+            TableRow<DashboardVenta> row = new TableRow<>();
+            Tooltip tooltip = new Tooltip();
+            tooltip.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-size: 11px;");
+            row.itemProperty().addListener((obs, anterior, venta) -> {
+                if (venta == null) {
+                    row.setTooltip(null);
+                } else {
+                    tooltip.setText(venta.getFolio() + "\n" +
+                            venta.getFechaHora() + " - " + venta.getCajero() + "\n" +
+                            venta.getMetodoPago() + " - " + venta.getProductos() + " - " + venta.getTotal());
+                    row.setTooltip(tooltip);
+                }
+            });
+            return row;
+        });
+    }
+
     private void cargarDashboard() {
         int idCaja = SesionUsuario.getInstancia().getIdCaja();
 
@@ -108,7 +173,7 @@ public class MenuPrincipal implements Initializable {
                 int numVentas = rsVentas.getInt(1);
                 double totalVentas = rsVentas.getDouble(2);
                 lblPedidosHoy.setText(String.valueOf(numVentas));
-                lblVentasHoy.setText("$" + String.format("%.2f", totalVentas));
+                lblVentasHoy.setText(formatoMoneda.format(totalVentas));
                 lblVentasDelta.setText(numVentas == 0 ? "sin ventas aun" : numVentas + " tickets registrados");
             }
 
@@ -129,42 +194,58 @@ public class MenuPrincipal implements Initializable {
                 lblProductosBajos.setText(String.valueOf(rsStock.getInt(1)));
             }
 
-            // Ultimas 5 ventas
-            String sqlUltimas = "SELECT v.id_venta, v.fecha, v.total FROM ventas v WHERE v.id_caja = ? AND DATE(v.fecha) = CURDATE() ORDER BY v.fecha DESC LIMIT 15";
+            boolean tieneFechaHora = columnaExiste(con, "ventas", "fecha_hora");
+            boolean tieneMetodoPago = columnaExiste(con, "ventas", "metodo_pago");
+            boolean tieneEstado = columnaExiste(con, "ventas", "estado");
+            boolean tienePagos = tablaExiste(con, "pagos");
+
+            String colFechaVenta = tieneFechaHora ? "COALESCE(v.fecha_hora, v.fecha)" : "v.fecha";
+            String colMetodoVenta = tieneMetodoPago ? "v.metodo_pago" : "NULL";
+            String exprMetodo = tienePagos
+                    ? "COALESCE(p.tipo_pago, " + colMetodoVenta + ", 'Efectivo')"
+                    : "COALESCE(" + colMetodoVenta + ", 'Efectivo')";
+            String exprEstado = tieneEstado ? "COALESCE(v.estado, 'COMPLETADA')" : "'COMPLETADA'";
+            String joinPagos = tienePagos ? "LEFT JOIN pagos p ON p.id_venta = v.id_venta " : "";
+
+            // Ultimas ventas
+            String sqlUltimas =
+                    "SELECT v.id_venta, " + colFechaVenta + " AS fecha_venta, v.total, " +
+                            exprMetodo + " AS metodo_pago, " +
+                            "COALESCE(u.nombre, 'Sin usuario') AS cajero, " +
+                            "COALESCE(dv.total_productos, 0) AS total_productos, " +
+                            "COALESCE(dv.tipos_productos, 0) AS tipos_productos, " +
+                            exprEstado + " AS estado " +
+                    "FROM ventas v " +
+                    "JOIN usuarios u ON v.id_usuario = u.id_usuario " +
+                    joinPagos +
+                    "LEFT JOIN ( " +
+                    "   SELECT id_venta, SUM(cantidad) AS total_productos, COUNT(DISTINCT id_producto) AS tipos_productos " +
+                    "   FROM detalle_venta GROUP BY id_venta " +
+                    ") dv ON dv.id_venta = v.id_venta " +
+                    "WHERE v.id_caja = ? AND DATE(" + colFechaVenta + ") = CURDATE() " +
+                    "ORDER BY " + colFechaVenta + " DESC LIMIT 15";
             PreparedStatement psUltimas = con.prepareStatement(sqlUltimas);
             psUltimas.setInt(1, idCaja);
             ResultSet rsUltimas = psUltimas.executeQuery();
 
-            listaUltimasVentas.getChildren().clear();
-            boolean hayVentas = false;
+            ObservableList<DashboardVenta> ventasRecientes = FXCollections.observableArrayList();
 
             while (rsUltimas.next()) {
-                hayVentas = true;
                 int idVenta = rsUltimas.getInt("id_venta");
-                String hora = rsUltimas.getTimestamp("fecha").toLocalDateTime()
-                        .format(DateTimeFormatter.ofPattern("HH:mm"));
-                double total = rsUltimas.getDouble("total");
-
-                HBox fila = new HBox();
-                fila.setStyle("-fx-background-color: #e8e8e8; -fx-background-radius: 6; -fx-padding: 8 12;");
-
-                Label lblHoraV = new Label(hora);
-                lblHoraV.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px; -fx-min-width: 80;");
-
-                Label lblFolio = new Label(String.format("#%04d", idVenta));
-                lblFolio.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px; -fx-min-width: 60;");
-
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-
-                Label lblTotal = new Label("$" + String.format("%.2f", total));
-                lblTotal.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px;");
-
-                fila.getChildren().addAll(lblHoraV, lblFolio, spacer, lblTotal);
-                listaUltimasVentas.getChildren().add(fila);
+                String fechaHora = rsUltimas.getTimestamp("fecha_venta").toLocalDateTime()
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                ventasRecientes.add(new DashboardVenta(
+                        String.format("#%04d", idVenta),
+                        fechaHora,
+                        formatoMoneda.format(rsUltimas.getDouble("total")),
+                        formatearMetodoPago(rsUltimas.getString("metodo_pago")),
+                        rsUltimas.getString("cajero"),
+                        formatearProductos(rsUltimas.getInt("total_productos"), rsUltimas.getInt("tipos_productos")),
+                        formatearEstadoVenta(rsUltimas.getString("estado"))
+                ));
             }
 
-            lblSinVentas.setVisible(!hayVentas);
+            tablaUltimasVentas.setItems(ventasRecientes);
 
             // Gráfica de productos
             String sqlTop = "SELECT p.nombre, SUM(dv.cantidad) as total FROM detalle_venta dv JOIN ventas v ON dv.id_venta = v.id_venta JOIN productos p ON dv.id_producto = p.id_producto WHERE v.id_caja = ? AND DATE(v.fecha) = CURDATE() GROUP BY p.id_producto ORDER BY total DESC LIMIT 5";
@@ -191,6 +272,93 @@ public class MenuPrincipal implements Initializable {
             e.printStackTrace();
         }
     }
+
+    private boolean columnaExiste(Connection con, String tabla, String columna) {
+        String sql = "SELECT COUNT(*) FROM information_schema.COLUMNS " +
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, tabla);
+            ps.setString(2, columna);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean tablaExiste(Connection con, String tabla) {
+        String sql = "SELECT COUNT(*) FROM information_schema.TABLES " +
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, tabla);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String formatearMetodoPago(String metodo) {
+        if (metodo == null || metodo.isBlank()) return "Efectivo";
+        return switch (metodo.trim().toUpperCase(Locale.ROOT)) {
+            case "EFECTIVO" -> "Efectivo";
+            case "TARJETA" -> "Tarjeta";
+            case "TRANSFERENCIA" -> "Transferencia";
+            case "MIXTO" -> "Mixto";
+            case "MIXTO_USD" -> "Mixto USD";
+            case "DOLARES" -> "Dolares";
+            case "FIADO", "CREDITO" -> "Credito";
+            default -> metodo.trim();
+        };
+    }
+
+    private String formatearEstadoVenta(String estado) {
+        if (estado == null || estado.isBlank()) return "Completada";
+        return switch (estado.trim().toUpperCase(Locale.ROOT)) {
+            case "COMPLETADA" -> "Completada";
+            case "CANCELADA" -> "Cancelada";
+            case "DEVUELTA" -> "Devuelta";
+            case "PARCIALMENTE_DEVUELTA" -> "Parcial";
+            default -> estado.trim();
+        };
+    }
+
+    private String formatearProductos(int totalProductos, int tiposProductos) {
+        if (totalProductos <= 0) return "0 prod.";
+        String unidades = totalProductos == 1 ? "1 pza" : totalProductos + " pzas";
+        String tipos = tiposProductos == 1 ? "1 tipo" : tiposProductos + " tipos";
+        return unidades + " / " + tipos;
+    }
+
+    private static class DashboardVenta {
+        private final String folio;
+        private final String fechaHora;
+        private final String total;
+        private final String metodoPago;
+        private final String cajero;
+        private final String productos;
+        private final String estado;
+
+        private DashboardVenta(String folio, String fechaHora, String total, String metodoPago,
+                               String cajero, String productos, String estado) {
+            this.folio = folio;
+            this.fechaHora = fechaHora;
+            this.total = total;
+            this.metodoPago = metodoPago;
+            this.cajero = cajero;
+            this.productos = productos;
+            this.estado = estado;
+        }
+
+        public String getFolio() { return folio; }
+        public String getFechaHora() { return fechaHora; }
+        public String getTotal() { return total; }
+        public String getMetodoPago() { return metodoPago; }
+        public String getCajero() { return cajero; }
+        public String getProductos() { return productos; }
+        public String getEstado() { return estado; }
+    }
+
     private void registrarLogout() {
         String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
                 "VALUES (?, 'LOGOUT', 'usuarios', ?, ?)";

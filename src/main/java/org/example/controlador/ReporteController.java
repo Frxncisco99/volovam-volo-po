@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.text.DecimalFormat;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -199,6 +200,7 @@ public class ReporteController {
         aplicarEstiloTablas(tablaReporte, tablaVentas, tablaCajeros, tablaHoras,
                 tablaRentabilidad, tablaClientesCredito, tablaMovInventario);
         configurarTablaVentas();
+        configurarGraficas();
     }
 
     @SafeVarargs
@@ -207,6 +209,27 @@ public class ReporteController {
             if (tabla != null && !tabla.getStyleClass().contains("report-table")) {
                 tabla.getStyleClass().add("report-table");
             }
+        }
+    }
+
+    private void configurarGraficas() {
+        if (chartVentas != null) {
+            chartVentas.setAnimated(false);
+            chartVentas.setLegendVisible(true);
+            chartVentas.setTitle("Productos mas vendidos");
+            chartVentas.setBarGap(6);
+            chartVentas.setCategoryGap(18);
+            chartVentas.setHorizontalGridLinesVisible(true);
+            chartVentas.setVerticalGridLinesVisible(false);
+        }
+
+        if (chartHorasPico != null) {
+            chartHorasPico.setAnimated(false);
+            chartHorasPico.setCreateSymbols(true);
+            chartHorasPico.setLegendVisible(false);
+            chartHorasPico.setTitle("Tickets por hora");
+            chartHorasPico.setHorizontalGridLinesVisible(true);
+            chartHorasPico.setVerticalGridLinesVisible(false);
         }
     }
 
@@ -240,12 +263,21 @@ public class ReporteController {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setText(null); setStyle(""); return; }
                 setText(item);
-                String color = switch (item.toLowerCase()) {
+                String estado = item.toLowerCase(Locale.ROOT);
+                String color = switch (estado) {
                     case "completada" -> "#1e7d3e";
                     case "cancelada"  -> "#c0392b";
-                    default           -> "#6a96b8";
+                    case "devuelta", "parcial" -> "#d97706";
+                    default           -> "#1a6fa8";
                 };
-                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-font-size: 11px;");
+                String fondo = switch (estado) {
+                    case "completada" -> "#e6f4ec";
+                    case "cancelada"  -> "#fde8e8";
+                    case "devuelta", "parcial" -> "#fff3e0";
+                    default           -> "#e8f2fb";
+                };
+                setStyle("-fx-text-fill: " + color + "; -fx-background-color: " + fondo + "; " +
+                        "-fx-background-radius: 12; -fx-padding: 3 9; -fx-font-weight: bold; -fx-font-size: 11px;");
             }
         });
 
@@ -314,10 +346,11 @@ public class ReporteController {
             // Gráfica (Tab 1)
             chartVentas.getData().clear();
             XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName("Productos");
+            series.setName("Cantidad vendida");
             for (Map.Entry<String, Integer> e : top.entrySet())
                 series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
             chartVentas.getData().add(series);
+            prepararGraficaProductos("Productos mas vendidos", "Cantidad vendida", false);
 
             // Ventas detalladas (Tab 2)
             cargarVentasDetalladas(inicio, fin);
@@ -343,6 +376,7 @@ public class ReporteController {
         boolean tieneFechaHora  = columnaExiste("ventas", "fecha_hora");
 
         String colEstado = tieneEstado     ? "COALESCE(v.estado, 'completada')"    : "'completada'";
+        String colMetodoVenta = tieneMetodoPago ? "v.metodo_pago" : "NULL";
         String colFechaVenta = tieneFechaHora ? "COALESCE(v.fecha_hora, v.fecha)" : "v.fecha";
 
         String sql =
@@ -352,11 +386,11 @@ public class ReporteController {
                         "  DATE_FORMAT(" + colFechaVenta + ", '%H:%i')    AS hora, " +
                         "  COALESCE(c.nombre, 'Publico General') AS cliente, " +
                         "  u.nombre AS cajero, " +
-                        "  COALESCE(p.tipo_pago, v.metodo_pago, 'Efectivo') AS metodo_pago, " +
+                        "  COALESCE(p.tipo_pago, " + colMetodoVenta + ", 'Efectivo') AS metodo_pago, " +
                         "  (SELECT COALESCE(SUM(dv2.cantidad),0) " +
                         "     FROM detalle_venta dv2 WHERE dv2.id_venta = v.id_venta) AS total_articulos, " +
                         "  v.total, " +
-                        "  COALESCE(v.estado, 'completada') AS estado " +
+                        "  " + colEstado + " AS estado " +
                         "FROM ventas v " +
                         "JOIN usuarios u ON v.id_usuario = u.id_usuario " +
                         "LEFT JOIN clientes c ON v.id_cliente = c.id_cliente " +
@@ -381,10 +415,10 @@ public class ReporteController {
                         rs.getString("hora"),
                         rs.getString("cliente"),
                         rs.getString("cajero"),
-                        rs.getString("metodo_pago"),
+                        formatearMetodoPago(rs.getString("metodo_pago")),
                         rs.getInt("total_articulos"),
                         rs.getDouble("total"),
-                        rs.getString("estado"),
+                        formatearEstadoVenta(rs.getString("estado")),
                         rs.getInt("id_venta")
                 );
                 filas.add(fv);
@@ -420,6 +454,31 @@ public class ReporteController {
     // ─────────────────────────────────────────────────────────────
     // MODAL DETALLE DE VENTA
     // ─────────────────────────────────────────────────────────────
+    private String formatearMetodoPago(String metodo) {
+        if (metodo == null || metodo.isBlank()) return "Efectivo";
+        return switch (metodo.trim().toUpperCase(Locale.ROOT)) {
+            case "EFECTIVO" -> "Efectivo";
+            case "TARJETA" -> "Tarjeta";
+            case "TRANSFERENCIA" -> "Transferencia";
+            case "MIXTO" -> "Mixto";
+            case "MIXTO_USD" -> "Mixto USD";
+            case "DOLARES" -> "Dolares";
+            case "FIADO", "CREDITO" -> "Credito";
+            default -> metodo.trim();
+        };
+    }
+
+    private String formatearEstadoVenta(String estado) {
+        if (estado == null || estado.isBlank()) return "Completada";
+        return switch (estado.trim().toUpperCase(Locale.ROOT)) {
+            case "COMPLETADA" -> "Completada";
+            case "CANCELADA" -> "Cancelada";
+            case "DEVUELTA" -> "Devuelta";
+            case "PARCIALMENTE_DEVUELTA" -> "Parcial";
+            default -> estado.trim();
+        };
+    }
+
     private void mostrarDetalleVenta(FilaVenta fila) {
         Stage stage = new Stage();
         stage.setTitle("Detalle — Venta " + fila.getFolio());
@@ -681,6 +740,7 @@ public class ReporteController {
         for (Map.Entry<String, Integer> e : ultimoTop.entrySet())
             series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
         chartVentas.getData().add(series);
+        prepararGraficaProductos("Productos mas vendidos", "Cantidad vendida", false);
         setEstiloBotones(btnCantidad);
         mostrarGrafica();
     }
@@ -702,9 +762,13 @@ public class ReporteController {
         chartVentas.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Ingresos ($)");
-        for (Map.Entry<String, Double> e : ingresos.entrySet())
+        int mostrados = 0;
+        for (Map.Entry<String, Double> e : ingresos.entrySet()) {
+            if (mostrados++ >= 8) break;
             series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
         chartVentas.getData().add(series);
+        prepararGraficaProductos("Top productos por ingresos", "Ingresos", true);
         setEstiloBotones(btnIngresos);
         mostrarGrafica();
     }
@@ -756,6 +820,42 @@ public class ReporteController {
     // ─────────────────────────────────────────────────────────────
     // FILTROS RÁPIDOS (lógica sin cambios)
     // ─────────────────────────────────────────────────────────────
+    private void prepararGraficaProductos(String titulo, String ejeY, boolean moneda) {
+        if (chartVentas == null) return;
+        chartVentas.setTitle(titulo);
+        if (chartVentas.getYAxis() instanceof NumberAxis yAxis) yAxis.setLabel(ejeY);
+        if (chartVentas.getXAxis() instanceof CategoryAxis xAxis) xAxis.setLabel("Producto");
+        Platform.runLater(() -> instalarTooltipsBarras(moneda));
+    }
+
+    private void instalarTooltipsBarras(boolean moneda) {
+        if (chartVentas == null) return;
+        for (XYChart.Series<String, Number> serie : chartVentas.getData()) {
+            for (XYChart.Data<String, Number> dato : serie.getData()) {
+                if (dato.getNode() == null) continue;
+                String valor = moneda
+                        ? "$" + df.format(dato.getYValue().doubleValue())
+                        : df.format(dato.getYValue().doubleValue());
+                Tooltip tooltip = new Tooltip(dato.getXValue() + "\n" + serie.getName() + ": " + valor);
+                tooltip.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-size: 11px;");
+                Tooltip.install(dato.getNode(), tooltip);
+                dato.getNode().setStyle("-fx-bar-fill: #1a6fa8; -fx-background-radius: 6 6 0 0;");
+            }
+        }
+    }
+
+    private void instalarTooltipsLinea(LineChart<String, Number> chart, String etiqueta) {
+        if (chart == null) return;
+        for (XYChart.Series<String, Number> serie : chart.getData()) {
+            for (XYChart.Data<String, Number> dato : serie.getData()) {
+                if (dato.getNode() == null) continue;
+                Tooltip tooltip = new Tooltip(dato.getXValue() + "\n" + etiqueta + ": " + dato.getYValue());
+                tooltip.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-size: 11px;");
+                Tooltip.install(dato.getNode(), tooltip);
+            }
+        }
+    }
+
     @FXML
     private void filtroRapido(ActionEvent e) {
         LocalDate hoy = LocalDate.now();
@@ -1000,6 +1100,7 @@ public class ReporteController {
         }
 
         chartHorasPico.getData().add(serie);
+        Platform.runLater(() -> instalarTooltipsLinea(chartHorasPico, "Tickets"));
     }
 
     private void cargarTablaRentabilidad(String ini, String fin) {

@@ -211,7 +211,10 @@
                     <Tab text="📊  Gráficas de Productos">
                         <VBox VBox.vgrow="ALWAYS">
                             <HBox alignment="CENTER_LEFT" style="-fx-padding: 14 18 12 18;                                          -fx-border-color: transparent transparent #e8f0f8 transparent;                                          -fx-border-width: 1;">
-                                <Label prefHeight="19.0" prefWidth="166.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Productos mas vendidos" HBox.hgrow="ALWAYS" />
+                                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;" text="Productos mas vendidos" />
+                                    <Label style="-fx-font-size: 10px; -fx-text-fill: #6a96b8;" text="Top del periodo seleccionado" />
+                                </VBox>
                                 <HBox spacing="6">
                                     <Button fx:id="btnCantidad" onAction="#verGraficaCantidad" style="-fx-background-color: #1a6fa8; -fx-text-fill: white;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold; -fx-border-width: 0;" text="Cantidad" />
                                     <Button fx:id="btnIngresos" onAction="#verGraficaIngresos" style="-fx-background-color: #f0f7ff; -fx-text-fill: #1a6fa8;                                                    -fx-border-color: #b8d4ea; -fx-border-width: 1;                                                    -fx-background-radius: 6; -fx-border-radius: 6;                                                    -fx-font-size: 10px; -fx-padding: 5 14;                                                    -fx-cursor: hand; -fx-font-weight: bold;" text="Ingresos" />
@@ -219,9 +222,9 @@
                                 </HBox>
                             </HBox>
 
-                            <BarChart fx:id="chartVentas" style="-fx-background-color: transparent; -fx-padding: 0 12 0 12;" VBox.vgrow="ALWAYS">
-                                <xAxis><CategoryAxis label="Productos" /></xAxis>
-                                <yAxis><NumberAxis label="Cantidad" /></yAxis>
+                            <BarChart fx:id="chartVentas" animated="false" legendVisible="true" style="-fx-background-color: transparent; -fx-padding: 6 14 4 14;" styleClass="product-chart" title="Productos mas vendidos" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
+                                <xAxis><CategoryAxis label="Producto" tickLabelRotation="-16" /></xAxis>
+                                <yAxis><NumberAxis forceZeroInRange="true" label="Cantidad vendida" /></yAxis>
                             </BarChart>
 
                             <TableView fx:id="tablaReporte" managed="false" styleClass="report-table" visible="false" VBox.vgrow="ALWAYS">
