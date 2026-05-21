@@ -26,6 +26,28 @@
 }
 .button:hover .font-icon { -fx-icon-color: white; }
 
+.sidebar-session-button,
+.sidebar-exit-button {
+    -fx-background-radius: 8;
+    -fx-text-fill: #bbf7d0;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.sidebar-session-button {
+    -fx-background-color: transparent;
+}
+
+.sidebar-exit-button {
+    -fx-background-color: rgba(34, 197, 94, 0.14);
+}
+
+.sidebar-session-button:hover,
+.sidebar-exit-button:hover {
+    -fx-background-color: rgba(34, 197, 94, 0.22) !important;
+    -fx-text-fill: #dcfce7 !important;
+}
+
 .search-field {
     -fx-background-color: white;
     -fx-text-fill: #0d3d5e;

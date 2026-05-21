@@ -99,7 +99,7 @@ public class  EmpleadosController {
                 roles.add(rs.getString(4));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
 
         // Poblar combo de roles
@@ -269,7 +269,7 @@ public class  EmpleadosController {
             return;
         }
         if (estaActivo && !usuarioSeguridadService.puedeDesactivarUsuario(id)) {
-            mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
+            mostrarAlerta("Acción no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
             return;
         }
         int nuevoValor = estaActivo ? 0 : 1;
@@ -281,7 +281,7 @@ public class  EmpleadosController {
             ps.executeUpdate();
             cargarEmpleados();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo cambiar el estado del empleado.");
         }
     }
@@ -349,6 +349,7 @@ public class  EmpleadosController {
 
         dialog.getDialogPane().setContent(contenido);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        org.example.servicio.DialogService.preparar(dialog, flowTarjetas);
 
         dialog.showAndWait().ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) {
@@ -363,7 +364,7 @@ public class  EmpleadosController {
                 }
 
                 if (id != 0 && !usuarioSeguridadService.puedeCambiarRol(id, r)) {
-                    mostrarAlerta("Accion no permitida", "No puedes dejar el sistema sin un usuario administrador activo.");
+                    mostrarAlerta("Acción no permitida", "No puedes dejar el sistema sin un usuario administrador activo.");
                     return;
                 }
 
@@ -404,7 +405,7 @@ public class  EmpleadosController {
             cargarEmpleados();
             mostrarAlerta("Exito", "Empleado creado correctamente.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo crear el empleado.");
         }
     }
@@ -448,7 +449,7 @@ public class  EmpleadosController {
             cargarEmpleados();
             mostrarAlerta("Exito", "Empleado actualizado correctamente.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo actualizar el empleado.");
         }
     }
@@ -473,14 +474,14 @@ public class  EmpleadosController {
             return;
         }
         if (!usuarioSeguridadService.puedeDesactivarUsuario(id)) {
-            mostrarAlerta("Accion no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
+            mostrarAlerta("Acción no permitida", usuarioSeguridadService.mensajeProteccionAdmin(id));
             return;
         }
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
-        alerta.setTitle("Eliminar empleado");
-        alerta.setHeaderText(null);
-        alerta.setContentText("Seguro que deseas eliminar a " + nombre + "?");
-        alerta.showAndWait().ifPresent(respuesta -> {
+        org.example.servicio.DialogService.confirmar(
+                flowTarjetas,
+                "Eliminar empleado",
+                "Seguro que deseas eliminar a " + nombre + "?"
+        ).ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) {
                 String sql = "UPDATE usuarios SET activo = 0 WHERE id_usuario = ?";
                 try (Connection con = ConexionDB.getConexion();
@@ -489,7 +490,7 @@ public class  EmpleadosController {
                     ps.executeUpdate();
                     cargarEmpleados();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    org.example.servicio.LogService.error("Error no controlado", e);
                 }
             }
         });
@@ -507,7 +508,7 @@ public class  EmpleadosController {
             ps.setString(3, "Cierre de sesión: " + nombre);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -528,20 +529,12 @@ public class  EmpleadosController {
     @FXML private void irAConfiguracion() { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void navegar(String ruta) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) flowTarjetas.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        org.example.servicio.NavigationService.cambiarEscena(flowTarjetas, ruta);
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         navegar(ruta);
@@ -549,23 +542,15 @@ public class  EmpleadosController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(flowTarjetas);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(flowTarjetas);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.info(flowTarjetas, titulo, mensaje);
     }
 }

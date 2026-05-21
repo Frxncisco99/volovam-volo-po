@@ -2,8 +2,6 @@ package org.example.servicio;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -46,12 +44,11 @@ public final class SessionTimeoutService {
         Platform.runLater(() -> {
             try {
                 AuditoriaService.get().registrar("BLOQUEO_INACTIVIDAD", "sesion", 0,
-                        "Sesion cerrada automaticamente por inactividad.");
+                "Sesión cerrada automáticamente por inactividad.");
                 SesionUsuario.cerrarSesion();
-                Parent login = FXMLLoader.load(SessionTimeoutService.class.getResource("/org/example/vista/Login.fxml"));
-                scene.setRoot(login);
+                NavigationService.mostrarLogin(scene);
             } catch (Exception e) {
-                e.printStackTrace();
+                org.example.servicio.LogService.error("Error no controlado", e);
             }
         });
     }

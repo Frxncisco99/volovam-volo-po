@@ -98,7 +98,7 @@ public class ClientesController {
                         fiscales ? rs.getString("correo_facturacion") : ""));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         actualizarStats();
         renderClientes();
@@ -167,7 +167,7 @@ public class ClientesController {
         HBox telefono = new HBox(7);
         telefono.setAlignment(Pos.CENTER_LEFT);
         FontIcon phone = crearIcono("fas-phone", "cliente-inline-icon");
-        Label tel = new Label(cliente.telefono() == null || cliente.telefono().isBlank() ? "Sin telefono" : cliente.telefono());
+        Label tel = new Label(cliente.telefono() == null || cliente.telefono().isBlank() ? "Sin teléfono" : cliente.telefono());
         tel.getStyleClass().add("cliente-phone-text");
         telefono.getChildren().addAll(phone, tel);
 
@@ -273,14 +273,14 @@ public class ClientesController {
         TextField txtCorreoFacturacion = new TextField(nuevo ? "" : cliente.correoFacturacion());
 
         txtNombre.setPromptText("Nombre completo");
-        txtTelefono.setPromptText("Telefono a 10 digitos");
-        txtLimite.setPromptText("Limite de credito");
+        txtTelefono.setPromptText("Teléfono a 10 dígitos");
+        txtLimite.setPromptText("Límite de crédito");
         txtRfc.setPromptText("RFC");
-        txtRazonSocial.setPromptText("Razon social");
-        txtRegimen.setPromptText("Regimen fiscal");
+        txtRazonSocial.setPromptText("Razón social");
+        txtRegimen.setPromptText("Régimen fiscal");
         txtUsoCfdi.setPromptText("Uso CFDI");
-        txtCpFiscal.setPromptText("Codigo postal fiscal");
-        txtCorreoFacturacion.setPromptText("Correo de facturacion");
+        txtCpFiscal.setPromptText("Código postal fiscal");
+        txtCorreoFacturacion.setPromptText("Correo de facturación");
         aplicarEstiloCampo(txtNombre);
         aplicarEstiloCampo(txtTelefono);
         aplicarEstiloCampo(txtLimite);
@@ -297,13 +297,14 @@ public class ClientesController {
 
         contenido.getChildren().addAll(
                 new Label("Nombre"), txtNombre,
-                new Label("Telefono"), txtTelefono,
-                new Label("Limite de credito"), txtLimite,
+                new Label("Teléfono"), txtTelefono,
+                new Label("Límite de crédito"), txtLimite,
                 new Label("Datos fiscales"), txtRfc, txtRazonSocial, txtRegimen,
                 txtUsoCfdi, txtCpFiscal, txtCorreoFacturacion
         );
         dialog.getDialogPane().setContent(contenido);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        org.example.servicio.DialogService.preparar(dialog, flowClientes);
         dialog.showAndWait().ifPresent(respuesta -> {
             if (respuesta != ButtonType.OK) return;
             String nombre = txtNombre.getText().trim();
@@ -312,7 +313,7 @@ public class ClientesController {
             try {
                 limite = txtLimite.getText().trim().isEmpty() ? 0 : Double.parseDouble(txtLimite.getText().trim());
             } catch (NumberFormatException e) {
-                mostrarAlerta("Error", "El limite de credito debe ser numerico.");
+                mostrarAlerta("Error", "El límite de crédito debe ser numérico.");
                 return;
             }
             if (nombre.isEmpty()) {
@@ -320,7 +321,7 @@ public class ClientesController {
                 return;
             }
             if (limite < 0) {
-                mostrarAlerta("Error", "El limite de credito debe ser mayor o igual a 0.");
+                mostrarAlerta("Error", "El límite de crédito debe ser mayor o igual a 0.");
                 return;
             }
             ClienteFiscal fiscal = new ClienteFiscal(
@@ -370,7 +371,7 @@ public class ClientesController {
             cargarClientes();
             mostrarInfo("Exito", "Cliente registrado correctamente.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo registrar el cliente.");
         }
     }
@@ -400,7 +401,7 @@ public class ClientesController {
             cargarClientes();
             mostrarInfo("Exito", "Cliente actualizado correctamente.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo actualizar el cliente.");
         }
     }
@@ -431,6 +432,7 @@ public class ClientesController {
         );
         dialog.getDialogPane().setContent(contenido);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        org.example.servicio.DialogService.preparar(dialog, flowClientes);
         dialog.showAndWait().ifPresent(res -> {
             if (res != ButtonType.OK) return;
             try {
@@ -479,7 +481,7 @@ public class ClientesController {
             cargarClientes();
             mostrarInfo("Pago registrado", "Se registro el pago de $" + String.format("%.2f", monto) + ".");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo registrar el pago.");
         }
     }
@@ -508,6 +510,7 @@ public class ClientesController {
         tabla.setItems(cargarHistorial(cliente.id()));
         tabla.setPrefHeight(380);
         dialog.getDialogPane().setContent(tabla);
+        org.example.servicio.DialogService.preparar(dialog, flowClientes);
         dialog.showAndWait();
     }
 
@@ -524,7 +527,7 @@ public class ClientesController {
                 pagos.add(new PagoRow(fecha, rs.getString("tipo"), "$" + String.format("%.2f", rs.getDouble("monto")), rs.getString("notas")));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return pagos;
     }
@@ -538,11 +541,11 @@ public class ClientesController {
             mostrarAlerta("No permitido", "No se puede desactivar un cliente con adeudo pendiente.");
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Desactivar cliente");
-        confirm.setHeaderText(null);
-        confirm.setContentText("Seguro que deseas desactivar a " + cliente.nombre() + "?");
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        if (org.example.servicio.DialogService.confirmar(
+                flowClientes,
+                "Desactivar cliente",
+                "Seguro que deseas desactivar a " + cliente.nombre() + "?"
+        ).orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         String sql = "UPDATE clientes SET activo = 0 WHERE id_cliente = ? AND nombre != 'Publico General'";
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -550,7 +553,7 @@ public class ClientesController {
             ps.executeUpdate();
             cargarClientes();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo desactivar el cliente.");
         }
     }
@@ -594,10 +597,10 @@ public class ClientesController {
             int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
             ps.setInt(1, idUsuario);
             ps.setInt(2, idUsuario);
-            ps.setString(3, "Cierre de sesion: " + SesionUsuario.getInstancia().getNombre());
+            ps.setString(3, "Cierre de sesión: " + SesionUsuario.getInstancia().getNombre());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -612,53 +615,32 @@ public class ClientesController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion");
-        a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(flowClientes);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(flowClientes);
     }
 
     private void navegar(String ruta) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) flowClientes.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        org.example.servicio.NavigationService.cambiarEscena(flowClientes, ruta);
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         navegar(ruta);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.advertencia(flowClientes, titulo, mensaje);
     }
 
     private void mostrarInfo(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.info(flowClientes, titulo, mensaje);
     }
 
     private record ClienteRow(int id, String nombre, String telefono, double limite, double saldo,

@@ -73,7 +73,7 @@ public class ConfiguracionWebDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ConfiguracionWebDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return config;
     }
@@ -154,7 +154,7 @@ public class ConfiguracionWebDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -174,7 +174,7 @@ public class ConfiguracionWebDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -187,7 +187,7 @@ public class ConfiguracionWebDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -200,7 +200,7 @@ public class ConfiguracionWebDAO {
                 if (rs.next()) return rs.getInt(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return 0;
     }
@@ -213,7 +213,7 @@ public class ConfiguracionWebDAO {
                 if (rs.next()) return rs.getInt(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return 0;
     }
@@ -227,7 +227,7 @@ public class ConfiguracionWebDAO {
                 if (rs.next()) return rs.getInt(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return 0;
     }
@@ -244,7 +244,7 @@ public class ConfiguracionWebDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return categorias;
     }
@@ -290,7 +290,7 @@ public class ConfiguracionWebDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return productos;
     }
@@ -326,7 +326,7 @@ public class ConfiguracionWebDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 

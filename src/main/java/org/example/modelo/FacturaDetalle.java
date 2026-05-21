@@ -11,6 +11,7 @@ public class FacturaDetalle {
     private BigDecimal cantidad = BigDecimal.ZERO;
     private BigDecimal precioUnitario = BigDecimal.ZERO;
     private BigDecimal subtotal = BigDecimal.ZERO;
+    private BigDecimal descuento = BigDecimal.ZERO;
     private String impuestoClave;
     private String impuestoTipo;
     private BigDecimal impuestoTasa = BigDecimal.ZERO;
@@ -71,6 +72,14 @@ public class FacturaDetalle {
 
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal == null ? BigDecimal.ZERO : subtotal;
+    }
+
+    public BigDecimal getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(BigDecimal descuento) {
+        this.descuento = descuento == null ? BigDecimal.ZERO : descuento;
     }
 
     public String getImpuestoClave() {

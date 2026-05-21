@@ -81,7 +81,7 @@ public class UsuarioSeguridadService {
                 if (rs.next()) return rs.getString(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return "";
     }

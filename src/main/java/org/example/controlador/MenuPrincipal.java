@@ -188,7 +188,7 @@ public class MenuPrincipal implements Initializable {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
     private void registrarLogout() {
@@ -203,7 +203,7 @@ public class MenuPrincipal implements Initializable {
             ps.setString(3, "Cierre de sesión: " + nombre);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -223,32 +223,18 @@ public class MenuPrincipal implements Initializable {
     @FXML private void irAAuditoria() {
         navegarConPermiso(PermisoService.Accion.ACCEDER_AUDITORIA, "/org/example/vista/Auditoria.fxml");
     }
+    @FXML private void irAOperaciones() {
+        navegarConPermiso(PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Operaciones.fxml");
+    }
     @FXML private void irAConfiguracion() { navegarConPermiso(PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml");}
 
     private void cambiarEscena(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) lblFecha.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        org.example.servicio.NavigationService.cambiarEscena(lblFecha, fxmlPath);
     }
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                cambiarEscena("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(lblFecha);
     }
 
     @FXML
@@ -261,16 +247,12 @@ public class MenuPrincipal implements Initializable {
     }
     private void navegarConPermiso(PermisoService.Accion accion, String ruta) {
         if (!PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         cambiarEscena(ruta);
     }
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.info(lblFecha, titulo, mensaje);
     }
 }

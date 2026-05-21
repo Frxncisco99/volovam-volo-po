@@ -11,19 +11,19 @@
       style="-fx-background-color: #f0f7ff;"
       prefHeight="590" prefWidth="380">
 
-    <!-- ── HEADER ── -->
+    <!-- HEADER -->
     <HBox alignment="CENTER_LEFT" spacing="12"
           style="-fx-background-color: #091e4e; -fx-padding: 18 24;">
         <FontIcon iconLiteral="fas-plus-circle" iconSize="18" iconColor="white"/>
         <VBox spacing="3">
             <Label text="Nuevo Producto"
                    style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Label text="Agregar al inventario · Volovan Volo"
+            <Label text="Agregar al inventario - Volovan Volo"
                    style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.55);"/>
         </VBox>
     </HBox>
 
-    <!-- ── FORMULARIO ── -->
+    <!-- FORMULARIO -->
     <VBox spacing="12" VBox.vgrow="ALWAYS"
           style="-fx-padding: 20 24 16 24; -fx-background-color: #f0f7ff;">
 
@@ -111,14 +111,14 @@
                               -fx-border-radius: 7; -fx-background-radius: 7;
                               -fx-padding: 9 12; -fx-font-size: 13px; -fx-text-fill: #0d3d5e;
                               -fx-prompt-text-fill: #9ab8d4;"/>
-            <Button text="✕" onAction="#limpiarCodigo"
+            <Button text="Limpiar" onAction="#limpiarCodigo"
                     style="-fx-background-color: transparent; -fx-text-fill: #a83232;
                            -fx-font-size: 14px; -fx-cursor: hand; -fx-font-weight: bold;"/>
         </HBox>
 
     </VBox>
 
-    <!-- ── FOOTER ── -->
+    <!-- FOOTER -->
     <HBox spacing="10" alignment="CENTER_RIGHT"
           style="-fx-padding: 14 24 20 24;
                  -fx-background-color: white;

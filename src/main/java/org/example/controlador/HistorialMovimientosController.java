@@ -72,7 +72,7 @@ public class HistorialMovimientosController {
                             "-fx-background-radius: 10; -fx-padding: 3 10; -fx-font-size: 11px; -fx-font-weight: bold;");
                     case "VENTA"    -> badge.setStyle("-fx-background-color: #fde8e8; -fx-text-fill: #a83232; " +
                             "-fx-background-radius: 10; -fx-padding: 3 10; -fx-font-size: 11px; -fx-font-weight: bold;");
-                    case "AJUSTE"   -> badge.setStyle("-fx-background-color: #fff3cd; -fx-text-fill: #8a6020; " +
+                    case "AJUSTE"   -> badge.setStyle("-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; " +
                             "-fx-background-radius: 10; -fx-padding: 3 10; -fx-font-size: 11px; -fx-font-weight: bold;");
                     default         -> badge.setStyle("-fx-background-color: #e8f0f8; -fx-text-fill: #3a5a7a; " +
                             "-fx-background-radius: 10; -fx-padding: 3 10; -fx-font-size: 11px;");

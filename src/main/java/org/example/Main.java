@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.example.servicio.AppExitService;
+import org.example.servicio.NavigationService;
 import org.example.servicio.SessionTimeoutService;
 
 public class Main extends Application {
@@ -24,9 +25,10 @@ public class Main extends Application {
         );
         primaryStage.getIcons().add(icono);
 
-        primaryStage.setTitle("Volovan Volo — Sistema de Gestion");
+        primaryStage.setTitle("Volovan Volo — Sistema de Gestión");
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         primaryStage.setScene(scene);
+        NavigationService.prepararLogin(primaryStage);
         SessionTimeoutService.instalar(scene);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setResizable(false);

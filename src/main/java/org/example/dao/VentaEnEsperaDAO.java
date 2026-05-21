@@ -77,7 +77,7 @@ public class VentaEnEsperaDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return ventas;
     }
@@ -102,10 +102,12 @@ public class VentaEnEsperaDAO {
             String nombre = String.valueOf(item[0]);
             double precio = ((Number) item[1]).doubleValue();
             int cantidad = ((Number) item[2]).intValue();
+            double descuento = item.length > 3 && item[3] instanceof Number n ? n.doubleValue() : 0.0;
             sb.append(entry.getKey()).append('\t')
                     .append(encoder.encodeToString(nombre.getBytes(StandardCharsets.UTF_8))).append('\t')
                     .append(precio).append('\t')
-                    .append(cantidad).append('\n');
+                    .append(cantidad).append('\t')
+                    .append(descuento).append('\n');
         }
         return sb.toString();
     }
@@ -119,15 +121,16 @@ public class VentaEnEsperaDAO {
         for (String line : data.split("\\R")) {
             if (line.isBlank()) continue;
             String[] parts = line.split("\\t");
-            if (parts.length != 4) continue;
+            if (parts.length < 4) continue;
             try {
                 int idProducto = Integer.parseInt(parts[0]);
                 String nombre = new String(decoder.decode(parts[1]), StandardCharsets.UTF_8);
                 double precio = Double.parseDouble(parts[2]);
                 int cantidad = Integer.parseInt(parts[3]);
-                carrito.put(idProducto, new Object[]{nombre, precio, cantidad});
+                double descuento = parts.length >= 5 ? Double.parseDouble(parts[4]) : 0.0;
+                carrito.put(idProducto, new Object[]{nombre, precio, cantidad, descuento});
             } catch (Exception e) {
-                e.printStackTrace();
+                org.example.servicio.LogService.error("Error no controlado", e);
             }
         }
         return carrito;

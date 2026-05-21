@@ -179,8 +179,6 @@ public class EditarProductoController {
     }
 
     private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Validación"); alert.setHeaderText(null); alert.setContentText(mensaje);
-        alert.showAndWait();
+        org.example.servicio.DialogService.advertencia(txtNombre, "Validación", mensaje);
     }
 }

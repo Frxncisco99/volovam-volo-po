@@ -2,7 +2,6 @@ package org.example.servicio;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
@@ -10,14 +9,11 @@ import org.example.modelo.SesionUsuario;
 public class AppExitService {
 
     public static boolean confirmarSalida(Node owner) {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Salir del sistema");
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText("Seguro que deseas salir del sistema?");
-        if (owner != null && owner.getScene() != null) {
-            confirmacion.initOwner(owner.getScene().getWindow());
-        }
-        return confirmacion.showAndWait().filter(ButtonType.OK::equals).isPresent();
+        return DialogService.confirmar(
+                owner,
+                "Salir del sistema",
+                "Seguro que deseas salir del sistema?"
+        ).filter(ButtonType.OK::equals).isPresent();
     }
 
     public static void salir(Node owner) {
@@ -41,7 +37,7 @@ public class AppExitService {
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 }

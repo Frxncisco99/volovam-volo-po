@@ -61,9 +61,9 @@ public class AuditoriaController {
         // Solo admin
         boolean esAdmin = "admin".equalsIgnoreCase(sesion.getRol());
         if (!esAdmin) {
-            lblAcceso.setText("⛔ Sin acceso");
+            lblAcceso.setText("Acceso denegado Sin acceso");
             lblAcceso.setStyle("-fx-background-color: #fde8e8; -fx-text-fill: #C0392B; -fx-background-radius: 10; -fx-padding: 4 12; -fx-font-size: 11px;");
-            tablaAuditoria.setPlaceholder(new Label("⛔ Solo el administrador puede ver la auditoría."));
+            tablaAuditoria.setPlaceholder(new Label("Acceso denegado Solo el administrador puede ver la auditoría."));
             return;
         }
 
@@ -74,7 +74,7 @@ public class AuditoriaController {
                 "BAJA_PRODUCTO", "EDICION_PRODUCTO");
         cmbFiltroAccion.setValue("Todas");
 
-        // Fechas por defecto — hoy
+        // Fechas por defecto - hoy
         dateInicio.setValue(LocalDate.now());
         dateFin.setValue(LocalDate.now());
 
@@ -142,7 +142,7 @@ public class AuditoriaController {
                 lblCancelaciones.setText(String.valueOf(rs.getInt("cancelaciones")));
                 lblAjustes.setText(String.valueOf(rs.getInt("ajustes")));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 
     @FXML
@@ -185,16 +185,12 @@ public class AuditoriaController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(tablaAuditoria);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(tablaAuditoria);
     }
 
     private void registrarLogout() {
@@ -209,27 +205,17 @@ public class AuditoriaController {
             ps.setString(3, "Cierre de sesión: " + nombre);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
     private void navegar(String ruta) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) tablaAuditoria.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) { e.printStackTrace(); }
+        org.example.servicio.NavigationService.cambiarEscena(tablaAuditoria, ruta);
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            Alert alerta = new Alert(Alert.AlertType.WARNING);
-            alerta.setTitle("Acceso denegado");
-            alerta.setHeaderText(null);
-            alerta.setContentText("No tienes permiso para acceder a este modulo.");
-            alerta.showAndWait();
+            org.example.servicio.DialogService.advertencia(tablaAuditoria, "Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         navegar(ruta);

@@ -88,7 +88,7 @@
                    style="-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: #6a96b8;
                           -fx-padding: 0 0 4 0; -fx-border-color: #c8dff0; -fx-border-width: 0 0 1 0;"/>
             <HBox spacing="10" alignment="CENTER">
-                <Button fx:id="btnMenos" text="-" onAction="#restar"
+                <Button text="-" onAction="#restar"
                         minWidth="44" prefWidth="44" maxWidth="44"
                         minHeight="44" prefHeight="44" maxHeight="44"
                         style="-fx-background-color: white; -fx-border-color: #c8dff0;
@@ -103,7 +103,7 @@
                                   -fx-padding: 8 12; -fx-font-size: 20px;
                                   -fx-font-weight: bold; -fx-text-fill: #0d3d5e;
                                   -fx-alignment: center; -fx-prompt-text-fill: #9ab8d4;"/>
-                <Button fx:id="btnMas" text="+" onAction="#sumar"
+                <Button text="+" onAction="#sumar"
                         minWidth="44" prefWidth="44" maxWidth="44"
                         minHeight="44" prefHeight="44" maxHeight="44"
                         style="-fx-background-color: #1a6fa8; -fx-text-fill: white;

@@ -86,7 +86,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Button fx:id="btnFiado" maxWidth="Infinity" onAction="#seleccionarFiado" prefHeight="52" styleClass="pago-method-button" text="Credito" HBox.hgrow="ALWAYS">
+        <Button fx:id="btnFiado" maxWidth="Infinity" onAction="#seleccionarFiado" prefHeight="52" styleClass="pago-method-button" text="Crédito" HBox.hgrow="ALWAYS">
             <graphic>
                 <ImageView fitHeight="40.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
                     <image><Image url="@/org/example/Imagenes/lista-de-quehaceres.png" /></image>
@@ -179,7 +179,7 @@
 
     <VBox fx:id="panelOtros" managed="false" spacing="8" styleClass="pago-panel" visible="false">
         <Label styleClass="pago-label" text="Descripcion del pago (opcional):" />
-        <TextField fx:id="txtOtrosDescripcion" promptText="Ej: Vale, Credito interno, Cortesia..." styleClass="pago-field" />
+        <TextField fx:id="txtOtrosDescripcion" promptText="Ej: Vale, Crédito interno, Cortesía..." styleClass="pago-field" />
     </VBox>
 
     <VBox maxWidth="Infinity" spacing="8" styleClass="pago-ticket-box">

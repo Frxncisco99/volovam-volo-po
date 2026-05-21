@@ -1,11 +1,11 @@
 package org.example.controlador;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import org.example.modelo.Ticket;
+import org.example.servicio.DialogService;
 import org.example.servicio.TicketService;
 
 public class TicketController {
@@ -64,7 +64,7 @@ public class TicketController {
             ticketService.imprimir(ticket);
             mostrarInfo("Impresión enviada", "El ticket fue enviado a la impresora correctamente.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarError("Error de impresión",
                     "No se pudo imprimir el ticket.\n\n" +
                             "Verifica que la impresora esté encendida y conectada.\n" +
@@ -84,14 +84,10 @@ public class TicketController {
     }
 
     private void mostrarInfo(String titulo, String mensaje) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
-        a.showAndWait();
+        DialogService.info(txtVistaPrevia, titulo, mensaje);
     }
 
     private void mostrarError(String titulo, String mensaje) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje);
-        a.showAndWait();
+        DialogService.error(txtVistaPrevia, titulo, mensaje);
     }
 }

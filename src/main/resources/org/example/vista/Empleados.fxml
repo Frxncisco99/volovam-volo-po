@@ -60,7 +60,7 @@
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
-                <Label styleClass="empleados-nav-heading" text="GESTION"/>
+                <Label styleClass="empleados-nav-heading" text="GESTIÓN"/>
 
                 <Button graphicTextGap="12" prefHeight="40" prefWidth="210"
                         styleClass="empleados-nav-button-active"
@@ -87,13 +87,13 @@
                 </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAAuditoria"
                         styleClass="empleados-nav-button"
-                        text="Auditoria" graphicTextGap="12">
+                        text="Auditoría" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
                 <Button onAction="#irAConfiguracion" prefHeight="40" prefWidth="210"
                         styleClass="empleados-nav-button"
-                        text="Configuracion" graphicTextGap="12">
+                        text="Configuración" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
@@ -101,9 +101,13 @@
 
             <Separator styleClass="empleados-divider"/>
 
-            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesión" graphicTextGap="10"
                     styleClass="empleados-session-button">
-                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#22c55e"/></graphic>
+            </Button>
+            <Button onAction="#salirAplicacion" prefHeight="44" prefWidth="230" text="Salir del sistema" graphicTextGap="10"
+                    styleClass="sidebar-exit-button">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#22c55e"/></graphic>
             </Button>
 
         </VBox>
@@ -117,7 +121,7 @@
             <HBox alignment="CENTER_LEFT" styleClass="empleados-topbar">
                 <VBox spacing="2">
                     <Label styleClass="empleados-title" text="Empleados"/>
-                    <Label styleClass="empleados-subtitle" text="Gestion de usuarios"/>
+                    <Label styleClass="empleados-subtitle" text="Gestión de usuarios"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button onAction="#handleNuevoEmpleado"

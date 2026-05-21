@@ -53,7 +53,7 @@
                 <Label styleClass="money-suffix" text="MXN / USD" />
             </HBox>
 
-            <HBox fx:id="boxEjemplo" alignment="CENTER" spacing="6" styleClass="apertura-example">
+            <HBox alignment="CENTER" spacing="6" styleClass="apertura-example">
                 <Label styleClass="apertura-example-icon" text="↔" />
                 <Label fx:id="lblEjemplo"
                        styleClass="apertura-example-text"

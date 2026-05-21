@@ -5,7 +5,7 @@ import java.util.*;
 
 public class ReporteAvanzadoDAO {
 
-    // ── Ventas netas (descuenta devoluciones) ─────────────────────────────
+    // -- Ventas netas (descuenta devoluciones) -----------------------------
     public Map<String, Double> resumenNeto(String fechaInicio, String fechaFin) {
         Map<String, Double> resultado = new LinkedHashMap<>();
         String sql = """
@@ -29,11 +29,11 @@ public class ReporteAvanzadoDAO {
                 resultado.put("neto",     rs.getDouble("neto"));
                 resultado.put("tickets",  rs.getDouble("tickets"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return resultado;
     }
 
-    // ── Ventas por cajero ─────────────────────────────────────────────────
+    // -- Ventas por cajero -------------------------------------------------
     public List<Map<String, Object>> ventasPorCajero(String fechaInicio, String fechaFin) {
         List<Map<String, Object>> lista = new ArrayList<>();
         String sql = """
@@ -67,11 +67,11 @@ public class ReporteAvanzadoDAO {
                 fila.put("con_devolucion",  rs.getInt("con_devolucion"));
                 lista.add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
-    // ── Ventas por hora ───────────────────────────────────────────────────
+    // -- Ventas por hora ---------------------------------------------------
     public List<Map<String, Object>> ventasPorHora(String fechaInicio, String fechaFin) {
         List<Map<String, Object>> lista = new ArrayList<>();
 
@@ -105,11 +105,11 @@ public class ReporteAvanzadoDAO {
                 lista.get(hora).put("tickets", rs.getInt("tickets"));
                 lista.get(hora).put("total",   rs.getDouble("total"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
-    // ── Rentabilidad por producto ─────────────────────────────────────────
+    // -- Rentabilidad por producto -----------------------------------------
     public List<Map<String, Object>> rentabilidadProductos(String fechaInicio, String fechaFin) {
         List<Map<String, Object>> lista = new ArrayList<>();
         String sql = """
@@ -149,11 +149,11 @@ public class ReporteAvanzadoDAO {
                 fila.put("margen",   rs.getDouble("margen"));
                 lista.add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
-    // ── Clientes con crédito ──────────────────────────────────────────────
+    // -- Clientes con crédito ----------------------------------------------
     public List<Map<String, Object>> clientesConCredito() {
         List<Map<String, Object>> lista = new ArrayList<>();
         String sql = """
@@ -190,10 +190,10 @@ public class ReporteAvanzadoDAO {
                 Timestamp uc = rs.getTimestamp("ultima_compra");
                 fila.put("ultima_compra", uc != null ? uc.toLocalDateTime()
                                                        .format(java.time.format.DateTimeFormatter
-                                                               .ofPattern("dd/MM/yyyy")) : "—");
+                                                               .ofPattern("dd/MM/yyyy")) : "-");
                 lista.add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
@@ -236,11 +236,11 @@ public class ReporteAvanzadoDAO {
                 fila.put("detalle", rs.getString("detalle"));
                 lista.add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
-    // ── Movimientos de inventario ─────────────────────────────────────────
+    // -- Movimientos de inventario -----------------------------------------
     public List<Map<String, Object>> movimientosInventario(
             String fechaInicio, String fechaFin, int idProducto) {
         List<Map<String, Object>> lista = new ArrayList<>();
@@ -287,7 +287,7 @@ public class ReporteAvanzadoDAO {
                 fila.put("notas",     rs.getString("notas"));
                 lista.add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
 
     }

@@ -36,7 +36,7 @@
 
             <Separator style="-fx-opacity: 0.15;" />
 
-            <!-- Navegación -->
+            <!-- Navegacion -->
             <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
 
                 <Label style="-fx-text-fill: rgba(255,255,255,0.35);                               -fx-font-size: 9px; -fx-font-weight: bold;                               -fx-padding: 8 8 3 8;" text="PRINCIPAL" />
@@ -71,13 +71,16 @@
                 <Button graphicTextGap="12" onAction="#irACorteCaja" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Corte de Caja">
                     <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cash-register" iconSize="16" /></graphic>
                 </Button>
+                <Button graphicTextGap="12" onAction="#irAOperaciones" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Operaciones">
+                    <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-clipboard-list" iconSize="16" /></graphic>
+                </Button>
                 <Button prefHeight="40" prefWidth="210" onAction="#irAAuditoria"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
                         text="Auditoría" graphicTextGap="12">
                     <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
-                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuracion">
+                <Button graphicTextGap="12" onAction="#irAConfiguracion" prefHeight="40" prefWidth="210" style="-fx-background-color: transparent;                                -fx-text-fill: rgba(255,255,255,0.8);                                -fx-background-radius: 8;                                -fx-alignment: CENTER_LEFT;                                -fx-padding: 0 14;                                -fx-cursor: hand;" text="Configuración">
                     <graphic><FontIcon iconColor="rgba(255,255,255,0.8)" iconLiteral="fas-cog" iconSize="16" /></graphic>
                 </Button>
 
@@ -86,14 +89,14 @@
 
             <Separator style="-fx-opacity: 0.15;" />
 
-            <!-- Cerrar sesión -->
-            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
-                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
+            <!-- Cerrar sesion -->
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesión" graphicTextGap="10"
+                    styleClass="sidebar-session-button">
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#22c55e"/></graphic>
             </Button>
             <Button onAction="#salirAplicacion" prefHeight="44" prefWidth="230" text="Salir del sistema" graphicTextGap="10"
-                    style="-fx-background-color: rgba(248,113,113,0.12); -fx-text-fill: #fecaca; -fx-cursor: hand;">
-                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#f87171"/></graphic>
+                    styleClass="sidebar-exit-button">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#22c55e"/></graphic>
             </Button>
 
         </VBox>
@@ -120,7 +123,7 @@
             <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
                 <VBox spacing="14" style="-fx-padding: 18;">
 
-                    <!-- ── TARJETAS STAT ── -->
+                    <!-- TARJETAS STAT -->
                     <HBox spacing="10">
 
                         <!-- Ventas hoy -->
@@ -169,7 +172,7 @@
 
                     </HBox>
 
-                    <!-- ── FILA INFERIOR ── -->
+                    <!-- FILA INFERIOR -->
                     <HBox spacing="12">
 
                         <!-- Ultimas ventas -->
@@ -223,6 +226,9 @@
 
                                 <Button graphicTextGap="10" onAction="#irACorteCaja" prefHeight="40" prefWidth="256" style="-fx-background-color: transparent;                                                -fx-border-color: #C0392B;                                                -fx-border-radius: 8;                                                -fx-border-width: 1;                                                -fx-text-fill: #C0392B;                                                -fx-font-weight: bold;                                                -fx-cursor: hand;                                                -fx-background-radius: 8;" text="Corte de Caja">
                                     <graphic><FontIcon iconColor="#C0392B" iconLiteral="fas-cash-register" iconSize="13" /></graphic>
+                                </Button>
+                                <Button graphicTextGap="10" onAction="#irAOperaciones" prefHeight="40" prefWidth="256" style="-fx-background-color: transparent;                                                -fx-border-color: #1a6fa8;                                                -fx-border-radius: 8;                                                -fx-border-width: 1;                                                -fx-text-fill: #1a6fa8;                                                -fx-font-weight: bold;                                                -fx-cursor: hand;                                                -fx-background-radius: 8;" text="Operaciones">
+                                    <graphic><FontIcon iconColor="#1a6fa8" iconLiteral="fas-clipboard-list" iconSize="13" /></graphic>
                                 </Button>
 
                             </VBox>

@@ -575,7 +575,7 @@ public class ReportePDFService {
             cans.setWidthPercentage(100);
             cans.setSpacingBefore(6);
             cans.setSpacingAfter(12);
-            agregarHeaderTabla(cans, "Tipo", "Folio", "Total", "Motivo", "Autorizo");
+            agregarHeaderTabla(cans, "Tipo", "Folio", "Total", "Motivo", "Autorizó");
             fila = 0;
             for (CorteCajaReporte.CancelacionDevolucion item : reporte.getCancelacionesDevoluciones()) {
                 BaseColor bg = (fila++ % 2 == 0) ? COLOR_FILA_IMPAR : COLOR_FILA_PAR;

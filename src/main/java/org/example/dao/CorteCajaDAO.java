@@ -231,17 +231,19 @@ public class CorteCajaDAO {
         }
 
         Map<String, CorteCajaReporte.MetodoPago> base = new LinkedHashMap<>();
-        base.put("Efectivo", new CorteCajaReporte.MetodoPago("Efectivo", 0, 0));
+        base.put("Efectivo MXN", new CorteCajaReporte.MetodoPago("Efectivo MXN", 0, 0));
+        base.put("Dólares convertidos a MXN", new CorteCajaReporte.MetodoPago("Dólares convertidos a MXN", 0, 0));
         base.put("Tarjeta", new CorteCajaReporte.MetodoPago("Tarjeta", 0, 0));
         base.put("Transferencia", new CorteCajaReporte.MetodoPago("Transferencia", 0, 0));
-        base.put("Credito", new CorteCajaReporte.MetodoPago("Credito", 0, 0));
+        base.put("Crédito", new CorteCajaReporte.MetodoPago("Crédito", 0, 0));
 
         try (PreparedStatement ps = con.prepareStatement("""
                 SELECT CASE
-                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('EFECTIVO', 'DOLARES', 'MIXTO', 'MIXTO_USD') THEN 'Efectivo'
+                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('EFECTIVO', 'MIXTO', 'MIXTO_USD') THEN 'Efectivo MXN'
+                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'DOLARES' THEN 'Dólares convertidos a MXN'
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'TARJETA' THEN 'Tarjeta'
                            WHEN COALESCE(pg.tipo_pago, v.metodo_pago) = 'TRANSFERENCIA' THEN 'Transferencia'
-                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('FIADO', 'CREDITO') THEN 'Credito'
+                           WHEN COALESCE(pg.tipo_pago, v.metodo_pago) IN ('FIADO', 'CREDITO') THEN 'Crédito'
                            ELSE COALESCE(pg.tipo_pago, v.metodo_pago, 'Otro')
                        END AS metodo,
                        COUNT(v.id_venta) AS cantidad,
@@ -318,17 +320,19 @@ public class CorteCajaDAO {
 
     private void cargarMetodosPagoConDetallePago(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
         Map<String, CorteCajaReporte.MetodoPago> base = new LinkedHashMap<>();
-        base.put("Efectivo", new CorteCajaReporte.MetodoPago("Efectivo", 0, 0));
+        base.put("Efectivo MXN", new CorteCajaReporte.MetodoPago("Efectivo MXN", 0, 0));
+        base.put("Dólares convertidos a MXN", new CorteCajaReporte.MetodoPago("Dólares convertidos a MXN", 0, 0));
         base.put("Tarjeta", new CorteCajaReporte.MetodoPago("Tarjeta", 0, 0));
         base.put("Transferencia", new CorteCajaReporte.MetodoPago("Transferencia", 0, 0));
-        base.put("Credito", new CorteCajaReporte.MetodoPago("Credito", 0, 0));
+        base.put("Crédito", new CorteCajaReporte.MetodoPago("Crédito", 0, 0));
 
         try (PreparedStatement ps = con.prepareStatement("""
                 SELECT CASE
-                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) IN ('EFECTIVO', 'DOLARES') THEN 'Efectivo'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'EFECTIVO' THEN 'Efectivo MXN'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'DOLARES' THEN 'Dólares convertidos a MXN'
                            WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'TARJETA' THEN 'Tarjeta'
                            WHEN UPPER(COALESCE(dp.metodo_pago, '')) = 'TRANSFERENCIA' THEN 'Transferencia'
-                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) IN ('FIADO', 'CREDITO') THEN 'Credito'
+                           WHEN UPPER(COALESCE(dp.metodo_pago, '')) IN ('FIADO', 'CREDITO') THEN 'Crédito'
                            ELSE COALESCE(dp.metodo_pago, 'Otro')
                        END AS metodo,
                        COUNT(DISTINCT dp.id_venta) AS cantidad,
@@ -363,8 +367,8 @@ public class CorteCajaDAO {
             ps.setInt(1, idCaja);
             ResultSet rs = ps.executeQuery();
             if (rs.next() && rs.getInt("cantidad") > 0) {
-                base.put("Credito", new CorteCajaReporte.MetodoPago(
-                        "Credito",
+                base.put("Crédito", new CorteCajaReporte.MetodoPago(
+                        "Crédito",
                         rs.getInt("cantidad"),
                         rs.getDouble("total")
                 ));
@@ -410,7 +414,7 @@ public class CorteCajaDAO {
 
     private void cargarCancelacionesYDevoluciones(Connection con, int idCaja, CorteCajaReporte reporte) throws Exception {
         try (PreparedStatement ps = con.prepareStatement("""
-                SELECT 'Cancelacion' AS tipo,
+                SELECT 'Cancelación' AS tipo,
                        c.id_cancelacion AS id_mov,
                        v.total AS total,
                        COALESCE(c.motivo, '') AS motivo,
@@ -420,7 +424,7 @@ public class CorteCajaDAO {
                 LEFT JOIN usuarios u ON u.id_usuario = c.id_usuario
                 WHERE v.id_caja = ?
                 UNION ALL
-                SELECT 'Devolucion' AS tipo,
+                SELECT 'Devolución' AS tipo,
                        d.id_devolucion AS id_mov,
                        d.monto_devuelto AS total,
                        COALESCE(d.notas, '') AS motivo,
@@ -441,7 +445,7 @@ public class CorteCajaDAO {
                 reporte.setCantidadCancelaciones(reporte.getCantidadCancelaciones() + 1);
                 reporte.getCancelacionesDevoluciones().add(new CorteCajaReporte.CancelacionDevolucion(
                         tipo,
-                        "Cancelacion".equals(tipo) ? FolioService.cancelacion(id) : FolioService.devolucion(id),
+                        "Cancelación".equals(tipo) ? FolioService.cancelacion(id) : FolioService.devolucion(id),
                         total,
                         rs.getString("motivo"),
                         rs.getString("usuario")

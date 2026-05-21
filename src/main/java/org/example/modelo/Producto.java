@@ -14,6 +14,7 @@ public class Producto {
 
     // ESTE CAMPO ES PARA EL INVENTARIO (JOIN)
     private String categoria;
+    private String proveedorPrincipal;
 
     public Producto() {}
 
@@ -59,6 +60,9 @@ public class Producto {
 
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getProveedorPrincipal() { return proveedorPrincipal; }
+    public void setProveedorPrincipal(String proveedorPrincipal) { this.proveedorPrincipal = proveedorPrincipal; }
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }

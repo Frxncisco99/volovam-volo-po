@@ -14,7 +14,7 @@ public class ExportarInventarioservice {
     // Paleta Volovan Volo
     private static final BaseColor COLOR_HEADER     = new BaseColor(61,  28,  2);   // #3D1C02
     private static final BaseColor COLOR_ACENTO     = new BaseColor(201, 168, 76);  // #C9A84C
-    private static final BaseColor COLOR_FILA_PAR   = new BaseColor(245, 239, 230); // #F5EFE6
+    private static final BaseColor COLOR_FILA_PAR   = new BaseColor(240, 247, 255); // #f0f7ff
     private static final BaseColor COLOR_FILA_IMPAR = new BaseColor(237, 232, 220); // #EDE8DC
     private static final BaseColor COLOR_BAJO_STOCK = new BaseColor(163, 45,  45);  // #A32D2D
     private static final BaseColor COLOR_TEXTO_OSC  = new BaseColor(61,  26,  10);  // #3D1A0A

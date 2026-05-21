@@ -230,7 +230,7 @@ public class ConfiguracionController {
         cmbCajonPuerto.getItems().setAll("Via impresora termica (ESC/POS)", "COM1", "COM2", "COM3", "COM4");
         cmbCajonPulso.getItems().setAll("Pulso 1 (pin 2)", "Pulso 2 (pin 5)");
         cmbEmailSmtp.getItems().setAll("Gmail", "Outlook / Hotmail", "SMTP personalizado");
-        cmbWebModoEnlace.getItems().setAll("Codigo de barras", "ID producto local");
+        cmbWebModoEnlace.getItems().setAll("Código de barras", "ID producto local");
         prepararCombosFiscal();
 
         cmbImpresora.getItems().clear();
@@ -266,7 +266,7 @@ public class ConfiguracionController {
         cmbFormaPagoSat.getItems().setAll(
                 "01 - Efectivo",
                 "03 - Transferencia electronica",
-                "04 - Tarjeta de credito",
+                "04 - Tarjeta de crédito",
                 "28 - Tarjeta de debito",
                 "99 - Por definir"
         );
@@ -386,7 +386,7 @@ public class ConfiguracionController {
         instalarTooltip(btnTabFiscal, "Datos fiscales, impuestos y prefactura.");
         instalarTooltip(btnTabTicket, "Campos usados por el flujo de impresion de tickets.");
         instalarTooltip(btnTabCajon, "Apertura automatica del cajon de dinero.");
-        instalarTooltip(btnTabEmail, "Configuracion SMTP para tickets por correo.");
+        instalarTooltip(btnTabEmail, "Configuración SMTP para tickets por correo.");
         instalarTooltip(btnTabUsuarios, "Administracion de usuarios del POS.");
         instalarTooltip(btnTabBaseDatos, "Estado de conexion y respaldo SQL.");
         instalarTooltip(btnTabCatalogoWeb, "Conexion y sincronizacion segura con el catalogo web.");
@@ -395,7 +395,7 @@ public class ConfiguracionController {
         instalarTooltip(btnWebSubirInventario, "Envia categorias y productos activos a Supabase.");
         instalarTooltip(btnWebDescargarDatos, "Prueba lectura de productos/pedidos web.");
         instalarTooltip(btnWebVerPendientes, "Muestra cambios locales pendientes por sincronizar.");
-        instalarTooltip(btnWebGenerarEnlaces, "Prepara enlaces de productos usando codigo de barras o id local.");
+        instalarTooltip(btnWebGenerarEnlaces, "Prepara enlaces de productos usando código de barras o id local.");
 
         validarCampo(txtCorreo, texto -> !texto.isBlank() && !texto.contains("@"));
         validarCampo(txtEmailRemitente, texto -> !texto.isBlank() && !texto.contains("@"));
@@ -480,7 +480,7 @@ public class ConfiguracionController {
                 "CONFIG_FISCAL",
                 "configuracion_fiscal",
                 1,
-                "Configuracion fiscal actualizada. RFC: " + config.getRfcNegocio()
+                "Configuración fiscal actualizada. RFC: " + config.getRfcNegocio()
                         + " | Regimen: " + config.getRegimenFiscal()
                         + " | Impuesto: " + config.getImpuestoPredeterminadoClave(),
                 SesionUsuario.getInstancia().getIdUsuario()
@@ -609,7 +609,7 @@ public class ConfiguracionController {
         txtWebSupabaseUrl.setText(config.getSupabaseUrl());
         txtWebAnonKey.setText(config.getSupabaseAnonKey());
         txtWebProyecto.setText(config.getProyectoRef());
-        seleccionar(cmbWebModoEnlace, config.isUsarCodigoBarras() ? "Codigo de barras" : "ID producto local", "Codigo de barras");
+        seleccionar(cmbWebModoEnlace, config.isUsarCodigoBarras() ? "Código de barras" : "ID producto local", "Código de barras");
         tglWebCatalogoActivo.setSelected(config.isCatalogoActivo());
         tglWebMostrarAgotados.setSelected(config.isMostrarAgotados());
         tglWebOcultarSinStock.setSelected(config.isOcultarSinStock());
@@ -630,7 +630,7 @@ public class ConfiguracionController {
         actual.setSupabaseUrl(txtWebSupabaseUrl.getText());
         actual.setSupabaseAnonKey(txtWebAnonKey.getText());
         actual.setProyectoRef(txtWebProyecto.getText());
-        actual.setUsarCodigoBarras("Codigo de barras".equals(cmbWebModoEnlace.getValue()));
+        actual.setUsarCodigoBarras("Código de barras".equals(cmbWebModoEnlace.getValue()));
         actual.setCatalogoActivo(tglWebCatalogoActivo.isSelected());
         actual.setMostrarAgotados(tglWebMostrarAgotados.isSelected());
         actual.setOcultarSinStock(tglWebOcultarSinStock.isSelected());
@@ -679,7 +679,7 @@ public class ConfiguracionController {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getString(1);
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return fallback;
     }
@@ -692,7 +692,7 @@ public class ConfiguracionController {
             ps.setString(2, valor);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -835,7 +835,7 @@ public class ConfiguracionController {
         mostrarAlerta(Alert.AlertType.INFORMATION, "Pendientes de sincronizacion",
                 "Cambios pendientes/error: " + pendientes
                         + "\nProductos activos locales: " + activos
-                        + "\nProductos sin codigo de barras: " + sinCodigo);
+                + "\nProductos sin código de barras: " + sinCodigo);
         actualizarResumenMapeoWeb();
     }
 
@@ -927,7 +927,7 @@ public class ConfiguracionController {
         int activos = configuracionWebDAO.contarProductosActivos();
         int sinCodigo = configuracionWebDAO.contarProductosSinCodigoBarras();
         int pendientes = configuracionWebDAO.contarPendientesSincronizacion();
-        boolean usaCodigo = "Codigo de barras".equals(cmbWebModoEnlace.getValue());
+        boolean usaCodigo = "Código de barras".equals(cmbWebModoEnlace.getValue());
         if (usaCodigo && sinCodigo > 0) {
             lblWebAdvertenciaMapeo.setText("Advertencia: " + sinCodigo + " de " + activos
                     + " producto(s) activo(s) no tienen codigo de barras. Se puede usar id_producto como respaldo para evitar duplicados.");
@@ -963,11 +963,12 @@ public class ConfiguracionController {
         cmbRol.setValue(nuevo ? "cajero" : usuario.rol());
         txtNombre.setPromptText("Nombre completo");
         txtUsuario.setPromptText("Usuario");
-        txtPassword.setPromptText(nuevo ? "Contrasena" : "Nueva contrasena (opcional)");
+        txtPassword.setPromptText(nuevo ? "Contraseña" : "Nueva contraseña (opcional)");
         form.getChildren().addAll(new Label("Nombre"), txtNombre, new Label("Usuario"), txtUsuario,
-                new Label("Contrasena"), txtPassword, new Label("Rol"), cmbRol);
+                new Label("Contraseña"), txtPassword, new Label("Rol"), cmbRol);
         dialog.getDialogPane().setContent(form);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        org.example.servicio.DialogService.preparar(dialog, lblNombreUsuario);
         dialog.showAndWait().ifPresent(res -> {
             if (res != ButtonType.OK) return;
             String nombre = txtNombre.getText().trim();
@@ -975,7 +976,7 @@ public class ConfiguracionController {
             String pass = txtPassword.getText().trim();
             String rol = cmbRol.getValue();
             if (nombre.isEmpty() || user.isEmpty() || (nuevo && pass.isEmpty())) {
-                mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "Nombre, usuario y contrasena son obligatorios.");
+                mostrarAlerta(Alert.AlertType.WARNING, "Usuarios", "Nombre, usuario y contraseña son obligatorios.");
                 return;
             }
             if (!nuevo && !usuarioSeguridadService.puedeCambiarRol(usuario.id(), rol)) {
@@ -1015,7 +1016,7 @@ public class ConfiguracionController {
                         activo));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -1081,11 +1082,12 @@ public class ConfiguracionController {
             return;
         }
         PasswordField field = new PasswordField();
-        field.setPromptText("Nueva contrasena");
+        field.setPromptText("Nueva contraseña");
         Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
         dialog.setTitle("Cambiar clave");
         dialog.setHeaderText("Nueva clave para " + usuario.nombre());
         dialog.getDialogPane().setContent(field);
+        org.example.servicio.DialogService.preparar(dialog, lblNombreUsuario);
         dialog.showAndWait().ifPresent(res -> {
             if (res != ButtonType.OK || field.getText().trim().isEmpty()) return;
             try (Connection con = ConexionDB.getConexion();
@@ -1134,7 +1136,7 @@ public class ConfiguracionController {
         }
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Gestion de permisos");
+        dialog.setTitle("Gestión de permisos");
         dialog.setHeaderText("Permisos para " + usuario.nombre());
 
         Map<String, Boolean> actuales = PermisoService.permisosUsuario(usuario.id());
@@ -1163,6 +1165,7 @@ public class ConfiguracionController {
         scroll.setPrefViewportWidth(560);
         dialog.getDialogPane().setContent(scroll);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        org.example.servicio.DialogService.preparar(dialog, lblNombreUsuario);
         dialog.showAndWait().ifPresent(res -> {
             if (res != ButtonType.OK) return;
             List<String> seleccionados = checks.stream()
@@ -1242,7 +1245,7 @@ public class ConfiguracionController {
         try {
             int code = pb.start().waitFor();
             if (code == 0) mostrarAlerta(Alert.AlertType.INFORMATION, "Respaldo", "Respaldo exportado:\n" + destino.getAbsolutePath());
-            else mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "mysqldump termino con codigo " + code + ".");
+            else mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "mysqldump terminó con código " + code + ".");
         } catch (Exception e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Respaldo", "No se pudo exportar el respaldo.\n" + e.getMessage());
         }
@@ -1369,10 +1372,10 @@ public class ConfiguracionController {
             int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
             ps.setInt(1, idUsuario);
             ps.setInt(2, idUsuario);
-            ps.setString(3, "Cierre de sesion: " + SesionUsuario.getInstancia().getNombre());
+            ps.setString(3, "Cierre de sesión: " + SesionUsuario.getInstancia().getNombre());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -1387,44 +1390,32 @@ public class ConfiguracionController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion");
-        a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(lblNombreUsuario);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(lblNombreUsuario);
     }
 
     private void navegar(String ruta) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(ruta));
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) lblNombreUsuario.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Navegacion", "No se pudo abrir la vista.\n" + e.getMessage());
-        }
+        org.example.servicio.NavigationService.cambiarEscena(lblNombreUsuario, ruta);
     }
 
     private void navegarConPermiso(PermisoService.Accion accion, String ruta) {
         if (!PermisoService.puede(accion)) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         navegar(ruta);
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert a = new Alert(tipo);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(mensaje);
-        a.showAndWait();
+        switch (tipo) {
+            case INFORMATION -> org.example.servicio.DialogService.info(lblNombreUsuario, titulo, mensaje);
+            case ERROR -> org.example.servicio.DialogService.error(lblNombreUsuario, titulo, mensaje);
+            default -> org.example.servicio.DialogService.advertencia(lblNombreUsuario, titulo, mensaje);
+        }
     }
 
     private record UsuarioRow(int id, String nombre, String usuario, String rol, String estado, boolean activo) {}

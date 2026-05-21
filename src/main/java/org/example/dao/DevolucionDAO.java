@@ -24,7 +24,10 @@ public class DevolucionDAO {
                 dv.cantidad                                   AS vendido,
                 COALESCE(SUM(dd.cantidad), 0)                 AS ya_devuelto,
                 dv.cantidad - COALESCE(SUM(dd.cantidad), 0)   AS disponible,
-                dv.precio_unitario
+                CASE
+                    WHEN COALESCE(dv.total_linea, 0) > 0 AND dv.cantidad > 0 THEN dv.total_linea / dv.cantidad
+                    ELSE dv.precio_unitario
+                END AS precio_unitario
             FROM detalle_venta dv
             JOIN productos p ON dv.id_producto = p.id_producto
             LEFT JOIN detalle_devolucion dd ON dd.id_detalle_venta = dv.id_detalle
@@ -46,7 +49,7 @@ public class DevolucionDAO {
                         rs.getDouble("precio_unitario")
                 ));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 
@@ -60,8 +63,8 @@ public class DevolucionDAO {
 
         if (!PermisoService.requerirPermisoOAutorizacionAdmin(
                 PermisoService.VENTAS_DEVOLVER,
-                "Procesar devolucion de venta " + FolioService.venta(idVenta))) {
-            throw new SecurityException("No se autorizo la devolucion.");
+                "Procesar devolución de venta " + FolioService.venta(idVenta))) {
+            throw new SecurityException("No se autorizó la devolución.");
         }
 
         if (devolucionesPorDetalle == null || devolucionesPorDetalle.values().stream().noneMatch(c -> c != null && c > 0)) {
@@ -79,7 +82,7 @@ public class DevolucionDAO {
             // Calcular monto total a devolver
             double montoTotal = calcularMonto(con, devolucionesPorDetalle);
             if (montoTotal <= 0) {
-                throw new IllegalStateException("El monto de devolucion debe ser mayor a cero.");
+                throw new IllegalStateException("El monto de devolución debe ser mayor a cero.");
             }
 
             // Insertar en devoluciones
@@ -132,6 +135,8 @@ public class DevolucionDAO {
                         "Devolución " + FolioService.devolucion(idDevolucion));
             }
 
+            aplicarImpactoFinanciero(con, idVenta, montoTotal, tipoReembolso);
+
             // Actualizar estado de la venta
             actualizarEstadoVenta(con, idVenta);
 
@@ -141,7 +146,7 @@ public class DevolucionDAO {
             // Auditoría (fuera de la transacción, no rompe el flujo si falla)
             AuditoriaService.get().registrar(
                     idUsuario, "DEVOLUCION", "devoluciones", idDevolucion,
-                    String.format("Devolución %s de venta %s — Monto: $%.2f — Tipo: %s",
+                    String.format("Devolución %s de venta %s - Monto: $%.2f - Tipo: %s",
                             FolioService.devolucion(idDevolucion),
                             FolioService.venta(idVenta),
                             montoTotal, tipoReembolso)
@@ -211,7 +216,14 @@ public class DevolucionDAO {
 
     private double calcularMonto(Connection con, Map<Integer, Integer> devs) throws SQLException {
         double total = 0;
-        String sql = "SELECT precio_unitario FROM detalle_venta WHERE id_detalle = ?";
+        String sql = """
+                SELECT CASE
+                           WHEN COALESCE(total_linea, 0) > 0 AND cantidad > 0 THEN total_linea / cantidad
+                           ELSE precio_unitario
+                       END AS precio_unitario
+                FROM detalle_venta
+                WHERE id_detalle = ?
+                """;
         for (Map.Entry<Integer, Integer> entry : devs.entrySet()) {
             if (entry.getValue() <= 0) continue;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -225,6 +237,44 @@ public class DevolucionDAO {
             }
         }
         return total;
+    }
+
+    private void aplicarImpactoFinanciero(Connection con, int idVenta, double montoTotal, String tipoReembolso) throws Exception {
+        String sqlVenta = "SELECT id_cliente, metodo_pago FROM ventas WHERE id_venta = ?";
+        int idCliente = 0;
+        String metodoPago = "";
+        try (PreparedStatement ps = con.prepareStatement(sqlVenta)) {
+            ps.setInt(1, idVenta);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    idCliente = rs.getInt("id_cliente");
+                    metodoPago = rs.getString("metodo_pago");
+                }
+            }
+        }
+
+        boolean ventaCredito = "FIADO".equalsIgnoreCase(metodoPago) || "CREDITO".equalsIgnoreCase(metodoPago);
+        boolean reembolsoCredito = "CREDITO".equalsIgnoreCase(tipoReembolso) || "NOTA_CREDITO".equalsIgnoreCase(tipoReembolso);
+        if (idCliente <= 0 || (!ventaCredito && !reembolsoCredito)) {
+            return;
+        }
+
+        try (PreparedStatement ps = con.prepareStatement(
+                "UPDATE clientes SET saldo_actual = GREATEST(saldo_actual - ?, 0) WHERE id_cliente = ?")) {
+            ps.setDouble(1, montoTotal);
+            ps.setInt(2, idCliente);
+            ps.executeUpdate();
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("""
+                INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas)
+                VALUES (?, ?, 'ABONO', ?, 'Devolución aplicada a crédito')
+                """)) {
+            ps.setInt(1, idCliente);
+            ps.setDouble(2, montoTotal);
+            ps.setInt(3, idVenta);
+            ps.executeUpdate();
+        }
     }
 
     private int obtenerIdProducto(Connection con, int idDetalle) throws SQLException {
@@ -288,6 +338,7 @@ public class DevolucionDAO {
                    COALESCE(c.nombre,'Publico General')   AS cliente,
                    v.total,
                    COALESCE(v.estado,'COMPLETADA')        AS estado,
+                   COALESCE(v.metodo_pago, '')            AS metodo_pago,
                    COALESCE(SUM(dev.monto_devuelto), 0)   AS total_devuelto
             FROM ventas v
             LEFT JOIN clientes c ON v.id_cliente = c.id_cliente
@@ -295,7 +346,7 @@ public class DevolucionDAO {
             WHERE COALESCE(v.estado, 'COMPLETADA') NOT IN ('DEVUELTA', 'CANCELADA')
               AND (? = '' OR CAST(v.id_venta AS CHAR) LIKE ? 
                           OR c.nombre LIKE ?)
-            GROUP BY v.id_venta, v.fecha, c.nombre, v.total, v.estado
+            GROUP BY v.id_venta, v.fecha, c.nombre, v.total, v.estado, v.metodo_pago
             ORDER BY v.fecha DESC
             LIMIT ?
         """;
@@ -314,10 +365,11 @@ public class DevolucionDAO {
                 row.put("cliente",        rs.getString("cliente"));
                 row.put("total",          rs.getDouble("total"));
                 row.put("estado",         rs.getString("estado"));
+                row.put("metodo_pago",    rs.getString("metodo_pago"));
                 row.put("total_devuelto", rs.getDouble("total_devuelto"));
                 lista.add(row);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return lista;
     }
 }
