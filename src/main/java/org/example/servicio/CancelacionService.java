@@ -15,14 +15,14 @@ public class CancelacionService {
      */
     public void cancelarVenta(int idVenta, String motivo) throws Exception {
         if (motivo == null || motivo.trim().length() < 5) {
-            throw new IllegalArgumentException("Indica un motivo de cancelacion valido de al menos 5 caracteres.");
+            throw new IllegalArgumentException("Indica un motivo de cancelación válido de al menos 5 caracteres.");
         }
         motivo = motivo.trim();
 
         if (!PermisoService.requerirPermisoOAutorizacionAdmin(
                 PermisoService.VENTAS_CANCELAR,
                 "Cancelar venta " + FolioService.venta(idVenta))) {
-            throw new SecurityException("No se autorizo la cancelacion.");
+            throw new SecurityException("No se autorizó la cancelación.");
         }
 
         Connection con = ConexionDB.getConexion();
@@ -32,9 +32,17 @@ public class CancelacionService {
             con.setAutoCommit(false);
 
             // 1. Verificar que la venta existe y su estado actual
-            String sqlEstado = "SELECT estado, COALESCE(fecha_hora, fecha) AS fecha_venta FROM ventas WHERE id_venta = ?";
+            String sqlEstado = """
+                    SELECT estado, COALESCE(fecha_hora, fecha) AS fecha_venta,
+                           metodo_pago, id_cliente, total
+                    FROM ventas
+                    WHERE id_venta = ?
+                    """;
             String estadoActual;
             LocalDateTime fechaVenta;
+            String metodoPago;
+            int idCliente;
+            double totalVenta;
             try (PreparedStatement ps = con.prepareStatement(sqlEstado)) {
                 ps.setInt(1, idVenta);
                 ResultSet rs = ps.executeQuery();
@@ -42,6 +50,9 @@ public class CancelacionService {
                 estadoActual = rs.getString("estado");
                 Timestamp ts = rs.getTimestamp("fecha_venta");
                 fechaVenta = ts != null ? ts.toLocalDateTime() : null;
+                metodoPago = rs.getString("metodo_pago");
+                idCliente = rs.getInt("id_cliente");
+                totalVenta = rs.getDouble("total");
             }
 
             if ("CANCELADA".equalsIgnoreCase(estadoActual))
@@ -88,6 +99,8 @@ public class CancelacionService {
             }
 
             // 4. Registrar cancelación
+            revertirCreditoCliente(con, idVenta, metodoPago, idCliente, totalVenta);
+
             int idCancelacion;
             try (PreparedStatement ps = con.prepareStatement(
                     "INSERT INTO cancelaciones (id_venta, id_usuario, motivo) VALUES (?, ?, ?)",
@@ -143,6 +156,31 @@ public class CancelacionService {
         }
     }
 
+    private void revertirCreditoCliente(Connection con, int idVenta, String metodoPago,
+                                        int idCliente, double totalVenta) throws SQLException {
+        if (idCliente <= 1 || metodoPago == null) return;
+        String metodo = metodoPago.trim().toUpperCase();
+        if (!metodo.equals("FIADO") && !metodo.equals("CREDITO")) return;
+
+        try (PreparedStatement ps = con.prepareStatement(
+                "UPDATE clientes SET saldo_actual = GREATEST(saldo_actual - ?, 0) WHERE id_cliente = ?")) {
+            ps.setDouble(1, totalVenta);
+            ps.setInt(2, idCliente);
+            ps.executeUpdate();
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("""
+                INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas)
+                VALUES (?, ?, 'ABONO', ?, ?)
+                """)) {
+            ps.setInt(1, idCliente);
+            ps.setDouble(2, totalVenta);
+            ps.setInt(3, idVenta);
+            ps.setString(4, "Cancelación de venta a crédito");
+            ps.executeUpdate();
+        }
+    }
+
     private void validarVentanaCancelacion(Connection con, LocalDateTime fechaVenta) throws Exception {
         int limiteHoras = obtenerLimiteCancelacionHoras(con);
         if (limiteHoras <= 0 || fechaVenta == null) {
@@ -150,7 +188,7 @@ public class CancelacionService {
         }
         long horas = Duration.between(fechaVenta, LocalDateTime.now()).toHours();
         if (horas > limiteHoras) {
-            throw new IllegalStateException("La venta supera el limite de " + limiteHoras + " horas para cancelacion.");
+            throw new IllegalStateException("La venta supera el límite de " + limiteHoras + " horas para cancelación.");
         }
     }
 
@@ -162,7 +200,7 @@ public class CancelacionService {
                 return Integer.parseInt(rs.getString("valor"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return 24;
     }

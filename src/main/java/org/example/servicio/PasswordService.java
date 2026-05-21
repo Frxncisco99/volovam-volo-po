@@ -13,7 +13,7 @@ public class PasswordService {
 
     public String hash(String password) {
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("La contrasena no puede estar vacia.");
+            throw new IllegalArgumentException("La contraseña no puede estar vacía.");
         }
         return BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_COST));
     }

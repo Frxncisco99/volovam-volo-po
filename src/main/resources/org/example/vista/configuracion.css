@@ -93,12 +93,28 @@
     -fx-pref-width: 230;
     -fx-pref-height: 44;
     -fx-background-color: transparent;
-    -fx-text-fill: #fecaca;
+    -fx-text-fill: #bbf7d0;
     -fx-cursor: hand;
+    -fx-font-weight: bold;
 }
 
 .sidebar-logout:hover {
-    -fx-background-color: rgba(248,113,113,0.10);
+    -fx-background-color: rgba(34,197,94,0.22);
+    -fx-text-fill: #dcfce7;
+}
+
+.sidebar-exit {
+    -fx-pref-width: 232;
+    -fx-pref-height: 44;
+    -fx-background-color: rgba(34,197,94,0.14);
+    -fx-text-fill: #bbf7d0;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.sidebar-exit:hover {
+    -fx-background-color: rgba(34,197,94,0.22);
+    -fx-text-fill: #dcfce7;
 }
 
 .config-root {

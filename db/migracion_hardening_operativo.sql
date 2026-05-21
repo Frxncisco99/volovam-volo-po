@@ -173,6 +173,19 @@ CREATE TABLE IF NOT EXISTS compra_detalle (
     KEY idx_compra_detalle_producto (id_producto)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
+CREATE TABLE IF NOT EXISTS producto_proveedor (
+    id_producto INT NOT NULL,
+    id_proveedor INT NOT NULL,
+    sku_proveedor VARCHAR(80) DEFAULT NULL,
+    costo_ultimo DECIMAL(12,2) NOT NULL DEFAULT 0,
+    proveedor_principal TINYINT(1) NOT NULL DEFAULT 0,
+    activo TINYINT(1) NOT NULL DEFAULT 1,
+    actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_producto, id_proveedor),
+    KEY idx_producto_proveedor_proveedor (id_proveedor),
+    KEY idx_producto_proveedor_principal (id_producto, proveedor_principal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
 -- Turnos para cortes parciales por cajero.
 CREATE TABLE IF NOT EXISTS turnos (
     id_turno INT NOT NULL AUTO_INCREMENT,
@@ -249,6 +262,20 @@ WHERE NOT EXISTS (
     FROM detalle_pago dp
     WHERE dp.id_venta = p.id_venta
 );
+
+INSERT INTO detalle_pago (id_venta, metodo_pago, monto, referencia, fecha_hora)
+SELECT v.id_venta,
+       'CREDITO',
+       v.total,
+       'Migrado desde venta a credito',
+       COALESCE(v.fecha_hora, v.fecha, NOW())
+FROM ventas v
+WHERE UPPER(COALESCE(v.metodo_pago, '')) IN ('FIADO', 'CREDITO')
+  AND NOT EXISTS (
+      SELECT 1
+      FROM detalle_pago dp
+      WHERE dp.id_venta = v.id_venta
+  );
 
 DROP PROCEDURE drop_index_if_exists;
 DROP PROCEDURE drop_fk_if_exists;

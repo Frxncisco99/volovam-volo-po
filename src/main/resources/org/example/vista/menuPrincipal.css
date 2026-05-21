@@ -355,6 +355,50 @@
     -fx-border-color: transparent;
 }
 
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-background-radius: 8;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 14;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.10);
+}
+
+.primary-action {
+    -fx-background-color: #1a6fa8;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 7 14;
+}
+
+.sidebar-session-button,
+.sidebar-exit-button {
+    -fx-background-radius: 8;
+    -fx-text-fill: #bbf7d0;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.sidebar-session-button {
+    -fx-background-color: transparent;
+}
+
+.sidebar-exit-button {
+    -fx-background-color: rgba(34, 197, 94, 0.14);
+}
+
+.sidebar-session-button:hover,
+.sidebar-exit-button:hover {
+    -fx-background-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #dcfce7;
+}
+
 /* ---------- MODULO EMPLEADOS ---------- */
 .empleados-root {
     -fx-background-color: #f0f7ff;
@@ -454,13 +498,13 @@
 
 .empleados-session-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #fecaca;
+    -fx-text-fill: #bbf7d0;
     -fx-cursor: hand;
 }
 
 .empleados-session-button:hover {
-    -fx-background-color: rgba(248, 113, 113, 0.12);
-    -fx-text-fill: #fecaca;
+    -fx-background-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #dcfce7;
 }
 
 .empleados-page {
@@ -890,13 +934,13 @@
 
 .clientes-session-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #fecaca;
+    -fx-text-fill: #bbf7d0;
     -fx-cursor: hand;
 }
 
 .clientes-session-button:hover {
-    -fx-background-color: rgba(248, 113, 113, 0.12);
-    -fx-text-fill: #fecaca;
+    -fx-background-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #dcfce7;
 }
 
 .clientes-page {

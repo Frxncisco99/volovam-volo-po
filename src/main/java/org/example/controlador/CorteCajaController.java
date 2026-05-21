@@ -217,7 +217,7 @@ public class CorteCajaController {
             pintarReporte(reporteActual);
             cargarHistorial10();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo cargar el corte de caja.");
         }
     }
@@ -357,10 +357,11 @@ public class CorteCajaController {
 
     private String iconoMetodo(String metodo) {
         return switch (metodo) {
-            case "Efectivo" -> "\uf3d1";
+            case "Efectivo MXN" -> "\uf3d1";
+            case "Dólares convertidos a MXN" -> "\uf155";
             case "Tarjeta" -> "\uf09d";
             case "Transferencia" -> "\uf1d8";
-            case "Credito" -> "\uf555";
+            case "Crédito" -> "\uf555";
             default -> "\uf155";
         };
     }
@@ -415,11 +416,11 @@ public class CorteCajaController {
             return;
         }
 
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Cerrar caja");
-        confirmacion.setHeaderText("Confirmar corte de caja");
-        confirmacion.setContentText("Se cerrara la caja y se registrara el corte. Esta accion no se puede deshacer.");
-        confirmacion.showAndWait().ifPresent(respuesta -> {
+        org.example.servicio.DialogService.confirmar(
+                lblFechaHoy,
+                "Cerrar caja",
+                "Se cerrara la caja y se registrara el corte. Esta accion no se puede deshacer."
+        ).ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) cerrarCaja();
         });
     }
@@ -441,7 +442,7 @@ public class CorteCajaController {
             mostrarInfo("Caja cerrada", "El corte " + reporteActual.getFolio() + " se registro correctamente.");
             Platform.exit();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo cerrar la caja.");
         }
     }
@@ -456,7 +457,7 @@ public class CorteCajaController {
             pdf.generarCorteCaja(reporteActual, txtObservaciones.getText().trim(), destino.getAbsolutePath());
             mostrarInfo("PDF generado", "Corte guardado en:\n" + destino.getName());
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo generar el PDF.");
         }
     }
@@ -493,7 +494,7 @@ public class CorteCajaController {
             tablaHistorial.setItems(FXCollections.observableArrayList(datos));
             lblTotalCortes.setText(datos.size() + " corte(s) encontrados");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo cargar el historial de cortes.");
         }
     }
@@ -509,34 +510,21 @@ public class CorteCajaController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion");
-        a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                int idUsuario = SesionUsuario.getInstancia().getIdUsuario();
-                AuditoriaService.get().registrar(idUsuario, "LOGOUT", "usuarios", idUsuario, "Cambio de sesion");
-                SesionUsuario.cerrarSesion();
-                navegar("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(lblFechaHoy);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(lblFechaHoy);
     }
 
     private void navegar(String ruta) {
-        try {
-            Parent root = new FXMLLoader(getClass().getResource(ruta)).load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) lblFechaHoy.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        org.example.servicio.NavigationService.cambiarEscena(lblFechaHoy, ruta);
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         navegar(ruta);
@@ -562,18 +550,10 @@ public class CorteCajaController {
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(mensaje);
-        a.showAndWait();
+        org.example.servicio.DialogService.advertencia(lblFechaHoy, titulo, mensaje);
     }
 
     private void mostrarInfo(String titulo, String mensaje) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(mensaje);
-        a.showAndWait();
+        org.example.servicio.DialogService.info(lblFechaHoy, titulo, mensaje);
     }
 }

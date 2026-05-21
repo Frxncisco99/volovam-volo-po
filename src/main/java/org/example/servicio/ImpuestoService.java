@@ -24,7 +24,8 @@ public class ImpuestoService {
             String descripcion = item[0] == null ? "Producto" : item[0].toString();
             BigDecimal precio = toBigDecimal(item[1]);
             BigDecimal cantidad = toBigDecimal(item[2]);
-            resumen.agregarLinea(calcularLinea(entry.getKey(), descripcion, cantidad, precio, BigDecimal.ZERO));
+            BigDecimal descuento = item.length > 3 ? toBigDecimal(item[3]) : BigDecimal.ZERO;
+            resumen.agregarLinea(calcularLinea(entry.getKey(), descripcion, cantidad, precio, descuento));
         }
         return resumen;
     }

@@ -12,7 +12,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
-import org.example.servicio.MarcaService;
+import org.example.servicio.DialogService;
+import org.example.servicio.NavigationService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -87,29 +88,17 @@ public class AperturaCajaController {
                 }
             }
 
-            // Ir a MenuPrincipal
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
-            stage.show();
+            NavigationService.abrirMenuPrincipal((Node) event.getSource());
 
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "Ingresa números válidos.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo abrir la caja.");
         }
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        DialogService.advertencia(txtMontoInicial, titulo, mensaje);
     }
 }

@@ -138,7 +138,7 @@ public class PermisoService {
                 "AUTORIZACION_ADMIN",
                 "permisos",
                 autorizacion.idAdmin(),
-                "Accion autorizada: " + accion + " | permiso: " + permiso + " | admin: " + autorizacion.nombreAdmin()
+                "Acción autorizada: " + accion + " | permiso: " + permiso + " | admin: " + autorizacion.nombreAdmin()
         );
         AuditoriaService.get().registrarDetalle(
                 SesionUsuario.getInstancia().getIdUsuario(),
@@ -147,7 +147,7 @@ public class PermisoService {
                 "Permisos",
                 "permisos",
                 autorizacion.idAdmin(),
-                "Accion autorizada: " + accion + " | permiso: " + permiso,
+                "Acción autorizada: " + accion + " | permiso: " + permiso,
                 null,
                 "Admin: " + autorizacion.nombreAdmin()
         );
@@ -172,7 +172,7 @@ public class PermisoService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return permisos;
     }
@@ -237,11 +237,7 @@ public class PermisoService {
     }
 
     private static void mostrarDenegado() {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle("Acceso denegado");
-        alerta.setHeaderText(null);
-        alerta.setContentText("No se autorizo la accion.");
-        alerta.showAndWait();
+        DialogService.advertencia(null, "Acceso denegado", "No se autorizó la acción.");
     }
 
     public record PermisoInfo(int idPermiso, String codigo, String nombre, String modulo, String descripcion) {}

@@ -13,7 +13,7 @@ import org.example.servicio.TicketRenderer;
  *
  * Diseño: muestra el mismo String que TicketRenderer.generar() produce,
  * en una TextArea monoespaciada que simula el papel térmico.
- * La impresora real también consume ese mismo String →
+ * La impresora real también consume ese mismo String ->
  * lo que se ve en pantalla = lo que sale impreso.
  *
  * Ubicación: src/main/java/org/example/controlador/TicketPreviewController.java
@@ -25,7 +25,7 @@ public class TicketPreviewController {
 
     private final TicketImpresora impresora = new TicketImpresora();
 
-    // ── Estado capturado al abrir la ventana ──────────────────────────────────
+    // -- Estado capturado al abrir la ventana ----------------------------------
     private Ticket  ticket;
     private int     ancho;
     private String  nombre, giro, direccion, ciudad, telefono, encabezado, pie, aviso;
@@ -35,7 +35,7 @@ public class TicketPreviewController {
     @FXML
     public void initialize() {}
 
-    // ── API pública ───────────────────────────────────────────────────────────
+    // -- API pública -----------------------------------------------------------
 
     /**
      * Único punto de entrada. Llamado desde ConfiguracionController.abrirVistaPrevia().
@@ -67,7 +67,7 @@ public class TicketPreviewController {
         this.mostrarCajero   = mostrarCajero;
         this.ancho           = ancho;
 
-        // ── UN solo render, compartido con la impresora real ─────────────────
+        // -- UN solo render, compartido con la impresora real -----------------
         txtTicketRender.setText(TicketRenderer.generar(
                 ticket,
                 nombre, giro, direccion, ciudad, telefono,
@@ -77,7 +77,7 @@ public class TicketPreviewController {
                 ancho));
     }
 
-    // ── Botones ───────────────────────────────────────────────────────────────
+    // -- Botones ---------------------------------------------------------------
 
     @FXML
     public void handleImprimir() {
@@ -93,7 +93,7 @@ public class TicketPreviewController {
             alerta(Alert.AlertType.INFORMATION,
                     "Ticket enviado", "El ticket fue enviado a la impresora.");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             alerta(Alert.AlertType.ERROR,
                     "Error de impresión",
                     "No se pudo imprimir el ticket.\n" +
@@ -107,13 +107,15 @@ public class TicketPreviewController {
         ((Stage) txtTicketRender.getScene().getWindow()).close();
     }
 
-    // ── Utilidad privada ──────────────────────────────────────────────────────
+    // -- Utilidad privada ------------------------------------------------------
 
     private void alerta(Alert.AlertType tipo, String titulo, String msg) {
-        Alert a = new Alert(tipo);
-        a.setTitle(titulo);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        if (tipo == Alert.AlertType.ERROR) {
+            org.example.servicio.DialogService.error(txtTicketRender, titulo, msg);
+        } else if (tipo == Alert.AlertType.WARNING) {
+            org.example.servicio.DialogService.advertencia(txtTicketRender, titulo, msg);
+        } else {
+            org.example.servicio.DialogService.info(txtTicketRender, titulo, msg);
+        }
     }
 }

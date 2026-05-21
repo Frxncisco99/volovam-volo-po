@@ -21,7 +21,7 @@ public class FacturacionDAO {
                 if (rs.next()) return rs.getInt("id_factura");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return null;
     }
@@ -104,8 +104,8 @@ public class FacturacionDAO {
         String sql = """
                 INSERT INTO factura_detalle (
                     id_factura, id_producto, descripcion, cantidad, precio_unitario, subtotal,
-                    impuesto_clave, impuesto_tipo, impuesto_tasa, impuesto_importe, total_linea
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    descuento, impuesto_clave, impuesto_tipo, impuesto_tasa, impuesto_importe, total_linea
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (FacturaDetalle detalle : factura.getDetalles()) {
@@ -116,11 +116,12 @@ public class FacturacionDAO {
                 ps.setBigDecimal(4, detalle.getCantidad());
                 ps.setBigDecimal(5, detalle.getPrecioUnitario());
                 ps.setBigDecimal(6, detalle.getSubtotal());
-                ps.setString(7, detalle.getImpuestoClave());
-                ps.setString(8, detalle.getImpuestoTipo());
-                ps.setBigDecimal(9, detalle.getImpuestoTasa());
-                ps.setBigDecimal(10, detalle.getImpuestoImporte());
-                ps.setBigDecimal(11, detalle.getTotalLinea());
+                ps.setBigDecimal(7, detalle.getDescuento());
+                ps.setString(8, detalle.getImpuestoClave());
+                ps.setString(9, detalle.getImpuestoTipo());
+                ps.setBigDecimal(10, detalle.getImpuestoTasa());
+                ps.setBigDecimal(11, detalle.getImpuestoImporte());
+                ps.setBigDecimal(12, detalle.getTotalLinea());
                 ps.addBatch();
             }
             ps.executeBatch();

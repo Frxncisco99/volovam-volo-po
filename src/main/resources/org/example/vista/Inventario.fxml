@@ -65,7 +65,7 @@
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="#1a6fa8"/></graphic>
                 </Button>
 
-                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTION"/>
+                <Label style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 12 8 3 8;" text="GESTIÓN"/>
 
                 <Button onAction="#irAEmpleados" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
@@ -99,7 +99,7 @@
 
                 <Button onAction="#irAConfiguracion" graphicTextGap="12" prefHeight="40" prefWidth="210"
                         style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14; -fx-cursor: hand;"
-                        text="Configuracion">
+                        text="Configuración">
                     <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
 
@@ -107,9 +107,13 @@
 
             <Separator style="-fx-opacity: 0.15;"/>
 
-            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesion" graphicTextGap="10"
-                    style="-fx-background-color: transparent; -fx-text-fill: #fecaca; -fx-cursor: hand;">
-                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesión" graphicTextGap="10"
+                    styleClass="sidebar-session-button">
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#22c55e"/></graphic>
+            </Button>
+            <Button onAction="#salirAplicacion" prefHeight="44" prefWidth="230" text="Salir del sistema" graphicTextGap="10"
+                    styleClass="sidebar-exit-button">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#22c55e"/></graphic>
             </Button>
 
         </VBox>
@@ -291,6 +295,7 @@
                             <TableColumn fx:id="colId"        text="ID"        prefWidth="65"/>
                             <TableColumn fx:id="colNombre"    text="NOMBRE"    prefWidth="180"/>
                             <TableColumn fx:id="colCategoria" text="CATEGORÍA" prefWidth="130"/>
+                            <TableColumn fx:id="colProveedor" text="PROVEEDOR" prefWidth="150"/>
                             <TableColumn fx:id="colPrecio"    text="PRECIO"    prefWidth="90"/>
                             <!-- Stock con barra visual -->
                             <TableColumn fx:id="colStock"     text="STOCK"     prefWidth="120"/>
@@ -368,7 +373,7 @@
             </VBox>
 
             <!-- ── TOAST NOTIFICATION (superpuesto, invisible por defecto) ── -->
-            <VBox fx:id="toastPane" alignment="BOTTOM_CENTER"
+            <VBox alignment="BOTTOM_CENTER"
                   mouseTransparent="true"
                   style="-fx-padding: 0 0 28 0;">
                 <HBox fx:id="toastBox" alignment="CENTER" spacing="10"

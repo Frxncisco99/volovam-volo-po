@@ -34,7 +34,7 @@
                 <Button text="Inventario" onAction="#irAInventario" graphicTextGap="12" styleClass="sidebar-button">
                     <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Label text="GESTION" styleClass="sidebar-section"/>
+                <Label text="GESTIÓN" styleClass="sidebar-section"/>
                 <Button text="Empleados" onAction="#irAEmpleados" graphicTextGap="12" styleClass="sidebar-button">
                     <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
@@ -47,16 +47,19 @@
                 <Button text="Corte de Caja" onAction="#irACorteCaja" graphicTextGap="12" styleClass="sidebar-button">
                     <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
-                <Button text="Auditoria" onAction="#irAAuditoria" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                <Button text="Auditoría" onAction="#irAAuditoria" graphicTextGap="12" styleClass="sidebar-button">
+                    <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
                 </Button>
-                <Button text="Configuracion" graphicTextGap="12" styleClass="sidebar-button-active">
-                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#1a6fa8"/></graphic>
+                <Button text="Configuración" graphicTextGap="12" styleClass="sidebar-button-active">
+                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="15" iconColor="#0b1f3a"/></graphic>
                 </Button>
             </VBox>
             <Separator styleClass="sidebar-separator"/>
-            <Button text="Cambiar sesion" onAction="#btnCerrar" graphicTextGap="10" styleClass="sidebar-logout">
-                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#f87171"/></graphic>
+            <Button text="Cambiar sesión" onAction="#btnCerrar" graphicTextGap="10" styleClass="sidebar-logout">
+                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="15" iconColor="#22c55e"/></graphic>
+            </Button>
+            <Button text="Salir del sistema" onAction="#salirAplicacion" graphicTextGap="10" styleClass="sidebar-exit">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="15" iconColor="#22c55e"/></graphic>
             </Button>
         </VBox>
     </left>
@@ -65,7 +68,7 @@
         <VBox styleClass="config-root">
             <HBox alignment="CENTER_LEFT" styleClass="config-header">
                 <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="Configuracion" styleClass="view-title"/>
+                    <Label text="Configuración" styleClass="view-title"/>
                     <Label text="Administra negocio, tickets, caja, correo, usuarios y base de datos." styleClass="view-subtitle"/>
                 </VBox>
                 <Label fx:id="lblFeedbackGuardado" text="" styleClass="save-feedback"/>
@@ -112,7 +115,7 @@
                                 <FontIcon iconLiteral="fas-building" iconSize="20" iconColor="#0b3b75"/>
                                 <VBox>
                                     <Label text="Configuracion general" styleClass="section-title"/>
-                                    <Label text="Informacion publica del negocio usada en reportes, pantalla y tickets." styleClass="section-subtitle"/>
+                                    <Label text="Información pública del negocio usada en reportes, pantalla y tickets." styleClass="section-subtitle"/>
                                 </VBox>
                             </HBox>
                             <GridPane hgap="18" vgap="18" styleClass="card-grid">
@@ -135,7 +138,7 @@
                                         <TextField fx:id="txtNombreNegocio" promptText="Volovan Volo" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                         <Label text="Slogan" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                                         <TextField fx:id="txtSlogan" promptText="El sabor de casa" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                        <Label text="Telefono" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <Label text="Teléfono" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                                         <TextField fx:id="txtTelefono" promptText="8781234567" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                                         <Label text="Correo" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                                         <TextField fx:id="txtCorreo" promptText="contacto@negocio.mx" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
@@ -175,7 +178,7 @@
                             <HBox alignment="CENTER_LEFT" spacing="12" styleClass="section-heading">
                                 <FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20" iconColor="#0b3b75"/>
                                 <VBox>
-                                    <Label text="Facturacion e impuestos" styleClass="section-title"/>
+                                    <Label text="Facturación e impuestos" styleClass="section-title"/>
                                     <Label text="Base fiscal configurable para prefacturas, impuestos por producto y tickets." styleClass="section-subtitle"/>
                                 </VBox>
                             </HBox>
@@ -187,14 +190,14 @@
                                         <FontIcon iconLiteral="fas-id-card" iconSize="18" iconColor="#0b3b75"/>
                                         <VBox>
                                             <Label text="Datos fiscales del negocio" styleClass="card-title"/>
-                                            <Label text="Informacion del emisor para facturacion mexicana." styleClass="card-subtitle"/>
+                                            <Label text="Información del emisor para facturación mexicana." styleClass="card-subtitle"/>
                                         </VBox>
                                     </HBox>
                                     <GridPane hgap="14" vgap="12">
                                         <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
                                         <Label text="RFC negocio" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                                         <TextField fx:id="txtFiscalRfc" promptText="XAXX010101000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <Label text="Codigo postal fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <Label text="Código postal fiscal" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                                         <TextField fx:id="txtFiscalCP" promptText="26000" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                                         <Label text="Razon social" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                                         <TextField fx:id="txtFiscalRazonSocial" promptText="Razon social del negocio" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
@@ -309,7 +312,7 @@
                                         <TextField fx:id="txtTicketDireccion" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                                         <Label text="Ciudad" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                                         <TextField fx:id="txtTicketCiudad" styleClass="cfg-field" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                                        <Label text="Telefono" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                        <Label text="Teléfono" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                                         <TextField fx:id="txtTicketTelefono" styleClass="cfg-field" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                                     </GridPane>
                                     <Label text="Encabezado" styleClass="field-label"/>
@@ -387,14 +390,14 @@
                                 <FontIcon iconLiteral="fas-envelope" iconSize="20" iconColor="#0b3b75"/>
                                 <VBox>
                                     <Label text="Correo y ticket por email" styleClass="section-title"/>
-                                    <Label text="Configura SMTP para pruebas, envio de tickets y reportes diarios." styleClass="section-subtitle"/>
+                                    <Label text="Configura SMTP para pruebas, envío de tickets y reportes diarios." styleClass="section-subtitle"/>
                                 </VBox>
                             </HBox>
                             <VBox spacing="16" styleClass="settings-card">
                                 <HBox alignment="CENTER_LEFT" spacing="12" styleClass="toggle-card">
                                     <VBox HBox.hgrow="ALWAYS">
-                                        <Label text="Envio de ticket por correo" styleClass="option-title"/>
-                                        <Label text="Activa el flujo de envio despues de generar la venta." styleClass="card-subtitle"/>
+                                        <Label text="Envío de ticket por correo" styleClass="option-title"/>
+                                        <Label text="Activa el flujo de envío después de generar la venta." styleClass="card-subtitle"/>
                                     </VBox>
                                     <SwitchToggle fx:id="tglEmailActivo"/>
                                 </HBox>
@@ -633,7 +636,7 @@
                                     </HBox>
                                     <GridPane hgap="14" vgap="12">
                                         <columnConstraints><ColumnConstraints percentWidth="35"/><ColumnConstraints percentWidth="65"/></columnConstraints>
-                                        <Label text="Costo envio" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <Label text="Costo envío" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                                         <TextField fx:id="txtWebCostoEnvio" promptText="50.00" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                         <Label text="WhatsApp" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                                         <TextField fx:id="txtWebWhatsapp" promptText="528771001603" styleClass="cfg-field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
@@ -647,7 +650,7 @@
                                         <FontIcon iconLiteral="fas-link" iconSize="18" iconColor="#0b3b75"/>
                                         <VBox HBox.hgrow="ALWAYS">
                                             <Label text="Mapeo con inventario local" styleClass="card-title"/>
-                                            <Label text="Se evita duplicar productos usando id_producto o codigo_barras como referencia web." styleClass="card-subtitle"/>
+                                            <Label text="Se evita duplicar productos usando id_producto o código de barras como referencia web." styleClass="card-subtitle"/>
                                         </VBox>
                                         <Button fx:id="btnWebGenerarEnlaces" text="Generar enlaces automaticos" onAction="#generarEnlacesWeb" graphicTextGap="8" styleClass="secondary-button">
                                             <graphic><FontIcon iconLiteral="fas-magic" iconSize="13"/></graphic>

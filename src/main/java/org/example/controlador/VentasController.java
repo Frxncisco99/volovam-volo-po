@@ -22,6 +22,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
+import org.example.dao.OperacionesDAO;
 import org.example.dao.VentaEnEsperaDAO;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.MarcaService;
@@ -52,12 +53,13 @@ public class VentasController {
     @FXML private FlowPane panelCategorias;
     @FXML private Label lblClienteSeleccionado;
     @FXML private Label lblCreditoDisponible;
+    @FXML private Label lblDescuento;
 
-    // ── Label de ventas en espera (se actualiza dinámicamente) ──
+    // -- Label de ventas en espera (se actualiza dinámicamente) --
     @FXML private Label lblEnEspera;
 
     private int idClienteSeleccionado = 1;
-    private String nombreClienteSeleccionado = "Publico General";
+    private String nombreClienteSeleccionado = "Público General";
     private double limiteCredito = 0;
     private double saldoCliente = 0;
     private HBox primerProducto = null;
@@ -65,12 +67,12 @@ public class VentasController {
     private Map<Integer, Object[]> carrito = new HashMap<>();
     private double total = 0;
 
-    // ── Ventas en espera: lista de snapshots ──
+    // -- Ventas en espera: lista de snapshots --
     // Cada snapshot: [carrito, idCliente, nombreCliente, limiteCredito, saldoCliente, etiqueta]
     private final VentaEnEsperaDAO ventaEnEsperaDAO = new VentaEnEsperaDAO();
     private List<VentaEnEsperaDAO.VentaEnEspera> ventasEnEspera = new ArrayList<>();
 
-    // ─────────────────────────────────────────────
+    // ---------------------------------------------
     @FXML
     public void initialize() {
         SesionUsuario sesion = SesionUsuario.getInstancia();
@@ -143,19 +145,18 @@ public class VentasController {
         dialog.setTitle("Poner en espera");
         dialog.setHeaderText(null);
         dialog.setContentText("Nombre o referencia de esta venta:");
+        org.example.servicio.DialogService.preparar(dialog, lblTotal);
         String etiqueta = dialog.showAndWait().orElse("Venta " + (ventasEnEspera.size() + 1));
 
         // Guardar copia del carrito
         Map<Integer, Object[]> copia = new HashMap<>();
         for (Map.Entry<Integer, Object[]> e : carrito.entrySet()) {
             Object[] orig = e.getValue();
-            copia.put(e.getKey(), new Object[]{orig[0], orig[1], orig[2]});
+            copia.put(e.getKey(), new Object[]{orig[0], orig[1], orig[2], descuentoItem(orig)});
         }
 
         try {
-            double totalSnapshot = copia.values().stream()
-                    .mapToDouble(o -> ((Number) o[1]).doubleValue() * ((Number) o[2]).intValue())
-                    .sum();
+            double totalSnapshot = new org.example.servicio.ImpuestoService().calcularCarrito(copia).getTotal().doubleValue();
             ventaEnEsperaDAO.guardar(
                     copia,
                     idClienteSeleccionado,
@@ -167,7 +168,7 @@ public class VentasController {
             );
             cargarVentasEnEsperaPersistidas();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("No se pudo guardar", "La venta en espera no se guardo en la base de datos.");
             return;
         }
@@ -176,10 +177,10 @@ public class VentasController {
         carrito.clear();
         actualizarCarrito();
         idClienteSeleccionado = 1;
-        nombreClienteSeleccionado = "Publico General";
+        nombreClienteSeleccionado = "Público General";
         limiteCredito = 0;
         saldoCliente = 0;
-        lblClienteSeleccionado.setText("Publico General");
+        lblClienteSeleccionado.setText("Público General");
         lblCreditoDisponible.setText("");
 
         actualizarBadgeEspera();
@@ -202,10 +203,10 @@ public class VentasController {
         stage.initOwner(lblTotal.getScene().getWindow());
 
         VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 20; -fx-background-color: #F5EFE6;");
+        layout.setStyle("-fx-padding: 20; -fx-background-color: #f0f7ff;");
 
         Label titulo = new Label("Selecciona una venta para recuperarla");
-        titulo.setStyle("-fx-font-weight: bold; -fx-text-fill: #6B4226; -fx-font-size: 13px;");
+        titulo.setStyle("-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 13px;");
         layout.getChildren().add(titulo);
 
         for (int i = 0; i < ventasEnEspera.size(); i++) {
@@ -224,28 +225,28 @@ public class VentasController {
             VBox info = new VBox(3);
             HBox.setHgrow(info, javafx.scene.layout.Priority.ALWAYS);
             Label lblEtiqueta = new Label(etiqueta);
-            lblEtiqueta.setStyle("-fx-font-weight: bold; -fx-text-fill: #3D1F0D; -fx-font-size: 13px;");
+            lblEtiqueta.setStyle("-fx-font-weight: bold; -fx-text-fill: #0d3d5e; -fx-font-size: 13px;");
             Label lblInfo = new Label(cliente + " · " + carritoSnap.size() + " producto(s) · $" + String.format("%.2f", totalSnap));
-            lblInfo.setStyle("-fx-text-fill: #7A5535; -fx-font-size: 11px;");
+            lblInfo.setStyle("-fx-text-fill: #6a96b8; -fx-font-size: 11px;");
             info.getChildren().addAll(lblEtiqueta, lblInfo);
 
             Button btnRecuperar = new Button("Recuperar");
-            btnRecuperar.setStyle("-fx-background-color: #6B4226; -fx-text-fill: white; -fx-background-radius: 8;" +
+            btnRecuperar.setStyle("-fx-background-color: #1a6fa8; -fx-text-fill: white; -fx-background-radius: 8;" +
                     "-fx-padding: 6 14; -fx-cursor: hand; -fx-font-weight: bold;");
             btnRecuperar.setOnAction(e -> {
                 // Si hay carrito activo, preguntar
                 if (!carrito.isEmpty()) {
-                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-                    confirm.setTitle("Carrito activo");
-                    confirm.setHeaderText(null);
-                    confirm.setContentText("Tienes productos en el carrito actual. ¿Descartar y recuperar la venta en espera?");
-                    if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+                    if (org.example.servicio.DialogService.confirmar(
+                            lblTotal,
+                            "Carrito activo",
+                            "Tienes productos en el carrito actual. Deseas descartarlos y recuperar la venta en espera?"
+                    ).orElse(ButtonType.CANCEL) != ButtonType.OK) return;
                 }
                 recuperarVentaEnEspera(idx);
                 stage.close();
             });
 
-            Button btnEliminar = new Button("✕");
+            Button btnEliminar = new Button("X");
             btnEliminar.setStyle("-fx-background-color: #FDEDEC; -fx-text-fill: #C0392B; -fx-background-radius: 8;" +
                     "-fx-padding: 6 10; -fx-cursor: hand; -fx-font-weight: bold;");
             btnEliminar.setOnAction(e -> {
@@ -273,7 +274,7 @@ public class VentasController {
         try {
             ventaEnEsperaDAO.eliminar(snap.getIdEspera());
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("No se pudo recuperar", "No se pudo quitar la venta de la lista en espera.");
             return;
         }
@@ -286,7 +287,7 @@ public class VentasController {
         lblClienteSeleccionado.setText(nombreClienteSeleccionado);
         if (limiteCredito > 0) {
             double disponible = limiteCredito - saldoCliente;
-            lblCreditoDisponible.setText("Credito disponible: $" + String.format("%.2f", disponible));
+            lblCreditoDisponible.setText("Crédito disponible: $" + String.format("%.2f", disponible));
         } else {
             lblCreditoDisponible.setText("");
         }
@@ -301,7 +302,7 @@ public class VentasController {
             ventaEnEsperaDAO.eliminar(snap.getIdEspera());
             cargarVentasEnEsperaPersistidas();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("No se pudo eliminar", "No se pudo eliminar la venta en espera.");
         }
         actualizarBadgeEspera();
@@ -328,7 +329,7 @@ public class VentasController {
     public void abrirDevoluciones() {
         if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
                 org.example.servicio.PermisoService.VENTAS_DEVOLVER,
-                "Procesar devolucion")) {
+                "Procesar devolución")) {
             return;
         }
         try {
@@ -342,18 +343,18 @@ public class VentasController {
             stage.setScene(new Scene(root, 860, 640));
             stage.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
     private VBox construirPantallaDevoluciones(Stage stage) {
         DevolucionDAO dao = new DevolucionDAO();
 
-        // ── Layout principal
+        // -- Layout principal
         VBox root = new VBox(0);
         root.setStyle("-fx-background-color: #dddddd;");
 
-        // ── Header
+        // -- Header
         HBox header = new HBox();
         header.setStyle("-fx-background-color: #091e4e; -fx-padding: 16 20;");
         Label titulo = new Label("Devoluciones");
@@ -361,12 +362,12 @@ public class VentasController {
         header.getChildren().add(titulo);
         root.getChildren().add(header);
 
-        // ── Contenido en dos columnas
+        // -- Contenido en dos columnas
         HBox contenido = new HBox(12);
         contenido.setStyle("-fx-padding: 16;");
         VBox.setVgrow(contenido, Priority.ALWAYS);
 
-        // ── COLUMNA IZQUIERDA: lista de ventas
+        // -- COLUMNA IZQUIERDA: lista de ventas
         VBox colIzq = new VBox(10);
         colIzq.setPrefWidth(400);
         colIzq.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; " +
@@ -421,7 +422,7 @@ public class VentasController {
 
         colIzq.getChildren().addAll(lblVentas, txtFiltro, tablaVentas);
 
-        // ── COLUMNA DERECHA: detalle de la venta seleccionada
+        // -- COLUMNA DERECHA: detalle de la venta seleccionada
         VBox colDer = new VBox(10);
         HBox.setHgrow(colDer, Priority.ALWAYS);
         colDer.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; " +
@@ -489,7 +490,7 @@ public class VentasController {
         Label lblTipo = new Label("Reembolso:");
         lblTipo.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px;");
         ComboBox<String> cmbTipo = new ComboBox<>();
-        cmbTipo.getItems().addAll("EFECTIVO", "NOTA_CREDITO");
+        cmbTipo.getItems().addAll("EFECTIVO", "TARJETA", "TRANSFERENCIA", "CREDITO", "NOTA_CREDITO");
         cmbTipo.setValue("EFECTIVO");
         filaTipo.getChildren().addAll(lblTipo, cmbTipo);
 
@@ -502,7 +503,7 @@ public class VentasController {
 
         colDer.getChildren().addAll(lblDetalle, lblInfoVenta, tablaLineas, filaTipo, btnConfirmar);
 
-        // ── Listener: al seleccionar venta
+        // -- Listener: al seleccionar venta
         final int[] idVentaSeleccionada = {-1};
 
         tablaVentas.getSelectionModel().selectedItemProperty().addListener((obs, old, nuevo) -> {
@@ -515,6 +516,16 @@ public class VentasController {
             tablaLineas.refresh();
 
             String estado = (String) nuevo.get("estado");
+            String metodoPago = String.valueOf(nuevo.getOrDefault("metodo_pago", ""));
+            if ("FIADO".equalsIgnoreCase(metodoPago) || "CREDITO".equalsIgnoreCase(metodoPago)) {
+                cmbTipo.setValue("CREDITO");
+            } else if ("TARJETA".equalsIgnoreCase(metodoPago)) {
+                cmbTipo.setValue("TARJETA");
+            } else if ("TRANSFERENCIA".equalsIgnoreCase(metodoPago)) {
+                cmbTipo.setValue("TRANSFERENCIA");
+            } else {
+                cmbTipo.setValue("EFECTIVO");
+            }
             lblInfoVenta.setText(
                     "Folio #" + String.format("%04d", idVentaSeleccionada[0]) +
                             "  ·  " + nuevo.get("fecha") +
@@ -522,10 +533,10 @@ public class VentasController {
                             "  ·  Total: $" + String.format("%.2f", (double) nuevo.get("total")) +
                             "  ·  " + traducirEstado(estado)
             );
-            btnConfirmar.setDisable(lineas.isEmpty());
+            btnConfirmar.setDisable(lineas.isEmpty() || "CANCELADA".equalsIgnoreCase(estado) || "DEVUELTA".equalsIgnoreCase(estado));
         });
 
-        // ── Confirmar devolución
+        // -- Confirmar devolución
         btnConfirmar.setOnAction(e -> {
             if (idVentaSeleccionada[0] < 0) return;
 
@@ -546,12 +557,11 @@ public class VentasController {
                     .mapToDouble(l -> l.getPrecioUnitario() * seleccion.get(l.getIdDetalle()))
                     .sum();
 
-            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-            confirm.setTitle("Confirmar devolución");
-            confirm.setHeaderText(null);
-            confirm.setContentText(String.format(
-                    "¿Confirmas la devolución de $%.2f via %s?", montoVisual, cmbTipo.getValue()));
-            if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+            if (org.example.servicio.DialogService.confirmar(
+                    lblTotal,
+                    "Confirmar devolución",
+                    String.format("¿Confirmas la devolución de $%.2f vía %s?", montoVisual, cmbTipo.getValue())
+            ).orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
             try {
                 dao.registrarDevolucion(
@@ -579,7 +589,7 @@ public class VentasController {
             } catch (IllegalStateException ex) {
                 mostrarAlerta("Devolución no permitida", ex.getMessage());
             } catch (Exception ex) {
-                ex.printStackTrace();
+                org.example.servicio.LogService.error("Error no controlado", ex);
                 mostrarAlerta("Error", "No se pudo registrar la devolución: " + ex.getMessage());
             }
         });
@@ -609,7 +619,7 @@ public class VentasController {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) lblFolio.setText(String.format("Folio #%04d", rs.getInt(1)));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 
     private void cargarCategorias() {
@@ -620,7 +630,7 @@ public class VentasController {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) panelCategorias.getChildren().add(crearBotonCategoria(rs.getString("nombre"), false));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 
     private Button crearBotonCategoria(String nombre, boolean activo) {
@@ -661,7 +671,7 @@ public class VentasController {
                 int stock = rs.getInt("stock");
                 HBox card = new HBox(12);
                 card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #A0856A, 6, 0, 0, 1);");
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16; -fx-effect: dropshadow(gaussian, #1a6fa826, 8, 0, 0, 1);");
                 if (primerProducto == null && stock > 0) { primerProducto = card; card.setStyle(card.getStyle() + "; -fx-border-color: #091e4e; -fx-border-width: 2;"); }
                 String colorStock = stock == 0 ? "#C0392B" : stock <= 5 ? "#E67E22" : "#27AE60";
                 String textoStock = stock == 0 ? "Sin stock" : "Stock: " + stock;
@@ -674,7 +684,7 @@ public class VentasController {
                 Label lblPrecio = new Label("$" + String.format("%.2f", precio)); lblPrecio.setStyle("-fx-font-weight: bold; -fx-text-fill: #091e4e; -fx-font-size: 14px;");
                 Label lblStockLabel = new Label(textoStock); lblStockLabel.setStyle("-fx-text-fill: " + colorStock + "; -fx-font-size: 11px; -fx-background-color: " + colorStock + "22; -fx-background-radius: 6; -fx-padding: 2 8;");
                 filaBaja.getChildren().addAll(lblPrecio, lblStockLabel);
-                if (codigo != null && !codigo.isBlank()) { Label lblCodigo = new Label("↳ " + codigo); lblCodigo.setStyle("-fx-text-fill: #A0856A; -fx-font-size: 10px;"); info.getChildren().addAll(lblNombre, filaBaja, lblCodigo); }
+                if (codigo != null && !codigo.isBlank()) { Label lblCodigo = new Label("Código: " + codigo); lblCodigo.setStyle("-fx-text-fill: #6a96b8; -fx-font-size: 10px;"); info.getChildren().addAll(lblNombre, filaBaja, lblCodigo); }
                 else info.getChildren().addAll(lblNombre, filaBaja);
                 Button btnAgregar = new Button("+");
                 btnAgregar.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-cursor: hand; -fx-padding: 0; -fx-alignment: center;");
@@ -683,7 +693,7 @@ public class VentasController {
                 card.getChildren().addAll(indicador, info, btnAgregar);
                 listaProductos.getChildren().add(card);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 
     private boolean agregarPorCodigoExacto(String codigo) {
@@ -696,7 +706,7 @@ public class VentasController {
                 if (stock <= 0) { mostrarAlerta("Sin stock", "\"" + nombre + "\" no tiene unidades disponibles."); return true; }
                 agregarAlCarrito(id, nombre, precio, stock); return true;
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return false;
     }
 
@@ -705,17 +715,18 @@ public class VentasController {
         try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idProducto); ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("stock");
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         return 0;
     }
 
     private void agregarAlCarrito(int id, String nombre, double precio, int stock) {
+        limpiarPromocionAplicada();
         if (carrito.containsKey(id)) {
             Object[] item = carrito.get(id);
             int cantidad = (int) item[2];
-            if (cantidad >= stock) { mostrarAlerta("Sin stock", "No hay mas unidades disponibles."); return; }
+            if (cantidad >= stock) { mostrarAlerta("Sin stock", "No hay más unidades disponibles."); return; }
             item[2] = cantidad + 1;
-        } else { carrito.put(id, new Object[]{nombre, precio, 1}); }
+        } else { carrito.put(id, new Object[]{nombre, precio, 1, 0.0}); }
         actualizarCarrito();
         Platform.runLater(() -> { txtBuscar.clear(); txtBuscar.requestFocus(); });
     }
@@ -726,7 +737,10 @@ public class VentasController {
         for (Map.Entry<Integer, Object[]> entry : carrito.entrySet()) {
             int id = entry.getKey(); Object[] item = entry.getValue();
             String nombre = (String) item[0]; double precio = (double) item[1]; int cantidad = (int) item[2];
-            double subtotal = precio * cantidad; total += subtotal; totalItems += cantidad;
+            double bruto = precio * cantidad;
+            double descuentoLinea = descuentoItem(item);
+            double subtotal = Math.max(bruto - descuentoLinea, 0);
+            total += subtotal; totalItems += cantidad;
             HBox fila = new HBox(8); fila.getStyleClass().add("carrito-item"); fila.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             Label lblNombre = new Label(nombre); lblNombre.setStyle("-fx-text-fill: #091e4e; -fx-font-size: 12px;"); lblNombre.setMaxWidth(130);
             Region spacer = new Region(); HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
@@ -734,13 +748,14 @@ public class VentasController {
             btnMenos.setOnAction(e -> {
                 if (!autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO, "Quitar producto del carrito")) return;
                 if (cantidad <= 1) carrito.remove(id); else item[2] = cantidad - 1;
+                limpiarPromocionAplicada();
                 actualizarCarrito();
             });
             TextField tfCantidad = new TextField(String.valueOf(cantidad)); tfCantidad.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 13px; -fx-alignment: center; -fx-background-radius: 4; -fx-border-radius: 4; -fx-border-color: #0052cc; -fx-border-width: 1; -fx-pref-width: 50; -fx-max-width: 50;");
-            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva < cantidad && !autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO, "Reducir cantidad en carrito")) { tfCantidad.setText(String.valueOf(cantidad)); return; } if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
+            Runnable validarYActualizar = () -> { try { int nueva = Integer.parseInt(tfCantidad.getText().trim()); if (nueva < cantidad && !autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_ELIMINAR_PRODUCTO_CARRITO, "Reducir cantidad en carrito")) { tfCantidad.setText(String.valueOf(cantidad)); return; } if (nueva <= 0) carrito.remove(id); else { int stockReal = obtenerStock(id); if (nueva > stockReal) { mostrarAlerta("Stock insuficiente", "Solo hay " + stockReal + " unidades disponibles."); item[2] = stockReal; } else item[2] = nueva; } limpiarPromocionAplicada(); actualizarCarrito(); } catch (NumberFormatException ex) { tfCantidad.setText(String.valueOf(cantidad)); } };
             tfCantidad.setOnAction(e -> validarYActualizar.run()); tfCantidad.focusedProperty().addListener((obs, o, n) -> { if (!n) validarYActualizar.run(); });
             Button btnMas = new Button("+"); btnMas.setStyle("-fx-background-color: #091e4e; -fx-text-fill: white; -fx-background-radius: 4; -fx-min-width: 24; -fx-min-height: 24; -fx-cursor: hand;");
-            btnMas.setOnAction(e -> { int stockReal = obtenerStock(id); if (cantidad >= stockReal) { mostrarAlerta("Sin stock", "No hay mas unidades disponibles."); return; } item[2] = cantidad + 1; actualizarCarrito(); });
+            btnMas.setOnAction(e -> { int stockReal = obtenerStock(id); if (cantidad >= stockReal) { mostrarAlerta("Sin stock", "No hay más unidades disponibles."); return; } item[2] = cantidad + 1; limpiarPromocionAplicada(); actualizarCarrito(); });
             Label lblSub = new Label("$" + String.format("%.2f", subtotal)); lblSub.setStyle("-fx-text-fill: #091e4e; -fx-font-weight: bold; -fx-font-size: 12px; -fx-min-width: 60; -fx-alignment: CENTER_RIGHT;");
             fila.getChildren().addAll(lblNombre, spacer, btnMenos, tfCantidad, btnMas, lblSub);
             listaCarrito.getChildren().add(fila);
@@ -748,9 +763,101 @@ public class VentasController {
         org.example.modelo.ResumenCalculoFiscal fiscal = new org.example.servicio.ImpuestoService().calcularCarrito(carrito);
         total = fiscal.getTotal().doubleValue();
         lblSubtotal.setText("$" + String.format("%.2f", fiscal.getSubtotal().doubleValue()));
+        if (lblDescuento != null) lblDescuento.setText("-$" + String.format("%.2f", fiscal.getDescuento().doubleValue()));
         lblIva.setText("$" + String.format("%.2f", fiscal.getImpuestos().doubleValue()));
         lblTotal.setText("$" + String.format("%.2f", total));
         lblCantidadItems.setText(totalItems + " items");
+    }
+
+    @FXML
+    public void aplicarPromocion() {
+        if (!org.example.servicio.PermisoService.requerirPermisoOAutorizacionAdmin(
+                org.example.servicio.PermisoService.VENTAS_APLICAR_DESCUENTO,
+                "Aplicar promoción")) {
+            return;
+        }
+        if (carrito.isEmpty()) {
+            mostrarAlerta("Carrito vacío", "Agrega productos antes de aplicar una promoción.");
+            return;
+        }
+
+        List<Map<String, Object>> promociones = new OperacionesDAO().listarPromocionesActivas();
+        if (promociones.isEmpty()) {
+            mostrarAlerta("Promociones", "No hay promociones activas para hoy.");
+            return;
+        }
+
+        List<String> opciones = new ArrayList<>();
+        for (Map<String, Object> promo : promociones) {
+            String tipo = String.valueOf(promo.get("tipo"));
+            double valor = numero(promo.get("valor"));
+            opciones.add(promo.get("nombre") + " - " + ("PORCENTAJE".equalsIgnoreCase(tipo)
+                    ? String.format("%.2f%%", valor)
+                    : "$" + String.format("%.2f", valor)));
+        }
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
+        dialog.setTitle("Aplicar promoción");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Promoción:");
+        org.example.servicio.DialogService.preparar(dialog, lblTotal);
+        dialog.showAndWait().ifPresent(opcion -> {
+            int index = opciones.indexOf(opcion);
+            if (index < 0) return;
+            aplicarDescuento(promociones.get(index));
+            actualizarCarrito();
+        });
+    }
+
+    private void aplicarDescuento(Map<String, Object> promocion) {
+        limpiarPromocionAplicada();
+        String tipo = String.valueOf(promocion.get("tipo"));
+        double valor = Math.max(numero(promocion.get("valor")), 0);
+        double brutoTotal = carrito.values().stream()
+                .mapToDouble(item -> ((Number) item[1]).doubleValue() * ((Number) item[2]).intValue())
+                .sum();
+        if (brutoTotal <= 0 || valor <= 0) return;
+
+        double descuentoRestante = "PORCENTAJE".equalsIgnoreCase(tipo)
+                ? 0
+                : Math.min(valor, brutoTotal);
+        for (Object[] item : carrito.values()) {
+            double bruto = ((Number) item[1]).doubleValue() * ((Number) item[2]).intValue();
+            double descuento = "PORCENTAJE".equalsIgnoreCase(tipo)
+                    ? bruto * Math.min(valor, 100) / 100.0
+                    : Math.min(bruto, valor * bruto / brutoTotal);
+            if (!"PORCENTAJE".equalsIgnoreCase(tipo)) {
+                descuento = Math.min(descuento, descuentoRestante);
+                descuentoRestante -= descuento;
+            }
+            asignarDescuento(item, descuento);
+        }
+    }
+
+    private void limpiarPromocionAplicada() {
+        for (Object[] item : carrito.values()) {
+            asignarDescuento(item, 0.0);
+        }
+    }
+
+    private void asignarDescuento(Object[] item, double descuento) {
+        if (item.length > 3) {
+            item[3] = Math.max(descuento, 0.0);
+        }
+    }
+
+    private double descuentoItem(Object[] item) {
+        return item.length > 3 && item[3] instanceof Number n ? n.doubleValue() : 0.0;
+    }
+
+    private double numero(Object value) {
+        if (value instanceof Number n) return n.doubleValue();
+        if (value == null) return 0.0;
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
     @FXML
@@ -765,23 +872,24 @@ public class VentasController {
         List<int[]> idsClientes = new ArrayList<>(); List<double[]> creditosClientes = new ArrayList<>();
         Runnable cargarLista = () -> {
             listaClientes.getItems().clear(); idsClientes.clear(); creditosClientes.clear();
-            listaClientes.getItems().add("Publico General"); idsClientes.add(new int[]{1}); creditosClientes.add(new double[]{0, 0});
+            listaClientes.getItems().add("Público General"); idsClientes.add(new int[]{1}); creditosClientes.add(new double[]{0, 0});
             String sql = "SELECT id_cliente, nombre, limite_credito, saldo_actual FROM clientes WHERE activo = 1 AND nombre != 'Publico General' AND nombre LIKE ?";
             try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, "%" + txtBuscarCliente.getText().trim() + "%"); ResultSet rs = ps.executeQuery();
-                while (rs.next()) { double limite = rs.getDouble("limite_credito"); double saldo = rs.getDouble("saldo_actual"); double disponible = limite - saldo; String texto = rs.getString("nombre") + (limite > 0 ? " — Disponible: $" + String.format("%.2f", disponible) : ""); listaClientes.getItems().add(texto); idsClientes.add(new int[]{rs.getInt("id_cliente")}); creditosClientes.add(new double[]{limite, saldo}); }
-            } catch (Exception e) { e.printStackTrace(); }
+                while (rs.next()) { double limite = rs.getDouble("limite_credito"); double saldo = rs.getDouble("saldo_actual"); double disponible = limite - saldo; String texto = rs.getString("nombre") + (limite > 0 ? " - Disponible: $" + String.format("%.2f", disponible) : ""); listaClientes.getItems().add(texto); idsClientes.add(new int[]{rs.getInt("id_cliente")}); creditosClientes.add(new double[]{limite, saldo}); }
+            } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         };
         cargarLista.run(); txtBuscarCliente.textProperty().addListener((obs, old, nuevo) -> cargarLista.run());
         contenido.getChildren().addAll(txtBuscarCliente, listaClientes); dialog.getDialogPane().setContent(contenido);
+        org.example.servicio.DialogService.preparar(dialog, lblTotal);
         dialog.showAndWait().ifPresent(respuesta -> {
             if (respuesta == ButtonType.OK) {
                 int index = listaClientes.getSelectionModel().getSelectedIndex();
                 if (index >= 0) {
                     idClienteSeleccionado = idsClientes.get(index)[0]; limiteCredito = creditosClientes.get(index)[0]; saldoCliente = creditosClientes.get(index)[1];
-                    String item = listaClientes.getItems().get(index); nombreClienteSeleccionado = item.contains(" — ") ? item.split(" — ")[0] : item;
+                    String item = listaClientes.getItems().get(index); nombreClienteSeleccionado = item.contains(" - ") ? item.split(" - ")[0] : item;
                     lblClienteSeleccionado.setText(nombreClienteSeleccionado);
-                    if (limiteCredito > 0) { double disponible = limiteCredito - saldoCliente; lblCreditoDisponible.setText("Credito disponible: $" + String.format("%.2f", disponible)); lblCreditoDisponible.setStyle("-fx-font-size: 11px; -fx-text-fill: " + (disponible <= 0 ? "#C0392B" : "#3B6D11") + ";"); }
+                    if (limiteCredito > 0) { double disponible = limiteCredito - saldoCliente; lblCreditoDisponible.setText("Crédito disponible: $" + String.format("%.2f", disponible)); lblCreditoDisponible.setStyle("-fx-font-size: 11px; -fx-text-fill: " + (disponible <= 0 ? "#C0392B" : "#3B6D11") + ";"); }
                     else lblCreditoDisponible.setText("");
                 }
             }
@@ -795,7 +903,7 @@ public class VentasController {
             return;
         }
         if (carrito.isEmpty()) { mostrarAlerta("Carrito vacío", "Agrega productos antes de cobrar."); return; }
-        if (limiteCredito > 0) { double disponible = limiteCredito - saldoCliente; if (total > disponible) { mostrarAlerta("Credito insuficiente", nombreClienteSeleccionado + " solo tiene $" + String.format("%.2f", disponible) + " de credito disponible."); return; } }
+        if (limiteCredito > 0) { double disponible = limiteCredito - saldoCliente; if (total > disponible) { mostrarAlerta("Crédito insuficiente", nombreClienteSeleccionado + " solo tiene $" + String.format("%.2f", disponible) + " de crédito disponible."); return; } }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/Pago.fxml"));
             Parent root = loader.load();
@@ -809,15 +917,15 @@ public class VentasController {
             stagePago.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             stagePago.initOwner(btnCobrar.getScene().getWindow());
             stagePago.show();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 
     @FXML
     public void handleCancelar() {
         if (carrito.isEmpty()) return;
         if (!autorizarAccionRestringida(org.example.servicio.PermisoService.VENTAS_CANCELAR, "Cancelar venta en curso")) return;
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION); alerta.setTitle("Cancelar venta"); alerta.setHeaderText(null); alerta.setContentText("¿Seguro que deseas cancelar la venta?");
-        alerta.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) { carrito.clear(); actualizarCarrito(); } });
+        org.example.servicio.DialogService.confirmar(lblTotal, "Cancelar venta", "¿Seguro que deseas cancelar la venta?")
+                .ifPresent(r -> { if (r == ButtonType.OK) { carrito.clear(); actualizarCarrito(); } });
     }
 
     @FXML
@@ -832,14 +940,14 @@ public class VentasController {
         TableColumn<Map<String, Object>, String> colCajero = new TableColumn<>("Cajero"); colCajero.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty((String) d.getValue().get("cajero"))); colCajero.setPrefWidth(160);
         TableColumn<Map<String, Object>, String> colTotal  = new TableColumn<>("Total");  colTotal.setCellValueFactory(d  -> new javafx.beans.property.SimpleStringProperty("$" + String.format("%.2f", (double) d.getValue().get("total")))); colTotal.setPrefWidth(100);
         tabla.getColumns().addAll(colFolio, colHora, colCliente, colCajero, colTotal);
-        String sql = "SELECT v.id_venta, DATE_FORMAT(v.fecha,'%H:%i:%s') AS hora, u.nombre AS cajero, COALESCE(c.nombre,'Publico General') AS cliente, v.total FROM ventas v JOIN usuarios u ON v.id_usuario = u.id_usuario LEFT JOIN clientes c ON v.id_cliente = c.id_cliente WHERE DATE(v.fecha) = CURDATE() ORDER BY v.fecha DESC";
+        String sql = "SELECT v.id_venta, DATE_FORMAT(v.fecha,'%H:%i:%s') AS hora, u.nombre AS cajero, COALESCE(c.nombre,'Público General') AS cliente, v.total FROM ventas v JOIN usuarios u ON v.id_usuario = u.id_usuario LEFT JOIN clientes c ON v.id_cliente = c.id_cliente WHERE DATE(v.fecha) = CURDATE() ORDER BY v.fecha DESC";
         try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) { Map<String, Object> fila = new HashMap<>(); fila.put("folio", rs.getInt("id_venta")); fila.put("hora", rs.getString("hora")); fila.put("cajero", rs.getString("cajero")); fila.put("cliente", rs.getString("cliente")); fila.put("total", rs.getDouble("total")); tabla.getItems().add(fila); }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
         tabla.setOnMouseClicked(e -> { if (e.getClickCount() == 2 && tabla.getSelectionModel().getSelectedItem() != null) mostrarDetalleVenta((int) tabla.getSelectionModel().getSelectedItem().get("folio")); });
         Label hint = new Label("Doble clic para ver detalle"); hint.setStyle("-fx-text-fill: #000000; -fx-font-size: 11px;");
-        VBox layout = new VBox(10, tabla, hint); layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
+        VBox layout = new VBox(10, tabla, hint); layout.setStyle("-fx-padding: 16; -fx-background-color: #f0f7ff;");
         stage.setScene(new Scene(layout, 800, 480)); stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); stage.show();
     }
 
@@ -887,14 +995,16 @@ public class VentasController {
                 fila.put("subtotal", rs.getDouble("subtotal"));
                 tabla.getItems().add(fila);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
 
-        // ── Botón cancelar venta (solo visible si tiene permiso) ──────────────
+        // -- Botón cancelar venta (solo visible si tiene permiso) --------------
         Button btnCancelar = new Button("Cancelar esta venta");
         btnCancelar.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; " +
                 "-fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; " +
                 "-fx-font-weight: bold;");
         btnCancelar.setMaxWidth(Double.MAX_VALUE);
+        String estadoVenta = obtenerEstadoVenta(idVenta);
+        btnCancelar.setDisable("CANCELADA".equalsIgnoreCase(estadoVenta) || "DEVUELTA".equalsIgnoreCase(estadoVenta));
         btnCancelar.setOnAction(e -> manejarCancelacion(idVenta, stage::close));
 
         Button btnPrefactura = new Button("Generar prefactura");
@@ -905,10 +1015,24 @@ public class VentasController {
         btnPrefactura.setOnAction(e -> generarPrefactura(idVenta));
 
         VBox layout = new VBox(10, tabla, btnPrefactura, btnCancelar);
-        layout.setStyle("-fx-padding: 16; -fx-background-color: #F5EFE6;");
+        layout.setStyle("-fx-padding: 16; -fx-background-color: #f0f7ff;");
         stage.setScene(new Scene(layout, 520, 400));
         stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         stage.show();
+    }
+
+    private String obtenerEstadoVenta(int idVenta) {
+        String sql = "SELECT COALESCE(estado, 'COMPLETADA') AS estado FROM ventas WHERE id_venta = ?";
+        try (Connection con = ConexionDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVenta);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("estado");
+            }
+        } catch (Exception e) {
+            org.example.servicio.LogService.error("No se pudo obtener estado de venta", e);
+        }
+        return "COMPLETADA";
     }
 
     private void generarPrefactura(int idVenta) {
@@ -916,7 +1040,7 @@ public class VentasController {
             int idFactura = new org.example.servicio.FacturacionService().generarPrefactura(idVenta);
             mostrarAlerta("Prefactura", "Prefactura generada/consultada correctamente. ID: " + idFactura);
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo generar la prefactura: " + e.getMessage());
         }
     }
@@ -926,6 +1050,7 @@ public class VentasController {
         dialog.setTitle("Cancelar venta");
         dialog.setHeaderText("Cancelar " + org.example.servicio.FolioService.venta(idVenta));
         dialog.setContentText("Motivo de cancelación (obligatorio):");
+        org.example.servicio.DialogService.preparar(dialog, lblTotal);
 
         dialog.showAndWait().ifPresent(motivo -> {
             if (motivo.trim().isEmpty()) {
@@ -944,7 +1069,7 @@ public class VentasController {
             } catch (SecurityException e) {
                 mostrarAlerta("Acceso denegado", e.getMessage());
             } catch (Exception e) {
-                e.printStackTrace();
+                org.example.servicio.LogService.error("Error no controlado", e);
                 mostrarAlerta("Error", "No se pudo cancelar: " + e.getMessage());
             }
         });
@@ -963,12 +1088,12 @@ public class VentasController {
         boolean esIngreso = tipo.equals("INGRESO"); Stage stage = new Stage();
         org.example.servicio.VentanaEmergenteService.preparar(stage);
         stage.setTitle(esIngreso ? "Registrar ingreso" : "Registrar salida");
-        Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
-        TextField txtMonto = new TextField(); txtMonto.setPromptText("$0.00"); txtMonto.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #000000; -fx-border-width: 1; -fx-padding: 8;");
-        Label lblMotivo = new Label("Motivo: *"); lblMotivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #000000;");
-        TextField txtMotivo = new TextField(); txtMotivo.setPromptText("Escribe el motivo..."); txtMotivo.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #000000; -fx-border-width: 1; -fx-padding: 8;");
+        Label lblMonto = new Label("Monto:"); lblMonto.setStyle("-fx-font-weight: bold; -fx-text-fill: #0d3d5e;");
+        TextField txtMonto = new TextField(); txtMonto.setPromptText("$0.00"); txtMonto.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b8d4ea; -fx-border-width: 1; -fx-padding: 8;");
+        Label lblMotivo = new Label("Motivo: *"); lblMotivo.setStyle("-fx-font-weight: bold; -fx-text-fill: #0d3d5e;");
+        TextField txtMotivo = new TextField(); txtMotivo.setPromptText("Escribe el motivo..."); txtMotivo.setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #b8d4ea; -fx-border-width: 1; -fx-padding: 8;");
         Button btnGuardar = new Button(esIngreso ? "Registrar ingreso" : "Registrar salida");
-        btnGuardar.setStyle("-fx-background-color: " + (esIngreso ? "#2E7D32" : "#C0392B") + "; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 24; -fx-cursor: hand; -fx-font-weight: bold;"); btnGuardar.setPrefWidth(260);
+        btnGuardar.setStyle("-fx-background-color: " + (esIngreso ? "#1a6fa8" : "#0d5f93") + "; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 24; -fx-cursor: hand; -fx-font-weight: bold;"); btnGuardar.setPrefWidth(260);
         btnGuardar.setOnAction(e -> {
             String motivoTxt = txtMotivo.getText().trim(); String montoTxt = txtMonto.getText().trim();
             if (motivoTxt.isEmpty()) { mostrarAlerta("Campo requerido", "El motivo es obligatorio."); return; }
@@ -977,16 +1102,16 @@ public class VentasController {
             try (Connection con = ConexionDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, SesionUsuario.getInstancia().getIdCaja()); ps.setString(2, tipo); ps.setDouble(3, monto); ps.setString(4, motivoTxt); ps.setInt(5, SesionUsuario.getInstancia().getIdUsuario()); ps.executeUpdate();
                 stage.close(); mostrarAlerta("Listo", tipo.equals("INGRESO") ? "Ingreso de $" + String.format("%.2f", monto) + " registrado." : "Salida de $" + String.format("%.2f", monto) + " registrada.");
-            } catch (Exception ex) { ex.printStackTrace(); mostrarAlerta("Error", "No se pudo registrar el movimiento."); }
+            } catch (Exception ex) { org.example.servicio.LogService.error("Error no controlado", ex); mostrarAlerta("Error", "No se pudo registrar el movimiento."); }
         });
-        VBox layout = new VBox(12, lblMonto, txtMonto, lblMotivo, txtMotivo, btnGuardar); layout.setStyle("-fx-padding: 24; -fx-background-color: #F5EFE6;");
+        VBox layout = new VBox(12, lblMonto, txtMonto, lblMotivo, txtMotivo, btnGuardar); layout.setStyle("-fx-padding: 24; -fx-background-color: #f0f7ff;");
         stage.setScene(new Scene(layout, 300, 260)); stage.initModality(javafx.stage.Modality.APPLICATION_MODAL); stage.setResizable(false); stage.show(); txtMonto.requestFocus();
     }
 
     public void ventaCompletada() {
         carrito.clear(); actualizarCarrito(); cargarProductos("", "Todas"); cargarFolio();
-        idClienteSeleccionado = 1; nombreClienteSeleccionado = "Publico General"; limiteCredito = 0; saldoCliente = 0;
-        lblClienteSeleccionado.setText("Publico General"); lblCreditoDisponible.setText("");
+        idClienteSeleccionado = 1; nombreClienteSeleccionado = "Público General"; limiteCredito = 0; saldoCliente = 0;
+        lblClienteSeleccionado.setText("Público General"); lblCreditoDisponible.setText("");
         mostrarAlerta("Venta completada", "La venta se registro correctamente.");
     }
     private void registrarLogout() {
@@ -1001,7 +1126,7 @@ public class VentasController {
             ps.setString(3, "Cierre de sesión: " + nombre);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -1018,20 +1143,16 @@ public class VentasController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                cambiarEscena("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(lblTotal);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(lblTotal);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(titulo); a.setHeaderText(null); a.setContentText(mensaje); a.showAndWait();
+        org.example.servicio.DialogService.advertencia(lblTotal, titulo, mensaje);
     }
 
     private boolean autorizarAccionRestringida(String permiso, String accion) {
@@ -1043,18 +1164,13 @@ public class VentasController {
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String ruta) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         cambiarEscena(ruta);
     }
 
     private void cambiarEscena(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            ((Stage) lblTotal.getScene().getWindow()).getScene().setRoot(root);
-        } catch (IOException e) { e.printStackTrace(); }
+        org.example.servicio.NavigationService.cambiarEscena(lblTotal, fxmlPath);
     }
 }

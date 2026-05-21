@@ -29,7 +29,7 @@ public class CategoriaDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
 
         return lista;
@@ -44,7 +44,7 @@ public class CategoriaDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 }

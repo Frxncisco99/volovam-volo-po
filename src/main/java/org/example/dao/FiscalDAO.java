@@ -30,7 +30,7 @@ public class FiscalDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return impuestos;
     }
@@ -50,7 +50,7 @@ public class FiscalDAO {
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return Optional.empty();
     }
@@ -78,7 +78,7 @@ public class FiscalDAO {
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return Optional.empty();
     }
@@ -97,7 +97,7 @@ public class FiscalDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -137,7 +137,7 @@ public class FiscalDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return config;
     }
@@ -188,7 +188,7 @@ public class FiscalDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -208,7 +208,7 @@ public class FiscalDAO {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -227,7 +227,7 @@ public class FiscalDAO {
                 if (rs.next()) return Optional.of(mapImpuesto(rs));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return Optional.empty();
     }

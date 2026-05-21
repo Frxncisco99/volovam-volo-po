@@ -100,7 +100,7 @@ public class FacturacionService {
         String sql = """
                 SELECT dv.id_producto, p.nombre, dv.cantidad, dv.precio_unitario,
                        dv.subtotal, dv.impuesto_clave, dv.impuesto_tipo, dv.impuesto_tasa,
-                       dv.impuesto_importe, dv.subtotal_sin_impuesto, dv.total_linea
+                       dv.descuento, dv.impuesto_importe, dv.subtotal_sin_impuesto, dv.total_linea
                 FROM detalle_venta dv
                 LEFT JOIN productos p ON p.id_producto = dv.id_producto
                 WHERE dv.id_venta = ?
@@ -124,6 +124,7 @@ public class FacturacionService {
                     detalle.setCantidad(linea.getCantidad());
                     detalle.setPrecioUnitario(linea.getPrecioUnitario());
                     detalle.setSubtotal(linea.getSubtotalSinImpuesto());
+                    detalle.setDescuento(linea.getDescuento());
                     detalle.setImpuestoClave(linea.getImpuesto().getClave());
                     detalle.setImpuestoTipo(linea.getImpuesto().getTipo());
                     detalle.setImpuestoTasa(linea.getImpuesto().getTasa());
@@ -135,6 +136,7 @@ public class FacturacionService {
                     detalle.setCantidad(cantidad);
                     detalle.setPrecioUnitario(precio);
                     detalle.setSubtotal(rs.getBigDecimal("subtotal_sin_impuesto"));
+                    detalle.setDescuento(rs.getBigDecimal("descuento"));
                     detalle.setImpuestoClave(clave);
                     detalle.setImpuestoTipo(rs.getString("impuesto_tipo"));
                     detalle.setImpuestoTasa(rs.getBigDecimal("impuesto_tasa"));
@@ -156,6 +158,7 @@ public class FacturacionService {
                 linea.setCantidad(detalle.getCantidad());
                 linea.setPrecioUnitario(detalle.getPrecioUnitario());
                 linea.setSubtotalSinImpuesto(detalle.getSubtotal());
+                linea.setDescuento(detalle.getDescuento());
                 linea.setImpuestoImporte(detalle.getImpuestoImporte());
                 linea.setTotalLinea(detalle.getTotalLinea());
                 fiscalDAO.obtenerImpuestoPorClave(detalle.getImpuestoClave()).ifPresent(linea::setImpuesto);

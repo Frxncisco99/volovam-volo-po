@@ -87,7 +87,7 @@ public class PagoController {
     private Map<Integer, Object[]> carrito;
     private VentasController ventasController;
     private int idCliente = 1;
-    private String nombreCliente = "Publico General";
+    private String nombreCliente = "Público General";
     private double limiteCredito = 0;
     private double saldoCliente = 0;
     private String metodoPago = "EFECTIVO";
@@ -113,7 +113,7 @@ public class PagoController {
         actualizarModoTicket();
     }
 
-    // ── Recibe datos desde VentasController ─────────────────────────────────
+    // -- Recibe datos desde VentasController ---------------------------------
     public void setDatos(double total, Map<Integer, Object[]> carrito,
                          VentasController ventasController,
                          int idCliente, String nombreCliente,
@@ -136,14 +136,14 @@ public class PagoController {
         // Deshabilitar Fiado si no hay crédito suficiente
         if (limiteCredito > 0) {
             double disponible = limiteCredito - saldoCliente;
-            lblInfoFiado.setText("Credito disponible: $" + String.format("%.2f", disponible));
+            lblInfoFiado.setText("Crédito disponible: $" + String.format("%.2f", disponible));
             btnFiado.setDisable(disponible < total);
         } else {
             btnFiado.setDisable(true);
             aplicarClaseMetodo(btnFiado, false);
         }
 
-        // ── Listener efectivo ──────────────────────────────────────────────
+        // -- Listener efectivo ----------------------------------------------
         txtDineroRecibido.textProperty().addListener((obs, old, nuevo) -> {
             try {
                 double recibido = Double.parseDouble(nuevo);
@@ -156,7 +156,7 @@ public class PagoController {
             }
         });
 
-        // ── Listener mixto MXN + tarjeta ──────────────────────────────────
+        // -- Listener mixto MXN + tarjeta ----------------------------------
         Runnable calcularMixto = () -> {
             try {
                 double ef  = parse(txtEfectivoMixto.getText());
@@ -172,7 +172,7 @@ public class PagoController {
         txtEfectivoMixto.textProperty().addListener((obs, o, n) -> calcularMixto.run());
         txtTarjetaMixto.textProperty().addListener((obs, o, n)  -> calcularMixto.run());
 
-        // ── Listener dólares solos ─────────────────────────────────────────
+        // -- Listener dólares solos -----------------------------------------
         txtDolaresRecibidos.textProperty().addListener((obs, old, nuevo) -> {
             try {
                 double dolares = Double.parseDouble(nuevo);
@@ -189,7 +189,7 @@ public class PagoController {
             }
         });
 
-        // ── Listener mixto MXN + USD ──────────────────────────────────────
+        // -- Listener mixto MXN + USD --------------------------------------
         Runnable calcularMixtoUSD = () -> {
             try {
                 double pesos   = parse(txtPesosMixtoUSD.getText());
@@ -224,13 +224,13 @@ public class PagoController {
         javafx.application.Platform.runLater(() -> txtDineroRecibido.requestFocus());
     }
 
-    // ── Denominaciones rápidas ────────────────────────────────────────────
+    // -- Denominaciones rápidas --------------------------------------------
     @FXML private void denominacion50()  { txtDineroRecibido.setText("50.00"); }
     @FXML private void denominacion100() { txtDineroRecibido.setText("100.00"); }
     @FXML private void denominacion200() { txtDineroRecibido.setText("200.00"); }
     @FXML private void denominacion500() { txtDineroRecibido.setText("500.00"); }
 
-    // ── Mostrar solo el panel indicado ────────────────────────────────────
+    // -- Mostrar solo el panel indicado ------------------------------------
     private void mostrarPanel(VBox panel) {
         panelEfectivo.setVisible(false);      panelEfectivo.setManaged(false);
         panelTarjeta.setVisible(false);       panelTarjeta.setManaged(false);
@@ -251,7 +251,7 @@ public class PagoController {
         }
     }
 
-    // ── Selectores de método ──────────────────────────────────────────────
+    // -- Selectores de método ----------------------------------------------
     @FXML public void seleccionarEfectivo() {
         metodoPago = "EFECTIVO";
         mostrarPanel(panelEfectivo);
@@ -350,7 +350,7 @@ public class PagoController {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", ex);
         }
 
         return fallback;
@@ -372,7 +372,7 @@ public class PagoController {
         }
     }
 
-    // ── Confirmar cobro ───────────────────────────────────────────────────
+    // -- Confirmar cobro ---------------------------------------------------
     private void aplicarClaseMetodo(Button boton, boolean activo) {
         if (boton == null) return;
         boton.setStyle("");
@@ -451,7 +451,7 @@ public class PagoController {
             case "FIADO":
                 double disponible = limiteCredito - saldoCliente;
                 if (total > disponible) {
-                    mostrarAlerta("Credito insuficiente", "El cliente no tiene suficiente credito."); return;
+                    mostrarAlerta("Crédito insuficiente", "El cliente no tiene suficiente crédito."); return;
                 }
                 break;
 
@@ -496,7 +496,7 @@ public class PagoController {
         guardarVenta(montoEfectivo, montoTarjeta, cambio);
     }
 
-    // ── Guardar venta en BD ───────────────────────────────────────────────
+    // -- Guardar venta en BD -----------------------------------------------
     private void guardarVenta(double montoEfectivo, double montoTarjeta, double cambio) {
         int idVentaFinal = 0;
         Connection con = null;
@@ -543,9 +543,10 @@ public class PagoController {
                 int idProducto = entry.getKey();
                 Object[] item = entry.getValue();
                 String nombreProducto = item[0] == null ? "Producto #" + idProducto : item[0].toString();
-                double precio = (double) item[1];
-                int cantidad = (int) item[2];
-                double subtotal = precio * cantidad;
+                double precio = ((Number) item[1]).doubleValue();
+                int cantidad = ((Number) item[2]).intValue();
+                double descuentoLinea = item.length > 3 && item[3] instanceof Number n ? n.doubleValue() : 0.0;
+                double subtotal = Math.max((precio * cantidad) - descuentoLinea, 0.0);
 
                 bloquearProductoParaVenta(con, idProducto, cantidad, nombreProducto);
 
@@ -563,7 +564,7 @@ public class PagoController {
                         psDetalle.setInt(2, idProducto);
                         psDetalle.setInt(3, cantidad);
                         psDetalle.setDouble(4, precio);
-                        psDetalle.setDouble(5, subtotal);
+                        psDetalle.setBigDecimal(5, lineaFiscal.getTotalLinea());
                         if (lineaFiscal.getImpuesto().getIdImpuesto() > 0) psDetalle.setInt(6, lineaFiscal.getImpuesto().getIdImpuesto());
                         else psDetalle.setNull(6, java.sql.Types.INTEGER);
                         psDetalle.setString(7, lineaFiscal.getImpuesto().getClave());
@@ -609,12 +610,13 @@ public class PagoController {
                 }
 
                 try (PreparedStatement psCargo = con.prepareStatement(
-                        "INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas) VALUES (?, ?, 'CARGO', ?, 'Venta a credito')")) {
+                        "INSERT INTO pagos_cliente (id_cliente, monto, tipo, id_venta, notas) VALUES (?, ?, 'CARGO', ?, 'Venta a crédito')")) {
                     psCargo.setInt(1, idCliente);
                     psCargo.setDouble(2, total);
                     psCargo.setInt(3, idVentaFinal);
                     psCargo.executeUpdate();
                 }
+                registrarDetallePago(con, idVentaFinal, 0, 0);
             } else {
                 try (PreparedStatement psPago = con.prepareStatement(
                         "INSERT INTO pagos (id_venta, tipo_pago, monto_recibido, cambio) VALUES (?, ?, ?, ?)")) {
@@ -630,7 +632,7 @@ public class PagoController {
             con.commit();
         } catch (Exception e) {
             rollbackSilencioso(con);
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Error", "No se pudo guardar la venta.\n" + mensajeError(e));
             return;
         } finally {
@@ -640,7 +642,7 @@ public class PagoController {
             // Auditoría (fuera de transacción)
             AuditoriaService.get().registrar(
                     "VENTA", "ventas", idVentaFinal,
-                    String.format("Venta %s — Total: $%.2f — Método: %s — Cliente ID: %d",
+                    String.format("Venta %s - Total: $%.2f - Método: %s - Cliente ID: %d",
                             FolioService.venta(idVentaFinal), total, metodoPago, idCliente)
             );
 
@@ -661,7 +663,7 @@ public class PagoController {
                 try {
                     ticketService.imprimir(ticket);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    org.example.servicio.LogService.error("Error no controlado", ex);
                 }
             }
 
@@ -674,7 +676,7 @@ public class PagoController {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta("Venta guardada", "La venta se guardo, pero fallo una accion posterior.\n" + mensajeError(e));
         }
     }
@@ -687,7 +689,7 @@ public class PagoController {
         try {
             new TicketImpresora().abrirCajon();
         } catch (Exception drawerError) {
-            drawerError.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", drawerError);
         }
     }
 
@@ -714,6 +716,7 @@ public class PagoController {
                 }
                 case "DOLARES" -> agregarDetallePago(ps, idVenta, "DOLARES", total,
                         String.format("%.2f USD @ %.2f", parse(txtDolaresRecibidos.getText()), tipoCambioDolar));
+                case "FIADO" -> agregarDetallePago(ps, idVenta, "CREDITO", total, nombreCliente);
                 case "MIXTO_USD" -> {
                     double pesos = parse(txtPesosMixtoUSD.getText());
                     double dolares = parse(txtDolaresMixtoUSD.getText());
@@ -774,7 +777,7 @@ public class PagoController {
             ps.setInt(10, idVenta);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -869,6 +872,7 @@ public class PagoController {
         dialog.setTitle("Enviar ticket por correo");
         dialog.setHeaderText("Ticket de venta #" + String.format("%06d", ticket.getIdVenta()));
         dialog.setContentText("Correo destino:");
+        org.example.servicio.DialogService.preparar(dialog, btnConfirmar);
 
         Optional<String> respuesta = dialog.showAndWait();
         if (respuesta.isEmpty()) {
@@ -882,26 +886,14 @@ public class PagoController {
 
         try {
             emailTicketService.enviarTicket(ticket, destino);
-            Alert ok = new Alert(Alert.AlertType.INFORMATION);
-            ok.setTitle("Ticket enviado");
-            ok.setHeaderText(null);
-            ok.setContentText("Ticket enviado a " + destino + ".");
-            ok.showAndWait();
+            org.example.servicio.DialogService.info(btnConfirmar, "Ticket enviado", "Ticket enviado a " + destino + ".");
         } catch (Exception e) {
-            e.printStackTrace();
-            Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setTitle("Correo");
-            error.setHeaderText(null);
-            error.setContentText("No se pudo enviar el ticket por correo.\n" + e.getMessage());
-            error.showAndWait();
+            org.example.servicio.LogService.error("Error no controlado", e);
+            org.example.servicio.DialogService.error(btnConfirmar, "Correo", "No se pudo enviar el ticket por correo.\n" + e.getMessage());
         }
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.advertencia(btnConfirmar, titulo, mensaje);
     }
 }

@@ -217,7 +217,7 @@ public class AjustarStockController {
         try {
             aplicarAjusteTransaccional(esAdicion, cantidad, ajuste);
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             mostrarAlerta(Alert.AlertType.ERROR, "No se pudo ajustar stock", mensajeError(e));
             return;
         }
@@ -294,11 +294,13 @@ public class AjustarStockController {
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        if (tipo == Alert.AlertType.ERROR) {
+            org.example.servicio.DialogService.error(lblStockActual, titulo, mensaje);
+        } else if (tipo == Alert.AlertType.INFORMATION) {
+            org.example.servicio.DialogService.info(lblStockActual, titulo, mensaje);
+        } else {
+            org.example.servicio.DialogService.advertencia(lblStockActual, titulo, mensaje);
+        }
     }
 
     @FXML

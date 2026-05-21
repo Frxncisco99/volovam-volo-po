@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefHeight="760" prefWidth="1180" stylesheets="@menuPrincipal.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controlador.OperacionesController">
+
+    <left>
+        <VBox prefWidth="230" style="-fx-background-color: #091e4e;">
+            <VBox spacing="3" style="-fx-padding: 24 18 16 18;">
+                <Label text="Volovan Volo" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <Label text="OPERACIONES" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 9px;"/>
+            </VBox>
+            <Separator style="-fx-opacity: 0.15;"/>
+            <HBox spacing="10" style="-fx-padding: 14 18;">
+                <Label fx:id="lblAvatarIniciales" text="AD"
+                       style="-fx-background-color: rgba(255,255,255,0.22); -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 36; -fx-min-height: 36; -fx-background-radius: 18; -fx-alignment: center;"/>
+                <VBox spacing="2">
+                    <Label fx:id="lblNombreUsuario" text="Usuario" style="-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblRolUsuario" text="Rol" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;"/>
+                </VBox>
+            </HBox>
+            <Separator style="-fx-opacity: 0.15;"/>
+            <VBox spacing="3" style="-fx-padding: 10 10;" VBox.vgrow="ALWAYS">
+                <Button onAction="#irADashboard" text="Dashboard" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button onAction="#irAVentas" text="Ventas / Caja" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button onAction="#irAInventario" text="Inventario" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button text="Operaciones" graphicTextGap="12" prefHeight="40" prefWidth="210"
+                        style="-fx-background-color: white; -fx-text-fill: #1a6fa8; -fx-font-weight: bold; -fx-background-radius: 8; -fx-alignment: CENTER_LEFT; -fx-padding: 0 14;">
+                    <graphic><FontIcon iconLiteral="fas-clipboard-list" iconSize="16" iconColor="#1a6fa8"/></graphic>
+                </Button>
+                <Button onAction="#irAClientes" text="Clientes" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button onAction="#irAReportes" text="Reportes" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button onAction="#irACorteCaja" text="Corte de Caja" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+                <Button onAction="#irAConfiguracion" text="Configuración" graphicTextGap="12" prefHeight="40" prefWidth="210" styleClass="nav-button">
+                    <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
+                </Button>
+            </VBox>
+            <Separator style="-fx-opacity: 0.15;"/>
+            <Button onAction="#btnCerrar" prefHeight="44" prefWidth="230" text="Cambiar sesión" graphicTextGap="10"
+                    styleClass="sidebar-session-button">
+                <graphic><FontIcon iconLiteral="fas-exchange-alt" iconSize="16" iconColor="#22c55e"/></graphic>
+            </Button>
+            <Button onAction="#salirAplicacion" prefHeight="44" prefWidth="230" text="Salir del sistema" graphicTextGap="10"
+                    styleClass="sidebar-exit-button">
+                <graphic><FontIcon iconLiteral="fas-power-off" iconSize="16" iconColor="#22c55e"/></graphic>
+            </Button>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox style="-fx-background-color: #f0f7ff;">
+            <HBox alignment="CENTER_LEFT" styleClass="topbar">
+                <VBox spacing="2">
+                    <Label text="Operaciones" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0d3d5e;"/>
+                    <Label text="Prefacturas, promociones, compras, turnos y motivos" style="-fx-font-size: 11px; -fx-text-fill: #6a96b8;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button onAction="#recargarTodo" text="Actualizar" graphicTextGap="8" styleClass="primary-action">
+                    <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="13" iconColor="white"/></graphic>
+                </Button>
+            </HBox>
+
+            <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="report-tabs">
+                <Tab text="Prefacturas">
+                    <VBox spacing="10" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button onAction="#verDetallePrefactura" text="Ver detalle" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-eye" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                            <Button onAction="#cancelarPrefactura" text="Cancelar prefactura" graphicTextGap="8">
+                                <graphic><FontIcon iconLiteral="fas-ban" iconSize="13"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaPrefacturas" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Promociones">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtPromoNombre" promptText="Nombre" prefWidth="220"/>
+                            <ComboBox fx:id="cmbPromoTipo" prefWidth="140"/>
+                            <TextField fx:id="txtPromoValor" promptText="Valor" prefWidth="90"/>
+                            <DatePicker fx:id="datePromoInicio" promptText="Inicio"/>
+                            <DatePicker fx:id="datePromoFin" promptText="Fin"/>
+                            <CheckBox fx:id="chkPromoActiva" text="Activa"/>
+                            <Button onAction="#guardarPromocion" text="Guardar" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-save" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                            <Button onAction="#alternarPromocion" text="Activar/pausar" graphicTextGap="8">
+                                <graphic><FontIcon iconLiteral="fas-toggle-on" iconSize="13"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaPromociones" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Proveedores">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtProveedorNombre" promptText="Nombre" prefWidth="190"/>
+                            <TextField fx:id="txtProveedorRfc" promptText="RFC" prefWidth="120"/>
+                            <TextField fx:id="txtProveedorTelefono" promptText="Teléfono" prefWidth="120"/>
+                            <TextField fx:id="txtProveedorEmail" promptText="Email" prefWidth="170"/>
+                            <TextField fx:id="txtProveedorContacto" promptText="Contacto" prefWidth="150"/>
+                            <Button onAction="#guardarProveedor" text="Guardar" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-save" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaProveedores" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Producto-Proveedor">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="cmbVinculoProveedor" promptText="Proveedor" prefWidth="190"/>
+                            <ComboBox fx:id="cmbVinculoProducto" promptText="Producto" prefWidth="210"/>
+                            <TextField fx:id="txtVinculoCosto" promptText="Costo ultimo" prefWidth="110"/>
+                            <CheckBox fx:id="chkVinculoPrincipal" text="Principal" selected="true"/>
+                            <Button onAction="#vincularProveedorProducto" text="Vincular" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-link" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                            <Button onAction="#alternarVinculoProveedorProducto" text="Activar/pausar" graphicTextGap="8">
+                                <graphic><FontIcon iconLiteral="fas-toggle-on" iconSize="13"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaProductoProveedor" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Compras">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="cmbCompraProveedor" promptText="Proveedor" prefWidth="180"/>
+                            <ComboBox fx:id="cmbCompraProducto" promptText="Producto" prefWidth="190"/>
+                            <TextField fx:id="txtCompraDescripcion" promptText="Descripcion" prefWidth="180"/>
+                            <TextField fx:id="txtCompraCantidad" promptText="Cantidad" prefWidth="90"/>
+                            <TextField fx:id="txtCompraCosto" promptText="Costo" prefWidth="90"/>
+                            <TextField fx:id="txtCompraFolio" promptText="Folio" prefWidth="100"/>
+                            <Button onAction="#registrarCompra" text="Registrar" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-plus" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaCompras" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Turnos">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtTurnoFondo" promptText="Fondo inicial" prefWidth="120"/>
+                            <TextField fx:id="txtTurnoContado" promptText="Efectivo contado" prefWidth="130"/>
+                            <TextField fx:id="txtTurnoObs" promptText="Observaciones" prefWidth="250"/>
+                            <Button onAction="#abrirTurno" text="Abrir" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-play" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                            <Button onAction="#cerrarTurno" text="Cerrar seleccionado" graphicTextGap="8">
+                                <graphic><FontIcon iconLiteral="fas-stop" iconSize="13"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaTurnos" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <Tab text="Motivos">
+                    <VBox spacing="12" style="-fx-padding: 16;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtMotivoClave" promptText="Clave" prefWidth="160"/>
+                            <TextField fx:id="txtMotivoDescripcion" promptText="Descripcion" prefWidth="320"/>
+                            <Button onAction="#guardarMotivo" text="Guardar" graphicTextGap="8" styleClass="primary-action">
+                                <graphic><FontIcon iconLiteral="fas-save" iconSize="13" iconColor="white"/></graphic>
+                            </Button>
+                            <Button onAction="#alternarMotivo" text="Activar/pausar" graphicTextGap="8">
+                                <graphic><FontIcon iconLiteral="fas-toggle-on" iconSize="13"/></graphic>
+                            </Button>
+                        </HBox>
+                        <TableView fx:id="tablaMotivos" styleClass="report-table" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </center>
+</BorderPane>

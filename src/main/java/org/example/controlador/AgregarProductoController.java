@@ -163,6 +163,7 @@ public class AgregarProductoController {
         dialog.setTitle("Nueva Categoría");
         dialog.setHeaderText(null);
         dialog.setContentText("Nombre de la categoría:");
+        org.example.servicio.DialogService.preparar(dialog, txtNombre);
 
         dialog.showAndWait().ifPresent(nombre -> {
             nombre = nombre.trim();
@@ -192,15 +193,11 @@ public class AgregarProductoController {
     }
 
     private void error(String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle("Validación"); a.setHeaderText(null); a.setContentText(msg);
-        a.showAndWait();
+        org.example.servicio.DialogService.advertencia(txtNombre, "Validación", msg);
     }
 
     private void info(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle("Éxito"); a.setHeaderText(null); a.setContentText(msg);
-        a.showAndWait();
+        org.example.servicio.DialogService.info(txtNombre, "Éxito", msg);
     }
 
     private void cerrar() {

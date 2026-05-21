@@ -22,19 +22,20 @@ public class AutorizacionAdminService {
 
     public static Autorizacion solicitarAutorizacion(String accion, String permisoRequerido) {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Autorizacion requerida");
+        dialog.setTitle("Autorización requerida");
         dialog.setHeaderText("Se requiere un administrador autorizado");
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         TextField txtUsuario = new TextField();
         txtUsuario.setPromptText("Usuario administrador");
         PasswordField txtPassword = new PasswordField();
-        txtPassword.setPromptText("Contrasena");
+        txtPassword.setPromptText("Contraseña");
         Label lblAccion = new Label(accion);
         lblAccion.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
         VBox contenido = new VBox(10, lblAccion, txtUsuario, txtPassword);
         contenido.setStyle("-fx-padding: 14; -fx-min-width: 340;");
         dialog.getDialogPane().setContent(contenido);
+        DialogService.preparar(dialog, null);
 
         return dialog.showAndWait()
                 .filter(ButtonType.OK::equals)

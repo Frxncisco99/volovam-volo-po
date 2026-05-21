@@ -13,7 +13,8 @@ import javafx.stage.Stage;
 import org.example.dao.ConexionDB;
 import org.example.modelo.SesionUsuario;
 import org.example.servicio.AppExitService;
-import org.example.servicio.MarcaService;
+import org.example.servicio.DialogService;
+import org.example.servicio.NavigationService;
 import org.example.servicio.PasswordService;
 
 import java.io.IOException;
@@ -34,14 +35,14 @@ public class LoginController {
         try (Connection con = ConexionDB.getConexion()) {
             if (con != null) System.out.println("BD lista");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         txtPassword.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 try {
                     handleIniciarSesion(new ActionEvent(btnLogin, btnLogin));
                 } catch (IOException ex) {
-                    mostrarAlerta("Error", "No se pudo iniciar sesion.");
+                    mostrarAlerta("Error", "No se pudo iniciar sesión.");
                 }
             }
         });
@@ -63,25 +64,10 @@ public class LoginController {
             // Verificar si hay caja abierta
             if (hayCajaAbierta()) {
                 // Ir directo al menú
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/MenuPrincipal.fxml"));
-                Parent root = loader.load();
-                MarcaService.aplicar(root);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.getScene().setRoot(root);
-                stage.setMaximized(true);
-                stage.show();
+                NavigationService.abrirMenuPrincipal((Node) event.getSource());
             } else {
                 // Ir a apertura de caja
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vista/AperturaCaja.fxml"));
-                Parent root = loader.load();
-                MarcaService.aplicar(root);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.getScene().setRoot(root);
-                stage.setMaximized(false);
-                stage.setWidth(500);
-                stage.setHeight(400);
-                stage.centerOnScreen();
-                stage.show();
+                NavigationService.abrirAperturaCaja((Node) event.getSource());
             }
         } else {
             mostrarAlerta("Error", "Usuario o contraseña incorrectos.");
@@ -99,7 +85,7 @@ public class LoginController {
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return false;
     }
@@ -133,7 +119,7 @@ public class LoginController {
                 sesion.setIdRol(rs.getInt("id_rol"));
                 sesion.setRol(rs.getString("rol"));
 
-                // ── Registrar login en auditoría ──────────────────────────
+                // -- Registrar login en auditoría --------------------------
                 registrarLogin(rs.getInt("id_usuario"), rs.getString("nombre"));
 
                 return true;
@@ -141,7 +127,7 @@ public class LoginController {
             return false;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return false;
     }
@@ -152,11 +138,7 @@ public class LoginController {
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        DialogService.advertencia(btnLogin, titulo, mensaje);
     }
     private void registrarLogin(int idUsuario, String nombre) {
         String sql = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, id_registro, detalle) " +
@@ -169,7 +151,7 @@ public class LoginController {
                     " desde " + obtenerIP());
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 

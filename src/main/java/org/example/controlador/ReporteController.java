@@ -44,12 +44,12 @@ import java.time.format.DateTimeFormatter;
 
 public class ReporteController {
 
-    // ── Filtros ──
+    // -- Filtros --
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
     @FXML private ComboBox<String> cbTipoReporte;
 
-    // ── Cards métricas ──
+    // -- Cards métricas --
     @FXML private Label lblTotal;
     @FXML private Label lblTickets;
     @FXML private Label lblPromedio;
@@ -61,7 +61,7 @@ public class ReporteController {
     @FXML private Label lblProductoTop;
     @FXML private Label lblProductoTopCantidad;
 
-    // ── Botones filtros rápidos ──
+    // -- Botones filtros rápidos --
     @FXML private Button btnCantidad;
     @FXML private Button btnIngresos;
     @FXML private Button btnHoy;
@@ -71,7 +71,7 @@ public class ReporteController {
     @FXML private Button btnAnio;
     @FXML private Button btnTabla;
 
-    // ── Tab 1: Gráficas/Productos ──
+    // -- Tab 1: Gráficas/Productos --
     @FXML private TableView<FilaReporte>            tablaReporte;
     @FXML private TableColumn<FilaReporte, String>  colTablaProducto;
     @FXML private TableColumn<FilaReporte, Integer> colTablaCantidad;
@@ -79,9 +79,9 @@ public class ReporteController {
     @FXML private ComboBox<String>  cbMesSel;
     @FXML private ComboBox<Integer> cbAnioSel;
     @FXML private BarChart<String, Number> chartVentas;
-    // graficaProductos eliminado — no existe en el FXML actual
+    // graficaProductos eliminado - no existe en el FXML actual
 
-    // ── Tab 2: Ventas detalladas (dentro de Tab → inyección lazy) ──
+    // -- Tab 2: Ventas detalladas (dentro de Tab -> inyección lazy) --
     @FXML private TableView<FilaVenta>           tablaVentas;
     @FXML private TableColumn<FilaVenta, String> colVentaFolio;
     @FXML private TableColumn<FilaVenta, String> colVentaFecha;
@@ -95,7 +95,7 @@ public class ReporteController {
     @FXML private TableColumn<FilaVenta, String> colVentaAccion;
     @FXML private Label lblResumenVentas;
 
-    // ── Estilos filtros rápidos — paleta azul ──
+    // -- Estilos filtros rápidos - paleta azul --
     private static final String ESTILO_BTN_ACTIVO =
             "-fx-background-color: #1a6fa8; -fx-text-fill: white; " +
                     "-fx-border-color: #1a6fa8; -fx-border-width: 1; " +
@@ -110,7 +110,7 @@ public class ReporteController {
                     "-fx-padding: 5 18; -fx-cursor: hand; " +
                     "-fx-font-size: 11px; -fx-font-weight: bold;";
 
-    // ── Estado interno ──
+    // -- Estado interno --
     private String ultimaRutaPDF = null;
     private Map<String, Integer> ultimoTop = null;
     private List<Ticket> ultimosTickets = null;
@@ -120,7 +120,7 @@ public class ReporteController {
     private final ReportePDFService pdf     = new ReportePDFService();
     private final DecimalFormat     df      = new DecimalFormat("#,##0.00");
 
-    // ── Reportes avanzados ────────────────────────────────────────────────
+    // -- Reportes avanzados ------------------------------------------------
     private final ReporteAvanzadoDAO daoAvanzado = new ReporteAvanzadoDAO();
 
     // Tab Cajeros
@@ -172,9 +172,9 @@ public class ReporteController {
     @FXML private Label lblVentasBrutas;
     @FXML private Label lblTotalDevoluciones;
     @FXML private Label lblVentasNetas;
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // INIT
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     @FXML
     public void initialize() {
         cargarDatosUsuario();
@@ -243,9 +243,9 @@ public class ReporteController {
         lblAvatarIniciales.setText(iniciales);
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // CONFIGURAR TABLA DE VENTAS DETALLADAS
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     private void configurarTablaVentas() {
         colVentaFolio    .setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFolio()));
         colVentaFecha    .setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFecha()));
@@ -257,7 +257,7 @@ public class ReporteController {
         colVentaTotal    .setCellValueFactory(c -> new SimpleStringProperty("$" + df.format(c.getValue().getTotal())));
         colVentaEstado   .setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstado()));
 
-        // Columna Estado — color según valor
+        // Columna Estado - color según valor
         colVentaEstado.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -281,7 +281,7 @@ public class ReporteController {
             }
         });
 
-        // Columna Detalle — botón "Ver"
+        // Columna Detalle - botón "Ver"
         colVentaAccion.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Ver");
             {
@@ -308,9 +308,9 @@ public class ReporteController {
         });
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // GENERAR REPORTE (mismo flujo, ahora también llena Tab 2)
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     @FXML
     private void generarReporte() {
         try {
@@ -355,18 +355,18 @@ public class ReporteController {
             // Ventas detalladas (Tab 2)
             cargarVentasDetalladas(inicio, fin);
 
-            alerta("Vista previa generada ✔");
+            alerta("Vista previa generada OK");
             cargarReportesAvanzados();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             alerta("Error al generar vista previa");
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // CARGAR VENTAS DETALLADAS — SQL defensivo
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
+    // CARGAR VENTAS DETALLADAS - SQL defensivo
+    // -------------------------------------------------------------
     private void cargarVentasDetalladas(LocalDateTime inicio, LocalDateTime fin) {
         ultimasFilasVenta.clear();
 
@@ -431,7 +431,7 @@ public class ReporteController {
                 lblResumenVentas.setText(filas.size() + " venta(s) encontradas");
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", ex);
             alerta("Error al cargar ventas detalladas:\n" + ex.getMessage());
         }
     }
@@ -451,7 +451,7 @@ public class ReporteController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // MODAL DETALLE DE VENTA
     // ─────────────────────────────────────────────────────────────
     private String formatearMetodoPago(String metodo) {
@@ -481,11 +481,11 @@ public class ReporteController {
 
     private void mostrarDetalleVenta(FilaVenta fila) {
         Stage stage = new Stage();
-        stage.setTitle("Detalle — Venta " + fila.getFolio());
+        stage.setTitle("Detalle - Venta " + fila.getFolio());
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
 
-        // ── Encabezado ──
+        // -- Encabezado --
         VBox header = new VBox(4);
         header.setStyle("-fx-background-color: #1a6fa8; -fx-padding: 16 20;");
         Label lblTitulo = new Label("Detalle de Venta " + fila.getFolio());
@@ -495,7 +495,7 @@ public class ReporteController {
         lblSub.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px;");
         header.getChildren().addAll(lblTitulo, lblSub);
 
-        // ── Info general ──
+        // -- Info general --
         HBox infoRow = new HBox(16);
         infoRow.setStyle("-fx-padding: 12 20 8 20; -fx-background-color: #f0f7ff;");
         infoRow.getChildren().addAll(
@@ -506,7 +506,7 @@ public class ReporteController {
                 infoChip("Total",        "$" + df.format(fila.getTotal()))
         );
 
-        // ── Tabla de productos ──
+        // -- Tabla de productos --
         TableView<Map<String, Object>> tablaDetalle = new TableView<>();
         tablaDetalle.getStyleClass().add("report-table");
         tablaDetalle.setPrefHeight(260);
@@ -548,9 +548,9 @@ public class ReporteController {
                 rows.add(m);
             }
             tablaDetalle.setItems(rows);
-        } catch (Exception ex) { ex.printStackTrace(); }
+        } catch (Exception ex) { org.example.servicio.LogService.error("Error no controlado", ex); }
 
-        // ── Footer totales ──
+        // -- Footer totales --
         VBox footer = new VBox(6);
         footer.setStyle("-fx-padding: 10 20 16 20; -fx-background-color: #f0f7ff;" +
                 "-fx-border-color: #d0e4f4 transparent transparent transparent; -fx-border-width: 1;");
@@ -596,7 +596,7 @@ public class ReporteController {
                 };
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         double tasa = tasaFiscalPredeterminada();
         double subtotal = tasa > 0 ? totalFallback / (1 + tasa) : totalFallback;
@@ -641,9 +641,9 @@ public class ReporteController {
         return h;
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // EXPORTAR CSV
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     @FXML
     private void exportarVentasCSV() {
         if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.REPORTES_EXPORTAR_PDF)) {
@@ -669,16 +669,16 @@ public class ReporteController {
                         f.getCliente(), f.getCajero(), f.getMetodoPago(),
                         f.getTotalArticulos(), f.getTotal(), f.getEstado());
             }
-            alerta("CSV exportado ✔  →  " + destino.getName());
+            alerta("CSV exportado OK  ->  " + destino.getName());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", ex);
             alerta("Error al exportar CSV: " + ex.getMessage());
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // GUARDAR PDF (sin cambios)
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     @FXML
     private void guardarPDF() {
         if (!org.example.servicio.PermisoService.tienePermiso(org.example.servicio.PermisoService.REPORTES_EXPORTAR_PDF)) {
@@ -716,8 +716,8 @@ public class ReporteController {
                 case "Productos más vendidos"   -> pdf.generarTopProductos(top, ultimaRutaPDF);
                 case "Bajo stock"              -> pdf.generarBajoStock(service.obtenerBajoStock(), ultimaRutaPDF);
             }
-            alerta("PDF guardado ✔  →  " + archivoDestino.getName());
-        } catch (Exception e) { e.printStackTrace(); alerta("Error al guardar PDF"); }
+            alerta("PDF guardado OK  ->  " + archivoDestino.getName());
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); alerta("Error al guardar PDF"); }
     }
 
     @FXML
@@ -725,12 +725,12 @@ public class ReporteController {
         try {
             if (ultimaRutaPDF == null) { alerta("Primero genera un PDF"); return; }
             Desktop.getDesktop().open(new File(ultimaRutaPDF));
-        } catch (Exception e) { e.printStackTrace(); alerta("No se pudo abrir el PDF"); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); alerta("No se pudo abrir el PDF"); }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // GRÁFICAS — Tab 1 (sin cambios de lógica, colores actualizados)
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
+    // GRÁFICAS - Tab 1 (sin cambios de lógica, colores actualizados)
+    // -------------------------------------------------------------
     @FXML
     private void verGraficaCantidad() {
         if (ultimoTop == null) { alerta("Genera un reporte primero"); return; }
@@ -817,7 +817,7 @@ public class ReporteController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // FILTROS RÁPIDOS (lógica sin cambios)
     // ─────────────────────────────────────────────────────────────
     private void prepararGraficaProductos(String titulo, String ejeY, boolean moneda) {
@@ -902,9 +902,9 @@ public class ReporteController {
         cargarReportesAvanzados();
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // NAVEGACIÓN
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     @FXML private void irADashboard()    { navegarConPermiso(org.example.servicio.PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
     @FXML private void irAVentas()       { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
     @FXML private void irAInventario()   { navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_INVENTARIO, "/org/example/vista/Inventario.fxml"); }
@@ -926,27 +926,18 @@ public class ReporteController {
             ps.setString(3, "Cierre de sesión: " + nombre);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
     @FXML private void irAConfiguracion(){ navegarConPermiso(org.example.servicio.PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void cambiarEscena(String fxmlPath) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) lblTotal.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (IOException e) { e.printStackTrace(); }
+        org.example.servicio.NavigationService.cambiarEscena(lblTotal, fxmlPath);
     }
 
     private void navegarConPermiso(org.example.servicio.PermisoService.Accion accion, String fxmlPath) {
         if (!org.example.servicio.PermisoService.puede(accion)) {
-            Alert alerta = new Alert(Alert.AlertType.WARNING);
-            alerta.setTitle("Acceso denegado");
-            alerta.setHeaderText(null);
-            alerta.setContentText("No tienes permiso para acceder a este modulo.");
-            alerta.showAndWait();
+            org.example.servicio.DialogService.advertencia(lblTotal, "Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         cambiarEscena(fxmlPath);
@@ -954,28 +945,23 @@ public class ReporteController {
 
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                cambiarEscena("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(lblTotal);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(lblTotal);
     }
 
     private void alerta(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        org.example.servicio.DialogService.info(lblTotal, "Reportes", msg);
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
     // MODELOS INTERNOS
-    // ─────────────────────────────────────────────────────────────
+    // -------------------------------------------------------------
 
-    /** Fila para Tab 1 (productos) — sin cambios */
+    /** Fila para Tab 1 (productos) - sin cambios */
     public static class FilaReporte {
         private final SimpleStringProperty  producto;
         private final SimpleIntegerProperty cantidad;
@@ -1030,7 +1016,7 @@ public class ReporteController {
         public String getEstado()         { return estado; }
         public int    getIdVenta()        { return idVenta; }
     }
-    // ── Cargar reportes avanzados ─────────────────────────────────────────
+    // -- Cargar reportes avanzados -----------------------------------------
 
     private void cargarReportesAvanzados() {
         if (dateInicio.getValue() == null || dateFin.getValue() == null) return;
@@ -1194,7 +1180,7 @@ public class ReporteController {
         if (col == null) return;
         col.setCellValueFactory(d -> {
             try { return new SimpleStringProperty(extractor.apply(d.getValue())); }
-            catch (Exception e) { return new SimpleStringProperty("—"); }
+            catch (Exception e) { return new SimpleStringProperty("-"); }
         });
     }
 }

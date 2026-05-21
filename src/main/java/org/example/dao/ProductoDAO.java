@@ -20,7 +20,7 @@ public class ProductoDAO {
             ps.setInt(4, p.getStock());
             ps.setInt(5, p.getStockMinimo());
             ps.setInt(6, p.getIdCategoria());
-            // null si no lleva código — MySQL lo guarda como NULL
+            // null si no lleva código - MySQL lo guarda como NULL
             if (p.getCodigoBarras() != null && !p.getCodigoBarras().isBlank()) {
                 ps.setString(7, p.getCodigoBarras());
             } else {
@@ -31,7 +31,7 @@ public class ProductoDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class ProductoDAO {
             ps.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
@@ -75,7 +75,7 @@ public class ProductoDAO {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
         return 0;
     }
@@ -83,40 +83,64 @@ public class ProductoDAO {
     public List<Producto> obtenerProductos() {
         List<Producto> lista = new ArrayList<>();
 
-        String sql = """
-            SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.costo,
-                   p.stock, p.stock_minimo, p.id_categoria,
-                   c.nombre AS categoria, p.activo
-            FROM productos p
-            INNER JOIN categorias c ON p.id_categoria = c.id_categoria
-            WHERE p.activo = 1
-        """;
+        try (Connection conn = ConexionDB.getConexion()) {
+            boolean incluyeProveedor = tablaExiste(conn, "producto_proveedor");
+            String sql = incluyeProveedor ? """
+                SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.costo,
+                       p.stock, p.stock_minimo, p.id_categoria,
+                       c.nombre AS categoria, p.activo,
+                       COALESCE(pr.nombre, '') AS proveedor_principal
+                FROM productos p
+                INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                LEFT JOIN (
+                    SELECT id_producto, MIN(id_proveedor) AS id_proveedor
+                    FROM producto_proveedor
+                    WHERE proveedor_principal = 1 AND activo = 1
+                    GROUP BY id_producto
+                ) pp ON pp.id_producto = p.id_producto
+                LEFT JOIN proveedores pr ON pr.id_proveedor = pp.id_proveedor
+                WHERE p.activo = 1
+            """ : """
+                SELECT p.id_producto, p.nombre, p.codigo_barras, p.precio, p.costo,
+                       p.stock, p.stock_minimo, p.id_categoria,
+                       c.nombre AS categoria, p.activo
+                FROM productos p
+                INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                WHERE p.activo = 1
+            """;
 
-        try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Producto p = new Producto(
-                        rs.getInt("id_producto"),
-                        rs.getString("nombre"),
-                        rs.getDouble("precio"),
-                        rs.getDouble("costo"),
-                        rs.getInt("stock"),
-                        rs.getInt("stock_minimo"),
-                        rs.getInt("id_categoria"),
-                        rs.getBoolean("activo")
-                );
-                p.setCodigoBarras(rs.getString("codigo_barras")); // puede ser null
-                p.setCategoria(rs.getString("categoria"));
-                lista.add(p);
+                while (rs.next()) {
+                    Producto p = new Producto(
+                            rs.getInt("id_producto"),
+                            rs.getString("nombre"),
+                            rs.getDouble("precio"),
+                            rs.getDouble("costo"),
+                            rs.getInt("stock"),
+                            rs.getInt("stock_minimo"),
+                            rs.getInt("id_categoria"),
+                            rs.getBoolean("activo")
+                    );
+                    p.setCodigoBarras(rs.getString("codigo_barras")); // puede ser null
+                    p.setCategoria(rs.getString("categoria"));
+                    p.setProveedorPrincipal(incluyeProveedor ? rs.getString("proveedor_principal") : "");
+                    lista.add(p);
+                }
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
 
         return lista;
+    }
+
+    private boolean tablaExiste(Connection conn, String tabla) throws SQLException {
+        try (ResultSet rs = conn.getMetaData().getTables(conn.getCatalog(), null, tabla, new String[]{"TABLE"})) {
+            return rs.next();
+        }
     }
 
     public boolean ajustarStock(Connection conn, int idProducto, int cantidad) throws SQLException {
@@ -135,7 +159,7 @@ public class ProductoDAO {
                 throw new IllegalStateException("Stock insuficiente o producto no encontrado.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 }

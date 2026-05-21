@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS factura_detalle (
     cantidad DECIMAL(12,3) NOT NULL DEFAULT 0,
     precio_unitario DECIMAL(12,2) NOT NULL DEFAULT 0,
     subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    descuento DECIMAL(12,2) NOT NULL DEFAULT 0,
     impuesto_clave VARCHAR(40) DEFAULT NULL,
     impuesto_tipo VARCHAR(30) DEFAULT NULL,
     impuesto_tasa DECIMAL(9,6) NOT NULL DEFAULT 0,
@@ -169,5 +170,7 @@ CALL add_column_if_missing('detalle_venta', 'subtotal_sin_impuesto', 'DECIMAL(12
 CALL add_column_if_missing('detalle_venta', 'descuento', 'DECIMAL(12,2) NOT NULL DEFAULT 0');
 CALL add_column_if_missing('detalle_venta', 'impuesto_importe', 'DECIMAL(12,2) NOT NULL DEFAULT 0');
 CALL add_column_if_missing('detalle_venta', 'total_linea', 'DECIMAL(12,2) NOT NULL DEFAULT 0');
+
+CALL add_column_if_missing('factura_detalle', 'descuento', 'DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER subtotal');
 
 DROP PROCEDURE add_column_if_missing;

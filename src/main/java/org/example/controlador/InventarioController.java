@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 public class InventarioController {
 
-    // ── Tabla ──────────────────────────────────────────────────────────────────
+    // -- Tabla ------------------------------------------------------------------
     @FXML private TableView<Producto>        tablaProductos;
 
     @FXML private TableColumn<Producto, String>  colSku;
@@ -46,11 +46,12 @@ public class InventarioController {
     @FXML private TableColumn<Producto, String>  colNombre;
     @FXML private TableColumn<Producto, Double>  colPrecio;
     @FXML private TableColumn<Producto, String>  colCategoria;
+    @FXML private TableColumn<Producto, String>  colProveedor;
     @FXML private TableColumn<Producto, Integer> colStock;
     @FXML private TableColumn<Producto, String>  colEstado;
     @FXML private TableColumn<Producto, Void>    colAcciones;
 
-    // ── Cards métricas ─────────────────────────────────────────────────────────
+    // -- Cards métricas ---------------------------------------------------------
     @FXML private Label lblTotalProductos;
     @FXML private Label lblStockBajo;
     @FXML private Label lblAgotados;           // NUEVA
@@ -58,12 +59,12 @@ public class InventarioController {
     @FXML private Label lblCategoriaDominante; // NUEVA
     @FXML private Label lblCategoriaDominanteCount; // NUEVA
 
-    // ── Filtros ────────────────────────────────────────────────────────────────
+    // -- Filtros ----------------------------------------------------------------
     @FXML private TextField        txtBuscar;
     @FXML private ComboBox<String> cbCategoria;
     @FXML private ComboBox<String> cbEstado;
 
-    // ── Paginación ─────────────────────────────────────────────────────────────
+    // -- Paginación -------------------------------------------------------------
     @FXML private Label               lblConteo;
     @FXML private Label               lblPagina;
     @FXML private ComboBox<Integer>   cbPorPagina;
@@ -72,18 +73,18 @@ public class InventarioController {
     @FXML private Button              btnSiguiente;
     @FXML private Button              btnUltima;
 
-    // ── Toast ──────────────────────────────────────────────────────────────────
+    // -- Toast ------------------------------------------------------------------
     @FXML private HBox    toastBox;
     @FXML private Label   lblToast;
     @FXML private FontIcon toastIcon;
 
-    // ── Sidebar ────────────────────────────────────────────────────────────────
+    // -- Sidebar ----------------------------------------------------------------
     @FXML private Label lblNombreUsuario;
     @FXML private Label lblRolUsuario;
     @FXML private Label lblAvatarIniciales;
     @FXML private Label lblHora;
 
-    // ── Estado interno ─────────────────────────────────────────────────────────
+    // -- Estado interno ---------------------------------------------------------
     private ObservableList<Producto>  listaProductos  = FXCollections.observableArrayList();
     private FilteredList<Producto>    filtro;
 
@@ -101,12 +102,12 @@ public class InventarioController {
     private final ChangeListener<String>  filtroCategoriaListener = (o, a, b) -> { paginaIdx = 0; aplicarFiltros(); };
     private final ChangeListener<String>  filtroEstadoListener    = (o, a, b) -> { paginaIdx = 0; aplicarFiltros(); };
 
-    // ── Caché de imágenes (ruta → Image) para no recargar en cada scroll ──────
+    // -- Caché de imágenes (ruta -> Image) para no recargar en cada scroll ------
 
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  INITIALIZE
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     @FXML
     public void initialize() {
 
@@ -142,9 +143,9 @@ public class InventarioController {
         cbEstado.valueProperty().addListener(filtroEstadoListener);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  CONFIGURAR COLUMNAS
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     private void configurarColumnas() {
         if (tablaProductos != null && !tablaProductos.getStyleClass().contains("report-table")) {
             tablaProductos.getStyleClass().add("report-table");
@@ -152,10 +153,10 @@ public class InventarioController {
 
 
 
-        // ── SKU ───────────────────────────────────────────────────────────────
+        // -- SKU ---------------------------------------------------------------
         colSku.setCellValueFactory(c -> {
             Producto p = c.getValue();
-            // Prioridad: código de barras real → SKU generado
+            // Prioridad: código de barras real -> SKU generado
             if (p.getCodigoBarras() != null && !p.getCodigoBarras().isBlank()) {
                 return new SimpleStringProperty(p.getCodigoBarras());
             }
@@ -175,7 +176,7 @@ public class InventarioController {
             }
         });
 
-        // ── ID ────────────────────────────────────────────────────────────────
+        // -- ID ----------------------------------------------------------------
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
         colId.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer id, boolean empty) {
@@ -187,7 +188,7 @@ public class InventarioController {
             }
         });
 
-        // ── Nombre ────────────────────────────────────────────────────────────
+        // -- Nombre ------------------------------------------------------------
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colNombre.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String nombre, boolean empty) {
@@ -200,7 +201,7 @@ public class InventarioController {
             }
         });
 
-        // ── Categoría (badge) ─────────────────────────────────────────────────
+        // -- Categoría (badge) -------------------------------------------------
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colCategoria.setCellFactory(col -> new TableCell<>() {
             private final Label badge = new Label();
@@ -218,7 +219,24 @@ public class InventarioController {
             }
         });
 
-        // ── Precio ────────────────────────────────────────────────────────────
+        colProveedor.setCellValueFactory(new PropertyValueFactory<>("proveedorPrincipal"));
+        colProveedor.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String proveedor, boolean empty) {
+                super.updateItem(proveedor, empty);
+                setAlignment(Pos.CENTER_LEFT);
+                if (empty) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                boolean sinProveedor = proveedor == null || proveedor.isBlank();
+                setText(sinProveedor ? "Sin proveedor" : proveedor);
+                setStyle("-fx-text-fill: " + (sinProveedor ? "#9ab8d4" : "#0d3d5e") + "; " +
+                        "-fx-font-size: 11px; -fx-padding: 0 6;");
+            }
+        });
+
+        // -- Precio ------------------------------------------------------------
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colPrecio.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double precio, boolean empty) {
@@ -231,7 +249,7 @@ public class InventarioController {
             }
         });
 
-        // ── Stock con barra visual ────────────────────────────────────────────
+        // -- Stock con barra visual --------------------------------------------
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
         colStock.setCellFactory(col -> new TableCell<>() {
             private final ProgressBar barra  = new ProgressBar(0);
@@ -265,7 +283,7 @@ public class InventarioController {
             }
         });
 
-        // ── Estado (badge) ────────────────────────────────────────────────────
+        // -- Estado (badge) ----------------------------------------------------
         colEstado.setCellValueFactory(c ->
                 new SimpleStringProperty(
                         c.getValue().getStock() == 0 ? "Agotado"
@@ -278,19 +296,19 @@ public class InventarioController {
                 if (empty || estado == null) { setGraphic(null); return; }
                 switch (estado) {
                     case "Agotado" -> {
-                        badge.setText("✕ Agotado");
+                        badge.setText("X Agotado");
                         badge.setStyle("-fx-background-color: #fde8e8; -fx-text-fill: #a83232; " +
                                 "-fx-background-radius: 20; -fx-padding: 4 10; " +
                                 "-fx-font-size: 11px; -fx-font-weight: bold;");
                     }
                     case "Bajo" -> {
-                        badge.setText("⚠ Bajo Stock");
-                        badge.setStyle("-fx-background-color: #fff3cd; -fx-text-fill: #8a6020; " +
+                        badge.setText("Bajo stock");
+                        badge.setStyle("-fx-background-color: #e8f3fb; -fx-text-fill: #1a6fa8; " +
                                 "-fx-background-radius: 20; -fx-padding: 4 10; " +
                                 "-fx-font-size: 11px; -fx-font-weight: bold;");
                     }
                     default -> {
-                        badge.setText("✓ Normal");
+                        badge.setText("OK Normal");
                         badge.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #1a5c2e; " +
                                 "-fx-background-radius: 20; -fx-padding: 4 10; " +
                                 "-fx-font-size: 11px; -fx-font-weight: bold;");
@@ -300,11 +318,11 @@ public class InventarioController {
             }
         });
 
-        // ── Acciones: botón Editar + menú ⋮ ──────────────────────────────────
+        // -- Acciones: botón Editar + menú ... ----------------------------------
         colAcciones.setCellFactory(col -> new TableCell<>() {
 
             private final Button btnEditar = new Button("Editar");
-            private final Button btnMenu   = new Button("⋮");
+            private final Button btnMenu   = new Button("...");
             private final HBox   caja      = new HBox(6, btnEditar, btnMenu);
 
             {
@@ -344,7 +362,7 @@ public class InventarioController {
             }
         });
 
-        // ── Hover en filas ────────────────────────────────────────────────────
+        // -- Hover en filas ----------------------------------------------------
         tablaProductos.setRowFactory(tv -> {
             TableRow<Producto> row = new TableRow<>();
             row.hoverProperty().addListener((obs, wasHover, isHover) -> {
@@ -362,16 +380,16 @@ public class InventarioController {
         });
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-    //  MENÚ CONTEXTUAL (⋮)
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
+    //  MENÚ CONTEXTUAL (...)
+    // ----------------------------------------------------------------------------
     private void mostrarMenuContextual(Producto p, Button anchor) {
         ContextMenu menu = new ContextMenu();
         menu.setStyle("-fx-background-radius: 10; -fx-effect: dropshadow(gaussian, #00000030, 12, 0, 0, 4);");
 
-        MenuItem itemStock     = new MenuItem("⇅  Ajustar stock");
-        MenuItem itemHistorial = new MenuItem("📋  Ver historial");
-        MenuItem itemEliminar  = new MenuItem("🗑  Eliminar producto");
+        MenuItem itemStock     = new MenuItem("Ajustar stock");
+        MenuItem itemHistorial = new MenuItem("Ver historial");
+        MenuItem itemEliminar  = new MenuItem("Eliminar producto");
 
         itemStock.setStyle("-fx-font-size: 12px;");
         itemHistorial.setStyle("-fx-font-size: 12px;");
@@ -385,9 +403,9 @@ public class InventarioController {
         menu.show(anchor, javafx.geometry.Side.BOTTOM, 0, 4);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  TOAST NOTIFICATION
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     private Timeline toastTimeline;
 
     /**
@@ -426,9 +444,9 @@ public class InventarioController {
         toastTimeline.play();
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  PAGINACIÓN
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     private void refrescarPagina() {
         if (listaOrdenada == null) return;
 
@@ -443,7 +461,7 @@ public class InventarioController {
 
         paginaActual.setAll(listaOrdenada.subList(desde, hasta));
 
-        lblConteo.setText("Mostrando " + (total == 0 ? 0 : desde + 1) + "–" + hasta + " de " + total + " productos");
+        lblConteo.setText("Mostrando " + (total == 0 ? 0 : desde + 1) + "-" + hasta + " de " + total + " productos");
         lblPagina.setText("Página " + (paginaIdx + 1) + " de " + paginas);
 
         btnPrimera.setDisable(paginaIdx == 0);
@@ -462,9 +480,9 @@ public class InventarioController {
         refrescarPagina();
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  CARGAR PRODUCTOS
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     private void cargarProductos() {
         listaProductos.setAll(dao.obtenerProductos());
 
@@ -505,14 +523,14 @@ public class InventarioController {
             lblCategoriaDominante.setText(top.getKey());
             lblCategoriaDominanteCount.setText(top.getValue() + " productos");
         } else {
-            lblCategoriaDominante.setText("—");
+            lblCategoriaDominante.setText("-");
             lblCategoriaDominanteCount.setText("Sin datos");
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  FILTROS
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     private void cargarFiltros() {
         cbCategoria.getItems().clear();
         new CategoriaDAO().obtenerCategorias().forEach(c -> cbCategoria.getItems().add(c.getNombre()));
@@ -566,9 +584,9 @@ public class InventarioController {
         aplicarFiltros();
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  ACCIONES DE FILA
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     @FXML
     private void abrirFormularioNuevo() {
         if (!PermisoService.tienePermiso(PermisoService.PRODUCTOS_CREAR)) {
@@ -591,7 +609,7 @@ public class InventarioController {
             cargarFiltros();
             toast("Producto agregado correctamente", "success");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             toast("Error al abrir formulario", "error");
         }
     }
@@ -613,12 +631,12 @@ public class InventarioController {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
-            stage.setTitle("Editar Producto — " + p.getNombre());
+            stage.setTitle("Editar Producto - " + p.getNombre());
             stage.showAndWait();
             cargarProductos();
             toast("Producto actualizado", "success");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             toast("Error al abrir editor", "error");
         }
     }
@@ -641,14 +659,14 @@ public class InventarioController {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
-            stage.setTitle("Ajustar Stock — " + p.getNombre());
+            stage.setTitle("Ajustar Stock - " + p.getNombre());
             stage.showAndWait();
             if (ctrl.isAjusteConfirmado()) {
                 cargarProductos();
                 toast("Stock actualizado para " + p.getNombre(), "success");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             toast("Error al ajustar stock", "error");
         }
     }
@@ -672,7 +690,7 @@ public class InventarioController {
             org.example.servicio.VentanaEmergenteService.preparar(stage);
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Historial — " + p.getNombre());
+            stage.setTitle("Historial - " + p.getNombre());
             stage.showAndWait();
         } catch (Exception e) {
             // Módulo aún no implementado; mostrar toast informativo
@@ -686,15 +704,15 @@ public class InventarioController {
                 "Eliminar producto " + p.getNombre())) {
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirmar eliminación");
-        confirm.setHeaderText("¿Eliminar \"" + p.getNombre() + "\"?");
-        confirm.setContentText("Esta acción no se puede deshacer.");
-        confirm.getButtonTypes().setAll(
-                new ButtonType("Eliminar", ButtonBar.ButtonData.OK_DONE),
-                new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE)
-        );
-        confirm.showAndWait().ifPresent(resp -> {
+        ButtonType btnEliminar = new ButtonType("Eliminar", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        org.example.servicio.DialogService.confirmar(
+                tablaProductos,
+                "Confirmar eliminación",
+                "Eliminar \"" + p.getNombre() + "\"? Esta acción no se puede deshacer.",
+                btnEliminar,
+                btnCancelar
+        ).ifPresent(resp -> {
             if (resp.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 dao.eliminarLogico(p.getIdProducto());
                 org.example.servicio.AuditoriaService.get().registrar(
@@ -708,21 +726,22 @@ public class InventarioController {
         });
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  EXPORTAR PDF
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     @FXML
     private void exportarPDF() {
-        Alert opcion = new Alert(Alert.AlertType.CONFIRMATION);
-        opcion.setTitle("Exportar inventario");
-        opcion.setHeaderText("¿Qué productos deseas exportar?");
-        opcion.setContentText("Selecciona una opción:");
         ButtonType btnFiltrado = new ButtonType("Solo vista actual");
         ButtonType btnCompleto = new ButtonType("Todo el inventario");
         ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        opcion.getButtonTypes().setAll(btnFiltrado, btnCompleto, btnCancelar);
-
-        Optional<ButtonType> respuesta = opcion.showAndWait();
+        Optional<ButtonType> respuesta = org.example.servicio.DialogService.confirmar(
+                tablaProductos,
+                "Exportar inventario",
+                "Selecciona qué productos deseas exportar.",
+                btnFiltrado,
+                btnCompleto,
+                btnCancelar
+        );
         if (respuesta.isEmpty() || respuesta.get() == btnCancelar) return;
 
         List<Producto> productosAExportar = respuesta.get() == btnFiltrado
@@ -742,14 +761,14 @@ public class InventarioController {
             new ExportarInventarioservice().exportar(productosAExportar, archivo.getAbsolutePath());
             toast("PDF exportado: " + archivo.getName(), "success");
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
             toast("Error al exportar PDF", "error");
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  NAVEGACIÓN
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     @FXML private void irADashboard()     { navegarConPermiso(PermisoService.Accion.VER_REPORTES, "/org/example/vista/MenuPrincipal.fxml"); }
     @FXML private void irAVentas()        { navegarConPermiso(PermisoService.Accion.ACCEDER_VENTAS, "/org/example/vista/Ventas.fxml"); }
     @FXML private void irAEmpleados()     { navegarConPermiso(PermisoService.Accion.GESTIONAR_EMPLEADOS, "/org/example/vista/Empleados.fxml"); }
@@ -760,48 +779,32 @@ public class InventarioController {
     @FXML private void irAConfiguracion() { navegarConPermiso(PermisoService.Accion.ACCEDER_CONFIGURACION, "/org/example/vista/Configuracion.fxml"); }
 
     private void cambiarEscena(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            MarcaService.aplicar(root);
-            Stage stage = (Stage) tablaProductos.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        org.example.servicio.NavigationService.cambiarEscena(tablaProductos, fxmlPath);
     }
 
     private void navegarConPermiso(PermisoService.Accion accion, String fxmlPath) {
         if (!PermisoService.puede(accion)) {
-            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este modulo.");
+            mostrarAlerta("Acceso denegado", "No tienes permiso para acceder a este módulo.");
             return;
         }
         cambiarEscena(fxmlPath);
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.WARNING);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        org.example.servicio.DialogService.advertencia(tablaProductos, titulo, mensaje);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     //  CERRAR SESIÓN
-    // ────────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------
     @FXML
     public void btnCerrar() {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Cambiar sesion"); a.setHeaderText(null);
-        a.setContentText("Seguro que deseas cambiar de sesion?");
-        a.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.OK) {
-                registrarLogout();
-                org.example.modelo.SesionUsuario.cerrarSesion();
-                cambiarEscena("/org/example/vista/Login.fxml");
-            }
-        });
+        org.example.servicio.NavigationService.cambiarSesion(tablaProductos);
+    }
+
+    @FXML
+    public void salirAplicacion() {
+        org.example.servicio.AppExitService.salir(tablaProductos);
     }
 
     private void registrarLogout() {
@@ -813,6 +816,6 @@ public class InventarioController {
             ps.setInt(1, id); ps.setInt(2, id);
             ps.setString(3, "Cierre de sesión: " + SesionUsuario.getInstancia().getNombre());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { org.example.servicio.LogService.error("Error no controlado", e); }
     }
 }

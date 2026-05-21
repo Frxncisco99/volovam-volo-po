@@ -32,7 +32,7 @@ public class AuditoriaService {
             ps.executeUpdate();
             registrarDetalle(idUsuario, null, accion, tabla, tabla, idRegistro, detalle, null, null);
         } catch (Exception e) {
-            e.printStackTrace(); // auditoría nunca debe romper el flujo principal
+            org.example.servicio.LogService.error("Error no controlado", e); // auditoría nunca debe romper el flujo principal
         }
     }
 
@@ -61,7 +61,7 @@ public class AuditoriaService {
                 ps.executeUpdate();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            org.example.servicio.LogService.error("Error no controlado", e);
         }
     }
 
