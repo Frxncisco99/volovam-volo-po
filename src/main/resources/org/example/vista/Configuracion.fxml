@@ -9,7 +9,7 @@
             fx:controller="org.example.controlador.ConfiguracionController">
 
     <left>
-        <VBox prefWidth="232" styleClass="app-sidebar">
+        <VBox prefWidth="230" styleClass="app-sidebar">
             <VBox spacing="4" styleClass="brand-block">
                 <Label fx:id="lblMarcaNegocio" text="Volovan Volo" styleClass="sidebar-brand"/>
                 <Label text="SISTEMA DE PUNTO DE VENTA" styleClass="sidebar-subtitle"/>
@@ -26,26 +26,26 @@
             <VBox spacing="4" styleClass="main-menu" VBox.vgrow="ALWAYS">
                 <Label text="PRINCIPAL" styleClass="sidebar-section"/>
                 <Button text="Dashboard" onAction="#irADashboard" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-tachometer-alt" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Ventas / Caja" onAction="#irAVentas" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-shopping-cart" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Inventario" onAction="#irAInventario" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-box" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-box" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Label text="GESTIÓN" styleClass="sidebar-section"/>
                 <Button text="Empleados" onAction="#irAEmpleados" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-users" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-users" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Clientes" onAction="#irAClientes" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Reportes" onAction="#irAReportes" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-chart-bar" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Corte de Caja" onAction="#irACorteCaja" graphicTextGap="12" styleClass="sidebar-button">
-                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>
+                    <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="16" iconColor="rgba(255,255,255,0.8)"/></graphic>
                 </Button>
                 <Button text="Auditoría" onAction="#irAAuditoria" graphicTextGap="12" styleClass="sidebar-button">
                     <graphic><FontIcon iconLiteral="fas-shield-alt" iconSize="15" iconColor="rgba(255,255,255,0.78)"/></graphic>

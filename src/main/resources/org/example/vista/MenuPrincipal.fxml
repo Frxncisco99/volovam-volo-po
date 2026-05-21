@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -185,16 +187,20 @@
                             </HBox>
                             <Separator style="-fx-opacity: 0.15;" />
 
-                            <!-- Encabezado tabla -->
-                            <HBox style="-fx-padding: 0 6 4 6;">
-                                <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-min-width: 80;" text="HORA" />
-                                <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-min-width: 60;" text="FOLIO" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-text-fill: #6a96b8; -fx-font-size: 10px; -fx-font-weight: bold;" text="TOTAL" />
-                            </HBox>
-
-                            <VBox fx:id="listaUltimasVentas" spacing="3" />
-                            <Label fx:id="lblSinVentas" style="-fx-text-fill: #6a96b8; -fx-font-size: 12px; -fx-alignment: center; -fx-padding: 20 0;" text="Sin ventas hoy" />
+                            <TableView fx:id="tablaUltimasVentas" prefHeight="350" styleClass="dashboard-sales-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colUltFolio" prefWidth="72" text="Folio" />
+                                    <TableColumn fx:id="colUltFechaHora" prefWidth="136" text="Fecha / hora" />
+                                    <TableColumn fx:id="colUltTotal" prefWidth="92" text="Total" />
+                                    <TableColumn fx:id="colUltMetodo" prefWidth="96" text="Pago" />
+                                    <TableColumn fx:id="colUltCajero" prefWidth="128" text="Cajero" />
+                                    <TableColumn fx:id="colUltProductos" prefWidth="92" text="Productos" />
+                                    <TableColumn fx:id="colUltEstado" prefWidth="106" text="Estado" />
+                                </columns>
+                                <placeholder>
+                                    <Label fx:id="lblSinVentas" style="-fx-text-fill: #6a96b8; -fx-font-size: 12px; -fx-alignment: center; -fx-padding: 20 0;" text="Sin ventas hoy" />
+                                </placeholder>
+                            </TableView>
                         </VBox>
 
                         <!-- Panel derecho -->
